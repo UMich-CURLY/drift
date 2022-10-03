@@ -1,0 +1,35 @@
+---
+# options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+BasedOnStyle: Google
+IndentWidth: 2
+# No tabs
+UseTab: Never
+ColumnLimit: 80
+
+Language: Cpp
+# Pointer to the left
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+
+AlignAfterOpenBracket: Align
+AlignTrailingComments: true
+SpacesBeforeTrailingComments: 4
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: None
+Cpp11BracedListStyle: true
+IndentCaseLabels: true
+FixNamespaceComments: true
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: None
+KeepEmptyLinesAtTheStartOfBlocks: false
+ObjCSpaceAfterProperty: false
+ObjCSpaceBeforeProtocolList: false
+ReflowComments: true
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: false
+AlignOperands: true
+BreakBeforeBinaryOperators: true
+IncludeBlocks: Preserve
