@@ -19,7 +19,7 @@ using namespace std;
 
 Measurement::Measurement() {
   header.stamp = 0;
-  type_ = EMPTY;    // qaweS
+  type_ = EMPTY;
 }
 
 double Measurement::get_time() { return header.stamp; }
