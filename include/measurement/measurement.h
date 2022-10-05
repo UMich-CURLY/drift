@@ -14,40 +14,40 @@
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
-#include <Eigen/Dense>
+#include <iostream>
 #include <string>
-#include "core/InEKF.h"
-// #include "tf/transform_listener.h"
 
-enum MeasurementType {EMPTY, IMU, KINEMATICS, CONTACT, JOINT_STATE};
+//#include <Eigen/Dense>
+
+enum MeasurementType { EMPTY, IMU, KINEMATICS, CONTACT, JOINT_STATE };
 
 class Measurement {
-    struct MeasurementHeader {
-        uint64_t seq;
-        double stamp;
-        std::string frame_id;
-    };
+  struct MeasurementHeader {
+    uint64_t seq;
+    double stamp;
+    std::string frame_id;
+  };
 
-    public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        Measurement();
-        virtual ~Measurement() = default;
+ public:
+  // EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  Measurement();
+  virtual ~Measurement() = default;
 
-        MeasurementHeader header;
+  MeasurementHeader header;
 
-        double getTime();
-        MeasurementType getType();
+  double get_time();
+  MeasurementType get_type();
 
-        friend std::ostream& operator<<(std::ostream& os, const Measurement& m);  
+  friend std::ostream& operator<<(std::ostream& os, const Measurement& m);
 
-    protected:
-        MeasurementType type_;
+ protected:
+  MeasurementType type_;
 };
 
 struct MeasurementCompare {
   bool operator()(Measurement& lhs, Measurement& rhs) const {
-    return lhs.getTime() > rhs.getTime();
+    return lhs.get_time() > rhs.get_time();
   }
 };
 
-#endif 
+#endif
