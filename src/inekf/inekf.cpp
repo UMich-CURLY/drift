@@ -63,34 +63,34 @@ void InEKF::clear() {
 }
 
 // Returns the robot's current error type
-ErrorType InEKF::getErrorType() const { return error_type_; }
+ErrorType InEKF::get_error_type() const { return error_type_; }
 
 // Return robot's current state
-RobotState InEKF::getState() const { return state_; }
+RobotState InEKF::get_state() const { return state_; }
 
 // Sets the robot's current state
-void InEKF::setState(RobotState state) { state_ = state; }
+void InEKF::set_state(RobotState state) { state_ = state; }
 
 // Return noise params
-NoiseParams InEKF::getNoiseParams() const { return noise_params_; }
+NoiseParams InEKF::get_noise_params() const { return noise_params_; }
 
 // Sets the filter's noise parameters
-void InEKF::setNoiseParams(NoiseParams params) { noise_params_ = params; }
+void InEKF::set_noise_params(NoiseParams params) { noise_params_ = params; }
 
 // Return filter's prior (static) landmarks
-mapIntVector3d InEKF::getPriorLandmarks() const { return prior_landmarks_; }
+mapIntVector3d InEKF::get_prior_landmarks() const { return prior_landmarks_; }
 
 // Set the filter's prior (static) landmarks
-void InEKF::setPriorLandmarks(const mapIntVector3d& prior_landmarks) { prior_landmarks_ = prior_landmarks; }
+void InEKF::set_prior_landmarks(const mapIntVector3d& prior_landmarks) { prior_landmarks_ = prior_landmarks; }
 
 // Return filter's estimated landmarks
-map<int,int> InEKF::getEstimatedLandmarks() const { return estimated_landmarks_; }
+map<int,int> InEKF::get_estimated_landmarks() const { return estimated_landmarks_; }
 
 // Return filter's estimated landmarks
-map<int,int> InEKF::getEstimatedContactPositions() const { return estimated_contact_positions_; }
+map<int,int> InEKF::get_estimated_contact_positions() const { return estimated_contact_positions_; }
 
 // Set the filter's contact state
-void InEKF::setContacts(vector<pair<int,bool> > contacts) {
+void InEKF::set_contacts(vector<pair<int,bool> > contacts) {
     // Insert new measured contact states
     for (vector<pair<int,bool> >::iterator it=contacts.begin(); it!=contacts.end(); ++it) {
         pair<map<int,bool>::iterator,bool> ret = contacts_.insert(*it);
@@ -103,13 +103,13 @@ void InEKF::setContacts(vector<pair<int,bool> > contacts) {
 }
 
 // Return the filter's contact state
-std::map<int,bool> InEKF::getContacts() const { return contacts_; }
+std::map<int,bool> InEKF::get_contacts() const { return contacts_; }
 
 // Set the true magnetic field
-void InEKF::setMagneticField(Eigen::Vector3d& true_magnetic_field) { magnetic_field_ = true_magnetic_field; }
+void InEKF::set_magnetic_field(Eigen::Vector3d& true_magnetic_field) { magnetic_field_ = true_magnetic_field; }
 
 // Get the true magnetic field
-Eigen::Vector3d InEKF::getMagneticField() const { return magnetic_field_; }
+Eigen::Vector3d InEKF::get_magnetic_field() const { return magnetic_field_; }
 
 // Compute Analytical state transition matrix
 Eigen::MatrixXd InEKF::StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt) {
