@@ -34,9 +34,11 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 ##################################################
 #                 Create Library                 #
 ##################################################
-
+file(GLOB inekf
+  "${PROJECT_SOURCE_DIR}/src/inekf/*.cpp"
+)
+add_library(inekf ${inekf})
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
-add_library(inekf ${PROJECT_SOURCE_DIR}/src/inekf/inekf.cpp)
 
 ##################################################
 #                 Build Examples                 #
