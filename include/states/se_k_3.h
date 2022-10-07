@@ -20,7 +20,7 @@ namespace se_k_3 {
 class SEK3 {
  public:
   // Member variables
-  int K_ = 4;
+  int K_ = 5;
   Eigen::MatrixXd X_ = Eigen::MatrixXd::Identity(K_, K_);
 
   // Constructor
@@ -34,52 +34,35 @@ class SEK3 {
 
   // Getters
   Eigen::MatrixXd get_X();
-  Eigen::MatrixXd get_V();
-  // virtual Eigen::MatrixXd get_Ad() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_inv() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_T() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_inv_T() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_V() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_inv_V() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_T_V() const = 0;
-  // virtual Eigen::MatrixXd get_Ad_inv_T_V() const = 0;
+  Eigen::MatrixXd get_R();
+  Eigen::MatrixXd get_p();
+  Eigen::MatrixXd get_v();
 
   // Setters
-  void set_R(const Eigen::MatrixXd& R);
+  void set_K(int K);
   void set_X(const Eigen::MatrixXd& X);
-  void set_V(const Eigen::MatrixXd& V);
-  // virtual void set_Ad(const Eigen::MatrixXd& Ad) = 0;
-  // virtual void set_Ad_inv(const Eigen::MatrixXd& Ad_inv) = 0;
-  // virtual void set_Ad_T(const Eigen::MatrixXd& Ad_T) = 0;
-  // virtual void set_Ad_inv_T(const Eigen::MatrixXd& Ad_inv_T) = 0;
-  // virtual void set_Ad_V(const Eigen::MatrixXd& Ad_V) = 0;
-  // virtual void set_Ad_inv_V(const Eigen::MatrixXd& Ad_inv_V) = 0;
-  // virtual void set_Ad_T_V(const Eigen::MatrixXd& Ad_T_V) = 0;
-  // virtual void set_Ad_inv_T_V(const Eigen::MatrixXd& Ad_inv_T_V) = 0;
+  void set_R(const Eigen::MatrixXd& R);
+  void set_p(const Eigen::VectorXd& p);
+  void set_v(const Eigen::MatrixXd& v);
 
   // Operators
-  virtual SEK3 operator*(const SEK3& X) const = 0;
-  virtual SEK3 operator*(const Eigen::MatrixXd& X) const = 0;
-  virtual SEK3 operator*(const Eigen::VectorXd& v) const = 0;
-  virtual SEK3 operator*(const Eigen::MatrixXd& T) const = 0;
-  // virtual SEK3 operator/(const SEK3& X) const = 0;
-  // virtual SEK3 operator/(const Eigen::MatrixXd& X) const = 0;
-  // virtual SEK3 operator/(const Eigen::VectorXd& v) const = 0;
-  // virtual SEK3 operator/(const Eigen::MatrixXd& T) const = 0;
-  // virtual SEK3 operator
-  virtual SEK3 operator<<(const SEK3& X) const = 0;
-  virtual SEK3 operator<<(const Eigen::MatrixXd& X) const = 0;
-  virtual SEK3 operator<<(const Eigen::VectorXd& v) const = 0;
-  virtual SEK3 operator<<(const Eigen::MatrixXd& T) const = 0;
+  SEK3 operator*(const SEK3& X);
+  SEK3 operator*(const Eigen::MatrixXd& R);
+  SEK3 operator*(const Eigen::MatrixXd& p);
+  SEK3 operator*(const Eigen::VectorXd& v);
+  // TODO: divide operator
+  void operator<<(const SEK3& X);
+  void operator<<(const Eigen::MatrixXd& R);
+  void operator<<(const Eigen::MatrixXd& p);
+  void operator<<(const Eigen::VectorXd& v);
 
   // Methods
-  virtual SEK3 inverse() const = 0;
-  virtual SEK3 transpose() const = 0;
-  virtual SEK3 log() const = 0;
-  virtual SEK3 exp() const = 0;
-  virtual SEK3 Adjoint() const = 0;
+  SEK3 inverse();
+  SEK3 log();
+  SEK3 exp();
+  SEK3 Adjoint();
 
-}    // class SEK3
+};    // class SEK3
 
 }    // namespace se_k_3
 
