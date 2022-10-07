@@ -92,7 +92,7 @@ class InEKF {
          * @param[in] None
          * @return inekf::ErrorType: The current error type.
          */
-        ErrorType getErrorType() const;
+        ErrorType get_error_type() const;
 
         // ======================================================================
         /**
@@ -101,7 +101,7 @@ class InEKF {
          * @param[in] None
          * @return RobotState: The current state estimate.
          */
-        RobotState getState() const;
+        RobotState get_state() const;
 
         // ======================================================================
         /**
@@ -110,7 +110,7 @@ class InEKF {
          * @param[in] None
          * @return inekf::NoiseParams: The current noise parameters.
          */
-        NoiseParams getNoiseParams() const;
+        NoiseParams get_noise_params() const;
 
         // ======================================================================
         /**
@@ -119,7 +119,7 @@ class InEKF {
          * @param[in] None
          * @return std::map<int,bool>: Map of contact ID and bool that indicates if contact is registed
          */
-        std::map<int,bool> getContacts() const;
+        std::map<int,bool> get_contacts() const;
 
         // ======================================================================
         /**
@@ -128,7 +128,7 @@ class InEKF {
          * @param[in] None
          * @return std::map<int,int> map of contact ID and associated index in the state matrix X
          */
-        std::map<int,int> getEstimatedContactPositions() const;
+        std::map<int,int> get_estimated_contact_positions() const;
 
         // ======================================================================
         /**
@@ -137,7 +137,7 @@ class InEKF {
          * @param[in] None
          * @return mapIntVector3d: map of prior landmark ID and position (as a Eigen::Vector3d)
          */
-        mapIntVector3d getPriorLandmarks() const;
+        mapIntVector3d get_prior_landmarks() const;
 
         // ======================================================================
         /**
@@ -146,7 +146,7 @@ class InEKF {
          * @param[in] None
          * @return std::map<int,int>: map of landmark ID and associated index in the state matrix X
          */
-        std::map<int,int> getEstimatedLandmarks() const;
+        std::map<int,int> get_estimated_landmarks() const;
 
         // ======================================================================
         /**
@@ -155,7 +155,7 @@ class InEKF {
          * @param[in] None
          * @return Eigen::Vector3d: magnetic field in world frame
          */
-        Eigen::Vector3d getMagneticField() const;
+        Eigen::Vector3d get_magnetic_field() const;
     /// @}
 
 
@@ -168,7 +168,7 @@ class InEKF {
          * @param[in] state: The state to be assigned.
          * @return None
          */
-        void setState(RobotState state);
+        void set_state(RobotState state);
 
         // ======================================================================
         /**
@@ -177,7 +177,7 @@ class InEKF {
          * @param[in] params: The noise parameters to be assigned.
          * @return None
          */
-        void setNoiseParams(NoiseParams params);
+        void set_noise_params(NoiseParams params);
 
         // ======================================================================
         /**
@@ -186,7 +186,7 @@ class InEKF {
          * @param[in] contacts: A vector of contact ID and indicator pairs. A true indicator means contact is detected.
          * @return None
          */
-        void setContacts(std::vector<ContactState> contacts);
+        void set_contacts(std::vector<ContactState> contacts);
         
         // ======================================================================
         /**
@@ -195,9 +195,9 @@ class InEKF {
          * @param[in] prior_landmarks: A map of prior landmark IDs and associated position in the world frame.
          * @return None
          */
-        void setPriorLandmarks(const mapIntVector3d& prior_landmarks);
+        void set_prior_landmarks(const mapIntVector3d& prior_landmarks);
         /** TODO: Sets magnetic field for untested magnetometer measurement */
-        void setMagneticField(Eigen::Vector3d& true_magnetic_field);
+        void set_magnetic_field(Eigen::Vector3d& true_magnetic_field);
     /// @}
 
 

@@ -24,6 +24,16 @@ namespace inekf {
 class Observation {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        // ====================================================================
+        /**
+         * @brief Constructor. Construct a new Observation object.
+         * 
+         * @param[in] Y: Observation vector
+         * @param[in] b: Observation bias vector
+         * @param[in] H: Observation Jacobian
+         * @param[in] N: Observation noise covariance
+         * @param[in] PI: Observation probability of detection
+         */
         Observation(Eigen::VectorXd& Y, Eigen::VectorXd& b, Eigen::MatrixXd& H, Eigen::MatrixXd& N, Eigen::MatrixXd& PI);
         bool empty();
 
@@ -40,6 +50,14 @@ class Observation {
 class Kinematics {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        // ====================================================================
+        /**
+         * @brief Constructor. Construct a new Kinematics object
+         * 
+         * @param[in] id_in: ID of the kinematic measurement
+         * @param[in] pose_in: Pose of the kinematic measurement
+         * @param[in] covariance_in: Covariance of the kinematic measurement
+         */
         Kinematics(int id_in, Eigen::Matrix4d pose_in, Eigen::Matrix<double,6,6> covariance_in) : id(id_in), pose(pose_in), covariance(covariance_in) { }
 
         int id;
@@ -51,6 +69,14 @@ class Kinematics {
 class Landmark {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        // ====================================================================
+        /**
+         * @brief Constructor. Construct a new Landmark object
+         * 
+         * @param[in] id_in: ID of the landmark measurement
+         * @param[in] position_in: Position of the landmark measurement
+         * @param[in] covariance_in: Covariance of the landmark measurement
+         */
         Landmark(int id_in, Eigen::Vector3d position_in, Eigen::Matrix3d covariance_in) : id(id_in), position(position_in), covariance(covariance_in) { }
 
         int id;
