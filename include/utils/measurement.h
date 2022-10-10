@@ -17,7 +17,7 @@
 #include <iostream>
 #include <string>
 
-//#include <Eigen/Dense>
+#include <Eigen/Dense>
 
 enum MeasurementType { EMPTY, IMU, KINEMATICS, CONTACT, JOINT_STATE };
 

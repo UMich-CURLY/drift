@@ -11,7 +11,7 @@
  *  @date   September 27, 2018
  **/
 
-#include "measurement/measurement.h"
+#include "utils/measurement.h"
 
 using namespace std;
 
