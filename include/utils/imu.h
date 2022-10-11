@@ -1,7 +1,10 @@
-#pragma once
+
+#ifndef IMU_H
+#define IMU_H
+
 #include <stdint.h>
 #include <string>
-#include "utils/measurement.h"
+#include "measurement.h"
 
 // namespace cheetah_inekf_lcm {
 
@@ -23,16 +26,18 @@ struct ImuLinearAcceleration {
 template<typename T>
 class ImuMeasurement : public Measurement {
  public:
-  Eigen::Matrix3d getRotation() { return R_; }
+  ImuMeasurement() { type_ = IMU; }
 
-  void setRotation() {
-    Eigen::Quaternion<double> q(orientation.w, orientation.x, orientation.y,
-                                orientation.z);
+  Eigen::Matrix3d get_rotation() { return R_; }
+
+  void set_rotation() {
+    Eigen::Quaternion<double> q(get_orientation().w, get_orientation().x,
+                                get_orientation().y, get_orientation().z);
     R_ = q.toRotationMatrix();
   }
 
-  // Construct IMU measurement
-  ImuMeasurement() { type_ = IMU; }
+  ImuOrientation<T> get_orientation() { return orientation_; }
+
 
  private:
   Eigen::Matrix3d R_;
@@ -40,4 +45,5 @@ class ImuMeasurement : public Measurement {
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
 };
-//}    // namespace cheetah_inekf_lcm
+//}
+#endif
