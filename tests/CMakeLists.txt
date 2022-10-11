@@ -12,3 +12,4 @@ set(test_prefix "TEST")
 enable_testing()
 
 add_subdirectory(test_example_1)
+add_subdirectory(imumeasurement_test)
