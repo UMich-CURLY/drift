@@ -39,28 +39,28 @@ class ImuMeasurement : public Measurement {
   /**
    * @brief Get the imu measurement quaternion x coefficient.
    *
-   * @return ImuOrientation<T>: the quaternion x coefficient.
+   * @return T: the quaternion x coefficient.
    */
   T get_quaternion_x();
 
   /**
    * @brief Get the imu measurement quaternion y coefficient.
    *
-   * @return ImuOrientation<T>: the quaternion y coefficient.
+   * @return T: the quaternion y coefficient.
    */
   T get_quaternion_y();
 
   /**
    * @brief Get the imu measurement quaternion z coefficient.
    *
-   * @return ImuOrientation<T>: the quaternion z coefficient.
+   * @return T: the quaternion z coefficient.
    */
   T get_quaternion_z();
 
   /**
    * @brief Get the imu measurement quaternion w coefficient.
    *
-   * @return ImuOrientation<T>: the quaternion w coefficient.
+   * @return T: the quaternion w coefficient.
    */
   T get_quaternion_w();
 
@@ -74,10 +74,27 @@ class ImuMeasurement : public Measurement {
    */
   void set_quaternion(T x, T y, T z, T w);
 
+  /**
+   * @brief Set the imu measurement angular velocity.
+   *
+   * @param[in] x: x coefficient.
+   * @param[in] y: y coefficient.
+   * @param[in] z: z coefficient.
+   */
+  void set_ang_vel();
+
+  /**
+   * @brief Set the imu measurement linear acceleration.
+   *
+   * @param[in] x: x coefficient.
+   * @param[in] y: y coefficient.
+   * @param[in] z: z coefficient.
+   */
+  void set_lin_acc();
 
  private:
   Eigen::Matrix3d R_;
-  ImuOrientation<T> orientation_;
+  ImuOrientation<T> quaternion_;
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
   void set_rotation();
