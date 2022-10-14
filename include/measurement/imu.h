@@ -6,8 +6,6 @@
 #include <string>
 #include "measurement.h"
 
-// namespace cheetah_inekf_lcm {
-
 template<typename T>
 struct ImuQuaternion {
   T w, x, y, z;
@@ -27,6 +25,33 @@ template<typename T>
 class ImuMeasurement : public Measurement {
  public:
   ImuMeasurement();
+  /**
+   * @brief Set the imu measurement quaternion coefficients.
+   *
+   * @param[in] x: x quaternion coefficient.
+   * @param[in] y: y quaternion coefficient.
+   * @param[in] z: z quaternion coefficient.
+   * @param[in] w: w quaternion coefficient.
+   */
+  void set_quaternion(T x, T y, T z, T w);
+
+  /**
+   * @brief Set the imu measurement angular velocity.
+   *
+   * @param[in] x: x axis coefficient (rad/s).
+   * @param[in] y: y axis coefficient (rad/s).
+   * @param[in] z: z axis coefficient (rad/s).
+   */
+  void set_ang_vel(T x, T y, T z);
+
+  /**
+   * @brief Set the imu measurement linear acceleration.
+   *
+   * @param[in] x: x axis coefficient (m/s^2).
+   * @param[in] y: y axis coefficient (m/s^2).
+   * @param[in] z: z axis coefficient (m/s^2).
+   */
+  void set_lin_acc(T x, T y, T z);
 
   /**
    * @brief Get the orthonormal 3D rotation matrix for the imu
@@ -66,32 +91,46 @@ class ImuMeasurement : public Measurement {
   T get_quaternion_w();
 
   /**
-   * @brief Set the imu measurement quaternion coefficients.
+   * @brief Get the imu measurement linear acceleration x coefficient.
    *
-   * @param[in] x: x quaternion coefficient.
-   * @param[in] y: y quaternion coefficient.
-   * @param[in] z: z quaternion coefficient.
-   * @param[in] w: w quaternion coefficient.
+   * @return T: the linear acceleration x coefficient.
    */
-  void set_quaternion(T x, T y, T z, T w);
+  T get_lin_acc_x();
 
   /**
-   * @brief Set the imu measurement angular velocity.
+   * @brief Get the imu measurement linear acceleration y coefficient.
    *
-   * @param[in] x: x axis coefficient (rad/s).
-   * @param[in] y: y axis coefficient (rad/s).
-   * @param[in] z: z axis coefficient (rad/s).
+   * @return T: the linear acceleration y coefficient.
    */
-  void set_ang_vel();
+  T get_lin_acc_y();
 
   /**
-   * @brief Set the imu measurement linear acceleration.
+   * @brief Get the imu measurement linear acceleration z coefficient.
    *
-   * @param[in] x: x axis coefficient (m/s^2).
-   * @param[in] y: y axis coefficient (m/s^2).
-   * @param[in] z: z axis coefficient (m/s^2).
+   * @return T: the linear acceleration z coefficient.
    */
-  void set_lin_acc();
+  T get_lin_acc_z();
+
+  /**
+   * @brief Get the imu measurement angular velocity x coefficient.
+   *
+   * @return T: the angular velocity x coefficient.
+   */
+  T get_ang_vel_x();
+
+  /**
+   * @brief Get the imu measurement angular velocity y coefficient.
+   *
+   * @return T: the angular velocity y coefficient.
+   */
+  T get_ang_vel_y();
+
+  /**
+   * @brief Get the imu measurement angular velocity z coefficient.
+   *
+   * @return T: the angular velocity z coefficient.
+   */
+  T get_ang_vel_z();
 
  private:
   Eigen::Matrix3d R_;
@@ -101,7 +140,6 @@ class ImuMeasurement : public Measurement {
   void set_rotation();
   void quat_inv(T x, T y, T z, T w);
 };
-//}
 #include "measurement/impl/imu_impl.cpp"
 
 #endif
