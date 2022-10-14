@@ -19,28 +19,28 @@ void ImuMeasurement<T>::set_rotation() {
 
 template<typename T>
 T ImuMeasurement<T>::get_quaternion_w() {
-  return orientation_.w;
+  return quaternion_.w;
 }
 
 template<typename T>
 T ImuMeasurement<T>::get_quaternion_x() {
-  return orientation_.x;
+  return quaternion_.x;
 }
 
 template<typename T>
 T ImuMeasurement<T>::get_quaternion_y() {
-  return orientation_.y;
+  return quaternion_.y;
 }
 
 template<typename T>
 T ImuMeasurement<T>::get_quaternion_z() {
-  return orientation_.z;
+  return quaternion_.z;
 }
 
 template<typename T>
 void ImuMeasurement<T>::set_quaternion(T x, T y, T z, T w) {
-  orientation_.x = x;
-  orientation_.y = y;
-  orientation_.z = z;
-  orientation_.w = w;
+  quaternion_.x = x;
+  quaternion_.y = y;
+  quaternion_.z = z;
+  quaternion_.w = w;
 }
