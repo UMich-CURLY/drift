@@ -9,6 +9,7 @@ Eigen::Quaternion<T> rotaxis2quat(T a, T b_x, T b_y, T b_z);
 TEST(ImuMeasurementTest, Ctor) {
   ImuMeasurement<double> imu_data;
   EXPECT_EQ(imu_data.get_type(), 1);
+  EXPECT_EQ(imu_data.get_type(), IMU);
   EXPECT_EQ(imu_data.get_quaternion_w(), 1);
   EXPECT_EQ(imu_data.get_quaternion_x(), 0);
   compare_rot_mat(imu_data.get_rotation_matrix(), Eigen::Matrix3d::Identity());
@@ -81,6 +82,11 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
       = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
 
   EXPECT_NO_THROW(imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w()));
+}
+
+TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
+  ImuMeasurement<double> imu_data;
+  // imu_data.set_lin_acc(1, 1, 1);
 }
 
 // Helper Functions
