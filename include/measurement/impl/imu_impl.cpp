@@ -10,13 +10,13 @@ ImuMeasurement<T>::ImuMeasurement()
 }
 
 template<typename T>
-void ImuMeasurement<T>::set_quaternion(T x, T y, T z, T w) {
-  quat_inv(x, y, z, w);
+void ImuMeasurement<T>::set_quaternion(T w, T x, T y, T z) {
+  quat_inv(w, x, y, z);
 
+  quaternion_.w = w;
   quaternion_.x = x;
   quaternion_.y = y;
   quaternion_.z = z;
-  quaternion_.w = w;
 }
 
 template<typename T>
@@ -57,9 +57,9 @@ void ImuMeasurement<T>::set_rotation() {
 
 
 template<typename T>
-void ImuMeasurement<T>::quat_inv(T x, T y, T z, T w) {
+void ImuMeasurement<T>::quat_inv(T w, T x, T y, T z) {
   double tol = 1e-5;
-  T q_mag = std::sqrt(x * x + y * y + z * z + w * w);
+  T q_mag = w * w + x * x + y * y + z * z;
   // std::cout << std::abs(q_mag - 1);
   if (std::abs(q_mag - 1) >= tol) {
     throw std::invalid_argument("Quaternion arguments must be normalized");
