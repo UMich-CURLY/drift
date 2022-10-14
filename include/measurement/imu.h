@@ -28,7 +28,7 @@ class ImuMeasurement : public Measurement {
   ImuMeasurement();
 
   /**
-   * @brief Get the 3D rotation matrix for the imu
+   * @brief Get the orthonormal 3D rotation matrix for the imu
    * measurement.
    *
    * @return Eigen::Matrix3d: 3x3 Matrix of doubles.
@@ -77,18 +77,18 @@ class ImuMeasurement : public Measurement {
   /**
    * @brief Set the imu measurement angular velocity.
    *
-   * @param[in] x: x coefficient.
-   * @param[in] y: y coefficient.
-   * @param[in] z: z coefficient.
+   * @param[in] x: x axis coefficient (rad/s).
+   * @param[in] y: y axis coefficient (rad/s).
+   * @param[in] z: z axis coefficient (rad/s).
    */
   void set_ang_vel();
 
   /**
    * @brief Set the imu measurement linear acceleration.
    *
-   * @param[in] x: x coefficient.
-   * @param[in] y: y coefficient.
-   * @param[in] z: z coefficient.
+   * @param[in] x: x axis coefficient (m/s^2).
+   * @param[in] y: y axis coefficient (m/s^2).
+   * @param[in] z: z axis coefficient (m/s^2).
    */
   void set_lin_acc();
 
