@@ -26,17 +26,13 @@ struct ImuLinearAcceleration {
 template<typename T>
 class ImuMeasurement : public Measurement {
  public:
-  ImuMeasurement() { type_ = IMU; }
+  ImuMeasurement();
 
-  Eigen::Matrix3d get_rotation() { return R_; }
+  Eigen::Matrix3d get_rotation();
 
-  void set_rotation() {
-    Eigen::Quaternion<double> q(get_orientation().w, get_orientation().x,
-                                get_orientation().y, get_orientation().z);
-    R_ = q.toRotationMatrix();
-  }
+  void set_rotation();
 
-  ImuOrientation<T> get_orientation() { return orientation_; }
+  ImuOrientation<T> get_orientation();
 
 
  private:
@@ -46,4 +42,5 @@ class ImuMeasurement : public Measurement {
   ImuLinearAcceleration<T> linear_acceleration_;
 };
 //}
+
 #endif
