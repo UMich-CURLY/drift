@@ -2,6 +2,7 @@
 #define IMU_H
 
 #include <stdint.h>
+#include <iostream>
 #include <string>
 #include "measurement.h"
 
@@ -98,6 +99,7 @@ class ImuMeasurement : public Measurement {
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
   void set_rotation();
+  void quat_inv(T x, T y, T z, T w);
 };
 //}
 #include "measurement/impl/imu_impl.cpp"
