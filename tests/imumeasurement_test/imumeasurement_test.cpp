@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
-#include "utils/imu.h"
+#include "measurement/impl/imu_impl.cpp"
+#include "measurement/imu.h"
 
 TEST(ImuMeasurementTest, CtorTypeTest) {
   ImuMeasurement<double> imu_data;
