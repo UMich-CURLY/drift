@@ -1,7 +1,22 @@
 
 template<typename T>
-ImuMeasurement<T>::ImuMeasurement() {
+ImuMeasurement<T>::ImuMeasurement()
+    : Measurement(IMU),
+      R_(Eigen::Matrix3d::Identity()),
+      quaternion_{1, 0, 0, 0},
+      angular_velocity_{0, 0, 0},
+      linear_acceleration_{0, 0, 0} {
   type_ = IMU;
+}
+
+template<typename T>
+void ImuMeasurement<T>::set_quaternion(T x, T y, T z, T w) {
+  quat_inv(x, y, z, w);
+
+  quaternion_.x = x;
+  quaternion_.y = y;
+  quaternion_.z = z;
+  quaternion_.w = w;
 }
 
 template<typename T>
@@ -30,15 +45,6 @@ T ImuMeasurement<T>::get_quaternion_z() {
   return quaternion_.z;
 }
 
-template<typename T>
-void ImuMeasurement<T>::set_quaternion(T x, T y, T z, T w) {
-  quat_inv(x, y, z, w);
-
-  quaternion_.x = x;
-  quaternion_.y = y;
-  quaternion_.z = z;
-  quaternion_.w = w;
-}
 
 // Private Functions
 
