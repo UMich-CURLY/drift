@@ -92,9 +92,10 @@ TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
 // Helper Functions
 
 void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
+  double tol = 1e-5;
   for (int r = 0; r < 3; r++) {
     for (int c = 0; c < 3; c++) {
-      EXPECT_NEAR(imu(r, c), test(r, c), 1e-5);
+      EXPECT_NEAR(imu(r, c), test(r, c), tol);
     }
   }
 }
