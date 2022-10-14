@@ -79,6 +79,7 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
   EXPECT_NO_THROW(imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w()));
 }
 
+// Helper Functions
 
 void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
   for (int r = 0; r < 3; r++) {
@@ -87,7 +88,6 @@ void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
     }
   }
 }
-
 
 // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Intuition
 template<typename T>
