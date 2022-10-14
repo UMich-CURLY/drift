@@ -35,22 +35,18 @@ class Measurement {
 
   MeasurementHeader header;
 
-  // ======================================================================
   /**
    * @brief Get the timestamp value for the measurement.
    *
    * @return double: The timestamp.
    */
-  // ======================================================================
   double get_time();
 
-  // ======================================================================
   /**
    * @brief Get the measurement type.
    *
    * @return MeasurementType: The measurement type.
    */
-  // ======================================================================
   MeasurementType get_type();
 
   friend std::ostream& operator<<(std::ostream& os, const Measurement& m);

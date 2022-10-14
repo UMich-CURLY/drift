@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "measurement/impl/imu_impl.cpp"
 #include "measurement/imu.h"
 
 TEST(ImuMeasurementTest, CtorTypeTest) {
