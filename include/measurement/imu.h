@@ -9,7 +9,7 @@
 // namespace cheetah_inekf_lcm {
 
 template<typename T>
-struct ImuOrientation {
+struct ImuQuaternion {
   T w, x, y, z;
 };
 
@@ -95,7 +95,7 @@ class ImuMeasurement : public Measurement {
 
  private:
   Eigen::Matrix3d R_;
-  ImuOrientation<T> quaternion_;
+  ImuQuaternion<T> quaternion_;
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
   void set_rotation();
