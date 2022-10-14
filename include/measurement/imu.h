@@ -62,74 +62,26 @@ class ImuMeasurement : public Measurement {
 
 
   /**
-   * @brief Get the imu measurement quaternion x coefficient.
+   * @brief Get the imu measurement quaternion coefficients.
    *
-   * @return T: the quaternion x coefficient.
+   * @return ImuQuaternion: the quaternion POD (w, x, y, z).
    */
-  T get_quaternion_x();
+  ImuQuaternion<T> get_quaternion();
 
   /**
-   * @brief Get the imu measurement quaternion y coefficient.
+   * @brief Get the imu measurement angular velocity coefficients.
    *
-   * @return T: the quaternion y coefficient.
+   * @return ImuAngularVelocity: the angular velocity POD (x, y, z).
    */
-  T get_quaternion_y();
+  ImuAngularVelocity<T> get_ang_vel();
 
   /**
-   * @brief Get the imu measurement quaternion z coefficient.
+   * @brief Get the imu measurement linear acceleration coefficients.
    *
-   * @return T: the quaternion z coefficient.
+   * @return ImuLinearAcceleration: the linear acceleration POD (x, y, z).
    */
-  T get_quaternion_z();
+  ImuLinearAcceleration<T> get_lin_acc();
 
-  /**
-   * @brief Get the imu measurement quaternion w coefficient.
-   *
-   * @return T: the quaternion w coefficient.
-   */
-  T get_quaternion_w();
-
-  /**
-   * @brief Get the imu measurement linear acceleration x coefficient.
-   *
-   * @return T: the linear acceleration x coefficient.
-   */
-  T get_lin_acc_x();
-
-  /**
-   * @brief Get the imu measurement linear acceleration y coefficient.
-   *
-   * @return T: the linear acceleration y coefficient.
-   */
-  T get_lin_acc_y();
-
-  /**
-   * @brief Get the imu measurement linear acceleration z coefficient.
-   *
-   * @return T: the linear acceleration z coefficient.
-   */
-  T get_lin_acc_z();
-
-  /**
-   * @brief Get the imu measurement angular velocity x coefficient.
-   *
-   * @return T: the angular velocity x coefficient.
-   */
-  T get_ang_vel_x();
-
-  /**
-   * @brief Get the imu measurement angular velocity y coefficient.
-   *
-   * @return T: the angular velocity y coefficient.
-   */
-  T get_ang_vel_y();
-
-  /**
-   * @brief Get the imu measurement angular velocity z coefficient.
-   *
-   * @return T: the angular velocity z coefficient.
-   */
-  T get_ang_vel_z();
 
  private:
   Eigen::Matrix3d R_;

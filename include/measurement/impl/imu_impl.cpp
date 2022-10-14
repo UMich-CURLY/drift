@@ -18,38 +18,46 @@ void ImuMeasurement<T>::set_quaternion(T w, T x, T y, T z) {
 }
 
 template<typename T>
+void ImuMeasurement<T>::set_ang_vel(T x, T y, T z) {
+  angular_velocity_.x = x;
+  angular_velocity_.y = y;
+  angular_velocity_.z = z;
+}
+
+template<typename T>
+void ImuMeasurement<T>::set_lin_acc(T x, T y, T z) {
+  linear_acceleration_.x = x;
+  linear_acceleration_.y = y;
+  linear_acceleration_.z = z;
+}
+
+template<typename T>
 Eigen::Matrix3d ImuMeasurement<T>::get_rotation_matrix() {
   set_rotation();
   return R_;
 }
 
 template<typename T>
-T ImuMeasurement<T>::get_quaternion_w() {
-  return quaternion_.w;
+ImuQuaternion<T> ImuMeasurement<T>::get_quaternion() {
+  return quaternion_;
 }
 
 template<typename T>
-T ImuMeasurement<T>::get_quaternion_x() {
-  return quaternion_.x;
+ImuAngularVelocity<T> ImuMeasurement<T>::get_ang_vel() {
+  return angular_velocity_;
 }
 
 template<typename T>
-T ImuMeasurement<T>::get_quaternion_y() {
-  return quaternion_.y;
+ImuLinearAcceleration<T> ImuMeasurement<T>::get_lin_acc() {
+  return linear_acceleration_;
 }
-
-template<typename T>
-T ImuMeasurement<T>::get_quaternion_z() {
-  return quaternion_.z;
-}
-
 
 // Private Functions
 
 template<typename T>
 void ImuMeasurement<T>::set_rotation() {
-  Eigen::Quaternion<double> q(get_quaternion_w(), get_quaternion_x(),
-                              get_quaternion_y(), get_quaternion_z());
+  Eigen::Quaternion<double> q(get_quaternion().w, get_quaternion().x,
+                              get_quaternion().y, get_quaternion().z);
   R_ = q.toRotationMatrix();
 }
 
