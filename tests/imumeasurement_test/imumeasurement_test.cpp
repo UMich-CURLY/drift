@@ -13,11 +13,15 @@ TEST(ImuMeasurementTest, CtorType) {
 
 TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
   ImuMeasurement<double> imu_data;
-  imu_data.set_quaternion(0.11, 0.12, 0.22, 0.44);
-  EXPECT_EQ(imu_data.get_quaternion_x(), 0.11);
-  EXPECT_EQ(imu_data.get_quaternion_y(), 0.12);
-  EXPECT_EQ(imu_data.get_quaternion_z(), 0.22);
-  EXPECT_EQ(imu_data.get_quaternion_w(), 0.44);
+
+  Eigen::Quaterniond q
+      = rotaxis2quaternion<double>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
+  imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w());
+
+  EXPECT_NEAR(imu_data.get_quaternion_x(), 0, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion_y(), 0.3826834, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion_z(), 0, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion_w(), 0.9238795, 1e-5);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat1) {
