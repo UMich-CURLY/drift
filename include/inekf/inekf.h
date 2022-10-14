@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   InEKF.h
+ *  @file   inekf.h
  *  @author Ross Hartley
  *  @brief  Header file for Invariant EKF 
  *  @date   September 25, 2018
@@ -23,6 +23,7 @@
 #include "inekf/noise_params.h"
 #include "inekf/observations.h"
 #include "math/lie_group.h"
+#include "utils.h"
 
 namespace inekf {
 
@@ -305,26 +306,7 @@ class InEKF {
         void CorrectContactPosition(const int id, const Eigen::Vector3d& measured_contact_position, const Eigen::Matrix3d& covariance, const Eigen::Vector3d& indices);
     /// @} 
 
-    /** @example kinematics.cpp
-     * Testing
-     */
-
-    private:
-        ErrorType error_type_ = ErrorType::LeftInvariant; 
-        bool estimate_bias_ = true;  
-        RobotState state_;
-        NoiseParams noise_params_;
-        const Eigen::Vector3d g_; // Gravity vector in world frame (z-up)
-        std::map<int,bool> contacts_;
-        std::map<int,int> estimated_contact_positions_;
-        mapIntVector3d prior_landmarks_;
-        std::map<int,int> estimated_landmarks_;
-        Eigen::Vector3d magnetic_field_;
-
-        Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt);
-        Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt);
-
-        // Corrects state using invariant observation models
+    // Corrects state using invariant observation models
         // ======================================================================
         /**
          * @brief Corrects the state using Right Invariant observation model with
@@ -350,8 +332,8 @@ class InEKF {
          * @brief Corrects the state using Right Invariant observation model with 
          * given measurement, output and matrices.
          * 
-         * @param[in] Z: measurement output difference matrix
-         * @param[in] H: output matrix
+         * @param[in] Z: innovation matrix
+         * @param[in] H: measurement error matrix
          * @param[in] N: measurement noise matrix
          * @return None
          */
@@ -359,16 +341,61 @@ class InEKF {
 
         // ======================================================================
         /**
+         * @brief Corrects the state using Right Invariant observation model with 
+         * given measurement, output and matrices.
+         * 
+         * @param[in] Z: innovation matrix
+         * @param[in] H: measurement error matrix
+         * @param[in] N: measurement noise matrix
+         * @param[in] state: Robot state
+         * @return None
+         */
+        void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H, const Eigen::MatrixXd& N, RobotState& state);
+
+        // ======================================================================
+        /**
          * @brief Corrects the state using Left Invariant observation model with 
          * given measurement, output and matrices.
          * 
-         * @param[in] Z: measurement output difference matrix
+         * @param[in] Z: innovation matrix
          * @param[in] H: measurement error matrix
          * @param[in] N: measurement noise matrix
          * @return None
          */
         void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H, const Eigen::MatrixXd& N);
+
+        // ======================================================================
+        /**
+         * @brief Corrects the state using Left Invariant observation model with 
+         * given measurement, output and matrices.
+         * 
+         * @param[in] Z: innovation matrix
+         * @param[in] H: measurement error matrix
+         * @param[in] N: measurement noise matrix
+         * @param[in] state: Robot state
+         * @return None
+         */
+        void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H, const Eigen::MatrixXd& N, RobotState& state);
         // void CorrectFullState(const Observation& obs); // TODO
+
+    /** @example kinematics.cpp
+     * Testing
+     */
+
+    private:
+        ErrorType error_type_ = ErrorType::LeftInvariant; 
+        bool estimate_bias_ = true;  
+        RobotState state_;
+        NoiseParams noise_params_;
+        const Eigen::Vector3d g_; // Gravity vector in world frame (z-up)
+        std::map<int,bool> contacts_;
+        std::map<int,int> estimated_contact_positions_;
+        mapIntVector3d prior_landmarks_;
+        std::map<int,int> estimated_landmarks_;
+        Eigen::Vector3d magnetic_field_;
+
+        Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt);
+        Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt);
 };
 
 } // end inekf namespace
