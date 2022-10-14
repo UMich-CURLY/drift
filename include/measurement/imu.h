@@ -2,7 +2,6 @@
 #define IMU_H
 
 #include <stdint.h>
-#include <iostream>
 #include <string>
 #include "measurement.h"
 
@@ -33,7 +32,7 @@ class ImuMeasurement : public Measurement {
    * @param[in] z: z quaternion coefficient.
    * @param[in] w: w quaternion coefficient.
    */
-  void set_quaternion(T x, T y, T z, T w);
+  void set_quaternion(T w, T x, T y, T z);
 
   /**
    * @brief Set the imu measurement angular velocity.

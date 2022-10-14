@@ -20,7 +20,7 @@ TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
   ImuMeasurement<double> imu_data;
 
   Eigen::Quaterniond q = rotaxis2quat<double>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
-  imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w());
+  imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
   // comparison values obtained with
   // https://www.andre-gaschler.com/rotationconverter/
@@ -35,9 +35,9 @@ TEST(ImuMeasurementTest, QuaternionToRotMat1) {
 
   Eigen::Quaternionf q = rotaxis2quat<float>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
 
-  imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w());
+  imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
-  // rotmattest created using
+  // rotmattest created using values from
   // https://www.andre-gaschler.com/rotationconverter/
   Eigen::Matrix<double, 3, 3> rotmattest;
   rotmattest << 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107;
@@ -49,7 +49,7 @@ TEST(ImuMeasurementTest, QuaternionToRotMat2) {
 
   Eigen::Quaternionf q = rotaxis2quat<float>(M_PI / 3, M_PI / 2, M_PI / 2, 0);
 
-  imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w());
+  imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
   Eigen::Matrix<double, 3, 3> rotmattest;
   rotmattest << 0.5, -0.8660254, 0, 0.8660254, 0.5, 0, 0, 0, 1;
@@ -62,7 +62,7 @@ TEST(ImuMeasurementTest, QuaternionToRotMat3) {
   Eigen::Quaterniond q
       = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
 
-  imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w());
+  imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
   Eigen::Matrix<double, 3, 3> rotmattest;
   rotmattest << 0.9330127, -0.3535534, 0.0669873, 0.3535534, 0.8660254,
@@ -81,7 +81,7 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
   Eigen::Quaterniond q
       = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
 
-  EXPECT_NO_THROW(imu_data.set_quaternion(q.x(), q.y(), q.z(), q.w()));
+  EXPECT_NO_THROW(imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z()));
 }
 
 TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
