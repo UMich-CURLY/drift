@@ -27,10 +27,10 @@ class ImuMeasurement : public Measurement {
   /**
    * @brief Set the imu measurement quaternion coefficients.
    *
-   * @param[in] x: x quaternion coefficient.
-   * @param[in] y: y quaternion coefficient.
-   * @param[in] z: z quaternion coefficient.
-   * @param[in] w: w quaternion coefficient.
+   * @param[in] w: w real quaternion coefficient.
+   * @param[in] x: x imaginary quaternion coefficient.
+   * @param[in] y: y imaginary quaternion coefficient.
+   * @param[in] z: z imaginary quaternion coefficient.
    */
   void set_quaternion(T w, T x, T y, T z);
 
@@ -137,7 +137,7 @@ class ImuMeasurement : public Measurement {
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
   void set_rotation();
-  void quat_inv(T x, T y, T z, T w);
+  void quat_inv(T w, T x, T y, T z);
 };
 #include "measurement/impl/imu_impl.cpp"
 
