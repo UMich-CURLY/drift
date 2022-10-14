@@ -10,8 +10,8 @@ TEST(ImuMeasurementTest, Ctor) {
   ImuMeasurement<double> imu_data;
   EXPECT_EQ(imu_data.get_type(), 1);
   EXPECT_EQ(imu_data.get_type(), IMU);
-  EXPECT_EQ(imu_data.get_quaternion_w(), 1);
-  EXPECT_EQ(imu_data.get_quaternion_x(), 0);
+  EXPECT_EQ(imu_data.get_quaternion().w, 1);
+  EXPECT_EQ(imu_data.get_quaternion().x, 0);
   compare_rot_mat(imu_data.get_rotation_matrix(), Eigen::Matrix3d::Identity());
 }
 
@@ -24,10 +24,10 @@ TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
 
   // comparison values obtained with
   // https://www.andre-gaschler.com/rotationconverter/
-  EXPECT_NEAR(imu_data.get_quaternion_x(), 0, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion_y(), 0.3826834, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion_z(), 0, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion_w(), 0.9238795, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion().x, 0, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion().y, 0.3826834, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion().z, 0, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion().w, 0.9238795, 1e-5);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat1) {
@@ -86,7 +86,16 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
 
 TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
   ImuMeasurement<double> imu_data;
-  // imu_data.set_lin_acc(1, 1, 1);
+  imu_data.set_ang_vel(1, 2, 3);
+  EXPECT_EQ(imu_data.get_ang_vel().x, 1);
+  EXPECT_EQ(imu_data.get_ang_vel().z, 3);
+}
+
+TEST(ImuMeasurementTest, LinearAccelerationSetGetBasic) {
+  ImuMeasurement<double> imu_data;
+  imu_data.set_lin_acc(1, 2, 3);
+  EXPECT_EQ(imu_data.get_lin_acc().x, 1);
+  EXPECT_EQ(imu_data.get_lin_acc().z, 3);
 }
 
 // Helper Functions
