@@ -31,6 +31,7 @@ class Measurement {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   Measurement();
+  Measurement(MeasurementType type);
   virtual ~Measurement() = default;
 
   MeasurementHeader header;

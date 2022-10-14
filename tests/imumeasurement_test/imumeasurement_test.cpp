@@ -6,10 +6,14 @@ void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test);
 template<typename T>
 Eigen::Quaternion<T> rotaxis2quat(T a, T b_x, T b_y, T b_z);
 
-TEST(ImuMeasurementTest, CtorType) {
+TEST(ImuMeasurementTest, Ctor) {
   ImuMeasurement<double> imu_data;
   EXPECT_EQ(imu_data.get_type(), 1);
+  EXPECT_EQ(imu_data.get_quaternion_w(), 1);
+  EXPECT_EQ(imu_data.get_quaternion_x(), 0);
+  compare_rot_mat(imu_data.get_rotation_matrix(), Eigen::Matrix3d::Identity());
 }
+
 
 TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
   ImuMeasurement<double> imu_data;
