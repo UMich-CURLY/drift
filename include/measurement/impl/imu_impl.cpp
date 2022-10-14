@@ -5,9 +5,7 @@ ImuMeasurement<T>::ImuMeasurement()
       R_(Eigen::Matrix3d::Identity()),
       quaternion_{1, 0, 0, 0},
       angular_velocity_{0, 0, 0},
-      linear_acceleration_{0, 0, 0} {
-  type_ = IMU;
-}
+      linear_acceleration_{0, 0, 0} {}
 
 template<typename T>
 void ImuMeasurement<T>::set_quaternion(T w, T x, T y, T z) {
