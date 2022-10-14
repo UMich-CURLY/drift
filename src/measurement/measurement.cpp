@@ -1,25 +1,13 @@
-/* ----------------------------------------------------------------------------
- * Copyright 2018, Ross Hartley <m.ross.hartley@gmail.com>
- * All Rights Reserved
- * See LICENSE for the license information
- * -------------------------------------------------------------------------- */
-
-/**
- *  @file   measurement.cpp
- *  @author Ross Hartley
- *  @brief  Source file for Measurement class
- *  @date   September 27, 2018
- **/
-
 #include "measurement/measurement.h"
 
 using namespace std;
 
 // using namespace inekf;
 
-Measurement::Measurement() {
+Measurement::Measurement() : type_(EMPTY) { header.stamp = 0; }
+
+Measurement::Measurement(MeasurementType type) : type_(type) {
   header.stamp = 0;
-  type_ = EMPTY;
 }
 
 double Measurement::get_time() { return header.stamp; }
