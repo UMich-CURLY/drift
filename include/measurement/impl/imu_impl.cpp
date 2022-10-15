@@ -1,4 +1,3 @@
-
 template<typename T>
 ImuMeasurement<T>::ImuMeasurement()
     : Measurement(IMU),
@@ -60,7 +59,6 @@ void ImuMeasurement<T>::set_rotation() {
                               get_quaternion().y, get_quaternion().z);
   R_ = q.toRotationMatrix();
 }
-
 
 template<typename T>
 void ImuMeasurement<T>::quat_inv(T w, T x, T y, T z) {

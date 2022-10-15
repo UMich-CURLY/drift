@@ -22,12 +22,13 @@ TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
   Eigen::Quaterniond q = rotaxis2quat<double>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
   imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
+  double tol = 1e-5;
   // comparison values obtained with
   // https://www.andre-gaschler.com/rotationconverter/
-  EXPECT_NEAR(imu_data.get_quaternion().x, 0, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion().y, 0.3826834, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion().z, 0, 1e-5);
-  EXPECT_NEAR(imu_data.get_quaternion().w, 0.9238795, 1e-5);
+  EXPECT_NEAR(imu_data.get_quaternion().x, 0, tol);
+  EXPECT_NEAR(imu_data.get_quaternion().y, 0.3826834, tol);
+  EXPECT_NEAR(imu_data.get_quaternion().z, 0, tol);
+  EXPECT_NEAR(imu_data.get_quaternion().w, 0.9238795, tol);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat1) {
