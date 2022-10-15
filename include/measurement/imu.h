@@ -82,7 +82,6 @@ class ImuMeasurement : public Measurement {
    */
   ImuLinearAcceleration<T> get_lin_acc();
 
-
  private:
   Eigen::Matrix3d R_;
   ImuQuaternion<T> quaternion_;
