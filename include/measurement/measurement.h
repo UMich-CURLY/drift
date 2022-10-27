@@ -1,23 +1,10 @@
-/* ----------------------------------------------------------------------------
- * Copyright 2018, Ross Hartley <m.ross.hartley@gmail.com>
- * All Rights Reserved
- * See LICENSE for the license information
- * -------------------------------------------------------------------------- */
-
-/**
- *  @file   measurement.h
- *  @author Ross Hartley
- *  @brief  Header file for Measurement class
- *  @date   September 27, 2018
- **/
-
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
 #include <iostream>
 #include <string>
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 enum MeasurementType { EMPTY, IMU, KINEMATICS, CONTACT, JOINT_STATE };
 
