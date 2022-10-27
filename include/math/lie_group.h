@@ -17,7 +17,7 @@
 #include <cmath>
 #include <iostream>
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 namespace lie_group {
 
