@@ -9,7 +9,7 @@ Propagation::Propagation() {
 }
 
 // InEKF Propagation - Inertial Data
-void Propagation::Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, RobotState& state) {
+void Propagation::Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, RobotState& state, const std::map<int,int>& augmented_states) {
 
     // Bias corrected IMU measurements
     Eigen::Vector3d w = imu.head(3)  - state.getGyroscopeBias();    // Angular Velocity
@@ -26,7 +26,7 @@ void Propagation::Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, Rob
     //  ------------ Propagate Covariance --------------- //
     this->set_state(state);
     Eigen::MatrixXd Phi = this->StateTransitionMatrix(w,a,dt);
-    Eigen::MatrixXd Qd = this->DiscreteNoiseMatrix(Phi, dt);
+    Eigen::MatrixXd Qd = this->DiscreteNoiseMatrix(Phi, dt, augmented_states);
     Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;
 
     // If we don't want to estimate bias, remove correlation
