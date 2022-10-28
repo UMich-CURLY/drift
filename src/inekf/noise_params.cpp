@@ -25,6 +25,7 @@ NoiseParams::NoiseParams() {
     setGyroscopeBiasNoise(0.00001);
     setAccelerometerBiasNoise(0.0001);
     setContactNoise(0.1);
+    setAugmentNoise(0.1);
 }
 
 void NoiseParams::setGyroscopeNoise(double std) { Qg_ = std*std*Eigen::Matrix3d::Identity(); }
@@ -47,11 +48,17 @@ void NoiseParams::setContactNoise(double std) { Qc_ = std*std*Eigen::Matrix3d::I
 void NoiseParams::setContactNoise(const Eigen::Vector3d& std) { Qc_ << std(0)*std(0),0,0, 0,std(1)*std(1),0, 0,0,std(2)*std(2); }
 void NoiseParams::setContactNoise(const Eigen::Matrix3d& cov) { Qc_ = cov; }
 
+void NoiseParams::setAugmentNoise(double std) { Qc_ = std*std*Eigen::Matrix3d::Identity(); }
+void NoiseParams::setAugmentNoise(const Eigen::Vector3d& std) { Qc_ << std(0)*std(0),0,0, 0,std(1)*std(1),0, 0,0,std(2)*std(2); }
+void NoiseParams::setAugmentNoise(const Eigen::Matrix3d& cov) { Qc_ = cov; }
+
 Eigen::Matrix3d NoiseParams::getGyroscopeCov() { return Qg_; }
 Eigen::Matrix3d NoiseParams::getAccelerometerCov() { return Qa_; }
 Eigen::Matrix3d NoiseParams::getGyroscopeBiasCov() { return Qbg_; }
 Eigen::Matrix3d NoiseParams::getAccelerometerBiasCov() { return Qba_; }
 Eigen::Matrix3d NoiseParams::getContactCov() { return Qc_; }
+Eigen::Matrix3d NoiseParams::getAugmentCov() { return Qc_; }
+
 
 std::ostream& operator<<(std::ostream& os, const NoiseParams& p) {
     os << "--------- Noise Params -------------" << endl;
@@ -60,6 +67,7 @@ std::ostream& operator<<(std::ostream& os, const NoiseParams& p) {
     os << "Gyroscope Bias Covariance:\n" << p.Qbg_ << endl;
     os << "Accelerometer Bias Covariance:\n" << p.Qba_ << endl;
     os << "Contact Covariance:\n" << p.Qc_ << endl;
+    os << "Augment state Covariance:\n" << p.Qc_ << endl;
     os << "-----------------------------------" << endl;
     return os;
 }

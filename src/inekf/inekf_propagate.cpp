@@ -24,6 +24,7 @@ void Propagation::Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, Rob
     int dimTheta = state.dimTheta();
 
     //  ------------ Propagate Covariance --------------- //
+    this->set_state(state);
     Eigen::MatrixXd Phi = this->StateTransitionMatrix(w,a,dt);
     Eigen::MatrixXd Qd = this->DiscreteNoiseMatrix(Phi, dt);
     Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;

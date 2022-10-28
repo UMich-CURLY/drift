@@ -50,20 +50,7 @@ class Propagation: public InEKF {
          */
         void Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, RobotState& state);
 
-    private:
-        ErrorType error_type_ = ErrorType::LeftInvariant; 
-        bool estimate_bias_ = true;  
-        RobotState state_;
-        NoiseParams noise_params_;
-        const Eigen::Vector3d g_; // Gravity vector in world frame (z-up)
-        std::map<int,bool> contacts_;
-        std::map<int,int> estimated_contact_positions_;
-        mapIntVector3d prior_landmarks_;
-        std::map<int,int> estimated_landmarks_;
-        Eigen::Vector3d magnetic_field_;
 
-        Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt);
-        Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt);
 }; 
 } // end inekf namespace
 
