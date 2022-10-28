@@ -4,13 +4,13 @@ ContactMeasurement<NUMCONTACTS>::ContactMeasurement() : Measurement(CONTACT) {
 }
 
 template<int NUMCONTACTS>
-void ContactMeasurement<NUMCONTACTS>::set_contacts(
+void ContactMeasurement<NUMCONTACTS>::set_contact(
     const Eigen::Matrix<bool, NUMCONTACTS, 1>& contacts) {
   contacts_ = contacts;
 }
 
 template<int NUMCONTACTS>
 Eigen::Matrix<bool, NUMCONTACTS, 1>
-ContactMeasurement<NUMCONTACTS>::get_contacts() {
+ContactMeasurement<NUMCONTACTS>::get_contact() {
   return contacts_;
 }

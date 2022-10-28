@@ -13,14 +13,14 @@ class ContactMeasurement : public Measurement {
    *
    * @param[in] Eigen::Matrix: n-vector of booleans containing contact state.
    */
-  void set_contacts(const Eigen::Matrix<bool, NUMCONTACTS, 1>& contacts);
+  void set_contact(const Eigen::Matrix<bool, NUMCONTACTS, 1>& contacts);
 
   /**
    * @brief Get the contact state vector for this measurement.
    *
    * @return Eigen::Matrix: n-vector of booleans containing contact state.
    */
-  Eigen::Matrix<bool, NUMCONTACTS, 1> get_contacts();
+  Eigen::Matrix<bool, NUMCONTACTS, 1> get_contact();
 
  private:
   Eigen::Matrix<bool, NUMCONTACTS, 1> contacts_;
