@@ -6,7 +6,7 @@
 
 #include <eigen3/Eigen/Dense>
 
-enum MeasurementType { EMPTY, IMU, KINEMATICS, VELOCITY, JOINT_STATE };
+enum MeasurementType { EMPTY, IMU, KINEMATICS, VELOCITY, JOINT_STATE, CONTACT };
 
 class Measurement {
   struct MeasurementHeader {
