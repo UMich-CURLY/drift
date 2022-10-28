@@ -6,115 +6,58 @@ TEST(VelocityMeasurementTest, Ctor) {
   EXPECT_EQ(velocity_data.get_type(), 3);
   EXPECT_EQ(velocity_data.get_type(), VELOCITY);
   EXPECT_EQ(velocity_data.get_velocity().x, 0);
+  EXPECT_EQ(velocity_data.get_velocity().y, 0);
+  EXPECT_EQ(velocity_data.get_velocity().z, 0);
 }
 
-/*
-TEST(ContactMeasurementTest, QuaternionSetGetBasic) {
-  ContactMeasurement<double> velocity_data;
 
-  Eigen::Quaterniond q = rotaxis2quat<double>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
-  velocity_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
+TEST(VelocityMeasurementTest, VelSetGetBasic) {
+  VelocityMeasurement<double> velocity_data;
+
+  velocity_data.set_velocity(1.234, 5.678, 9.012);
+
+  EXPECT_EQ(velocity_data.get_velocity().x, 1.234);
+  EXPECT_EQ(velocity_data.get_velocity().y, 5.678);
+  EXPECT_EQ(velocity_data.get_velocity().z, 9.012);
+}
+
+TEST(VelocityMeasurementTest, VelRepresentationInvariant) {
+  VelocityMeasurement<double> velocity_data;
+
+  EXPECT_THROW(velocity_data.set_velocity(0, 0, 299792459),
+               std::invalid_argument);
+  EXPECT_THROW(velocity_data.set_velocity(0, 299792458, 0),
+               std::invalid_argument);
+  EXPECT_THROW(velocity_data.set_velocity(3e8, 2, 3), std::invalid_argument);
+  EXPECT_THROW(velocity_data.set_velocity(0.2, -3e8, 0.2),
+               std::invalid_argument);
+
+  EXPECT_NO_THROW(velocity_data.set_velocity(299792457, 0, 0));
+}
+
+TEST(VelocityMeasurementTest, VelMag) {
+  VelocityMeasurement<double> velocity_data;
+  velocity_data.set_velocity(3, 4, 0);
+  EXPECT_EQ(velocity_data.get_vel_mag(), 5);
+}
+
+TEST(VelocityMeasurementTest, VelVec) {
+  VelocityMeasurement<double> velocity_data;
+  velocity_data.set_velocity(3, 4, 0);
+  EXPECT_EQ(velocity_data.get_vel_unit_vec()[0], 0.6);
+  EXPECT_EQ(velocity_data.get_vel_unit_vec()[1], 0.8);
+  EXPECT_EQ(velocity_data.get_vel_unit_vec()[2], 0);
 
   double tol = 1e-5;
-  // comparison values obtained with
-  // https://www.andre-gaschler.com/rotationconverter/
-  EXPECT_NEAR(velocity_data.get_quaternion().x, 0, tol);
-  EXPECT_NEAR(velocity_data.get_quaternion().y, 0.3826834, tol);
-  EXPECT_NEAR(velocity_data.get_quaternion().z, 0, tol);
-  EXPECT_NEAR(velocity_data.get_quaternion().w, 0.9238795, tol);
+  velocity_data.set_velocity(5, 6, 7);
+  EXPECT_NEAR(velocity_data.get_vel_mag(), 10.488088, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[0], 0.476731, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[1], 0.572078, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[2], 0.667424, tol);
+
+  velocity_data.set_velocity(23423, -345345, -456456);
+  EXPECT_NEAR(velocity_data.get_vel_mag(), 572855.903251, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[0], 0.0408881, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[1], -0.6028479, tol);
+  EXPECT_NEAR(velocity_data.get_vel_unit_vec()[2], -0.7968077, tol);
 }
-
-TEST(ContactMeasurementTest, QuaternionToRotMat1) {
-  ContactMeasurement<float> velocity_data;
-
-  Eigen::Quaternionf q = rotaxis2quat<float>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
-
-  velocity_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
-
-  // rotmattest created using values from
-  // https://www.andre-gaschler.com/rotationconverter/
-  Eigen::Matrix<double, 3, 3> rotmattest;
-  rotmattest << 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107;
-  compare_rot_mat(velocity_data.get_rotation_matrix(), rotmattest);
-}
-
-TEST(ContactMeasurementTest, QuaternionToRotMat2) {
-  ContactMeasurement<float> velocity_data;
-
-  Eigen::Quaternionf q = rotaxis2quat<float>(M_PI / 3, M_PI / 2, M_PI / 2, 0);
-
-  velocity_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
-
-  Eigen::Matrix<double, 3, 3> rotmattest;
-  rotmattest << 0.5, -0.8660254, 0, 0.8660254, 0.5, 0, 0, 0, 1;
-  compare_rot_mat(velocity_data.get_rotation_matrix(), rotmattest);
-}
-
-TEST(ContactMeasurementTest, QuaternionToRotMat3) {
-  ContactMeasurement<double> velocity_data;
-
-  Eigen::Quaterniond q
-      = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
-
-  velocity_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
-
-  Eigen::Matrix<double, 3, 3> rotmattest;
-  rotmattest << 0.9330127, -0.3535534, 0.0669873, 0.3535534, 0.8660254,
-      -0.3535534, 0.0669873, 0.3535534, 0.9330127;
-  compare_rot_mat(velocity_data.get_rotation_matrix(), rotmattest);
-}
-
-TEST(ContactMeasurementTest, QuaternionRepresentationInvariant) {
-  ContactMeasurement<double> velocity_data;
-
-  EXPECT_THROW(velocity_data.set_quaternion(0.123, 0.456, 0.789, 0.012),
-               std::invalid_argument);
-  EXPECT_THROW(velocity_data.set_quaternion(1, 2, 3, 4), std::invalid_argument);
-  EXPECT_THROW(velocity_data.set_quaternion(0.2, 0.2, 0.2, 0.2),
-               std::invalid_argument);
-  Eigen::Quaterniond q
-      = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
-
-  EXPECT_NO_THROW(velocity_data.set_quaternion(q.w(), q.x(), q.y(), q.z()));
-}
-
-TEST(ContactMeasurementTest, AngularVelocitySetGetBasic) {
-  ContactMeasurement<double> velocity_data;
-  velocity_data.set_ang_vel(1, 2, 3);
-  EXPECT_EQ(velocity_data.get_ang_vel().x, 1);
-  EXPECT_EQ(velocity_data.get_ang_vel().z, 3);
-}
-
-TEST(ContactMeasurementTest, LinearAccelerationSetGetBasic) {
-  ContactMeasurement<double> velocity_data;
-  velocity_data.set_lin_acc(1, 2, 3);
-  EXPECT_EQ(velocity_data.get_lin_acc().x, 1);
-  EXPECT_EQ(velocity_data.get_lin_acc().z, 3);
-}
-
-// Helper Functions
-
-void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
-  double tol = 1e-5;
-  for (int r = 0; r < 3; r++) {
-    for (int c = 0; c < 3; c++) {
-      EXPECT_NEAR(imu(r, c), test(r, c), tol);
-    }
-  }
-}
-
-//
-https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles#Intuition
-template<typename T>
-Eigen::Quaternion<T> rotaxis2quat(T a, T b_x, T b_y, T b_z) {
-  T sinA = std::sin(a / 2);
-  T cosA = std::cos(a / 2);
-  Eigen::Quaternion<T> q;
-  q.x() = std::cos(b_x) * sinA;
-  q.y() = std::cos(b_y) * sinA;
-  q.z() = std::cos(b_z) * sinA;
-  q.w() = cosA;
-
-  return q;
-}
-*/

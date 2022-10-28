@@ -22,6 +22,7 @@ template<typename T>
 class ImuMeasurement : public Measurement {
  public:
   ImuMeasurement();
+
   /**
    * @brief Set the imu measurement quaternion coefficients.
    *
@@ -33,20 +34,20 @@ class ImuMeasurement : public Measurement {
   void set_quaternion(T w, T x, T y, T z);
 
   /**
-   * @brief Set the imu measurement angular velocity.
+   * @brief Set the imu measurement angular velocity (rad/s).
    *
-   * @param[in] x: x axis coefficient (rad/s).
-   * @param[in] y: y axis coefficient (rad/s).
-   * @param[in] z: z axis coefficient (rad/s).
+   * @param[in] x: x axis coefficient.
+   * @param[in] y: y axis coefficient.
+   * @param[in] z: z axis coefficient.
    */
   void set_ang_vel(T x, T y, T z);
 
   /**
-   * @brief Set the imu measurement linear acceleration.
+   * @brief Set the imu measurement linear acceleration (m/s^2).
    *
-   * @param[in] x: x axis coefficient (m/s^2).
-   * @param[in] y: y axis coefficient (m/s^2).
-   * @param[in] z: z axis coefficient (m/s^2).
+   * @param[in] x: x axis coefficient.
+   * @param[in] y: y axis coefficient.
+   * @param[in] z: z axis coefficient.
    */
   void set_lin_acc(T x, T y, T z);
 
@@ -67,14 +68,14 @@ class ImuMeasurement : public Measurement {
   ImuQuaternion<T> get_quaternion();
 
   /**
-   * @brief Get the imu measurement angular velocity coefficients.
+   * @brief Get the imu measurement angular velocity coefficients (rad/s).
    *
    * @return ImuAngularVelocity: the angular velocity POD (x, y, z).
    */
   ImuAngularVelocity<T> get_ang_vel();
 
   /**
-   * @brief Get the imu measurement linear acceleration coefficients.
+   * @brief Get the imu measurement linear acceleration coefficients (m/s^2).
    *
    * @return ImuLinearAcceleration: the linear acceleration POD (x, y, z).
    */
@@ -86,7 +87,9 @@ class ImuMeasurement : public Measurement {
   ImuAngularVelocity<T> angular_velocity_;
   ImuLinearAcceleration<T> linear_acceleration_;
   void set_rotation();
-  void quat_inv(T w, T x, T y, T z);
+  void quat_inv(T w, T x, T y,
+                T z);    // quaternion must be normalized for well defined
+                         // Eigen::toRotationMatrix() output
 };
 #include "measurement/impl/imu_impl.cpp"
 

@@ -23,14 +23,15 @@ double VelocityMeasurement<T>::get_vel_mag() {
 template<typename T>
 Eigen::Matrix<double, 3, 1> VelocityMeasurement<T>::get_vel_unit_vec() {
   Eigen::Matrix<double, 3, 1> uv;
-  uv << vel_.x / get_vel_mag(), vel_.y / get_vel_mag(), vel_.z / get_vel_mag();
-  return uv;
+  uv << vel_.x, vel_.y, vel_.z;
+  return uv.normalized();
 }
 
 template<typename T>
 void VelocityMeasurement<T>::vel_inv(T vx, T vy, T vz) {
   int c = 299792458;
-  if (std::abs(get_vel_mag()) >= c) {
+  double mag = std::sqrt(vx * vx + vy * vy + vz * vz);
+  if (std::abs(mag) >= c) {
     throw std::invalid_argument("Velocity argument is FTL!");
   }
 }
