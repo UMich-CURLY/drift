@@ -32,14 +32,13 @@ using ContactState = std::pair<int, bool>;
 
 class Correction: public InEKF {
     public: 
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    /// @name Constructors
-    Correction();
+        /// @name Constructors
+        Correction();
 
-    /// @name Correction method skeletons
-    void Correct(RobotState& state); 
-
+        /// @name Correction method skeletons
+        void Correct(RobotState& state); 
 };
 
 class KinematicsCorrection: public Correction {
@@ -96,22 +95,14 @@ class KinematicsCorrection: public Correction {
         void Correct(const vectorKinematics& measured_kinematics, RobotState& state); 
     /// @}
 
-    private:
-        ErrorType error_type_ = ErrorType::LeftInvariant; 
-        bool estimate_bias_ = true;  
-        RobotState state_;
-        NoiseParams noise_params_;
-        const Eigen::Vector3d g_; // Gravity vector in world frame (z-up)
+    protected:
         std::map<int,bool> contacts_;
         std::map<int,int> estimated_contact_positions_;
         mapIntVector3d prior_landmarks_;
         std::map<int,int> estimated_landmarks_;
-        Eigen::Vector3d magnetic_field_;
-
-        Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt);
-        Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt);
 
 }; 
+
 
 class VelocityCorrection: public Correction {
     public:
@@ -133,21 +124,6 @@ class VelocityCorrection: public Correction {
          */
         void CorrectVelocity(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState& state);
     /// @}
-
-    private:
-        ErrorType error_type_ = ErrorType::LeftInvariant; 
-        bool estimate_bias_ = true;  
-        RobotState state_;
-        NoiseParams noise_params_;
-        const Eigen::Vector3d g_; // Gravity vector in world frame (z-up)
-        std::map<int,bool> contacts_;
-        std::map<int,int> estimated_contact_positions_;
-        mapIntVector3d prior_landmarks_;
-        std::map<int,int> estimated_landmarks_;
-        Eigen::Vector3d magnetic_field_;
-
-        Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt);
-        Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt);
 
 };
 
