@@ -48,7 +48,7 @@ class Propagation: public InEKF {
          * @param[in] dt: double indicating how long to integrate the inertial measurements for
          * @return None
          */
-        void Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, RobotState& state);
+        void Propagate(const Eigen::Matrix<double,6,1>& imu, double dt, RobotState& state, const std::map<int,int>& augmented_states={});
 
 
 }; 
