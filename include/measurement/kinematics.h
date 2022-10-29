@@ -8,7 +8,7 @@ class KinematicsMeasurement : public Measurement {
  public:
   KinematicsMeasurement();
 
-  void set_kinematics_array(const inekf_msgs::KinematicsArray& kinematics);
+  void set_kinematics_array(const& kinematics);
 
  private:
   std::vector<T> position_;
@@ -16,4 +16,4 @@ class KinematicsMeasurement : public Measurement {
   std::vector<T> effort_;
 };
 
-#endifb67
+#endif
