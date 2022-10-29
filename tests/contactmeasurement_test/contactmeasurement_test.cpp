@@ -7,10 +7,9 @@ TEST(ContactMeasurementTest, Ctor) {
   EXPECT_EQ(contact_data.get_type(), CONTACT);
 
   EXPECT_EQ(contact_data.get_contact().size(), 4);
-  EXPECT_EQ(contact_data.get_contact()[0], 0);
-  EXPECT_EQ(contact_data.get_contact()[1], 0);
-  EXPECT_EQ(contact_data.get_contact()[2], 0);
-  EXPECT_EQ(contact_data.get_contact()[3], 0);
+  for (size_t i = 0; i < 4; i++) {
+    EXPECT_EQ(contact_data.get_contact()[i], 0);
+  }
 }
 
 TEST(ContactMeasurementTest, ContactSetGetBasic) {
