@@ -1,8 +1,6 @@
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
-#include <stdint.h>
-#include <string>
 #include "measurement.h"
 
 template<typename T>
