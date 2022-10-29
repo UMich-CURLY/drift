@@ -43,12 +43,16 @@ TEST(VelocityMeasurementTest, VelMag) {
 
 TEST(VelocityMeasurementTest, VelVec) {
   VelocityMeasurement<double> velocity_data;
+
+  double tol = 1e-5;
+
   velocity_data.set_velocity(3, 4, 0);
+  double mag = velocity_data.get_vel_unit_vec().norm();
   EXPECT_EQ(velocity_data.get_vel_unit_vec()[0], 0.6);
   EXPECT_EQ(velocity_data.get_vel_unit_vec()[1], 0.8);
   EXPECT_EQ(velocity_data.get_vel_unit_vec()[2], 0);
+  EXPECT_NEAR(mag, 1, tol);
 
-  double tol = 1e-5;
   velocity_data.set_velocity(5, 6, 7);
   EXPECT_NEAR(velocity_data.get_vel_mag(), 10.488088, tol);
   EXPECT_NEAR(velocity_data.get_vel_unit_vec()[0], 0.476731, tol);
@@ -60,4 +64,6 @@ TEST(VelocityMeasurementTest, VelVec) {
   EXPECT_NEAR(velocity_data.get_vel_unit_vec()[0], 0.0408881, tol);
   EXPECT_NEAR(velocity_data.get_vel_unit_vec()[1], -0.6028479, tol);
   EXPECT_NEAR(velocity_data.get_vel_unit_vec()[2], -0.7968077, tol);
+  mag = velocity_data.get_vel_unit_vec().norm();
+  EXPECT_NEAR(mag, 1, tol);
 }
