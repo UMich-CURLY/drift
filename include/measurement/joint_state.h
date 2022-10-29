@@ -8,16 +8,39 @@ class JointStateMeasurement : public Measurement {
  public:
   JointStateMeasurement();
 
-  void set_joint_pos(Eigen::Matrix<double, JOINT_DIM, 1> pos);
+  /**
+   * @brief Set the joint state coefficients.
+   *
+   * @param[in] position: vector of joint position coefficients.
+   * @param[in] velocity: vector of joint velocity coefficients.
+   * @param[in] effort: vector of joint effort coefficients.
+   */
+  void set_joint_state(const Eigen::Matrix<double, JOINT_DIM, 1>& position,
+                       const Eigen::Matrix<double, JOINT_DIM, 1>& velocity,
+                       const Eigen::Matrix<double, JOINT_DIM, 1>& effort);
 
-  void set_joint_vel(Eigen::Matrix<double, JOINT_DIM, 1> vel);
-
-  void set_joint_effort(Eigen::Matrix<double, JOINT_DIM, 1> effort);
-
+  /**
+   * @brief Get the joint position coefficients.
+   *
+   * @return Eigen::Matrix: vector of joint position coefficients with length
+   * JOINT_DIM.
+   */
   Eigen::Matrix<double, JOINT_DIM, 1> get_joint_pos();
 
+  /**
+   * @brief Get the joint velocity coefficients.
+   *
+   * @return Eigen::Matrix: vector of joint velocity coefficients with length
+   * JOINT_DIM.
+   */
   Eigen::Matrix<double, JOINT_DIM, 1> get_joint_vel();
 
+  /**
+   * @brief Get the joint effort coefficients.
+   *
+   * @return Eigen::Matrix: vector of joint effort coefficients with length
+   * JOINT_DIM.
+   */
   Eigen::Matrix<double, JOINT_DIM, 1> get_joint_effort();
 
 

@@ -7,6 +7,16 @@ JointStateMeasurement<JOINT_DIM>::JointStateMeasurement()
 }
 
 template<unsigned int JOINT_DIM>
+void JointStateMeasurement::set_joint_state(
+    Eigen::Matrix<double, JOINT_DIM, 1> position,
+    Eigen::Matrix<double, JOINT_DIM, 1> velocity,
+    Eigen::Matrix<double, JOINT_DIM, 1> effort) {
+  joint_position_ = pos;
+  joint_velocity_ = vel;
+  joint_effort_ = effort;
+}
+
+template<unsigned int JOINT_DIM>
 Eigen::Matrix<double, JOINT_DIM, 1>
 JointStateMeasurement<JOINT_DIM>::get_joint_pos() {
   return joint_position_;
