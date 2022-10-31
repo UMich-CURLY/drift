@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "measurement/imu.h"
 
+#define tol 1e-6
+
 void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test);
 
 template<typename T>
@@ -22,7 +24,6 @@ TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
   Eigen::Quaterniond q = rotaxis2quat<double>(M_PI / 4, M_PI / 2, 0, M_PI / 2);
   imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
-  double tol = 1e-5;
   // comparison values obtained with
   // https://www.andre-gaschler.com/rotationconverter/
   EXPECT_NEAR(imu_data.get_quaternion().x, 0, tol);
@@ -102,7 +103,6 @@ TEST(ImuMeasurementTest, LinearAccelerationSetGetBasic) {
 // Helper Functions
 
 void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
-  double tol = 1e-5;
   for (int r = 0; r < 3; r++) {
     for (int c = 0; c < 3; c++) {
       EXPECT_NEAR(imu(r, c), test(r, c), tol);
