@@ -59,7 +59,6 @@ class ImuMeasurement : public Measurement {
    */
   Eigen::Matrix3d get_rotation_matrix();
 
-
   /**
    * @brief Get the imu measurement quaternion coefficients.
    *
