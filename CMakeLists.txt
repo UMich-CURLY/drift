@@ -38,6 +38,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
 add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/states/se_k_3.cpp)
+add_library(robot_state ${PROJECT_SOURCE_DIR}/src/states/robot_state.cpp)
 
 ##################################################
 #                 Build Examples                 #
