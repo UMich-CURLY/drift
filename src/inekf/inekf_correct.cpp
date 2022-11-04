@@ -12,12 +12,8 @@ void Correction::Correct(RobotState& state) {
     // Just a skeleton for now
 }
 
-KinematicsCorrection::KinematicsCorrection() {
-    // Initialize the filter
-}
-
 // Correct state using kinematics measured between imu and contact point
-void KinematicsCorrection::Correct(const vectorKinematics& measured_kinematics, RobotState& state) {
+void Correction::Correct(const vectorKinematics& measured_kinematics, RobotState& state) {
     Eigen::VectorXd Z, Y, b;
     Eigen::MatrixXd H, N, PI;
 
@@ -182,12 +178,9 @@ void KinematicsCorrection::Correct(const vectorKinematics& measured_kinematics, 
     }
 }
 
-VelocityCorrection::VelocityCorrection() {
-    // Initialize the filter
-}
 
 // Correct using measured body velocity with the estimated velocity
-void VelocityCorrection::CorrectVelocity(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState &state) {
+void Correction::Correct(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState &state) {
     Eigen::VectorXd Z, Y, b;
     Eigen::MatrixXd H, N, PI;
 
