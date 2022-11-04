@@ -11,6 +11,9 @@
 
 #include <cmath>
 #include <iostream>
+#include <map>
+#include <string>
+#include <vector>
 
 #include <Eigen/Dense>
 
@@ -37,8 +40,12 @@ class SEK3 {
   Eigen::MatrixXd get_R();
   Eigen::MatrixXd get_p();
   Eigen::MatrixXd get_v();
+
   Eigen::MatrixXd get_p1();
   Eigen::MatrixXd get_v1();
+  Eigen::MatrixXd get_aug(string key);
+  vector<string> get_aug_keys();
+  int get_aug_val(string key);
   int get_dim();
 
   // Setters
@@ -48,9 +55,10 @@ class SEK3 {
   void set_p(const Eigen::VectorXd& p);
   void set_v(const Eigen::MatrixXd& v);
 
-  // Setters - addons
+  // Setters - aug state
   void set_p1(const Eigen::VectorXd& p1);
   void set_v1(const Eigen::VectorXd& v1);
+  void set_aug(string key, const Eigen::VectorXd& aug);
 
   // Operators
   SEK3 operator*(const SEK3& X);
@@ -68,6 +76,9 @@ class SEK3 {
   SEK3 log();
   SEK3 exp();
   SEK3 Adjoint();
+
+  private:
+    std::map<std::string, int> aug_state_map;
 
 };    // class SEK3
 
