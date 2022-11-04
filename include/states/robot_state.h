@@ -61,6 +61,7 @@ class RobotState {
         const Eigen::Matrix3d getAccelerometerBiasCovariance() const;
         const Eigen::Matrix3d getp1Covariance() const;
         const Eigen::Matrix3d getv1Covariance() const;
+        const Eigen::Matrix3d getAugStateCovariance(std::string key) const;
 
         const int dimX() const;
         const int dimTheta() const;

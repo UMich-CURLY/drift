@@ -78,7 +78,7 @@ class SEK3 {
   SEK3 Adjoint();
 
   private:
-    std::map<std::string, int> aug_state_map;
+    std::map<std::string, int> map_aug_;
 
 };    // class SEK3
 

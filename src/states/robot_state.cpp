@@ -88,7 +88,7 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const { retur
 const Eigen::Matrix3d RobotState::getp1Covariance() const { return P_.block<3,3>(15,15); }
 const Eigen::Matrix3d RobotState::getv1Covariance() const { return P_.block<3,3>(18,18); }
 const Eigen::Matrix3d RobotState::getAugStateCovariance(std::string key) const {
-    int idx = se_k_3::SEK3::get_aug_val(key);
+    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
     return P_.block<3,3>(3*idx,3*idx);
 }
 
