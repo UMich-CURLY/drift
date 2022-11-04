@@ -37,6 +37,9 @@ class Correction: public InEKF {
         /// @name Constructors
         Correction();
 
+        Correction(ErrorType error_type);
+
+
         /// @name Correction method skeletons
         void Correct(RobotState& state); 
 
