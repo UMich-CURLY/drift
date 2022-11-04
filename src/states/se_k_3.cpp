@@ -37,7 +37,7 @@ std::vector<string> SEK3::get_aug_keys() {
   }
   return keys;
 }
-int SEK3::get_aug_val(string key) { return map_aug_[key]; }
+int SEK3::get_aug_index(string key) { return map_aug_[key]; }
 int SEK3::get_dim() { return X_.rows(); }
 
 // setters
