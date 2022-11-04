@@ -23,7 +23,7 @@
 #include "inekf/noise_params.h"
 #include "inekf/observations.h"
 #include "math/lie_group.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 namespace inekf {
 

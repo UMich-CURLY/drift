@@ -18,8 +18,6 @@ namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-void removeRowAndColumn(Eigen::MatrixXd& M, int index);
-
 // Default constructor
 InEKF::InEKF() : 
     g_((Eigen::VectorXd(3) << 0,0,-9.81).finished()), 
