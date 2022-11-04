@@ -1,7 +1,4 @@
-#ifndef UTILS_H
-#define UTILS_H
-
-#include <Eigen/Dense>
+#include "utils/utils.h"
 
 void removeRowAndColumn(Eigen::MatrixXd& M, int index) {
     unsigned int dimX = M.cols();
@@ -10,5 +7,3 @@ void removeRowAndColumn(Eigen::MatrixXd& M, int index) {
     M.block(0,index,dimX,dimX-index-1) = M.rightCols(dimX-index-1).eval();
     M.conservativeResize(dimX-1,dimX-1);
 }
-
-#endif    // UTILS_H
