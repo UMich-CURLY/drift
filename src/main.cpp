@@ -17,7 +17,6 @@
 // #include "communication/lcm_handler.hpp"
 #include "inekf/inekf_correct.h"
 #include "inekf/inekf_propagate.h"
-#include "inekf/inekf_obj.h"
 #include "state/robot_state.h"
 
 // Boost
@@ -42,26 +41,33 @@ int main(int argc, char **argv)
         0, 0, 0, 0, 1;
 
     Eigen::Matrix<double, 6, 1> imu;
-    imu << 0, 0, 0, 0, 0, 0;
+    imu << 0, 0, 0, 0, 0, 9.81;
 
-    double dt = 0.001; // 100Hz
+    double dt = 1;
 
     Eigen::Vector3d measured_velocity;
     measured_velocity << 1, 0, 0;
 
     Eigen::Matrix3d measured_velocity_covariance;
-    measured_velocity_covariance << 1, 0, 0,
-        0, 1, 0,
-        0, 0, 1;
+    measured_velocity_covariance << 0.01, 0, 0,
+        0, 0.01, 0,
+        0, 0, 0.01;
+
+    inekf::NoiseParams params;
+    double temp_param = 0;
+    params.setGyroscopeNoise(temp_param);
+    params.setAccelerometerNoise(temp_param);
+    params.setGyroscopeBiasNoise(temp_param);
+    params.setAccelerometerBiasNoise(temp_param);
+    params.setContactNoise(temp_param);
+
     
     inekf::RobotState state(m);
-    inekf::Correction correction;
-    inekf::Propagation propagation;
-
-    inekf::InEKF_OBJ<inekf::Propagation, inekf::Correction> inekf_obj(state, propagation, correction);
+    inekf::Propagation propagation(params, inekf::ErrorType::RightInvariant);
+    inekf::Correction correction(inekf::ErrorType::RightInvariant);
 
 
-    inekf_obj.propagate_method.Propagate(imu, dt, inekf_obj.state);
-    inekf_obj.correct_method.Correct(measured_velocity, measured_velocity_covariance, inekf_obj.state);
-    std::cout << inekf_obj.state.getX() << std::endl;
+    propagation.Propagate(imu, dt, state);
+    correction.Correct(measured_velocity, measured_velocity_covariance, state);
+    std::cout << state.getX() << std::endl;
 }

@@ -35,12 +35,25 @@ InEKF::InEKF(RobotState state) :
     magnetic_field_((Eigen::VectorXd(3) << std::cos(1.2049),0,std::sin(1.2049)).finished()), 
     state_(state) {}
 
+// Constructor with error type
+InEKF::InEKF(ErrorType error_type) : 
+    g_((Eigen::VectorXd(3) << 0,0,-9.81).finished()), 
+    magnetic_field_((Eigen::VectorXd(3) << 0,0,0).finished()),
+    error_type_(error_type) {}
+
 // Constructor with initial state and noise params
 InEKF::InEKF(RobotState state, NoiseParams params) : 
     g_((Eigen::VectorXd(3) << 0,0,-9.81).finished()), 
     magnetic_field_((Eigen::VectorXd(3) << std::cos(1.2049),0,std::sin(1.2049)).finished()), 
     state_(state), 
     noise_params_(params) {}
+
+// Constructor with noise params and error type 
+InEKF::InEKF(NoiseParams params, ErrorType error_type) : 
+    g_((Eigen::VectorXd(3) << 0,0,-9.81).finished()), 
+    magnetic_field_((Eigen::VectorXd(3) << std::cos(1.2049),0,std::sin(1.2049)).finished()), 
+    noise_params_(params), 
+    error_type_(error_type) {}
 
 // Constructor with initial state, noise params, and error type
 InEKF::InEKF(RobotState state, NoiseParams params, ErrorType error_type) : 

@@ -4,8 +4,16 @@ namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-Propagation::Propagation() {
-    // Initialize the filter
+// Default constructor
+Propagation::Propagation() : InEKF::InEKF() {
+}
+
+// Constructor with noise params
+Propagation::Propagation(NoiseParams params) : InEKF::InEKF(params) {
+}
+
+// Constructor with noise params and error type
+Propagation::Propagation(NoiseParams params, ErrorType error_type) : InEKF::InEKF(params, error_type) {
 }
 
 // InEKF Propagation - Inertial Data

@@ -65,6 +65,9 @@ class InEKF {
         InEKF(RobotState state);
 
         // ======================================================================
+        InEKF(ErrorType error_type);
+
+        // ======================================================================
         /**
          * @brief Constructor. Initialize filter with state and noise parameters.
          * 
@@ -72,6 +75,9 @@ class InEKF {
          * @param[in] params: The noise parameters to be assigned.
          */        
         InEKF(RobotState state, NoiseParams params);
+
+        // ======================================================================
+        InEKF(NoiseParams params, ErrorType error_type);
 
         // ======================================================================
         /**

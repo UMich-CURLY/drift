@@ -34,6 +34,11 @@ class Propagation: public InEKF {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
         Propagation();
+
+        Propagation(NoiseParams params);
+
+        Propagation(NoiseParams params, ErrorType error_type);
+
         
     /// @name Propagation and Correction Methods
     /// @{
