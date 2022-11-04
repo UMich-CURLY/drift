@@ -29,15 +29,15 @@ Eigen::MatrixXd SEK3::get_v() { return X_.block(0, 4, 3, 1); }
 
 Eigen::MatrixXd SEK3::get_p1() { return X_.block(0, 5, 3, 1); }
 Eigen::MatrixXd SEK3::get_v1() { return X_.block(0, 6, 3, 1); }
-Eigen::MatrixXd SEK3::get_aug(string key) { return X_.block(0, aug_state_map[key]-1, 3, 1); }
-vector<string> SEK3::get_aug_keys() { 
-  vector<string> keys;
-  for (auto const& x : aug_state_map) {
+Eigen::MatrixXd SEK3::get_aug(string key) { return X_.block(0, map_aug_[key]-1, 3, 1); }
+std::vector<string> SEK3::get_aug_keys() { 
+  std::vector<string> keys;
+  for (auto const& x : map_aug_) {
     keys.push_back(x.first);
   }
   return keys;
 }
-int SEK3::get_aug_val(string key) { return aug_state_map[key]; }
+int SEK3::get_aug_val(string key) { return map_aug_[key]; }
 int SEK3::get_dim() { return X_.rows(); }
 
 // setters
@@ -67,7 +67,7 @@ void SEK3::set_v1(const Eigen::VectorXd& v1) {
 
 void SEK3::set_aug(string key, const Eigen::VectorXd& aug) {
   int _K = X_.cols() + 1;
-  aug_state_dict[key] = _K;
+  map_aug_[key] = _K;
   Eigen::MatrixXd _X = Eigen::MatrixXd::Identity(_K, _K);
   _X.block(0, 0, _K, _K) = X_;
   _X.block(0, _K, 3, 1) = aug;
