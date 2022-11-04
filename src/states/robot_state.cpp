@@ -12,6 +12,7 @@
  **/
 
 #include "lie_group.h"
+#include "se_k_3.h"
 #include "robot_state.h"
 
 namespace inekf {
@@ -50,9 +51,9 @@ RobotState::RobotState(const se_k_3::SEK3& X, const Eigen::VectorXd& Theta) :
 // Initialize with SEK3, Theta and P
 RobotState::RobotState(const se_k_3::SEK3& X, const Eigen::VectorXd& Theta, const Eigen::MatrixXd& P) : 
     X_(X.getX()), Theta_(Theta), P_(P) {}
-
 // TODO: error checking to make sure dimensions are correct and supported
 
+// getters
 const Eigen::MatrixXd RobotState::getX() const { return X_; }
 const Eigen::VectorXd RobotState::getTheta() const { return Theta_; }
 const Eigen::MatrixXd RobotState::getP() const { return P_; }
@@ -63,12 +64,20 @@ const Eigen::Vector3d RobotState::getPosition() const { return X_.block<3,1>(0,4
 const Eigen::Vector3d RobotState::getp1() const { return X_.block<3,1>(0,5); }
 const Eigen::Vector3d RobotState::getv1() const { return X_.block<3,1>(0,6); }
 const Eigen::Vector3d RobotState::getVector(int index) const { return X_.block<3,1>(0,index); }
+const Eigen::Vector3d getAugState(std::string key) const {
+    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
+    return X_.block<3,1>(0,idx);
+}
 
 const Eigen::Vector3d RobotState::getGyroscopeBias() const { return Theta_.block<3,1>(0,0); }
 const Eigen::Vector3d RobotState::getAccelerometerBias() const { return Theta_.block<3,1>(3,0); }
 // TODO: protect p1 and v1 bias incase they are not set
 const Eigen::Vector3d RobotState::getp1Bias() const { return Theta_.block<3,1>(4,0); }
 const Eigen::Vector3d RobotState::getv1Bias() const { return Theta_.block<3,1>(5,0); }
+const Eigen::Vector3d RobotState::getAugStateBias() const {
+    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
+    return Theta_.block<3,1>(idx,0);
+}
 
 const Eigen::Matrix3d RobotState::getRotationCovariance() const { return P_.block<3,3>(0,0); }
 const Eigen::Matrix3d RobotState::getVelocityCovariance() const { return P_.block<3,3>(3,3); }
@@ -78,6 +87,10 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const { retur
 // TODO: protect p1 and v1 cov incase they are not set
 const Eigen::Matrix3d RobotState::getp1Covariance() const { return P_.block<3,3>(15,15); }
 const Eigen::Matrix3d RobotState::getv1Covariance() const { return P_.block<3,3>(18,18); }
+const Eigen::Matrix3d RobotState::getAugStateCovariance(std::string key) const {
+    int idx = se_k_3::SEK3::get_aug_val(key);
+    return P_.block<3,3>(3*idx,3*idx);
+}
 
 const int RobotState::dimX() const { return X_.cols(); }
 const int RobotState::dimTheta() const {return Theta_.rows();}
@@ -147,7 +160,7 @@ const Eigen::Vector3d RobotState::getBodyPosition() const {
     }
 }
 
-
+// setters
 void RobotState::setX(const Eigen::MatrixXd& X) { X_ = X; }
 void RobotState::setTheta(const Eigen::VectorXd& Theta) { Theta_ = Theta; }
 void RobotState::setP(const Eigen::MatrixXd& P) { P_ = P; }

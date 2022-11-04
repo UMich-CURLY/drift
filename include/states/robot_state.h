@@ -14,6 +14,7 @@
 #ifndef ROBOT_STATE_H
 #define ROBOT_STATE_H
 #include <iostream>
+#include <string>
 
 #include <Eigen/Dense>
 
@@ -45,11 +46,13 @@ class RobotState {
         const Eigen::Vector3d getp1() const;
         const Eigen::Vector3d getv1() const;
         const Eigen::Vector3d getVector(int id) const;
+        const Eigen::Vector3d getAugState(std::string key) const;
 
         const Eigen::Vector3d getGyroscopeBias() const;
         const Eigen::Vector3d getAccelerometerBias() const;
         const Eigen::Vector3d getp1Bias() const;
         const Eigen::Vector3d getv1Bias() const;
+        const Eigen::Vector3d getAugStateBias(std::string key) const;
 
         const Eigen::Matrix3d getRotationCovariance() const;
         const Eigen::Matrix3d getVelocityCovariance() const;
