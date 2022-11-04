@@ -4,9 +4,12 @@ namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-Correction::Correction() {
-    // Initialize the filter
-}
+
+// Default constructor
+Correction::Correction() : InEKF::InEKF() {}
+
+// Constructor with error type
+Correction::Correction(ErrorType error_type) : InEKF::InEKF(error_type) {}
 
 void Correction::Correct(RobotState& state) {
     // Just a skeleton for now
