@@ -37,6 +37,9 @@ class SEK3 {
   Eigen::MatrixXd get_R();
   Eigen::MatrixXd get_p();
   Eigen::MatrixXd get_v();
+  Eigen::MatrixXd get_p1();
+  Eigen::MatrixXd get_v1();
+  int get_dim();
 
   // Setters
   void set_K(int K);
@@ -44,6 +47,10 @@ class SEK3 {
   void set_R(const Eigen::MatrixXd& R);
   void set_p(const Eigen::VectorXd& p);
   void set_v(const Eigen::MatrixXd& v);
+
+  // Setters - addons
+  void set_p1(const Eigen::VectorXd& p1);
+  void set_v1(const Eigen::VectorXd& v1);
 
   // Operators
   SEK3 operator*(const SEK3& X);
