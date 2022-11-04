@@ -65,7 +65,7 @@ const Eigen::Vector3d RobotState::getp1() const { return X_.block<3,1>(0,5); }
 const Eigen::Vector3d RobotState::getv1() const { return X_.block<3,1>(0,6); }
 const Eigen::Vector3d RobotState::getVector(int index) const { return X_.block<3,1>(0,index); }
 const Eigen::Vector3d getAugState(std::string key) const {
-    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
+    int idx = se_k_3::SEK3::get_aug_index(key) - 1;
     return X_.block<3,1>(0,idx);
 }
 
@@ -75,7 +75,7 @@ const Eigen::Vector3d RobotState::getAccelerometerBias() const { return Theta_.b
 const Eigen::Vector3d RobotState::getp1Bias() const { return Theta_.block<3,1>(4,0); }
 const Eigen::Vector3d RobotState::getv1Bias() const { return Theta_.block<3,1>(5,0); }
 const Eigen::Vector3d RobotState::getAugStateBias() const {
-    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
+    int idx = se_k_3::SEK3::get_aug_index(key) - 1;
     return Theta_.block<3,1>(idx,0);
 }
 
@@ -88,7 +88,7 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const { retur
 const Eigen::Matrix3d RobotState::getp1Covariance() const { return P_.block<3,3>(15,15); }
 const Eigen::Matrix3d RobotState::getv1Covariance() const { return P_.block<3,3>(18,18); }
 const Eigen::Matrix3d RobotState::getAugStateCovariance(std::string key) const {
-    int idx = se_k_3::SEK3::get_aug_val(key) - 1;
+    int idx = se_k_3::SEK3::get_aug_index(key) - 1;
     return P_.block<3,3>(3*idx,3*idx);
 }
 

@@ -45,7 +45,7 @@ class SEK3 {
   Eigen::MatrixXd get_v1();
   Eigen::MatrixXd get_aug(string key);
   vector<string> get_aug_keys();
-  int get_aug_val(string key);
+  int get_aug_index(string key);
   int get_dim();
 
   // Setters
