@@ -24,7 +24,7 @@
 #include "inekf/observations.h"
 #include "inekf/inekf.h"
 #include "math/lie_group.h"
-#include "utils.h"
+#include "utils/utils.h"
 
 namespace inekf {
 
@@ -39,17 +39,9 @@ class Correction: public InEKF {
 
         /// @name Correction method skeletons
         void Correct(RobotState& state); 
-};
 
-class KinematicsCorrection: public Correction {
-    public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
-    /// @name Constructors
-        KinematicsCorrection();
-
-    /// @name Getters
-    /// @{
+        /// @name Getters
+        /// @{
         // ======================================================================
         /**
          * @brief Gets the filter's current contact states.
@@ -67,10 +59,10 @@ class KinematicsCorrection: public Correction {
          * @return std::map<int,int> map of contact ID and associated index in the state matrix X
          */
         std::map<int,int> get_estimated_contact_positions() const;
-    /// @}
+        /// @}
 
-    /// @name Setters
-    /// @{
+        /// @name Setters
+        /// @{
         // ======================================================================
         /**
          * @brief Sets the filter's current contact state.
@@ -79,11 +71,22 @@ class KinematicsCorrection: public Correction {
          * @return None
          */
         void set_contacts(std::vector<ContactState> contacts);
-    /// @}
+        /// @}
 
-    /// @name Correction Methods
-    /// @{
+        /// @name Correction Methods
+        /// @{
         // ======================================================================
+
+        /** 
+         * @brief Corrects the state estimate using the measured forward kinematics between the IMU and a set of contact frames.
+         * If contact is indicated but not included in the state, the state is augmented to include the estimated contact position.
+         * If contact is not indicated but is included in the state, the contact position is marginalized out of the state. 
+         * This is a right-invariant measurement model. 
+         * @param[in] measured_kinematics: the measured kinematics containing the contact id, relative pose measurement in the IMU frame, and covariance
+         * @return None
+         */
+        void Correct(const vectorKinematics& measured_kinematics, RobotState& state); 
+
         /** 
          * @brief Corrects the state estimate using the measured forward kinematics between the IMU and a set of contact frames.
          * If contact is indicated but not included in the state, the state is augmented to include the estimated contact position.
@@ -92,38 +95,14 @@ class KinematicsCorrection: public Correction {
          * @param[in] measured_kinematics: the measured kinematics containing the contact id, relative pose measurement in the IMU frame, and covariance
          * @return None
          */
-        void Correct(const vectorKinematics& measured_kinematics, RobotState& state); 
-    /// @}
+        void Correct(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState& state);
+        /// @}
 
     protected:
         std::map<int,bool> contacts_;
         std::map<int,int> estimated_contact_positions_;
         mapIntVector3d prior_landmarks_;
         std::map<int,int> estimated_landmarks_;
-
-}; 
-
-
-class VelocityCorrection: public Correction {
-    public:
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        
-    /// @name Constructors
-        VelocityCorrection();
-
-    /// @name Correction Methods
-    /// @{
-        // ======================================================================
-        /** 
-         * @brief Corrects the state estimate using the measured forward kinematics between the IMU and a set of contact frames.
-         * If contact is indicated but not included in the state, the state is augmented to include the estimated contact position.
-         * If contact is not indicated but is included in the state, the contact position is marginalized out of the state. 
-         * This is a right-invariant measurement model. Example usage can be found in @include kinematics.cpp
-         * @param[in] measured_kinematics: the measured kinematics containing the contact id, relative pose measurement in the IMU frame, and covariance
-         * @return None
-         */
-        void CorrectVelocity(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState& state);
-    /// @}
 
 };
 

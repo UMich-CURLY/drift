@@ -38,6 +38,8 @@ file(GLOB inekf
   "${PROJECT_SOURCE_DIR}/src/inekf/*.cpp"
 )
 add_library(inekf ${inekf})
+add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
+add_library(utils ${PROJECT_SOURCE_DIR}/src/utils/utils.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
 
@@ -82,3 +84,9 @@ if(BUILD_DOC)
     message(WARNING "Doxygen need to be installed to generate the doxygen documentation")
   endif (DOXYGEN_FOUND)
 endif(BUILD_DOC)
+
+##################################################
+#                 Add Executables                #
+##################################################
+add_executable(curly_state_estimator src/main.cpp)
+target_link_libraries(curly_state_estimator inekf lie_group robot_state utils)
