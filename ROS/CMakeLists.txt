@@ -9,7 +9,7 @@ ENDIF()
 MESSAGE("Build type: " ${ROS_BUILD_TYPE})
 
 
-find_package(Eigen3 3.1.0 REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
