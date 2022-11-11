@@ -1,0 +1,12 @@
+<package format="2">
+  <description brief="CSE">
+
+     CURLY State Estimator
+
+  </description>
+  <author>Justin Yu</author>
+  <license>GPLv3</license>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <doc_depend>doxygen</doc_depend>
+</package>
