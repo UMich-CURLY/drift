@@ -6,7 +6,9 @@
   </description>
   <author>Justin Yu</author>
   <license>GPLv3</license>
-  <depend>roscpp</depend>
-  <depend>std_msgs</depend>
-  <doc_depend>doxygen</doc_depend>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="tf"/>
+  <buildtool_depend>catkin</buildtool_depend>
+
 </package>
