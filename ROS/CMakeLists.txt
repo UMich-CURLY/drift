@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
-export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:${PROJECT_SOURCE_DIR}/ROS
 rosbuild_init()
 
 IF(NOT ROS_BUILD_TYPE)
