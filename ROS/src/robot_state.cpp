@@ -22,6 +22,8 @@ int main(int argc, char** argv) {
   ros::Subscriber sub = nodeHandler.subscribe();
 
   ros::spin();
+  // Send some output as log message
+  ROS_INFO_STREAM("Hello, ROS!");
 
   // TODO: Stop all threads
 
