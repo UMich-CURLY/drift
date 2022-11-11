@@ -24,8 +24,8 @@ git clone https://github.com/UMich-CURLY/curly_state_estimator.git
 [WIP]
 
 
-# 4. ROS1
-
+# 4. ROS
+### Building the ROS1 robot_state nodes
 1. Add the path including */ROS/curly_state_estimator* to the ROS_PACKAGE_PATH environment variable. Open .bashrc file and add at the end the following line. Replace PATH by the folder where you cloned curly_state_estimator:
 
   ```
