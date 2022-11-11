@@ -43,7 +43,7 @@ int main(int argc, char **argv)
     Eigen::Matrix<double, 6, 1> imu;
     imu << 0, 0, 0, 0, 0, 9.81;
 
-    double dt = 1;
+    double dt = 0.01;
 
     Eigen::Vector3d measured_velocity;
     measured_velocity << 1, 0, 0;

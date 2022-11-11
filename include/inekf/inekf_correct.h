@@ -86,16 +86,18 @@ class Correction: public InEKF {
          * If contact is not indicated but is included in the state, the contact position is marginalized out of the state. 
          * This is a right-invariant measurement model. 
          * @param[in] measured_kinematics: the measured kinematics containing the contact id, relative pose measurement in the IMU frame, and covariance
+         * @param[in] state: the current state estimate
          * @return None
          */
         void Correct(const vectorKinematics& measured_kinematics, RobotState& state); 
 
         /** 
-         * @brief Corrects the state estimate using the measured forward kinematics between the IMU and a set of contact frames.
-         * If contact is indicated but not included in the state, the state is augmented to include the estimated contact position.
-         * If contact is not indicated but is included in the state, the contact position is marginalized out of the state. 
-         * This is a right-invariant measurement model. Example usage can be found in @include kinematics.cpp
-         * @param[in] measured_kinematics: the measured kinematics containing the contact id, relative pose measurement in the IMU frame, and covariance
+         * @brief Corrects the state estimate using measured velocity and covarinace the velocity.
+         * This is a right-invariant measurement model.
+         * @param[in] measured_velocity: the measured velocity
+         * @param[in] measured_velocity_covariance: the measured velocity covariance
+         * @param[in] state: the current state estimate
+         * 
          * @return None
          */
         void Correct(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState& state);
