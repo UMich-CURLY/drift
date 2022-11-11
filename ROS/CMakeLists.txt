@@ -22,7 +22,7 @@ ${EIGEN3_LIBS}
 
 # Node for monocular camera
 rosbuild_add_executable(robot_state
-src/robot_state.cc
+src/robot_state.cpp
 )
 
 target_link_libraries(robot_state
