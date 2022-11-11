@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
   // TODO: Create robot state system -- initialize all system threads
 
   ros::NodeHandle nodeHandler;
-  ros::Subscriber sub = nodeHandler.subscribe();
+  // ros::Subscriber sub = nodeHandler.subscribe();
 
   ros::spin();
   // Send some output as log message
