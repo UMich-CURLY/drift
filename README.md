@@ -10,7 +10,7 @@ We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be e
 ## C++17 Compiler
 
 ## Eigen3
-Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Required at least 3.1.0**.
+Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
 ## ROS1 or ROS2 (optional)
 Building with ROS is optional. For ROS1, version Noetic was used in testing. For ROS2, verison Foxy was used in testing.
