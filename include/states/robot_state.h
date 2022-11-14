@@ -43,15 +43,15 @@ class RobotState {
         const Eigen::Matrix3d getRotation() const;
         const Eigen::Vector3d getVelocity() const;
         const Eigen::Vector3d getPosition() const;
-        const Eigen::Vector3d getp1() const;
-        const Eigen::Vector3d getv1() const;
+        // const Eigen::Vector3d getp1() const;
+        // const Eigen::Vector3d getv1() const;
         const Eigen::Vector3d getVector(int id) const;
         const Eigen::Vector3d getAugState(std::string key) const;
 
         const Eigen::Vector3d getGyroscopeBias() const;
         const Eigen::Vector3d getAccelerometerBias() const;
-        const Eigen::Vector3d getp1Bias() const;
-        const Eigen::Vector3d getv1Bias() const;
+        // const Eigen::Vector3d getp1Bias() const;
+        // const Eigen::Vector3d getv1Bias() const;
         const Eigen::Vector3d getAugStateBias(std::string key) const;
 
         const Eigen::Matrix3d getRotationCovariance() const;
@@ -59,8 +59,8 @@ class RobotState {
         const Eigen::Matrix3d getPositionCovariance() const;
         const Eigen::Matrix3d getGyroscopeBiasCovariance() const;
         const Eigen::Matrix3d getAccelerometerBiasCovariance() const;
-        const Eigen::Matrix3d getp1Covariance() const;
-        const Eigen::Matrix3d getv1Covariance() const;
+        // const Eigen::Matrix3d getp1Covariance() const;
+        // const Eigen::Matrix3d getv1Covariance() const;
         const Eigen::Matrix3d getAugStateCovariance(std::string key) const;
 
         const int dimX() const;
@@ -83,6 +83,8 @@ class RobotState {
         void setRotation(const Eigen::Matrix3d& R);
         void setVelocity(const Eigen::Vector3d& v);
         void setPosition(const Eigen::Vector3d& p);
+        int  setAugState(std::string key, const Eigen::Vector3d& v);
+
         void setGyroscopeBias(const Eigen::Vector3d& bg);
         void setAccelerometerBias(const Eigen::Vector3d& ba);
         void setRotationCovariance(const Eigen::Matrix3d& cov);
@@ -90,9 +92,9 @@ class RobotState {
         void setPositionCovariance(const Eigen::Matrix3d& cov);
         void setGyroscopeBiasCovariance(const Eigen::Matrix3d& cov);
         void setAccelerometerBiasCovariance(const Eigen::Matrix3d& cov);
+        void setAugStateCovariance(std::string key, const Eigen::Matrix3d& cov);
         void copyDiagX(int n, Eigen::MatrixXd& BigX) const;
         void copyDiagXinv(int n, Eigen::MatrixXd& BigXinv) const;
-
         const Eigen::MatrixXd Xinv() const;
 
         friend std::ostream& operator<<(std::ostream& os, const RobotState& s);  

@@ -75,6 +75,23 @@ void SEK3::set_aug(string key, const Eigen::VectorXd& aug) {
   K_ = _K + 1;
 }
 
+void SEK3::del_aug(string key) {
+  int idx = get_aug_index(key);
+  Eigen::MatrixXd matrix = X_;
+  int numRows = matrix.rows()-1;
+  int numCols = matrix.cols();
+  if( idx < numRows )
+    matrix.block(idx,0,numRows-idx,numCols) = matrix.block(idx+1,0,numRows-idx,numCols);
+  matrix.conservativeResize(numRows,numCols);
+  numCols--;
+  if( idx < numCols )
+    matrix.block(0,idx,numRows,numCols-idx) = matrix.block(0,idx+1,numRows,numCols-idx);
+  matrix.conservativeResize(numRows,numCols);
+  X_ = matrix;
+  map_aug_.erase(key);
+  K_ = numRows;
+}
+
 // operators
 SEK3 SEK3::operator*(const SEK3& X) {
   SEK3 Y;
@@ -84,34 +101,35 @@ SEK3 SEK3::operator*(const SEK3& X) {
   return Y;
 }
 
-SEK3 SEK3::operator*(const Eigen::MatrixXd& R) {
-  SEK3 Y;
-  Y.set_R(this->get_R()* R);
-  Y.set_p(this->get_p());
-  Y.set_v(this->get_v());
-  Y.set_K(this->K_);
-  return Y;
-}
+// SEK3 SEK3::operator*(const Eigen::MatrixXd& R) {
+//   SEK3 Y;
+//   Y.set_R(this->get_R()* R);
+//   Y.set_p(this->get_p());
+//   Y.set_v(this->get_v());
+//   Y.set_K(this->K_);
+//   return Y;
+// }
 
-SEK3 SEK3::operator*(const Eigen::MatrixXd& p) {
-  SEK3 Y;
-  Y.set_R(this->get_R());
-  Y.set_p(this->get_p()+p);
-  Y.set_v(this->get_v());
-  Y.set_K(this->K_);
-  return Y;
-}
+// SEK3 SEK3::operator*(const Eigen::MatrixXd& p) {
+//   SEK3 Y;
+//   Y.set_R(this->get_R());
+//   Y.set_p(this->get_R()*p + this_->get_p());
+//   Y.set_v(this->get_v());
+//   Y.set_K(this->K_);
+//   return Y;
+// }
 
-SEK3 SEK3::operator*(const Eigen::VectorXd& v) {
-  SEK3 Y;
-  Y.set_R(this->get_R());
-  Y.set_p(this->get_p());
-  Y.set_v(this->get_v()+v);
-  Y.set_K(this->K_);
-  return Y;
-}
+// SEK3 SEK3::operator*(const Eigen::VectorXd& v) {
+//   SEK3 Y;
+//   Y.set_R(this->get_R());
+//   Y.set_p(this->get_p());
+//   Y.set_v(this->get_v()+v);
+//   Y.set_K(this->K_);
+//   return Y;
+// }
 
 // TODO: / operator
+
 // TODO: << operator
 
 // methods
