@@ -41,8 +41,8 @@ class SEK3 {
   Eigen::MatrixXd get_p();
   Eigen::MatrixXd get_v();
 
-  Eigen::MatrixXd get_p1();
-  Eigen::MatrixXd get_v1();
+  // Eigen::MatrixXd get_p1();
+  // Eigen::MatrixXd get_v1();
   Eigen::MatrixXd get_aug(string key);
   vector<string> get_aug_keys();
   int get_aug_index(string key);
@@ -56,20 +56,23 @@ class SEK3 {
   void set_v(const Eigen::MatrixXd& v);
 
   // Setters - aug state
-  void set_p1(const Eigen::VectorXd& p1);
-  void set_v1(const Eigen::VectorXd& v1);
+  // void set_p1(const Eigen::VectorXd& p1);
+  // void set_v1(const Eigen::VectorXd& v1);
   void set_aug(string key, const Eigen::VectorXd& aug);
+
+  // detele aug state
+  void del_aug(string key);
 
   // Operators
   SEK3 operator*(const SEK3& X);
-  SEK3 operator*(const Eigen::MatrixXd& R);
-  SEK3 operator*(const Eigen::MatrixXd& p);
-  SEK3 operator*(const Eigen::VectorXd& v);
+  // SEK3 operator*(const Eigen::MatrixXd& R);
+  // SEK3 operator*(const Eigen::MatrixXd& p);
+  // SEK3 operator*(const Eigen::VectorXd& v);
   // TODO: divide operator
-  void operator<<(const SEK3& X);
-  void operator<<(const Eigen::MatrixXd& R);
-  void operator<<(const Eigen::MatrixXd& p);
-  void operator<<(const Eigen::VectorXd& v);
+  // void operator<<(const SEK3& X);
+  // void operator<<(const Eigen::MatrixXd& R);
+  // void operator<<(const Eigen::MatrixXd& p);
+  // void operator<<(const Eigen::VectorXd& v);
 
   // Methods
   SEK3 inverse();

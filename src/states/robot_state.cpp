@@ -61,8 +61,8 @@ const Eigen::Matrix3d RobotState::getRotation() const { return X_.block<3,3>(0,0
 const Eigen::Vector3d RobotState::getVelocity() const { return X_.block<3,1>(0,3); }
 const Eigen::Vector3d RobotState::getPosition() const { return X_.block<3,1>(0,4); }
 // TODO: protect p1 and v1 incase they are not set
-const Eigen::Vector3d RobotState::getp1() const { return X_.block<3,1>(0,5); }
-const Eigen::Vector3d RobotState::getv1() const { return X_.block<3,1>(0,6); }
+// const Eigen::Vector3d RobotState::getp1() const { return X_.block<3,1>(0,5); }
+// const Eigen::Vector3d RobotState::getv1() const { return X_.block<3,1>(0,6); }
 const Eigen::Vector3d RobotState::getVector(int index) const { return X_.block<3,1>(0,index); }
 const Eigen::Vector3d getAugState(std::string key) const {
     int idx = se_k_3::SEK3::get_aug_index(key) - 1;
@@ -72,8 +72,8 @@ const Eigen::Vector3d getAugState(std::string key) const {
 const Eigen::Vector3d RobotState::getGyroscopeBias() const { return Theta_.block<3,1>(0,0); }
 const Eigen::Vector3d RobotState::getAccelerometerBias() const { return Theta_.block<3,1>(3,0); }
 // TODO: protect p1 and v1 bias incase they are not set
-const Eigen::Vector3d RobotState::getp1Bias() const { return Theta_.block<3,1>(4,0); }
-const Eigen::Vector3d RobotState::getv1Bias() const { return Theta_.block<3,1>(5,0); }
+// const Eigen::Vector3d RobotState::getp1Bias() const { return Theta_.block<3,1>(4,0); }
+// const Eigen::Vector3d RobotState::getv1Bias() const { return Theta_.block<3,1>(5,0); }
 const Eigen::Vector3d RobotState::getAugStateBias() const {
     int idx = se_k_3::SEK3::get_aug_index(key) - 1;
     return Theta_.block<3,1>(idx,0);
@@ -167,12 +167,14 @@ void RobotState::setP(const Eigen::MatrixXd& P) { P_ = P; }
 void RobotState::setRotation(const Eigen::Matrix3d& R) { X_.block<3,3>(0,0) = R; }
 void RobotState::setVelocity(const Eigen::Vector3d& v) { X_.block<3,1>(0,3) = v; }
 void RobotState::setPosition(const Eigen::Vector3d& p) { X_.block<3,1>(0,4) = p; }
+int  RobotsState::setAugState(std::string key, const Eigen::Vector3d& X) {
+    int idx = se_k_3::SEK3::get_aug_index(key) - 1;
+    X_.block<3,1>(0,idx) = X;
+    return idx;
+}
 
 void RobotState::setGyroscopeBias(const Eigen::Vector3d& bg) { Theta_.block<3,1>(0,0) = bg; }
 void RobotState::setAccelerometerBias(const Eigen::Vector3d& ba) { Theta_.block<3,1>(0,3) = ba; }
-// TODO: protect theta if they don't have v1 and p1 term
-void RobotState::setp1(const Eigen::Vector3d& bp1) { X_.block<3,1>(0,6) = bp1; }
-void RobotState::setv1(const Eigen::Vector3d& bv1) { X_.block<3,1>(0,9) = bv1; }
 
 void RobotState::setRotationCovariance(const Eigen::Matrix3d& cov) { P_.block<3,3>(0,0) = cov; }
 void RobotState::setVelocityCovariance(const Eigen::Matrix3d& cov) { P_.block<3,3>(3,3) = cov; }
