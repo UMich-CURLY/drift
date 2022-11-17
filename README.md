@@ -4,13 +4,11 @@
 # 1. License
 CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMich-CURLY/curly_state_estimator/blob/main/LICENSE). 
 
-If you use the CURLY State Estimator in an academic work, please cite:
-
 
 # 2. Prerequisites
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
-## C++17 Compiler
+## C++11 
 
 ## Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
@@ -24,9 +22,7 @@ Clone the repository:
 ```
 git clone https://github.com/UMich-CURLY/curly_state_estimator.git
 ```
-Create another directory which we will name 'build'.
-
-Do:
+Create another directory which we will name 'build' and use cmake and make to compile an build project:
 
 ```
 mkdir build
