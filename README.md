@@ -4,6 +4,9 @@
 # 1. License
 CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMich-CURLY/curly_state_estimator/blob/main/LICENSE). 
 
+If you use the CURLY State Estimator in an academic work, please cite:
+
+
 # 2. Prerequisites
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
@@ -21,15 +24,23 @@ Clone the repository:
 ```
 git clone https://github.com/UMich-CURLY/curly_state_estimator.git
 ```
-[WIP]
+Create another directory which we will name 'build'.
 
+Do:
+
+```
+mkdir build
+cd build
+cmake ..
+make -j4
+```
 
 # 4. ROS
 ### Building the ROS1 robot_state nodes
-1. Add the path including */ROS/curly_state_estimator* to the ROS_PACKAGE_PATH environment variable. Open .bashrc file and add at the end the following line. Replace PATH by the folder where you cloned curly_state_estimator:
+1. Add */ROS/curly_state_estimator* to the ROS_PACKAGE_PATH environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
-  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/curly_state_estimator/ROS/curly_state_estimator
+  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/TO/curly_state_estimator/ROS/curly_state_estimator
   ```
   
 2. Execute `build_ros.sh` script:
