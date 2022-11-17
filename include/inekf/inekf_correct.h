@@ -104,12 +104,12 @@ class KinematicsCorrection : public Correction {
      * the IMU frame, and covariance
      * @return None
      */
-    void Correct(const vectorKinematics& measured_kinematics, RobotState& state);
+    void Correct(RobotState& state);
     /// @}
 
    private:
-    std::map<int, bool> contacts_;
-    std::map<int, int> estimated_contact_positions_;
+    // std::map<int, bool> contacts_;
+    // std::map<int, int> estimated_contact_positions_;
 };
 
 class VelocityCorrection : public Correction {
@@ -131,7 +131,7 @@ class VelocityCorrection : public Correction {
      *
      * @return None
      */
-    void Correct(const Eigen::Vector3d& measured_velocity, const Eigen::Matrix3d& covariance, RobotState& state);
+    void Correct(const Eigen::Matrix3d& covariance, RobotState& state);
     /// @}
 };
 
