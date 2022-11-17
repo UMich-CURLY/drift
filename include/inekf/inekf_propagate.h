@@ -32,91 +32,110 @@ namespace inekf {
 using ContactState = std::pair<int, bool>;
 
 class Propagation {
-   public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    Propagation(std::shared_ptr<sensor_data_t> sensor_data_buffer, NoiseParams params, ErrorType error_type);
+  Propagation(std::shared_ptr<sensor_data_t> sensor_data_buffer,
+              NoiseParams params, ErrorType error_type);
 
+  /// @name Propagation
+  // ======================================================================
+  /**
+   * @brief This is a skeleton for the propagation method. It should be
+   * implemented in the child class.
+   */
+  virtual void Propagate();
 
-    /// @name Propagation and Correction Methods
-    /// @{
-    // ======================================================================
-    /**
-     * @brief Propagates the estimated state mean and covariance forward using
-     * inertial measurements. All landmarks positions are assumed to be static.
-     * All contacts velocities are assumed to be zero + Gaussian noise.
-     * The propagation model currently assumes that the covariance is for the
-     * right invariant error.
-     *
-     * @param[in] imu: 6x1 vector containing stacked angular velocity and linear
-     * acceleration measurements
-     * @param[in] dt: double indicating how long to integrate the inertial
-     * measurements for
-     * @return None
-     */
-    void Propagate(const Eigen::Matrix<double, 6, 1>& imu, double dt, RobotState& state);
+  // ======================================================================
+  /**
+   * @brief
+   *
+   * @param[in] w:
+   * @param[in] a:
+   * @param[in] dt:
+   * @param[in] state:
+   *
+   * @return Eigen::MatrixXd:
+   */
+  Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a,
+                                        double dt, const RobotState& state);
 
-    // ======================================================================
-    /**
-     * @brief
-     *
-     * @param[in] w:
-     * @param[in] a:
-     * @param[in] dt:
-     * @param[in] state:
-     *
-     * @return Eigen::MatrixXd:
-     */
-    Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a, double dt, const RobotState& state);
+  // ======================================================================
+  /**
+   * @brief
+   *
+   * @param[in] phi:
+   * @param[in] dt:
+   * @param[in] state:
+   *
+   * @return Eigen::MatrixXd:
+   */
+  template<int dim = 3>
+  Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt,
+                                      const RobotState& state);
 
-    // ======================================================================
-    /**
-     * @brief
-     *
-     * @param[in] phi:
-     * @param[in] dt:
-     * @param[in] state:
-     *
-     * @return Eigen::MatrixXd:
-     */
-    template<int dim = 3>
-    Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt, const RobotState& state);
-
-    /// @name Setters
-    /// @{
-    // ======================================================================
-    /**
-     * @brief Sets the current noise parameters
-     *
-     * @param[in] params: The noise parameters to be assigned.
-     * @return None
-     */
-    void set_noise_params(NoiseParams params);
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Sets the current noise parameters
+   *
+   * @param[in] params: The noise parameters to be assigned.
+   * @return None
+   */
+  void set_noise_params(NoiseParams params);
 
 
-    /// @name Getters
-    /// @{
-    // ======================================================================
-    /**
-     * @brief Gets the current noise parameters.
-     *
-     * @param[in] None
-     * @return inekf::NoiseParams: The current noise parameters.
-     */
-    NoiseParams get_noise_params() const;
-    /// @}
+  /// @name Getters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Gets the current noise parameters.
+   *
+   * @param[in] None
+   * @return inekf::NoiseParams: The current noise parameters.
+   */
+  NoiseParams get_noise_params() const;
+  /// @}
+
+ protected:
+  std::shared_ptr<sensor_data_t> sensor_data_buffer_;
+  NoiseParams noise_params_;
+  ErrorType error_type_;
+  const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
+  Eigen::Vector3d
+      magnetic_field_;    // Magnetic field vector in world frame (z-up)
+  bool estimate_bias_
+      = true;    // Whether to estimate the gyro and accelerometer biases
+};               // End of class Propagation
 
 
-    /// @}
+class ImuPropagation : Propagation {
+ public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-   private:
-    std::shared_ptr<sensor_data_t> sensor_data_buffer_;
-    NoiseParams noise_params_;
-    ErrorType error_type_;
-    const Eigen::Vector3d g_;           // Gravity vector in world frame (z-up)
-    Eigen::Vector3d magnetic_field_;    // Magnetic field vector in world frame (z-up)
-    bool estimate_bias_ = true;         // Whether to estimate the gyro and accelerometer biases
-};
+  ImuPropagation(std::shared_ptr<sensor_data_t> sensor_data_buffer,
+                 NoiseParams params, ErrorType error_type);
+
+  /// @name Propagation
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Propagates the estimated state mean and covariance forward using
+   * inertial measurements. All landmarks positions are assumed to be static.
+   * All contacts velocities are assumed to be zero + Gaussian noise.
+   * The propagation model currently assumes that the covariance is for the
+   * right invariant error.
+   *
+   * @param[in] imu: 6x1 vector containing stacked angular velocity and linear
+   * acceleration measurements
+   * @param[in] dt: double indicating how long to integrate the inertial
+   * measurements for
+   * @return None
+   */
+  void Propagate(const Eigen::Matrix<double, 6, 1>& imu, double dt,
+                 RobotState& state);
+};    // End of class ImuPropagation
 }    // namespace inekf
 
 #endif    // INEKF_INEKF_PROPAGATE_H
