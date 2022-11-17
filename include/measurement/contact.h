@@ -1,12 +1,19 @@
-#ifndef IMU_H
-#define IMU_H
+/**
+ *  @file   contact.h
+ *  @author Justin Yu
+ *  @brief  Header file for robot ground contact state measurement
+ *  @date   Nov 16, 2022
+ **/
+
+#ifndef CONTACT_H
+#define CONTACT_H
 
 #include "measurement.h"
 
 template<unsigned int CONTACT_DIM>
 class ContactMeasurement : public Measurement {
  public:
-  ContactMeasurement();
+  ContactMeasurement();    // default constructor
 
   /**
    * @brief Set the contact state vector for this measurement.
@@ -22,11 +29,11 @@ class ContactMeasurement : public Measurement {
    * @return Eigen::Matrix: vector of booleans containing contact state with
    * length CONTACT_DIM.
    */
-  Eigen::Matrix<bool, CONTACT_DIM, 1> get_contact();
+  Eigen::Matrix<bool, CONTACT_DIM, 1> get_contact() const;
 
  private:
   Eigen::Matrix<bool, CONTACT_DIM, 1> contacts_;
 };
 #include "measurement/impl/contact_impl.cpp"
 
-#endif
+#endif    // CONTACT_H

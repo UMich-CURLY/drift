@@ -1,27 +1,19 @@
+/**
+ *  @file   imu.h
+ *  @author Justin Yu
+ *  @brief  Header file for robot imu estimate measurement
+ *  @date   Nov 16, 2022
+ **/
+
 #ifndef IMU_H
 #define IMU_H
 
 #include "measurement.h"
 
 template<typename T>
-struct ImuQuaternion {
-  T w, x, y, z;
-};
-
-template<typename T>
-struct ImuAngularVelocity {
-  T x, y, z;
-};
-
-template<typename T>
-struct ImuLinearAcceleration {
-  T x, y, z;
-};
-
-template<typename T>
 class ImuMeasurement : public Measurement {
  public:
-  ImuMeasurement();
+  ImuMeasurement();    // default constructor
 
   /**
    * @brief Set the imu measurement quaternion coefficients.
@@ -57,39 +49,40 @@ class ImuMeasurement : public Measurement {
    *
    * @return Eigen::Matrix3d: 3x3 Matrix of doubles.
    */
-  Eigen::Matrix3d get_rotation_matrix();
+  Eigen::Matrix<T, 3, 3> get_rotation_matrix() const;
 
   /**
    * @brief Get the imu measurement quaternion coefficients.
    *
-   * @return ImuQuaternion: the quaternion POD (w, x, y, z).
+   * @return Eigen::Quaternion: the quaternion (w, x, y, z).
    */
-  ImuQuaternion<T> get_quaternion();
+  Eigen::Quaternion<T> get_quaternion() const;
 
   /**
    * @brief Get the imu measurement angular velocity coefficients (rad/s).
    *
-   * @return ImuAngularVelocity: the angular velocity POD (x, y, z).
+   * @return Eigen::Matrix: the angular velocity POD (x, y, z).
    */
-  ImuAngularVelocity<T> get_ang_vel();
+  Eigen::Matrix<T, 3, 1> get_ang_vel() const;
 
   /**
    * @brief Get the imu measurement linear acceleration coefficients (m/s^2).
    *
-   * @return ImuLinearAcceleration: the linear acceleration POD (x, y, z).
+   * @return Eigen::Matrix: the linear acceleration POD (x, y, z).
    */
-  ImuLinearAcceleration<T> get_lin_acc();
+  Eigen::Matrix<T, 3, 1> get_lin_acc() const;
 
  private:
-  Eigen::Matrix3d R_;
-  ImuQuaternion<T> quaternion_;
-  ImuAngularVelocity<T> angular_velocity_;
-  ImuLinearAcceleration<T> linear_acceleration_;
-  void set_rotation();
-  void quat_inv(T w, T x, T y,
-                T z);    // quaternion must be normalized for well defined
-                         // Eigen::toRotationMatrix() output
+  Eigen::Quaternion<T> quaternion_;
+  Eigen::Matrix<T, 3, 1> angular_velocity_;
+  Eigen::Matrix<T, 3, 1> linear_acceleration_;
+
+  /**
+   * @brief Validate quaternion inputs. Quaternion must be normalized for well
+   * defined Eigen::toRotationMatrix() output
+   */
+  void validate_quat(T w, T x, T y, T z);
 };
 #include "measurement/impl/imu_impl.cpp"
 
-#endif
+#endif    // IMU_H

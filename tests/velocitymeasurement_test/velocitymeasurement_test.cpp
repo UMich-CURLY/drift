@@ -5,9 +5,9 @@ TEST(VelocityMeasurementTest, Ctor) {
   VelocityMeasurement<double> velocity_data;
   EXPECT_EQ(velocity_data.get_type(), 3);
   EXPECT_EQ(velocity_data.get_type(), VELOCITY);
-  EXPECT_EQ(velocity_data.get_velocity().x, 0);
-  EXPECT_EQ(velocity_data.get_velocity().y, 0);
-  EXPECT_EQ(velocity_data.get_velocity().z, 0);
+  EXPECT_EQ(velocity_data.get_velocity().x(), 0);
+  EXPECT_EQ(velocity_data.get_velocity().y(), 0);
+  EXPECT_EQ(velocity_data.get_velocity().z(), 0);
 }
 
 
@@ -16,23 +16,9 @@ TEST(VelocityMeasurementTest, VelSetGetBasic) {
 
   velocity_data.set_velocity(1.234, 5.678, 9.012);
 
-  EXPECT_EQ(velocity_data.get_velocity().x, 1.234);
-  EXPECT_EQ(velocity_data.get_velocity().y, 5.678);
-  EXPECT_EQ(velocity_data.get_velocity().z, 9.012);
-}
-
-TEST(VelocityMeasurementTest, VelRepresentationInvariant) {
-  VelocityMeasurement<double> velocity_data;
-
-  EXPECT_THROW(velocity_data.set_velocity(0, 0, 299792459),
-               std::invalid_argument);
-  EXPECT_THROW(velocity_data.set_velocity(0, 299792458, 0),
-               std::invalid_argument);
-  EXPECT_THROW(velocity_data.set_velocity(3e8, 2, 3), std::invalid_argument);
-  EXPECT_THROW(velocity_data.set_velocity(0.2, -3e8, 0.2),
-               std::invalid_argument);
-
-  EXPECT_NO_THROW(velocity_data.set_velocity(299792457, 0, 0));
+  EXPECT_EQ(velocity_data.get_velocity().x(), 1.234);
+  EXPECT_EQ(velocity_data.get_velocity().y(), 5.678);
+  EXPECT_EQ(velocity_data.get_velocity().z(), 9.012);
 }
 
 TEST(VelocityMeasurementTest, VelMag) {

@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include "measurement/imu.h"
 
-#define tol 1e-6
+#define tol1 1e-6
 
-void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test);
+template<typename T>
+void compare_rot_mat(Eigen::Matrix<T, 3, 3> imu, Eigen::Matrix<T, 3, 3> test);
 
 template<typename T>
 Eigen::Quaternion<T> rotaxis2quat(T a, T b_x, T b_y, T b_z);
@@ -12,9 +13,10 @@ TEST(ImuMeasurementTest, Ctor) {
   ImuMeasurement<double> imu_data;
   EXPECT_EQ(imu_data.get_type(), 1);
   EXPECT_EQ(imu_data.get_type(), IMU);
-  EXPECT_EQ(imu_data.get_quaternion().w, 1);
-  EXPECT_EQ(imu_data.get_quaternion().x, 0);
-  compare_rot_mat(imu_data.get_rotation_matrix(), Eigen::Matrix3d::Identity());
+  EXPECT_EQ(imu_data.get_quaternion().w(), 1);
+  EXPECT_EQ(imu_data.get_quaternion().x(), 0);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(),
+                          Eigen::Matrix3d::Identity());
 }
 
 
@@ -26,10 +28,10 @@ TEST(ImuMeasurementTest, QuaternionSetGetBasic) {
 
   // comparison values obtained with
   // https://www.andre-gaschler.com/rotationconverter/
-  EXPECT_NEAR(imu_data.get_quaternion().x, 0, tol);
-  EXPECT_NEAR(imu_data.get_quaternion().y, 0.3826834, tol);
-  EXPECT_NEAR(imu_data.get_quaternion().z, 0, tol);
-  EXPECT_NEAR(imu_data.get_quaternion().w, 0.9238795, tol);
+  EXPECT_NEAR(imu_data.get_quaternion().x(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().y(), 0.3826834, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().z(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().w(), 0.9238795, tol1);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat1) {
@@ -41,9 +43,9 @@ TEST(ImuMeasurementTest, QuaternionToRotMat1) {
 
   // rotmattest created using values from
   // https://www.andre-gaschler.com/rotationconverter/
-  Eigen::Matrix<double, 3, 3> rotmattest;
+  Eigen::Matrix<float, 3, 3> rotmattest;
   rotmattest << 0.707107, 0, 0.707107, 0, 1, 0, -0.707107, 0, 0.707107;
-  compare_rot_mat(imu_data.get_rotation_matrix(), rotmattest);
+  compare_rot_mat<float>(imu_data.get_rotation_matrix(), rotmattest);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat2) {
@@ -53,9 +55,9 @@ TEST(ImuMeasurementTest, QuaternionToRotMat2) {
 
   imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z());
 
-  Eigen::Matrix<double, 3, 3> rotmattest;
+  Eigen::Matrix<float, 3, 3> rotmattest;
   rotmattest << 0.5, -0.8660254, 0, 0.8660254, 0.5, 0, 0, 0, 1;
-  compare_rot_mat(imu_data.get_rotation_matrix(), rotmattest);
+  compare_rot_mat<float>(imu_data.get_rotation_matrix(), rotmattest);
 }
 
 TEST(ImuMeasurementTest, QuaternionToRotMat3) {
@@ -69,7 +71,7 @@ TEST(ImuMeasurementTest, QuaternionToRotMat3) {
   Eigen::Matrix<double, 3, 3> rotmattest;
   rotmattest << 0.9330127, -0.3535534, 0.0669873, 0.3535534, 0.8660254,
       -0.3535534, 0.0669873, 0.3535534, 0.9330127;
-  compare_rot_mat(imu_data.get_rotation_matrix(), rotmattest);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(), rotmattest);
 }
 
 TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
@@ -89,23 +91,23 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
 TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
   ImuMeasurement<double> imu_data;
   imu_data.set_ang_vel(1, 2, 3);
-  EXPECT_EQ(imu_data.get_ang_vel().x, 1);
-  EXPECT_EQ(imu_data.get_ang_vel().z, 3);
+  EXPECT_EQ(imu_data.get_ang_vel().x(), 1);
+  EXPECT_EQ(imu_data.get_ang_vel().z(), 3);
 }
 
 TEST(ImuMeasurementTest, LinearAccelerationSetGetBasic) {
   ImuMeasurement<double> imu_data;
   imu_data.set_lin_acc(1, 2, 3);
-  EXPECT_EQ(imu_data.get_lin_acc().x, 1);
-  EXPECT_EQ(imu_data.get_lin_acc().z, 3);
+  EXPECT_EQ(imu_data.get_lin_acc().x(), 1);
+  EXPECT_EQ(imu_data.get_lin_acc().z(), 3);
 }
 
 // Helper Functions
-
-void compare_rot_mat(Eigen::Matrix3d imu, Eigen::Matrix3d test) {
+template<typename T>
+void compare_rot_mat(Eigen::Matrix<T, 3, 3> imu, Eigen::Matrix<T, 3, 3> test) {
   for (int r = 0; r < 3; r++) {
     for (int c = 0; c < 3; c++) {
-      EXPECT_NEAR(imu(r, c), test(r, c), tol);
+      EXPECT_NEAR(imu(r, c), test(r, c), tol1);
     }
   }
 }

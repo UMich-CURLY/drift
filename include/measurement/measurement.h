@@ -1,10 +1,17 @@
+/**
+ *  @file   measurement.h
+ *  @author Justin Yu
+ *  @brief  Header file for measurement base class
+ *  @date   Nov 16, 2022
+ **/
+
 #ifndef MEASUREMENT_H
 #define MEASUREMENT_H
 
 #include <iostream>
 #include <string>
 
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 
 enum MeasurementType { EMPTY, IMU, KINEMATICS, VELOCITY, JOINT_STATE, CONTACT };
 
@@ -17,25 +24,40 @@ class Measurement {
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  Measurement();
-  Measurement(MeasurementType type);
-  virtual ~Measurement() = default;
+  Measurement();    // default constructor
+  Measurement(
+      MeasurementType type);    // overload constructor - measurement type
+  virtual ~Measurement() = default;    // default destructor
 
   MeasurementHeader header;
+
+  /**
+   * @brief Set the timestamp value for the measurement.
+   *
+   * @param[in] double: The timestamp.
+   */
+  void set_time(double stamp);
+
+  /**
+   * @brief Set the header value for the measurement.
+   *
+   * @param[in] MeasurementHeader: The header POD.
+   */
+  void set_header(const MeasurementHeader& header);
 
   /**
    * @brief Get the timestamp value for the measurement.
    *
    * @return double: The timestamp.
    */
-  double get_time();
+  double get_time() const;
 
   /**
    * @brief Get the measurement type.
    *
    * @return MeasurementType: The measurement type.
    */
-  MeasurementType get_type();
+  MeasurementType get_type() const;
 
   friend std::ostream& operator<<(std::ostream& os, const Measurement& m);
 

@@ -1,3 +1,10 @@
+/**
+ *  @file   kinematics.h
+ *  @author Justin Yu
+ *  @brief  Header file for robot kinematics state measurement
+ *  @date   Nov 16, 2022
+ **/
+
 #ifndef KINEMATICS_H
 #define KINEMATICS_H
 
@@ -6,7 +13,7 @@
 template<typename T>
 class KinematicsMeasurement : public Measurement {
  public:
-  KinematicsMeasurement();
+  KinematicsMeasurement();    // default constructor
 
   /**
    * @brief Set the world-frame kinematics state coefficients (m).
@@ -20,12 +27,12 @@ class KinematicsMeasurement : public Measurement {
                      const Eigen::Matrix<T, 3, 1>& effort);
 
   /**
-   * @brief Get the world-frame position coefficients.
+   * @brief Get the world-frame position in Euclidean space.
    *
    * @return Eigen::Matrix: vector of kinematics position coefficients with
    * length 3.
    */
-  Eigen::Matrix<T, 3, 1> get_kin_pos();
+  Eigen::Matrix<T, 3, 1> get_kin_pos() const;
 
   /**
    * @brief Get the world-frame velocity coefficients (m/s).
@@ -33,7 +40,7 @@ class KinematicsMeasurement : public Measurement {
    * @return Eigen::Matrix: vector of kinematics velocity coefficients with
    * length 3.
    */
-  Eigen::Matrix<T, 3, 1> get_kin_vel();
+  Eigen::Matrix<T, 3, 1> get_kin_vel() const;
 
   /**
    * @brief Get the world-frame effort coefficients (Newton).
@@ -41,7 +48,7 @@ class KinematicsMeasurement : public Measurement {
    * @return Eigen::Matrix: vector of kinematics effort coefficients with length
    * 3.
    */
-  Eigen::Matrix<T, 3, 1> get_kin_effort();
+  Eigen::Matrix<T, 3, 1> get_kin_effort() const;
 
  private:
   Eigen::Matrix<T, 3, 1> position_;

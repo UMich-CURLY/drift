@@ -1,3 +1,10 @@
+/**
+ *  @file   joint_state.h
+ *  @author Justin Yu
+ *  @brief  Header file for robot joint state measurement
+ *  @date   Nov 16, 2022
+ **/
+
 #ifndef JOINT_STATE_H
 #define JOINT_STATE_H
 
@@ -6,14 +13,14 @@
 template<unsigned int JOINT_DIM, typename T>
 class JointStateMeasurement : public Measurement {
  public:
-  JointStateMeasurement();
+  JointStateMeasurement();    // default constructor
 
   /**
    * @brief Set the joint state coefficients.
    *
-   * @param[in] position: vector of joint position coefficients.
-   * @param[in] velocity: vector of joint velocity coefficients.
-   * @param[in] effort: vector of joint effort coefficients.
+   * @param[in] position: vector of joint position coefficients (rad).
+   * @param[in] velocity: vector of joint velocity coefficients (rad/s).
+   * @param[in] effort: vector of joint effort coefficients (Newton-meters).
    */
   void set_joint_state(const Eigen::Matrix<T, JOINT_DIM, 1>& position,
                        const Eigen::Matrix<T, JOINT_DIM, 1>& velocity,
@@ -22,18 +29,16 @@ class JointStateMeasurement : public Measurement {
   /**
    * @brief Get the joint-axis position coefficients.
    *
-   * @return Eigen::Matrix: vector of joint position coefficients with length
-   * JOINT_DIM.
+   * @return Eigen::Matrix: vector of joint position coefficients (rad).
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_pos();
+  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_pos() const;
 
   /**
    * @brief Get the joint-axis velocity coefficients.
    *
-   * @return Eigen::Matrix: vector of joint velocity coefficients with length
-   * JOINT_DIM.
+   * @return Eigen::Matrix: vector of joint velocity coefficients (rad/s).
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_vel();
+  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_vel() const;
 
   /**
    * @brief Get the joint-axis effort (torque) coefficients (Newton-meters).
@@ -41,7 +46,7 @@ class JointStateMeasurement : public Measurement {
    * @return Eigen::Matrix: vector of joint effort coefficients with length
    * JOINT_DIM.
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_effort();
+  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_effort() const;
 
 
  private:

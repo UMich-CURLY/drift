@@ -1,17 +1,19 @@
+/**
+ *  @file   imu.h
+ *  @author Justin Yu
+ *  @brief  Header file for robot velocity estimate
+ *  @date   Nov 16, 2022
+ **/
+
 #ifndef VELOCITY_H
 #define VELOCITY_H
 
 #include "measurement.h"
 
 template<typename T>
-struct Velocity {
-  T x, y, z;
-};
-
-template<typename T>
 class VelocityMeasurement : public Measurement {
  public:
-  VelocityMeasurement();
+  VelocityMeasurement();    // default constructor
 
   /**
    * @brief Set the velocity measurement coefficients (m/s).
@@ -25,27 +27,26 @@ class VelocityMeasurement : public Measurement {
   /**
    * @brief Get the velocity measurement coefficients (m/s).
    *
-   * @return Velocity: the velocity POD (x, y, z).
+   * @return Eigen::Matrix: 3 by 1 cotaining the velocity vector.
    */
-  Velocity<T> get_velocity();
+  Eigen::Matrix<T, 3, 1> get_velocity() const;
 
   /**
    * @brief Get the velocity vector magnitude (m/s).
    *
    * @return double: magnitude of velocity vector.
    */
-  double get_vel_mag();
+  double get_vel_mag() const;
 
   /**
    * @brief Get the velocity unit vector.
    *
-   * @return Eigen::Matrix: 3 by 1 of doubles containing normalized vector.
+   * @return Eigen::Matrix: 3 by 1 containing normalized vector.
    */
-  Eigen::Matrix<double, 3, 1> get_vel_unit_vec();
+  Eigen::Matrix<T, 3, 1> get_vel_unit_vec() const;
 
  private:
-  Velocity<T> vel_;
-  void vel_inv(T vx, T vy, T vz);
+  Eigen::Matrix<T, 3, 1> vel_;
 };
 #include "measurement/impl/velocity_impl.cpp"
 #endif

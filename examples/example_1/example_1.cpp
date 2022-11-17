@@ -1,4 +1,4 @@
-#include <eigen3/Eigen/Core>
+#include <Eigen/Core>
 
 #include "math/lie_group.h"
 
