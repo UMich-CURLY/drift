@@ -10,10 +10,19 @@
 
 #include "measurement.h"
 
+/**
+ * @class VelocityMeasurement
+ *
+ * Derived measurement class containing robot-frame
+ * velocity information.
+ */
 template<typename T>
 class VelocityMeasurement : public Measurement {
  public:
-  VelocityMeasurement();    // default constructor
+  /**
+   * @brief Default constructor.
+   */
+  VelocityMeasurement();
 
   /**
    * @brief Set the velocity measurement coefficients (m/s).
@@ -25,23 +34,23 @@ class VelocityMeasurement : public Measurement {
   void set_velocity(T vx, T vy, T vz);
 
   /**
-   * @brief Get the velocity measurement coefficients (m/s).
+   * @brief Get the velocity measurement coefficients.
    *
-   * @return Eigen::Matrix: 3 by 1 cotaining the velocity vector.
+   * @return 3-vector cotaining the robot-frame velocity (m/s).
    */
   Eigen::Matrix<T, 3, 1> get_velocity() const;
 
   /**
-   * @brief Get the velocity vector magnitude (m/s).
+   * @brief Get the velocity vector magnitude.
    *
-   * @return double: magnitude of velocity vector.
+   * @return magnitude of robot-frame velocity vector (m/s).
    */
   double get_vel_mag() const;
 
   /**
    * @brief Get the velocity unit vector.
    *
-   * @return Eigen::Matrix: 3 by 1 containing normalized vector.
+   * @return 3-vector containing normalized robot-frame velocity.
    */
   Eigen::Matrix<T, 3, 1> get_vel_unit_vec() const;
 

@@ -15,6 +15,12 @@
 
 enum MeasurementType { EMPTY, IMU, KINEMATICS, VELOCITY, JOINT_STATE, CONTACT };
 
+/**
+ * @class Measurement
+ *
+ * Base class for robot-state instantaneous measurement.
+ * contact state.
+ */
 class Measurement {
   struct MeasurementHeader {
     uint64_t seq;
@@ -24,38 +30,47 @@ class Measurement {
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  Measurement();    // default constructor
-  Measurement(
-      MeasurementType type);    // overload constructor - measurement type
-  virtual ~Measurement() = default;    // default destructor
+  /**
+   * @brief Default constructor.
+   */
+  Measurement();
+
+  /**
+   * @brief Constructs an initialized Measurement with given type.
+   */
+  Measurement(MeasurementType type);
+  /**
+   * @brief Default Destructor.
+   */
+  virtual ~Measurement() = default;
 
   MeasurementHeader header;
 
   /**
    * @brief Set the timestamp value for the measurement.
    *
-   * @param[in] double: The timestamp.
+   * @param[in] stamp: The timestamp.
    */
   void set_time(double stamp);
 
   /**
    * @brief Set the header value for the measurement.
    *
-   * @param[in] MeasurementHeader: The header POD.
+   * @param[in] header: The MeasurementHeader POD.
    */
   void set_header(const MeasurementHeader& header);
 
   /**
    * @brief Get the timestamp value for the measurement.
    *
-   * @return double: The timestamp.
+   * @return Measurement timestamp.
    */
   double get_time() const;
 
   /**
    * @brief Get the measurement type.
    *
-   * @return MeasurementType: The measurement type.
+   * @return Measurement type.
    */
   MeasurementType get_type() const;
 

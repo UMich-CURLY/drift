@@ -10,36 +10,45 @@
 
 #include "measurement.h"
 
+/**
+ * @class ImuMeasurement
+ *
+ * Derived measurement class containing intertial
+ * measurement unit estimated parameters.
+ */
 template<typename T>
 class ImuMeasurement : public Measurement {
  public:
-  ImuMeasurement();    // default constructor
+  /**
+   * @brief Default constructor.
+   */
+  ImuMeasurement();
 
   /**
    * @brief Set the imu measurement quaternion coefficients.
    *
-   * @param[in] w: w real quaternion coefficient.
-   * @param[in] x: x imaginary quaternion coefficient.
-   * @param[in] y: y imaginary quaternion coefficient.
-   * @param[in] z: z imaginary quaternion coefficient.
+   * @param[in] w: real quaternion coefficient.
+   * @param[in] x: imaginary quaternion coefficient.
+   * @param[in] y: imaginary quaternion coefficient.
+   * @param[in] z: imaginary quaternion coefficient.
    */
   void set_quaternion(T w, T x, T y, T z);
 
   /**
    * @brief Set the imu measurement angular velocity (rad/s).
    *
-   * @param[in] x: x axis coefficient.
-   * @param[in] y: y axis coefficient.
-   * @param[in] z: z axis coefficient.
+   * @param[in] x: axis coefficient.
+   * @param[in] y: axis coefficient.
+   * @param[in] z: axis coefficient.
    */
   void set_ang_vel(T x, T y, T z);
 
   /**
    * @brief Set the imu measurement linear acceleration (m/s^2).
    *
-   * @param[in] x: x axis coefficient.
-   * @param[in] y: y axis coefficient.
-   * @param[in] z: z axis coefficient.
+   * @param[in] x: axis coefficient.
+   * @param[in] y: axis coefficient.
+   * @param[in] z: axis coefficient.
    */
   void set_lin_acc(T x, T y, T z);
 
@@ -47,28 +56,28 @@ class ImuMeasurement : public Measurement {
    * @brief Get the orthonormal 3D rotation matrix for the imu
    * measurement.
    *
-   * @return Eigen::Matrix3d: 3x3 Matrix of doubles.
+   * @return 3x3 Matrix in SO(3).
    */
   Eigen::Matrix<T, 3, 3> get_rotation_matrix() const;
 
   /**
    * @brief Get the imu measurement quaternion coefficients.
    *
-   * @return Eigen::Quaternion: the quaternion (w, x, y, z).
+   * @return The quaternion (w, x, y, z).
    */
   Eigen::Quaternion<T> get_quaternion() const;
 
   /**
    * @brief Get the imu measurement angular velocity coefficients (rad/s).
    *
-   * @return Eigen::Matrix: the angular velocity POD (x, y, z).
+   * @return The angular velocity (x, y, z).
    */
   Eigen::Matrix<T, 3, 1> get_ang_vel() const;
 
   /**
    * @brief Get the imu measurement linear acceleration coefficients (m/s^2).
    *
-   * @return Eigen::Matrix: the linear acceleration POD (x, y, z).
+   * @return The linear acceleration (x, y, z).
    */
   Eigen::Matrix<T, 3, 1> get_lin_acc() const;
 
@@ -78,7 +87,9 @@ class ImuMeasurement : public Measurement {
   Eigen::Matrix<T, 3, 1> linear_acceleration_;
 
   /**
-   * @brief Validate quaternion inputs. Quaternion must be normalized for well
+   * @brief Validate quaternion inputs.
+   *
+   * Quaternion must be normalized for well
    * defined Eigen::toRotationMatrix() output
    */
   void validate_quat(T w, T x, T y, T z);
