@@ -219,6 +219,7 @@ Eigen::MatrixXd Propagation::DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt
     // std::map<std::string, int> augmented_states = state.get_augmented_map();
     std::map<std::string, int> augmented_states = {};
 
+    // add a map of augment states for loop
     for (std::map<std::string, int>::const_iterator it = augmented_states.begin(); it != augmented_states.end(); ++it) {
         Qc.block<dim, dim>(dim + dim * (it->second - dim), dim + dim * (it->second - dim))
             = noise_params_.getAugmentCov();    // Augment state noise terms
