@@ -1,10 +1,10 @@
 ---
 # options: https://clang.llvm.org/docs/ClangFormatStyleOptions.html
 BasedOnStyle: Google
-IndentWidth: 2
+IndentWidth: 4
 # No tabs
 UseTab: Never
-ColumnLimit: 80
+ColumnLimit: 120
 
 Language: Cpp
 # Pointer to the left
