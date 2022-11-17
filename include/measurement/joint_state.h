@@ -10,10 +10,20 @@
 
 #include "measurement.h"
 
+/**
+ * @class JointStateMeasurement
+ *
+ * Derived measurement class containing joint
+ * actuator measurements (encoder position, actuator angular velocity, acutator
+ * torque).
+ */
 template<unsigned int JOINT_DIM, typename T>
 class JointStateMeasurement : public Measurement {
  public:
-  JointStateMeasurement();    // default constructor
+  /**
+   * @brief Default constructor.
+   */
+  JointStateMeasurement();
 
   /**
    * @brief Set the joint state coefficients.
@@ -29,22 +39,21 @@ class JointStateMeasurement : public Measurement {
   /**
    * @brief Get the joint-axis position coefficients.
    *
-   * @return Eigen::Matrix: vector of joint position coefficients (rad).
+   * @return Vector of joint position coefficients (rad).
    */
   Eigen::Matrix<T, JOINT_DIM, 1> get_joint_pos() const;
 
   /**
    * @brief Get the joint-axis velocity coefficients.
    *
-   * @return Eigen::Matrix: vector of joint velocity coefficients (rad/s).
+   * @return Vector of joint velocity coefficients (rad/s).
    */
   Eigen::Matrix<T, JOINT_DIM, 1> get_joint_vel() const;
 
   /**
-   * @brief Get the joint-axis effort (torque) coefficients (Newton-meters).
+   * @brief Get the joint-axis effort (torque) coefficients.
    *
-   * @return Eigen::Matrix: vector of joint effort coefficients with length
-   * JOINT_DIM.
+   * @return Vector of joint effort coefficients (Newton-meters).
    */
   Eigen::Matrix<T, JOINT_DIM, 1> get_joint_effort() const;
 

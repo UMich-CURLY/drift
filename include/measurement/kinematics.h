@@ -10,17 +10,26 @@
 
 #include "measurement.h"
 
+/**
+ * @class KinematicsMeasurement
+ *
+ * Derived measurement class containing information
+ * about world-frame robot state
+ */
 template<typename T>
 class KinematicsMeasurement : public Measurement {
  public:
-  KinematicsMeasurement();    // default constructor
+  /**
+   * @brief Default constructor.
+   */
+  KinematicsMeasurement();
 
   /**
-   * @brief Set the world-frame kinematics state coefficients (m).
+   * @brief Set the world-frame kinematics state coefficients.
    *
-   * @param[in] position: vector of kinematics position coefficients.
-   * @param[in] velocity: vector of kinematics velocity coefficients.
-   * @param[in] effort: vector of kinematics effort coefficients.
+   * @param[in] position: vector of kinematics position coefficients (m).
+   * @param[in] velocity: vector of kinematics velocity coefficients (m/s).
+   * @param[in] effort: vector of kinematics effort coefficients (Newtons).
    */
   void set_kin_state(const Eigen::Matrix<T, 3, 1>& position,
                      const Eigen::Matrix<T, 3, 1>& velocity,
@@ -29,24 +38,21 @@ class KinematicsMeasurement : public Measurement {
   /**
    * @brief Get the world-frame position in Euclidean space.
    *
-   * @return Eigen::Matrix: vector of kinematics position coefficients with
-   * length 3.
+   * @return 3-vector of kinematics position coefficients (m)
    */
   Eigen::Matrix<T, 3, 1> get_kin_pos() const;
 
   /**
-   * @brief Get the world-frame velocity coefficients (m/s).
+   * @brief Get the world-frame velocity in Euclidean space.
    *
-   * @return Eigen::Matrix: vector of kinematics velocity coefficients with
-   * length 3.
+   * @return 3-vector of kinematics velocity (m/s)
    */
   Eigen::Matrix<T, 3, 1> get_kin_vel() const;
 
   /**
-   * @brief Get the world-frame effort coefficients (Newton).
+   * @brief Get the world-frame effort (force) in Euclidean space.
    *
-   * @return Eigen::Matrix: vector of kinematics effort coefficients with length
-   * 3.
+   * @return 3-vector of kinematics effort (Newtons).
    */
   Eigen::Matrix<T, 3, 1> get_kin_effort() const;
 
