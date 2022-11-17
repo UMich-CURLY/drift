@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "measurement/kinematics.h"
 
-#define tol 1e-9
+#define tol3 1e-9
 
 TEST(KinematicsMeasurementTest, Ctor) {
   KinematicsMeasurement<double> kin_data;
@@ -29,8 +29,8 @@ TEST(KinematicsMeasurementTest, SetGetBasic) {
   EXPECT_EQ(kin_data.get_kin_pos().size(), 3);
 
   for (size_t i = 0; i < 3; i++) {
-    EXPECT_NEAR(kin_data.get_kin_pos()[i], 0.123 + i * 0.111, tol);
-    EXPECT_NEAR(kin_data.get_kin_vel()[i], 0.456 + i * 0.111, tol);
-    EXPECT_NEAR(kin_data.get_kin_effort()[i], 0.789 + i * 0.111, tol);
+    EXPECT_NEAR(kin_data.get_kin_pos()[i], 0.123 + i * 0.111, tol3);
+    EXPECT_NEAR(kin_data.get_kin_vel()[i], 0.456 + i * 0.111, tol3);
+    EXPECT_NEAR(kin_data.get_kin_effort()[i], 0.789 + i * 0.111, tol3);
   }
 }

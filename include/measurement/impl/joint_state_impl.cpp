@@ -18,18 +18,18 @@ void JointStateMeasurement<JOINT_DIM, T>::set_joint_state(
 
 template<unsigned int JOINT_DIM, typename T>
 Eigen::Matrix<T, JOINT_DIM, 1>
-JointStateMeasurement<JOINT_DIM, T>::get_joint_pos() {
+JointStateMeasurement<JOINT_DIM, T>::get_joint_pos() const {
   return joint_position_;
 }
 
 template<unsigned int JOINT_DIM, typename T>
 Eigen::Matrix<T, JOINT_DIM, 1>
-JointStateMeasurement<JOINT_DIM, T>::get_joint_vel() {
+JointStateMeasurement<JOINT_DIM, T>::get_joint_vel() const {
   return joint_velocity_;
 }
 
 template<unsigned int JOINT_DIM, typename T>
 Eigen::Matrix<T, JOINT_DIM, 1>
-JointStateMeasurement<JOINT_DIM, T>::get_joint_effort() {
+JointStateMeasurement<JOINT_DIM, T>::get_joint_effort() const {
   return joint_effort_;
 }

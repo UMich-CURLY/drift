@@ -17,16 +17,16 @@ void KinematicsMeasurement<T>::set_kin_state(
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_pos() {
+Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_pos() const {
   return position_;
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_vel() {
+Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_vel() const {
   return velocity_;
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_effort() {
+Eigen::Matrix<T, 3, 1> KinematicsMeasurement<T>::get_kin_effort() const {
   return effort_;
 }

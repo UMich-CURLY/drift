@@ -11,6 +11,6 @@ void ContactMeasurement<CONTACT_DIM>::set_contact(
 
 template<unsigned int CONTACT_DIM>
 Eigen::Matrix<bool, CONTACT_DIM, 1>
-ContactMeasurement<CONTACT_DIM>::get_contact() {
+ContactMeasurement<CONTACT_DIM>::get_contact() const {
   return contacts_;
 }

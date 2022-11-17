@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "measurement/joint_state.h"
 
-#define tol 1e-9
+#define tol2 1e-9
 
 TEST(JointStateMeasurementTest, Ctor) {
   JointStateMeasurement<12, double> joint_data;
@@ -30,8 +30,8 @@ TEST(JointStateMeasurementTest, SetGetBasic) {
   EXPECT_EQ(joint_data.get_joint_pos().size(), 3);
 
   for (size_t i = 0; i < 3; i++) {
-    EXPECT_NEAR(joint_data.get_joint_pos()[i], 0.123 + i * 0.111, tol);
-    EXPECT_NEAR(joint_data.get_joint_vel()[i], 0.456 + i * 0.111, tol);
-    EXPECT_NEAR(joint_data.get_joint_effort()[i], 0.789 + i * 0.111, tol);
+    EXPECT_NEAR(joint_data.get_joint_pos()[i], 0.123 + i * 0.111, tol2);
+    EXPECT_NEAR(joint_data.get_joint_vel()[i], 0.456 + i * 0.111, tol2);
+    EXPECT_NEAR(joint_data.get_joint_effort()[i], 0.789 + i * 0.111, tol2);
   }
 }
