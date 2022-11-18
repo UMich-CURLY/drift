@@ -8,13 +8,13 @@ CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMi
 # 2. Dependencies
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
-### C++11 Compiler
+> ### C++11 Compiler
 We use the threading functionalities of C++11.
 
-### Eigen3
+> ### Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
-### ROS1 or ROS2 (optional)
+> ### ROS1 or ROS2 (optional)
 Building with ROS1 or ROS2 is optional. Build instructions are found below.
 
 # 3. Building CURLY State Estimator library
