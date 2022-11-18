@@ -15,7 +15,7 @@ We use the threading functionalities of C++11.
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
 > ### ROS1 or ROS2 (optional)
-Building with ROS1 or ROS2 is optional. Build instructions are found below.
+Building with ROS1 or ROS2 is optional. Build instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/dev-justinyuROS1#4-ros).
 
 # 3. Building CURLY State Estimator library
 
