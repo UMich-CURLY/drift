@@ -33,7 +33,7 @@ make -j4
 ```
 
 # 4. ROS
-### Building the ROS1 robot_state_est nodes
+> ### Building the ROS1 robot_state_est nodes
 1. Add `/ROS/curly_state_estimator` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
