@@ -1,6 +1,5 @@
-file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 # Create the test binary
-add_executable(${test_prefix}_jointstatemeasurement_test jointstatemeasurement_test.cpp ${SRC_FILES})
+add_executable(${test_prefix}_jointstatemeasurement_test jointstatemeasurement_test.cpp)
 # Link tests
 
 target_link_libraries(
