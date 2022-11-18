@@ -1,5 +1,5 @@
 # CURLY State Estimator
-**Authors:** 
+**Authors: Tzu-Yuan Lin, Tingjun Li, Jonathan Tong, and Justin Yu** 
 
 # 1. License
 CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMich-CURLY/curly_state_estimator/blob/main/LICENSE). 
@@ -11,11 +11,13 @@ We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be e
 > ### C++11 Compiler
 We use the threading functionalities of C++11.
 
+
 > ### Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
+
 > ### ROS1 or ROS2 (optional)
-Building with ROS1 or ROS2 is optional. Build instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/dev-justinyuROS1#4-ros).
+Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/main#4-ros).
 
 # 3. Building CURLY State Estimator library
 
@@ -33,7 +35,7 @@ make -j4
 ```
 
 # 4. ROS
-> ### Building the ROS1 robot_state_est nodes
+### Building the ROS1 robot_state_est nodes
 1. Add `/ROS/curly_state_estimator` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
