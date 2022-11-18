@@ -14,17 +14,17 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
-
-${PROJECT_SOURCE_DIR}/include
+${PROJECT_SOURCE_DIR}/../../
+${PROJECT_SOURCE_DIR}/../../include
 )
 
 set(LIBS 
 ${EIGEN3_LIBS}
 )
 
-# Node for monocular camera
+# Node for robot state estimation
 rosbuild_add_executable(robot_state_est
-src/robot_state_est.cpp
+src/robot_state_est.cpp 
 )
 
 target_link_libraries(robot_state_est
