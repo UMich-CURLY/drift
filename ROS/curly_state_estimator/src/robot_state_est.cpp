@@ -1,6 +1,8 @@
 #include <ros/ros.h>
 #include <iostream>
 
+#include "communication/robot_data.h"
+
 using namespace std;
 
 
@@ -10,23 +12,27 @@ int main(int argc, char** argv) {
 
   if (argc != 3) {
     cerr << endl
-         << "Usage: rosrun CSE robot_state_est path_to_vocabulary "
+         << "Usage: rosrun curly_state_estimator robot_state_est "
+            "path_to_vocabulary "
             "path_to_settings"
          << endl;
     ros::shutdown();
     return 1;
   }
+  ros::NodeHandle nh;
 
   // TODO: Create robot state system -- initialize all system threads
 
-  ros::NodeHandle nodeHandler;
-  // ros::Subscriber sub = nodeHandler.subscribe();
+  // Set noise parameters. From husky_estimator:
+  // inekf::NoiseParams params;
 
-  ros::spin();
-  // Send some output as log message
-  ROS_INFO_STREAM("Hello, ROS!");
+  while (ros::ok()) {
+    // Step behavior
 
-  // TODO: Stop all threads
+    ros::spinOnce();
+  }
+
+  // Stop all threads
 
   ros::shutdown();
 
