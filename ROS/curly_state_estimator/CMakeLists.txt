@@ -14,6 +14,8 @@ find_package(Eigen3 REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
+
+${PROJECT_SOURCE_DIR}/include
 )
 
 set(LIBS 
