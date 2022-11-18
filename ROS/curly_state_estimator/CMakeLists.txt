@@ -29,11 +29,15 @@ else()
 endif()
 
 find_package(Eigen3 REQUIRED)
+find_package(Boost REQUIRED)
+
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
 ${PROJECT_SOURCE_DIR}/../../
 ${PROJECT_SOURCE_DIR}/../../include
+${EIGEN3_INCLUDE_DIR}
+${Boost_INCLUDE_DIRS}
 )
 
 set(LIBS 
