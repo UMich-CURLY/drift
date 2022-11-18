@@ -1,5 +1,6 @@
+file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 # Create the test binary
-add_executable(${test_prefix}_velocitymeasurement_test velocitymeasurement_test.cpp)
+add_executable(${test_prefix}_velocitymeasurement_test velocitymeasurement_test.cpp ${SRC_FILES})
 # Link tests
 
 target_link_libraries(

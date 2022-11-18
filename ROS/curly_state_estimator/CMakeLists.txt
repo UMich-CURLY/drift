@@ -21,10 +21,10 @@ ${PROJECT_SOURCE_DIR}/../../include
 set(LIBS 
 ${EIGEN3_LIBS}
 )
-
+file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 # Node for robot state estimation
 rosbuild_add_executable(robot_state_est
-src/robot_state_est.cpp 
+src/robot_state_est.cpp ${SRC_FILES}
 )
 
 target_link_libraries(robot_state_est
