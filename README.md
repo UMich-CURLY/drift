@@ -9,6 +9,7 @@ CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMi
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
 ## C++11 
+We use the threading functionalities of C++11.
 
 ## Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
