@@ -1,9 +1,5 @@
 <package format="2">
-  <description brief="CSE">
-
-     CURLY State Estimator
-
-  </description>
+  <description>CURLY State Estimator</description>
   <author>Justin Yu</author>
   <license>GPLv3</license>
   <depend package="roscpp"/>

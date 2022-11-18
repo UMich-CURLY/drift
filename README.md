@@ -14,7 +14,7 @@ We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be e
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
 ## ROS1 or ROS2 (optional)
-Building with ROS is optional. For ROS1, version Noetic was used in testing. For ROS2, verison Foxy was used in testing.
+Building with ROS1 or ROS2 is optional. Build instructions are found below.
 
 # 3. Building CURLY State Estimator library
 
@@ -32,7 +32,7 @@ make -j4
 ```
 
 # 4. ROS
-### Building the ROS1 robot_state nodes
+### Building the ROS1 robot_state_est nodes
 1. Add */ROS/curly_state_estimator* to the ROS_PACKAGE_PATH environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
