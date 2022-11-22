@@ -37,6 +37,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
+add_library(inekf ${PROJECT_SOURCE_DIR}/src/inekf/inekf.cpp)
 
 ##################################################
 #                 Build Examples                 #
