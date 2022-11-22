@@ -36,6 +36,7 @@ file(GLOB inekf
 add_library(inekf ${inekf})
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(utils ${PROJECT_SOURCE_DIR}/src/utils/utils.cpp)
+add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 
 # #################################################
