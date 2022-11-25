@@ -30,15 +30,16 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # #################################################
 # Create Library                 #
 # #################################################
-file(GLOB inekf
-  "${PROJECT_SOURCE_DIR}/src/inekf/*.cpp"
-)
-add_library(inekf ${inekf})
+# file(GLOB inekf
+#   "${PROJECT_SOURCE_DIR}/src/filter/inekf/*/*.cpp"
+#   "${PROJECT_SOURCE_DIR}/src/filter/inekf/*.cpp"
+# )
+# add_library(inekf ${inekf})
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(utils ${PROJECT_SOURCE_DIR}/src/utils/utils.cpp)
 add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
-
+add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
 # #################################################
 # Build Examples                 #
 # #################################################
@@ -87,4 +88,4 @@ endif(BUILD_DOC)
 # Add Executables                #
 # #################################################
 add_executable(curly_state_estimator src/main.cpp)
-target_link_libraries(curly_state_estimator inekf lie_group robot_state utils)
+target_link_libraries(curly_state_estimator lie_group robot_state utils noise_params)
