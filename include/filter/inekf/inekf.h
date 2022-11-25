@@ -19,8 +19,8 @@
 #include <map>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <vector>
-#include "inekf/noise_params.h"
-#include "inekf/observations.h"
+#include "filter/noise_params.h"
+#include "filter/observations.h"
 #include "math/lie_group.h"
 #include "state/robot_state.h"
 #include "utils/utils.h"

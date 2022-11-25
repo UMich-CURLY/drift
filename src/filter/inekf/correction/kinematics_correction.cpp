@@ -1,38 +1,31 @@
-#include "inekf/inekf_correct.h"
+// #include "filter/inekf/correction/kinematics_correction.h"
+#include "math/lie_group.h"
 
 namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-// Constructor with error type
-Correction::Correction(std::shared_ptr<sensor_data_t> sensor_data_buffer,
-                       ErrorType error_type)
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
-      magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()),
-      error_type_(error_type) {
-  sensor_data_buffer_ = sensor_data_buffer;
-}
-
-void Correction::Correct() {
-  // Just a skeleton, to be implemented in the child class
-}
-
-KinematicsCorrection::KinematicsCorrection(
-    std::shared_ptr<sensor_data_t> sensor_data_buffer, ErrorType error_type)
-    : Correction::Correction(sensor_data_buffer, error_type) {}
+template<typename sensor_data_t>
+KinematicsCorrection<sensor_data_t>::KinematicsCorrection(
+    std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
+    ErrorType error_type)
+    : Correction::Correction(error_type),
+      sensor_data_buffer_(sensor_data_buffer) {}
 
 // Correct state using kinematics measured between imu and contact point
-void KinematicsCorrection::Correct(RobotState& state) {
+template<typename sensor_data_t>
+void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
-  vector<pair<int, int> > remove_contacts;
+  vector<pair<int, int>> remove_contacts;
   vectorKinematics new_contacts;
   vector<int> used_contact_ids;
-  std::map<int, bool> contacts = sensor_data_buffer_->get_contacts();
+  std::map<int, bool> contacts
+      = sensor_data_buffer_.get()->front().get_contacts();
   const vectorKinematics measured_kinematics
-      = sensor_data_buffer_->get_kinematics();
-  std::map<int, int> estimated_contact_positions = state.get_augmented_map();
+      = sensor_data_buffer_.get()->front().get_kinematics();
+  std::map<int, int> estimated_contact_positions = state.get_augmented_map(0);
 
   for (vectorKinematicsIterator it = measured_kinematics.begin();
        it != measured_kinematics.end(); ++it) {
@@ -238,62 +231,5 @@ void KinematicsCorrection::Correct(RobotState& state) {
   //     }
 }
 
-VelocityCorrection::VelocityCorrection(
-    std::shared_ptr<sensor_data_t> sensor_data_buffer, ErrorType error_type)
-    : Correction::Correction(sensor_data_buffer, error_type) {}
 
-// Correct using measured body velocity with the estimated velocity
-void VelocityCorrection::Correct(const Eigen::Matrix3d& covariance,
-                                 RobotState& state) {
-  Eigen::VectorXd Z, Y, b;
-  Eigen::MatrixXd H, N, PI;
-
-  // Fill out observation data
-  int dimX = state.dimX();
-  int dimTheta = state.dimTheta();
-  int dimP = state.dimP();
-
-  // Get latest measurement:
-  const Eigen::Vector3d measured_velocity = sensor_data_buffer_.get_velocity();
-
-  // Fill out Y
-  // Y.conservativeResize(dimX, Eigen::NoChange);
-  // Y.segment(0,dimX) = Eigen::VectorXd::Zero(dimX);
-  // Y.segment<3>(0) = measured_velocity;
-  // Y(3) = -1;
-
-  // // Fill out b
-  // b.conservativeResize(dimX, Eigen::NoChange);
-  // b.segment(0,dimX) = Eigen::VectorXd::Zero(dimX);
-  // b(3) = -1;
-
-  // Fill out H
-  H.conservativeResize(3, dimP);
-  H.block(0, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
-  H.block(0, 3, 3, 3) = Eigen::Matrix3d::Identity();
-
-  // Fill out N
-  N.conservativeResize(3, 3);
-  N = covariance;
-
-  // Fill out PI
-  // PI.conservativeResize(3, dimX);
-  // PI.block(0,0,3,dimX) = Eigen::MatrixXd::Zero(3,dimX);
-  // PI.block(0,0,3,3) = Eigen::Matrix3d::Identity();
-
-  // Fill out Z
-  // Z = X*Y-b = PI*X*Y
-  Eigen::Matrix3d R = state.getRotation();
-  Eigen::Vector3d v = state.getVelocity();
-
-
-  int startIndex = Z.rows();
-  Z.conservativeResize(startIndex + 3, Eigen::NoChange);
-  Z.segment(0, 3) = R * measured_velocity - v;
-
-  // Correct state using stacked observation
-  if (Z.rows() > 0) {
-    CorrectRightInvariant(Z, H, N, state, error_type_);
-  }
-}
 }    // namespace inekf
