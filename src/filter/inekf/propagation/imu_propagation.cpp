@@ -1,41 +1,95 @@
-#include "inekf/inekf_propagate.h"
+// #include "filter/inekf/propagation/imu_propagation.h"
+#include "math/lie_group.h"
 
 namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-// Base propagation class
-// ======================================================================
-// Default constructor
-Propagation::Propagation(std::shared_ptr<sensor_data_t> sensor_data_buffer,
-                         NoiseParams params, ErrorType error_type)
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
-      magnetic_field_(
-          (Eigen::VectorXd(3) << std::cos(1.2049), 0, std::sin(1.2049))
-              .finished()),
-      noise_params_(params),
-      error_type_(error_type) {
-  sensor_data_buffer_ = sensor_data_buffer;
-}
+// IMU propagation child class
+// ==============================================================================
+// IMU propagation constructor
+template<typename sensor_data_t>
+ImuPropagation<sensor_data_t>::ImuPropagation(
+    std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
+    NoiseParams params, ErrorType error_type)
+    : Propagation::Propagation(params, error_type),
+      sensor_data_buffer_(sensor_data_buffer) {}
 
-// Base method for propagation
-void Propagation::Propagate() {
-  // Just a skeleton, to be implemented in the child class
-}
+// IMU propagation method
+template<typename sensor_data_t>
+void ImuPropagation<sensor_data_t>::Propagate(RobotState& state, double dt) {
+  // Bias corrected IMU measurements
+  /// TODO: change this to buffer values:
+  Eigen::Matrix<double, 6, 1> imu = sensor_data_buffer_.get()->front();
+  Eigen::Vector3d w
+      = imu.head(3) - state.getGyroscopeBias();    // Angular Velocity
+  Eigen::Vector3d a
+      = imu.tail(3) - state.getAccelerometerBias();    // Linear Acceleration
 
-// Return noise params
-NoiseParams Propagation::get_noise_params() const { return noise_params_; }
+  // Get current state estimate and dimensions
+  Eigen::MatrixXd X = state.getX();
+  Eigen::MatrixXd Xinv = state.Xinv();
+  Eigen::MatrixXd P = state.getP();
+  int dimX = state.dimX();
+  int dimP = state.dimP();
+  int dimTheta = state.dimTheta();
 
-// Sets the filter's noise parameters
-void Propagation::set_noise_params(NoiseParams params) {
-  noise_params_ = params;
+  //  ------------ Propagate Covariance --------------- //
+  Eigen::MatrixXd Phi = this->StateTransitionMatrix(w, a, dt, state);
+  Eigen::MatrixXd Qd = this->DiscreteNoiseMatrix(Phi, dt, state);
+  Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;
+
+  // If we don't want to estimate bias, remove correlation
+  if (!estimate_bias_) {
+    P_pred.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
+        = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
+    P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
+        = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
+    P_pred.block(dimP - dimTheta, dimP - dimTheta, dimTheta, dimTheta)
+        = Eigen::MatrixXd::Identity(dimTheta, dimTheta);
+  }
+
+  //  ------------ Propagate Mean --------------- //
+  Eigen::Matrix3d R = state.getRotation();
+  Eigen::Vector3d v = state.getVelocity();
+  Eigen::Vector3d p = state.getPosition();
+
+  Eigen::Vector3d phi = w * dt;
+  Eigen::Matrix3d G0 = Gamma_SO3(
+      phi,
+      0);    // Computation can be sped up by computing G0,G1,G2 all at once
+  Eigen::Matrix3d G1 = Gamma_SO3(phi, 1);
+  Eigen::Matrix3d G2 = Gamma_SO3(phi, 2);
+
+  Eigen::MatrixXd X_pred = X;
+  if (state.getStateType() == StateType::WorldCentric) {
+    // Propagate world-centric state estimate
+    X_pred.block<3, 3>(0, 0) = R * G0;
+    X_pred.block<3, 1>(0, 3) = v + (R * G1 * a + g_) * dt;
+    X_pred.block<3, 1>(0, 4) = p + v * dt + (R * G2 * a + 0.5 * g_) * dt * dt;
+  } else {
+    // Propagate body-centric state estimate
+    Eigen::MatrixXd X_pred = X;
+    Eigen::Matrix3d G0t = G0.transpose();
+    X_pred.block<3, 3>(0, 0) = G0t * R;
+    X_pred.block<3, 1>(0, 3) = G0t * (v - (G1 * a + R * g_) * dt);
+    X_pred.block<3, 1>(0, 4)
+        = G0t * (p + v * dt - (G2 * a + 0.5 * R * g_) * dt * dt);
+    for (int i = 5; i < dimX; ++i) {
+      X_pred.block<3, 1>(0, i) = G0t * X.block<3, 1>(0, i);
+    }
+  }
+
+  //  ------------ Update State --------------- //
+  state.setX(X_pred);
+  state.setP(P_pred);
 }
 
 // Compute Analytical state transition matrix
-Eigen::MatrixXd Propagation::StateTransitionMatrix(Eigen::Vector3d& w,
-                                                   Eigen::Vector3d& a,
-                                                   double dt,
-                                                   const RobotState& state) {
+template<typename sensor_data_t>
+Eigen::MatrixXd ImuPropagation<sensor_data_t>::StateTransitionMatrix(
+    Eigen::Vector3d& w, Eigen::Vector3d& a, double dt,
+    const RobotState& state) {
   Eigen::Vector3d phi = w * dt;
   Eigen::Matrix3d G0 = Gamma_SO3(
       phi,
@@ -175,10 +229,10 @@ Eigen::MatrixXd Propagation::StateTransitionMatrix(Eigen::Vector3d& w,
 }
 
 // Compute Discrete noise matrix
+template<typename sensor_data_t>
 template<int dim>
-Eigen::MatrixXd Propagation::DiscreteNoiseMatrix(Eigen::MatrixXd& Phi,
-                                                 double dt,
-                                                 const RobotState& state) {
+Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
+    Eigen::MatrixXd& Phi, double dt, const RobotState& state) {
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -205,9 +259,8 @@ Eigen::MatrixXd Propagation::DiscreteNoiseMatrix(Eigen::MatrixXd& Phi,
   std::map<std::string, int> augmented_states = {};
 
   // add a map of augment states for loop
-  for (const auto& augmented_states : state.get_aug_maps()) {
-    for (std::map<std::string, int>::const_iterator it
-         = augmented_states.begin();
+  for (const auto& augmented_states : state.get_augmented_maps()) {
+    for (std::map<int, int>::const_iterator it = augmented_states.begin();
          it != augmented_states.end(); ++it) {
       Qc.block<dim, dim>(dim + dim * (it->second - dim),
                          dim + dim * (it->second - dim))
@@ -228,82 +281,5 @@ Eigen::MatrixXd Propagation::DiscreteNoiseMatrix(Eigen::MatrixXd& Phi,
                                 // (TODO: compute analytical)
   return Qd;
 }
-
-// IMU propagation child class
-// ==============================================================================
-// IMU propagation constructor
-ImuPropagation::ImuPropagation(
-    std::shared_ptr<sensor_data_t> sensor_data_buffer, NoiseParams params,
-    ErrorType error_type)
-    : Propagation(sensor_data_buffer, params, error_type) {}
-
-// IMU propagation method
-void ImuPropagation::Propagate(const Eigen::Matrix<double, 6, 1>& imu,
-                               double dt, RobotState& state) {
-  // Bias corrected IMU measurements
-  Eigen::Vector3d w
-      = imu.head(3) - state.getGyroscopeBias();    // Angular Velocity
-  Eigen::Vector3d a
-      = imu.tail(3) - state.getAccelerometerBias();    // Linear Acceleration
-
-  // Get current state estimate and dimensions
-  Eigen::MatrixXd X = state.getX();
-  Eigen::MatrixXd Xinv = state.Xinv();
-  Eigen::MatrixXd P = state.getP();
-  int dimX = state.dimX();
-  int dimP = state.dimP();
-  int dimTheta = state.dimTheta();
-
-  //  ------------ Propagate Covariance --------------- //
-  Eigen::MatrixXd Phi = this->StateTransitionMatrix(w, a, dt, state);
-  Eigen::MatrixXd Qd = this->DiscreteNoiseMatrix(Phi, dt, state);
-  Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;
-
-  // If we don't want to estimate bias, remove correlation
-  if (!estimate_bias_) {
-    P_pred.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
-        = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
-    P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
-        = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
-    P_pred.block(dimP - dimTheta, dimP - dimTheta, dimTheta, dimTheta)
-        = Eigen::MatrixXd::Identity(dimTheta, dimTheta);
-  }
-
-  //  ------------ Propagate Mean --------------- //
-  Eigen::Matrix3d R = state.getRotation();
-  Eigen::Vector3d v = state.getVelocity();
-  Eigen::Vector3d p = state.getPosition();
-
-  Eigen::Vector3d phi = w * dt;
-  Eigen::Matrix3d G0 = Gamma_SO3(
-      phi,
-      0);    // Computation can be sped up by computing G0,G1,G2 all at once
-  Eigen::Matrix3d G1 = Gamma_SO3(phi, 1);
-  Eigen::Matrix3d G2 = Gamma_SO3(phi, 2);
-
-  Eigen::MatrixXd X_pred = X;
-  if (state.getStateType() == StateType::WorldCentric) {
-    // Propagate world-centric state estimate
-    X_pred.block<3, 3>(0, 0) = R * G0;
-    X_pred.block<3, 1>(0, 3) = v + (R * G1 * a + g_) * dt;
-    X_pred.block<3, 1>(0, 4) = p + v * dt + (R * G2 * a + 0.5 * g_) * dt * dt;
-  } else {
-    // Propagate body-centric state estimate
-    Eigen::MatrixXd X_pred = X;
-    Eigen::Matrix3d G0t = G0.transpose();
-    X_pred.block<3, 3>(0, 0) = G0t * R;
-    X_pred.block<3, 1>(0, 3) = G0t * (v - (G1 * a + R * g_) * dt);
-    X_pred.block<3, 1>(0, 4)
-        = G0t * (p + v * dt - (G2 * a + 0.5 * R * g_) * dt * dt);
-    for (int i = 5; i < dimX; ++i) {
-      X_pred.block<3, 1>(0, i) = G0t * X.block<3, 1>(0, i);
-    }
-  }
-
-  //  ------------ Update State --------------- //
-  state.setX(X_pred);
-  state.setP(P_pred);
-}
-
 
 }    // namespace inekf

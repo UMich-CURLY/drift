@@ -11,7 +11,7 @@
  *  @date   September 25, 2018
  **/
 
-#include "inekf/inekf.h"
+#include "filter/inekf/inekf.h"
 
 namespace inekf {
 

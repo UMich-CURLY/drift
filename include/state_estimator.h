@@ -4,12 +4,13 @@
 #include <map>
 #include <memory>
 
-#include "inekf/inekf_correct.h"
-#include "inekf/inekf_propagate.h"
+#include "filter/inekf/correction/base_correction.h"
+#include "filter/inekf/propagation/base_propagation.h"
 #include "state/robot_state.h"
 
-namespace inekf {
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
+using namespace inekf;
+
 class StateEstimator {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -131,8 +132,8 @@ class StateEstimator {
   RobotState state_;
   NoiseParams params_;
   ErrorType error_type_;
-  std::vector<std::shared_ptr<Correction>> corrections;
+  std::shared_ptr<Correction> correction_;
+  // std::vector<std::shared_ptr<Correction>> corrections;
   std::vector<aug_map_t> aug_maps;
   std::shared_ptr<Propagation> propagation;
 };    // class StateEstimator
-}    // namespace inekf
