@@ -38,7 +38,6 @@ class Correction {
   /**
    * @brief Constructor for the correction class
    *
-   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
    * @param[in] error_type: Error type for the correction
    */
   Correction(ErrorType error_type);
@@ -49,6 +48,8 @@ class Correction {
   /**
    * @brief This is a skeleton for the propagation method. It should be
    * implemented in the child class.
+   *
+   * @param[in] state: The current state of the robot
    */
   virtual void Correct(RobotState& state);
   /// @}
@@ -58,8 +59,6 @@ class Correction {
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
-  int aug_map_idx_;       // Index of the augmented map in the aug_maps vector,
-                          // which is stored in state, -1 means no map
 };                        // class Correction
 
 }    // namespace inekf

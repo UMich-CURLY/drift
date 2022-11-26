@@ -11,8 +11,8 @@
  *  @date   September 25, 2018
  **/
 
-#ifndef INEKF_INEKF_CORRECT_H
-#define INEKF_INEKF_CORRECT_H
+#ifndef FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
+#define FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
 #include "filter/inekf/correction/base_correction.h"
 
 namespace inekf {
@@ -23,6 +23,13 @@ class VelocityCorrection : public Correction {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @name Constructors
+  /**
+   * @brief Constructor for the correction class
+   *
+   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
+   * @param[in] error_type: Error type for the correction
+   * @param[in] covariance: Covariance of the velocity measurement
+   */
   VelocityCorrection(
       std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
       ErrorType error_type, const Eigen::Matrix3d& covariance);
@@ -49,4 +56,4 @@ class VelocityCorrection : public Correction {
 }    // namespace inekf
 
 #include "../src/filter/inekf/correction/velocity_correction.cpp"
-#endif    // end INEKF_INEKF_CORRECT_H
+#endif    // end FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H

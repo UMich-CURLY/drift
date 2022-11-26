@@ -11,8 +11,8 @@
  *  @date   September 25, 2018
  **/
 
-#ifndef FILTER_INEKF_CORRECTION_BASE_PROPAGATION_H
-#define FILTER_INEKF_CORRECTION_BASE_PROPAGATION_H
+#ifndef FILTER_INEKF_PROPAGATION_BASE_PROPAGATION_H
+#define FILTER_INEKF_PROPAGATION_BASE_PROPAGATION_H
 #include <Eigen/Dense>
 #include <algorithm>
 #include <boost/circular_buffer.hpp>
@@ -34,15 +34,30 @@ class Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  /// @name Constructors
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Constructor for the propagation class
+   *
+   * @param[in] params: The noise parameter for propagation
+   * @param[in] error_type: Error type for the propagation
+   */
+  /// @}
   Propagation(NoiseParams params, ErrorType error_type);
 
   /// @name Propagation
+  /// @{
   // ======================================================================
   /**
    * @brief This is a skeleton for the propagation method. It should be
    * implemented in the child class.
+   *
+   * @param[in] state: The current state of the robot
+   * @param[in] dt: The time step for the propagation
    */
   virtual void Propagate(RobotState& state, double dt);
+  /// @}
 
   /// @name Setters
   /// @{
@@ -81,4 +96,4 @@ class Propagation {
 }    // namespace inekf
 
 #include "../src/filter/inekf/propagation/base_propagation.cpp"
-#endif    // INEKF_INEKF_PROPAGATE_H
+#endif    // FILTER_INEKF_PROPAGATION_BASE_PROPAGATION_H
