@@ -232,6 +232,13 @@ const std::vector<std::map<int, int>> RobotState::get_augmented_maps() const {
   return augmented_maps;
 }
 
+const int RobotState::add_augmented_map() { return 0; }
+
+void RobotState::del_aug_state(std::pair<const int, int> aug) {}
+
+void RobotState::add_aug_state(const inekf::Kinematics aug) {}
+
+
 ostream& operator<<(ostream& os, const RobotState& s) {
   os << "--------- Robot State -------------" << endl;
   os << "X:\n" << s.X_ << endl << endl;

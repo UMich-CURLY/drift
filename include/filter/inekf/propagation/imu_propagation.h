@@ -11,8 +11,8 @@
  *  @date   September 25, 2018
  **/
 
-#ifndef INEKF_INEKF_PROPAGATE_H
-#define INEKF_INEKF_PROPAGATE_H
+#ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+#define FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
 #include "filter/inekf/propagation/base_propagation.h"
 
 namespace inekf {
@@ -21,8 +21,19 @@ class ImuPropagation : public Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  /// @name Constructors
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Constructor for the propagation class
+   *
+   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
+   * @param[in] params: Noise parameters for the propagation
+   * @param[in] error_type: Error type for the propagation
+   */
   ImuPropagation(std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
                  NoiseParams params, ErrorType error_type);
+  /// @}
 
   /// @name Propagation
   /// @{
@@ -82,4 +93,4 @@ class ImuPropagation : public Propagation {
 }    // namespace inekf
 
 #include "../src/filter/inekf/propagation/imu_propagation.cpp"
-#endif    // INEKF_INEKF_PROPAGATE_H
+#endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
