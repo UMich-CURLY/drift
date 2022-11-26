@@ -17,6 +17,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "filter/observations.h"
 
 
 enum StateType { WorldCentric, BodyCentric };
@@ -76,6 +77,10 @@ class RobotState {
 
   const std::map<int, int> get_augmented_map(int idx) const;
   const std::vector<std::map<int, int>> get_augmented_maps() const;
+  const int add_augmented_map();
+  void del_aug_state(std::pair<const int, int> aug);
+  void add_aug_state(const inekf::Kinematics aug);
+
 
   const Eigen::MatrixXd Xinv() const;
 

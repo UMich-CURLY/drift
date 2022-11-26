@@ -11,8 +11,8 @@
  *  @date   September 25, 2018
  **/
 
-#ifndef INEKF_INEKF_CORRECT_H
-#define INEKF_INEKF_CORRECT_H
+#ifndef FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
+#define FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 #include "filter/inekf/correction/base_correction.h"
 
 namespace inekf {
@@ -28,10 +28,12 @@ class KinematicsCorrection : public Correction {
    *
    * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
    * @param[in] error_type: Error type for the correction
+   * @param[in] aug_map_idx: Index of the augmented map in state_'s aug_map
+   * vector
    */
   KinematicsCorrection(
       std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-      ErrorType error_type);
+      ErrorType error_type, int aug_map_idx);
 
   /// @name Correction Methods
   /// @{
@@ -53,8 +55,10 @@ class KinematicsCorrection : public Correction {
 
  private:
   std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer_;
-};    // class KinematicsCorrection
+  int aug_map_idx_;    // Index of the augmented map in the aug_maps vector,
+                       // which is stored in state
+};                     // class KinematicsCorrection
 }    // namespace inekf
 
 #include "../src/filter/inekf/correction/kinematics_correction.cpp"
-#endif    // end INEKF_INEKF_CORRECT_H
+#endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

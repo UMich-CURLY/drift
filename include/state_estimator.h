@@ -5,7 +5,10 @@
 #include <memory>
 
 #include "filter/inekf/correction/base_correction.h"
+#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/base_propagation.h"
+#include "filter/inekf/propagation/imu_propagation.h"
 #include "state/robot_state.h"
 
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
@@ -31,65 +34,6 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Set imu data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<imu_q_t>: Pointer to the imu data buffer
-   */
-  template<typename imu_q_t>
-  std::shared_ptr<imu_q_t> add_imu_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set landmark data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<landmark_q_t>: Pointer to the landmark data buffer
-   */
-  template<typename landmark_q_t>
-  std::shared_ptr<landmark_q_t> add_landmark_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set contact data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<contact_q_t>: Pointer to the contact data buffer
-   */
-  template<typename contact_q_t>
-  std::shared_ptr<contact_q_t> add_contact_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set kinematic data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<kinematic_q_t>: Pointer to the kinematic data
-   * buffer
-   */
-  template<typename kinematic_q_t>
-  std::shared_ptr<kinematic_q_t> add_kinametic_subscriber(
-      std::string topic_name);
-
-
-  // ======================================================================
-  /**
-   * @brief Set velocity data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<velocity_q_t>: Pointer to the velocity data
-   * buffer
-   */
-  template<typename velocity_q_t>
-  std::shared_ptr<velocity_q_t> add_velocity_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
    * @brief Set the initial state of the robot
    *
    * @param[in] state: Initial state of the robot
@@ -108,32 +52,79 @@ class StateEstimator {
   RobotState get_state();
   /// @}
 
-  void add_aug_map(aug_map_t aug_map);
 
+  /// @name Propagation
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Declare a propagation method, which uses imu data to propagate the
+   * state of the robot
+   *
+   * @param[in] buffer_ptr: pointer to the imu buffer queue
+   */
   template<typename imu_q_t>
   void add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr);
+  /// @}
 
+  /// @name Correction
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses landmark data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: pointer to the landmark buffer queue
+   */
   template<typename landmark_q_t>
   void add_landmark_correction(std::shared_ptr<landmark_q_t> buffer_ptr);
 
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses contact data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: pointer to the contact buffer queue
+   */
   template<typename contact_q_t>
   void add_contact_correction(int contact_size,
                               std::shared_ptr<contact_q_t> buffer_ptr);
 
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses kinematic data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: pointer to the kinematic buffer queue
+   */
   template<typename kinematic_q_t>
   void add_kinematics_correction(std::shared_ptr<kinematic_q_t> buffer_ptr);
 
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses velocity data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: pointer to the velocity buffer queue
+   */
   template<typename velocity_q_t>
-  void add_velocity_correction(std::shared_ptr<velocity_q_t> buffer_ptr);
+  void add_velocity_correction(std::shared_ptr<velocity_q_t> buffer_ptr,
+                               const Eigen::Matrix3d& covariance);
+  /// @}
 
-  void run();
+  // ======================================================================
+  /**
+   * @brief Run the filter
+   *
+   * @param[in] None
+   */
+  void run(double dt);
 
  private:
   RobotState state_;
   NoiseParams params_;
   ErrorType error_type_;
-  std::shared_ptr<Correction> correction_;
-  // std::vector<std::shared_ptr<Correction>> corrections;
+  // std::shared_ptr<Correction> correction_;
+  std::vector<std::shared_ptr<Correction>> corrections_;
   std::vector<aug_map_t> aug_maps;
-  std::shared_ptr<Propagation> propagation;
+  std::shared_ptr<Propagation> propagation_;
 };    // class StateEstimator

@@ -1,5 +1,5 @@
 // #include "filter/inekf/correction/kinematics_correction.h"
-#include "math/lie_group.h"
+// #include "math/lie_group.h"
 
 namespace inekf {
 using namespace std;
@@ -8,9 +8,10 @@ using namespace lie_group;
 template<typename sensor_data_t>
 KinematicsCorrection<sensor_data_t>::KinematicsCorrection(
     std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-    ErrorType error_type)
+    ErrorType error_type, int aug_map_idx)
     : Correction::Correction(error_type),
-      sensor_data_buffer_(sensor_data_buffer) {}
+      sensor_data_buffer_(sensor_data_buffer),
+      aug_map_idx_(aug_map_idx) {}
 
 // Correct state using kinematics measured between imu and contact point
 template<typename sensor_data_t>
@@ -57,12 +58,12 @@ void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
       // If contact is not indicated and id is found in estimated_contacts, then
       // remove state
       remove_contacts.push_back(*it_estimated);    // Add id to remove list
-      state.del_aug(*it_estimated);
+      state.del_aug_state(*it_estimated);
     } else if (contact_indicated && !found) {
       //  If contact is indicated and id is not found i n estimated_contacts,
       //  then augment state
       new_contacts.push_back(*it);    // Add to augment list
-      state.add_aug(*it);
+      state.add_aug_state(*it);
     } else if (contact_indicated && found) {
       // If contact is indicated and id is found in estimated_contacts, then
       // correct using kinematics
@@ -126,110 +127,24 @@ void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
   }
 
   // Remove contacts from state
-  // if (remove_contacts.size() > 0) {
-  //     Eigen::MatrixXd X_rem = state.getX();
-  //     Eigen::MatrixXd P_rem = state.getP();
-  //     for (vector<pair<int, int> >::iterator it = remove_contacts.begin(); it
-  //     != remove_contacts.end(); ++it) {
-  //         // Remove row and column from X
-  //         removeRowAndColumn(X_rem, it->second);
-  //         // Remove 3 rows and columns from P
-  //         int startIndex = 3 + 3 * (it->second - 3);
-  //         removeRowAndColumn(P_rem, startIndex);    // TODO: Make more
-  //         efficient removeRowAndColumn(P_rem, startIndex);    // TODO: Make
-  //         more efficient removeRowAndColumn(P_rem, startIndex);    // TODO:
-  //         Make more efficient
-  //         // Update all indices for estimated_landmarks and
-  //         estimated_contact_positions for (map<int, int>::iterator it2 =
-  //         estimated_landmarks_.begin(); it2 != estimated_landmarks_.end();
-  //         ++it2) {
-  //             if (it2->second > it->second)
-  //                 it2->second -= 1;
-  //         }
-  //         for (map<int, int>::iterator it2 =
-  //         estimated_contact_positions.begin();
-  //              it2 != estimated_contact_positions.end(); ++it2) {
-  //             if (it2->second > it->second)
-  //                 it2->second -= 1;
-  //         }
-  //         // We also need to update the indices of remove_contacts in the
-  //         case where multiple contacts are being
-  //         // removed at once
-  //         for (vector<pair<int, int> >::iterator it2 = it; it2 !=
-  //         remove_contacts.end(); ++it2) {
-  //             if (it2->second > it->second)
-  //                 it2->second -= 1;
-  //         }
-  //         // Remove from list of estimated contact positions
-  //         estimated_contact_positions.erase(it->first);
-  //     }
-  //     // Update state and covariance
-  //     state.setX(X_rem);
-  //     state.setP(P_rem);
-  // }
+  if (remove_contacts.size() > 0) {
+    Eigen::MatrixXd X_rem = state.getX();
+    Eigen::MatrixXd P_rem = state.getP();
+    for (vector<pair<int, int>>::iterator it = remove_contacts.begin();
+         it != remove_contacts.end(); ++it) {
+      state.del_aug_state(*it);
+    }
+  }
 
 
   // Augment state with newly detected contacts
-  // if (new_contacts.size() > 0) {
-  //     Eigen::MatrixXd X_aug = state.getX();
-  //     Eigen::MatrixXd P_aug = state.getP();
-  //     for (vectorKinematicsIterator it = new_contacts.begin(); it !=
-  //     new_contacts.end(); ++it) {
-  //         // Initialize new landmark mean
-  //         int startIndex = X_aug.rows();
-  //         X_aug.conservativeResize(startIndex + 1, startIndex + 1);
-  //         X_aug.block(startIndex, 0, 1, startIndex) =
-  //         Eigen::MatrixXd::Zero(1, startIndex); X_aug.block(0, startIndex,
-  //         startIndex, 1) = Eigen::MatrixXd::Zero(startIndex, 1);
-  //         X_aug(startIndex, startIndex) = 1;
-  //         if (state.getStateType() == StateType::WorldCentric) {
-  //             X_aug.block(0, startIndex, 3, 1)
-  //                 = state.getPosition() + state.getRotation() *
-  //                 it->pose.block<3, 1>(0, 3);
-  //         } else {
-  //             X_aug.block(0, startIndex, 3, 1) = state.getPosition() -
-  //             it->pose.block<3, 1>(0, 3);
-  //         }
-
-  //         // Initialize new landmark covariance - TODO:speed up
-  //         Eigen::MatrixXd F = Eigen::MatrixXd::Zero(state.dimP() + 3,
-  //         state.dimP()); F.block(0, 0, state.dimP() - state.dimTheta(),
-  //         state.dimP() - state.dimTheta()) = Eigen::MatrixXd::Identity(
-  //             state.dimP() - state.dimTheta(), state.dimP() -
-  //             state.dimTheta());    // for old X
-  //         F.block(state.dimP() - state.dimTheta() + 3, state.dimP() -
-  //         state.dimTheta(), state.dimTheta(),
-  //                 state.dimTheta())
-  //             = Eigen::MatrixXd::Identity(state.dimTheta(),
-  //             state.dimTheta());    // for theta
-  //         Eigen::MatrixXd G = Eigen::MatrixXd::Zero(F.rows(), 3);
-  //         // Blocks for new contact
-  //         if ((state.getStateType() == StateType::WorldCentric && error_type_
-  //         == ErrorType::RightInvariant)
-  //             || (state.getStateType() == StateType::BodyCentric &&
-  //             error_type_ == ErrorType::LeftInvariant)) {
-  //             F.block(state.dimP() - state.dimTheta(), 6, 3, 3) =
-  //             Eigen::Matrix3d::Identity(); G.block(G.rows() -
-  //             state.dimTheta() - 3, 0, 3, 3) = state.getWorldRotation();
-  //         } else {
-  //             F.block(state.dimP() - state.dimTheta(), 6, 3, 3) =
-  //             Eigen::Matrix3d::Identity(); F.block(state.dimP() -
-  //             state.dimTheta(), 0, 3, 3) = skew(-it->pose.block<3, 1>(0, 3));
-  //             G.block(G.rows() - state.dimTheta() - 3, 0, 3, 3) =
-  //             Eigen::Matrix3d::Identity();
-  //         }
-  //         P_aug = (F * P_aug * F.transpose() + G * it->covariance.block<3,
-  //         3>(3, 3) * G.transpose()).eval();
-
-  //         // Update state and covariance
-  //         state.setX(X_aug);    // TODO: move outside of loop (need to make
-  //         loop independent of state) state.setP(P_aug);
-
-  //         // Add to list of estimated contact positions
-  //         estimated_contact_positions.insert(pair<int, int>(it->id,
-  //         startIndex));
-  //     }
+  if (new_contacts.size() > 0) {
+    Eigen::MatrixXd X_aug = state.getX();
+    Eigen::MatrixXd P_aug = state.getP();
+    for (vectorKinematicsIterator it = new_contacts.begin();
+         it != new_contacts.end(); ++it) {
+      state.add_aug_state(*it);
+    }
+  }
 }
-
-
 }    // namespace inekf
