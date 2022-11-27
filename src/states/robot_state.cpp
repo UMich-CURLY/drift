@@ -78,14 +78,14 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const { retur
 // }
 
 // index map
-std::vector<std::map<int, int>> RobotState::get_aug_maps() { return idx_maps_; }
+std::vector<std::map<int, int>> RobotState::get_augmented_maps() { return idx_maps_; }
 
-int RobotState::add_aug_map() {
+int RobotState::add_augmented_map() {
     std::map<int, int> idx_map;
     idx_maps_.push_back(idx_map);
     return idx_maps_.size() - 1;
 }
-std::map<int, int> RobotState::get_aug_map(int idx) { return idx_maps_[idx]; }
+std::map<int, int> RobotState::get_augmented_map(int idx) { return idx_maps_[idx]; }
 
 
 int RobotState::add_aug_state(int idx_map, const Eigen::Vector3d& aug) {
