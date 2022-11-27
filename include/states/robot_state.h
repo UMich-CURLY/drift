@@ -55,7 +55,7 @@ class RobotState {
         std::vector<std::map<int, int>> get_augmented_maps();
 
         // augment state map
-        int  add_augmented_map();
+        int add_augmented_map();
         std::map<int, int> get_augmented_map(int idx_map);
 
         // augment state
