@@ -21,13 +21,13 @@
 namespace se_k_3 {
 
 class SEK3 {
-  public:
-
+ public:
   // Constructor
   SEK3();
   SEK3(const Eigen::MatrixXd& X);
   SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p);
-  SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p, const Eigen::VectorXd& v);
+  SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p,
+       const Eigen::VectorXd& v);
 
   // Destructor
   ~SEK3() {}
@@ -65,14 +65,14 @@ class SEK3 {
   // SEK3 exp();
   // SEK3 Adjoint();
 
-  private:
-    // Member variables
-    int K_ = 5;
-    Eigen::MatrixXd X_ = Eigen::MatrixXd::Identity(K_, K_);
-    std::map<std::string, int> map_aug_;
+ private:
+  // Member variables
+  int K_ = 5;
+  Eigen::MatrixXd X_ = Eigen::MatrixXd::Identity(K_, K_);
+  std::map<std::string, int> map_aug_;
 
 };    // class SEK3
-
+ß
 }    // namespace se_k_3
 
 
