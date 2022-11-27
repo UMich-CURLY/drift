@@ -52,11 +52,11 @@ class RobotState {
         // const Eigen::Matrix3d getAugStateCovariance(std::string key);
         
         // index map
-        std::vector<std::map<int, int>> get_aug_maps();
+        std::vector<std::map<int, int>> get_augmented_maps();
 
         // augment state map
-        int  add_aug_map();
-        std::map<int, int> get_aug_map(int idx_map);
+        int  add_augmented_map();
+        std::map<int, int> get_augmented_map(int idx_map);
 
         // augment state
         int add_aug_state(int idx_map, const Eigen::Vector3d& aug);
