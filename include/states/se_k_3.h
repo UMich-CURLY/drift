@@ -1,3 +1,9 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, Wenzhe Tong
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
 /**
  *  @file   se_k_3.h
  *  @author Wenzhe Tong
@@ -17,62 +23,125 @@
 
 #include <Eigen/Dense>
 
-
 namespace se_k_3 {
 
+/**
+ * @brief SEk(3) group class
+ *
+ * SEk(3) is a group of SE(3) with k additional states
+ */
 class SEK3 {
  public:
-  // Constructor
+  /// @name Constructors
+  /**
+   * @brief Default constructor.
+   */
   SEK3();
+
+  /**
+   * @brief Construct a new SEK3 object from a matrix.
+   *
+   * @param[in] X:
+   */
   SEK3(const Eigen::MatrixXd& X);
+
+  /**
+   * @brief Construct a new SEK3 object from a rotation matrix and a position
+   * vector.
+   *
+   * @param[in] R: Rotation matrix
+   * @param[in] p: Position vector
+   */
   SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p);
+
+  /**
+   * @brief Construct a new SEK3 object from a rotation matrix, a position
+   * vector, and a velocity vector.
+   *
+   * @param[in] R: Rotation matrix
+   * @param[in] p: Position vector
+   * @param[in] v: Velocity vector
+   */
   SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p,
        const Eigen::VectorXd& v);
 
-  // Destructor
+  ///@name Destructor
   ~SEK3() {}
 
-  // Getters
+  ///@name Getters
   Eigen::MatrixXd get_X();
   Eigen::MatrixXd get_R();
   Eigen::MatrixXd get_p();
   Eigen::MatrixXd get_v();
-
-  Eigen::MatrixXd get_aug(std::string key);
-  std::vector<std::string> get_aug_keys();
-  int get_aug_index(std::string key);
+  /**
+   * @brief Get the dimension of the states matrix X.
+   *
+   * @return int: Dimension of X
+   */
   int get_dim();
 
-  // Setters
+  ///@name Setters
+  /**
+   * @brief Set the dimension of matrix X to private variable K_.
+   *
+   * @param[in] K: Dimension of X
+   */
   void set_K(int K);
+
+  /**
+   * @brief Set the states matrix X.
+   *
+   * @param[in] X: States matrix
+   */
   void set_X(const Eigen::MatrixXd& X);
+
+  /**
+   * @brief Set the rotation matrix R.
+   *
+   * @param[in] R: Rotation matrix
+   */
   void set_R(const Eigen::MatrixXd& R);
+
+  /**
+   * @brief Set the position vector p.
+   *
+   * @param[in] p: Position vector
+   */
   void set_p(const Eigen::VectorXd& p);
+
+  /**
+   * @brief Set the velocity vector v.
+   *
+   * @param[in] v: Velocity vector
+   */
   void set_v(const Eigen::MatrixXd& v);
 
-  // Setters - aug state
-  void set_aug(std::string key, const Eigen::VectorXd& aug);
-
-  // detele aug state
-  void del_aug(std::string key);
-
-  // Operators
+  ///@name Operators
+  /**
+   * @brief Overload the multiplication operator.
+   *
+   * @param[in] X: SEk(3) object
+   * @return SEK3: SEk(3) object
+   */
   SEK3 operator*(const SEK3& X);
 
-  // Methods
+  ///@name Methods
+  /**
+   * @brief Compute the inverse of the SEK3 object.
+   *
+   * @return SEK3: Inverse of the SEK3 object
+   */
   SEK3 inverse();
   // SEK3 log();
   // SEK3 exp();
   // SEK3 Adjoint();
 
  private:
-  // Member variables
   int K_ = 5;
   Eigen::MatrixXd X_ = Eigen::MatrixXd::Identity(K_, K_);
-  std::map<std::string, int> map_aug_;
 
 };    // class SEK3
-ß
+
 }    // namespace se_k_3
 
 
