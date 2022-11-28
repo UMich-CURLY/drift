@@ -68,9 +68,9 @@ const Eigen::Vector3d RobotState::getVelocity() const {
 const Eigen::Vector3d RobotState::getPosition() const {
   return X_.block<3, 1>(0, 4);
 }
-const Eigen::Vector3d RobotState::getVector(int index) const {
-  return X_.block<3, 1>(0, index);
-}
+// const Eigen::Vector3d RobotState::getVector(int index) const {
+//   return X_.block<3, 1>(0, index);
+// }
 // const Eigen::Vector3d RobotState::getAugState(std::string key) {
 //     int idx = se_k_3::SEK3::get_aug_index(key) - 1;
 //     return X_.block<3,1>(0,idx);
@@ -102,12 +102,7 @@ const Eigen::Matrix3d RobotState::getGyroscopeBiasCovariance() const {
 const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const {
   return P_.block<3, 3>(12, 12);
 }
-// const Eigen::Matrix3d RobotState::getAugStateCovariance(std::string key) {
-//     int idx = se_k_3::SEK3::get_aug_index(key) - 1;
-//     return P_.block<3,3>(3*idx,3*idx);
-// }
 
-// index map
 std::vector<std::map<int, int>> RobotState::get_augmented_maps() {
   return idx_maps_;
 }
@@ -117,10 +112,10 @@ int RobotState::add_augmented_map() {
   idx_maps_.push_back(idx_map);
   return idx_maps_.size() - 1;
 }
+
 std::map<int, int> RobotState::get_augmented_map(int idx) {
   return idx_maps_[idx];
 }
-
 
 int RobotState::add_aug_state(int idx_map, const Eigen::Vector3d& aug) {
   if (idx_map < 0 || idx_map >= idx_maps_.size()) {
