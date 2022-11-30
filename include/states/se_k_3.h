@@ -69,16 +69,17 @@ class SEK3 {
   ~SEK3() {}
 
   ///@name Getters
-  Eigen::MatrixXd get_X();
-  Eigen::MatrixXd get_R();
-  Eigen::MatrixXd get_p();
-  Eigen::MatrixXd get_v();
+  const Eigen::MatrixXd get_X() const;
+  const Eigen::MatrixXd get_R() const;
+  const Eigen::MatrixXd get_p() const;
+  const Eigen::MatrixXd get_v() const;
+  const int get_K() const;
   /**
    * @brief Get the dimension of the states matrix X.
    *
    * @return int: Dimension of X
    */
-  int get_dim();
+  const int get_dim() const;
 
   ///@name Setters
   /**
