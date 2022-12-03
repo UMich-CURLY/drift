@@ -1,6 +1,3 @@
-// #include "filter/inekf/propagation/imu_propagation.h"
-// #include "math/lie_group.h"
-
 namespace inekf {
 using namespace std;
 using namespace lie_group;
@@ -11,9 +8,11 @@ using namespace lie_group;
 template<typename sensor_data_t>
 ImuPropagation<sensor_data_t>::ImuPropagation(
     std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-    NoiseParams params, ErrorType error_type)
-    : Propagation::Propagation(params, error_type),
-      sensor_data_buffer_(sensor_data_buffer) {}
+    const NoiseParams& params, const ErrorType& error_type,
+    const bool estimate_bias)
+    : Propagation::Propagation(params, estimate_bias),
+      sensor_data_buffer_(sensor_data_buffer),
+      error_type_(error_type) {}
 
 // IMU propagation method
 template<typename sensor_data_t>
@@ -88,7 +87,7 @@ void ImuPropagation<sensor_data_t>::Propagate(RobotState& state, double dt) {
 // Compute Analytical state transition matrix
 template<typename sensor_data_t>
 Eigen::MatrixXd ImuPropagation<sensor_data_t>::StateTransitionMatrix(
-    Eigen::Vector3d& w, Eigen::Vector3d& a, double dt,
+    const Eigen::Vector3d& w, const Eigen::Vector3d& a, const double dt,
     const RobotState& state) {
   Eigen::Vector3d phi = w * dt;
   Eigen::Matrix3d G0 = Gamma_SO3(
@@ -230,9 +229,8 @@ Eigen::MatrixXd ImuPropagation<sensor_data_t>::StateTransitionMatrix(
 
 // Compute Discrete noise matrix
 template<typename sensor_data_t>
-template<int dim>
 Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
-    Eigen::MatrixXd& Phi, double dt, const RobotState& state) {
+    const Eigen::MatrixXd& Phi, const double dt, const RobotState& state) {
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -251,8 +249,8 @@ Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
   // Continuous noise covariance
   Eigen::MatrixXd Qc = Eigen::MatrixXd::Zero(
       dimP, dimP);    // Landmark noise terms will remain zero
-  Qc.block<dim, dim>(0, 0) = noise_params_.getGyroscopeCov();
-  Qc.block<dim, dim>(dim, dim) = noise_params_.getAccelerometerCov();
+  Qc.block<3, 3>(0, 0) = noise_params_.getGyroscopeCov();
+  Qc.block<3, 3>(3, 3) = noise_params_.getAccelerometerCov();
 
   /// TODO: build get_augmented_map() function
   // std::map<std::string, int> augmented_states = state.get_augmented_map();
@@ -262,8 +260,8 @@ Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
   for (const auto& augmented_states : state.get_augmented_maps()) {
     for (std::map<int, int>::const_iterator it = augmented_states.begin();
          it != augmented_states.end(); ++it) {
-      Qc.block<dim, dim>(dim + dim * (it->second - dim),
-                         dim + dim * (it->second - dim))
+      Qc.block<3, 3>(3 + 3 * (it->second - 3),
+                     3 + 3 * (it->second - 3))
           = noise_params_.getAugmentCov();    // Augment state noise terms
     }    // TODO: Use kinematic orientation to map noise from augment state
          // frame to body frame (not needed if noise is isotropic)
@@ -271,7 +269,7 @@ Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta)
       = noise_params_.getGyroscopeBiasCov();
-  Qc.block<3, 3>(dimP - dimTheta + dim, dimP - dimTheta + dim)
+  Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3)
       = noise_params_.getAccelerometerBiasCov();
 
   // Noise Covariance Discretization

@@ -1,6 +1,3 @@
-// #include "filter/inekf/correction/velocity_correction.h"
-// #include "math/lie_group.h"
-
 namespace inekf {
 using namespace std;
 using namespace lie_group;
@@ -8,9 +5,10 @@ using namespace lie_group;
 template<typename sensor_data_t>
 VelocityCorrection<sensor_data_t>::VelocityCorrection(
     std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-    ErrorType error_type, const Eigen::Matrix3d& covariance)
-    : Correction::Correction(error_type),
+    const ErrorType& error_type, const Eigen::Matrix3d& covariance)
+    : Correction::Correction(),
       sensor_data_buffer_(sensor_data_buffer),
+      error_type_(error_type),
       covariance_(covariance) {}
 
 // Correct using measured body velocity with the estimated velocity

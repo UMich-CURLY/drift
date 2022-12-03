@@ -1,22 +1,29 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Ross Hartley, Tingjun Li
+ * Copyright 2022, Tingjun Li, Ross Hartley
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   imu_propagation.h
- *  @author Ross Hartley, Tingjun Li
+ *  @author Tingjun Li, Ross Hartley
  *  @brief  Header file for Invariant EKF imu propagation method
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
 #define FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
-#include "filter/inekf/propagation/base_propagation.h"
+#include "filter/base_propagation.h"
+#include "filter/inekf/inekf.h"
+#include "math/lie_group.h"
 
 namespace inekf {
 template<typename sensor_data_t>
+/**
+ * @class ImuPropagation
+ *
+ * A class for state propagation using imu measurement data.
+ **/
 class ImuPropagation : public Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -29,10 +36,12 @@ class ImuPropagation : public Propagation {
    *
    * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
    * @param[in] params: Noise parameters for the propagation
-   * @param[in] error_type: Error type for the propagation
+   * @param[in] error_type: Error type for the propagation. LeftInvariant or
+   * RightInvariant
    */
   ImuPropagation(std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-                 NoiseParams params, ErrorType error_type);
+                 const NoiseParams& params, const ErrorType& error_type,
+                 const bool estimate_bias = true);
   /// @}
 
   /// @name Propagation
@@ -45,8 +54,7 @@ class ImuPropagation : public Propagation {
    * The propagation model currently assumes that the covariance is for the
    * right invariant error.
    *
-   * @param[in] imu: 6x1 vector containing stacked angular velocity and linear
-   * acceleration measurements
+   * @param[in/out] state: state of the robot
    * @param[in] dt: double indicating how long to integrate the inertial
    * measurements for
    * @return None
@@ -59,34 +67,39 @@ class ImuPropagation : public Propagation {
   /// @{
   // ======================================================================
   /**
-   * @brief
+   * @brief computes the discretized state transition matrix in Equation 55 and
+   * 58 from Ross Hartley's paper:
+   * https://journals.sagepub.com/doi/10.1177/0278364919894385
    *
-   * @param[in] w:
-   * @param[in] a:
-   * @param[in] dt:
-   * @param[in] state:
+   * @param[in] w: The unbiased angular velocity measured from an imu (rad/s)
+   * @param[in] a: The unbiased linear acceleration measured from an imu (m/s)
+   * @param[in] dt: Time step
+   * @param[in/out] state: the current state estimate
    *
-   * @return Eigen::MatrixXd:
+   * @return Eigen::MatrixXd: the discretized state transition matrix
    */
-  Eigen::MatrixXd StateTransitionMatrix(Eigen::Vector3d& w, Eigen::Vector3d& a,
-                                        double dt, const RobotState& state);
+  Eigen::MatrixXd StateTransitionMatrix(const Eigen::Vector3d& w,
+                                        const Eigen::Vector3d& a,
+                                        const double dt,
+                                        const RobotState& state);
 
   // ======================================================================
   /**
-   * @brief
+   * @brief computes the discretized noise matrix. Details are presented in
+   * Equation (52) and (59) to (61) from Ross Hartley's paper:
+   * https://journals.sagepub.com/doi/10.1177/0278364919894385
    *
-   * @param[in] phi:
-   * @param[in] dt:
-   * @param[in] state:
+   * @param[in] Phi: The state transition matrix.
+   * @param[in] dt: Time step
+   * @param[in/out] state: The robot state
    *
-   * @return Eigen::MatrixXd:
+   * @return Eigen::MatrixXd: The discretized noise matrix
    */
-  template<int dim = 3>
-  Eigen::MatrixXd DiscreteNoiseMatrix(Eigen::MatrixXd& Phi, double dt,
-                                      const RobotState& state);
+  Eigen::MatrixXd DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
+                                      const double dt, const RobotState& state);
   /// @} // End of helper functions
 
- private:
+  const ErrorType error_type_;
   std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer_;
 
 };    // End of class ImuPropagation

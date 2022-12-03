@@ -1,25 +1,27 @@
-// #include "filter/inekf/correction/kinematics_correction.h"
-// #include "math/lie_group.h"
-
 namespace inekf {
 using namespace std;
 using namespace lie_group;
 
+using ContactIDandIdx = pair<int, int>;
+
 template<typename sensor_data_t>
 KinematicsCorrection<sensor_data_t>::KinematicsCorrection(
     std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-    ErrorType error_type, int aug_map_idx)
-    : Correction::Correction(error_type),
+    const ErrorType& error_type, int aug_map_idx)
+    : Correction::Correction(),
       sensor_data_buffer_(sensor_data_buffer),
+      error_type_(error_type),
       aug_map_idx_(aug_map_idx) {}
 
-// Correct state using kinematics measured between imu and contact point
+// Correct state using kinematics measured between body frame and contact point
 template<typename sensor_data_t>
 void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
-  vector<pair<int, int>> remove_contacts;
+  // Initialize containers to store contacts that will be removed or augmented
+  // after correction
+  vector<ContactIDandIdx> remove_contacts;
   vectorKinematics new_contacts;
   vector<int> used_contact_ids;
   std::map<int, bool> contacts
@@ -131,7 +133,7 @@ void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
   if (remove_contacts.size() > 0) {
     Eigen::MatrixXd X_rem = state.getX();
     Eigen::MatrixXd P_rem = state.getP();
-    for (vector<pair<int, int>>::iterator it = remove_contacts.begin();
+    for (vector<ContactIDandIdx>::iterator it = remove_contacts.begin();
          it != remove_contacts.end(); ++it) {
       state.del_aug_state(*it);
     }

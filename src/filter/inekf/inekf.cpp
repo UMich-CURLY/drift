@@ -8,7 +8,7 @@
  *  @file   InEKF.cpp
  *  @author Ross Hartley
  *  @brief  Source file for Invariant EKF
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #include "filter/inekf/inekf.h"
@@ -39,8 +39,6 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
       = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
   P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
       = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
-  // std::cout << "P:\n" << P << std::endl;
-  // std::cout << state << std::endl;
 
   // Map from left invariant to right invariant error temporarily
   if (error_type == ErrorType::LeftInvariant) {

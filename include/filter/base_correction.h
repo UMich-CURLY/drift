@@ -1,34 +1,28 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Ross Hartley, Tingjun Li
+ * Copyright 2022, Tingjun Li, Ross Hartley
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   base_correction.h
- *  @author Ross Hartley, Tingjun Li
- *  @brief  Header file for Invariant EKF correction method
- *  @date   September 25, 2018
+ *  @author Tingjun Li, Ross Hartley
+ *  @brief  Header file for Invariant EKF base correction method
+ *  @date   November 25, 2022
  **/
 
-#ifndef FILTER_INEKF_CORRECTION_BASE_CORRECTION_H
-#define FILTER_INEKF_CORRECTION_BASE_CORRECTION_H
+#ifndef FILTER_BASE_CORRECTION_H
+#define FILTER_BASE_CORRECTION_H
 #include <Eigen/Dense>
 #include <algorithm>
 #include <iostream>
 #include <map>
 #include <memory>
-#include <unsupported/Eigen/MatrixFunctions>
 #include <vector>
-#include "filter/inekf/inekf.h"
 #include "filter/noise_params.h"
 #include "filter/observations.h"
-#include "math/lie_group.h"
 #include "state/robot_state.h"
-#include "utils/sensor_data_t.h"
-#include "utils/utils.h"
 
-namespace inekf {
 
 class Correction {
  public:
@@ -36,33 +30,27 @@ class Correction {
 
   /// @name Constructors
   /**
-   * @brief Constructor for the correction class
-   *
-   * @param[in] error_type: Error type for the correction
+   * @brief Constructor for the base correction class
    */
-  Correction(ErrorType error_type);
+  Correction();
 
   /// @name Correction
   /// @{
   // ======================================================================
   /**
-   * @brief This is a skeleton for the propagation method. It should be
+   * @brief This is a skeleton for the correction method. It should be
    * implemented in the child class.
    *
-   * @param[in] state: The current state of the robot
+   * @param[in/out] state: The current state of the robot
    */
   virtual void Correct(RobotState& state);
   /// @}
 
  protected:
-  ErrorType error_type_;
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
 };                        // class Correction
 
-}    // namespace inekf
-
-
-#include "../src/filter/inekf/correction/base_correction.cpp"
-#endif    // end FILTER_INEKF_CORRECTION_BASE_CORRECTION_H
+#include "../src/filter/base_correction.cpp"
+#endif    // end FILTER_BASE_CORRECTION_H
