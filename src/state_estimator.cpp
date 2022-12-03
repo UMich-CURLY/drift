@@ -5,14 +5,15 @@ using namespace inekf;
 StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
     : params_(params), error_type_(error_type) {}
 
-void StateEstimator::set_state(RobotState state) { state_ = state; }
+void StateEstimator::set_state(RobotState& state) { state_ = state; }
 
-RobotState StateEstimator::get_state() { return state_; }
+const RobotState StateEstimator::get_state() const { return state_; }
 
 template<typename imu_q_t>
-void StateEstimator::add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr) {
-  propagation_ = std::make_shared<ImuPropagation<imu_q_t>>(buffer_ptr, params_,
-                                                           error_type_);
+void StateEstimator::add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr,
+                                         const bool estimate_bias) {
+  propagation_ = std::make_shared<ImuPropagation<imu_q_t>>(
+      buffer_ptr, params_, error_type_, estimate_bias);
 }
 
 template<typename kinematic_q_t>

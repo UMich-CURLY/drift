@@ -11,12 +11,9 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <thread>
-// #include "utils/cheetah_data_t.hpp"
-// #include "communication/lcm_handler.hpp"
-#include "filter/inekf/correction/base_correction.h"
+#include "filter/base_correction.h"
+#include "filter/base_propagation.h"
 #include "filter/inekf/correction/velocity_correction.h"
-#include "filter/inekf/propagation/base_propagation.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "filter/noise_params.h"
 #include "state/robot_state.h"
