@@ -8,7 +8,7 @@
  *  @file   NoiseParams.cpp
  *  @author Ross Hartley
  *  @brief  Source file for Invariant EKF noise parameter class
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #include "filter/noise_params.h"
@@ -80,12 +80,14 @@ void NoiseParams::setAugmentNoise(const Eigen::Vector3d& std) {
 }
 void NoiseParams::setAugmentNoise(const Eigen::Matrix3d& cov) { Qc_ = cov; }
 
-Eigen::Matrix3d NoiseParams::getGyroscopeCov() { return Qg_; }
-Eigen::Matrix3d NoiseParams::getAccelerometerCov() { return Qa_; }
-Eigen::Matrix3d NoiseParams::getGyroscopeBiasCov() { return Qbg_; }
-Eigen::Matrix3d NoiseParams::getAccelerometerBiasCov() { return Qba_; }
-Eigen::Matrix3d NoiseParams::getContactCov() { return Qc_; }
-Eigen::Matrix3d NoiseParams::getAugmentCov() { return Qc_; }
+const Eigen::Matrix3d NoiseParams::getGyroscopeCov() const { return Qg_; }
+const Eigen::Matrix3d NoiseParams::getAccelerometerCov() const { return Qa_; }
+const Eigen::Matrix3d NoiseParams::getGyroscopeBiasCov() const { return Qbg_; }
+const Eigen::Matrix3d NoiseParams::getAccelerometerBiasCov() const {
+  return Qba_;
+}
+const Eigen::Matrix3d NoiseParams::getContactCov() const { return Qc_; }
+const Eigen::Matrix3d NoiseParams::getAugmentCov() const { return Qc_; }
 
 
 std::ostream& operator<<(std::ostream& os, const NoiseParams& p) {

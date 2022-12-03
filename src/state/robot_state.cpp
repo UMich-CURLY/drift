@@ -8,7 +8,7 @@
  *  @file   RobotState.h
  *  @author Ross Hartley
  *  @brief  Source file for RobotState (thread-safe)
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #include "state/robot_state.h"

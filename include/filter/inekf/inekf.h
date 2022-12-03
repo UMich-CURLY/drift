@@ -1,14 +1,19 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2018, Ross Hartley
+ * Copyright 2022, Tingjun Li, Ross Hartley
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   inekf.h
- *  @author Ross Hartley
- *  @brief  Header file for Invariant EKF
- *  @date   September 25, 2018
+ *  @author Tingjun Li, Ross Hartley
+ *  @brief  Header file for Invariant EKF.
+ *  Original paper:
+ *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
+ *  Original github repo:
+ *  https://github.com/RossHartley/invariant-ekf
+ *
+ *  @date   November 25, 2022
  **/
 
 #ifndef INEKF_INEKF_H
@@ -17,13 +22,11 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
-#include <unsupported/Eigen/MatrixFunctions>
 #include <vector>
 #include "filter/noise_params.h"
 #include "filter/observations.h"
 #include "math/lie_group.h"
 #include "state/robot_state.h"
-#include "utils/utils.h"
 
 namespace inekf {
 
@@ -41,7 +44,7 @@ using ContactState = std::pair<int, bool>;
  * @param[in] Z: innovation matrix
  * @param[in] H: measurement error matrix
  * @param[in] N: measurement noise matrix
- * @param[in] state: Robot state
+ * @param[in/out] state: Robot state
  * @return None
  */
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
@@ -56,13 +59,12 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
  * @param[in] Z: innovation matrix
  * @param[in] H: measurement error matrix
  * @param[in] N: measurement noise matrix
- * @param[in] state: Robot state
+ * @param[in/out] state: Robot state
  * @return None
  */
 void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
                           ErrorType error_type);
-// void CorrectFullState(const Observation& obs); // TODO
 
 
 }    // namespace inekf
