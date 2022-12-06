@@ -8,7 +8,7 @@
  *  @file   lie_group.cpp
  *  @author Ross Hartley
  *  @brief  Source file for various Lie Group functions
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #include "math/lie_group.h"
