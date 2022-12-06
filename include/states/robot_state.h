@@ -338,14 +338,60 @@ class RobotState {
    */
   const Eigen::Vector3d getBodyPosition() const;
 
+  /**
+   * @brief Set the RobotState whole matrix.
+   * 
+   * @param[in]: X: state matrix X.
+  */
   void setX(const Eigen::MatrixXd& X);
+
+  /**
+   * @brief Set the RobotState Bias matrix P.
+   * 
+   * @param[in] P: bias matrix P.
+   */
   void setP(const Eigen::MatrixXd& P);
+
+  /**
+   * @brief Set the RobotState covariance matrix Theta.
+   * 
+   * @param[in] Theta: covariance matrix Theta.
+   */
   void setTheta(const Eigen::VectorXd& Theta);
+
+  /**
+   * @brief Set the Rotation matrix R in RobotState.
+   * 
+   * @param[in] R: 3x3 rotation matrix R.
+   */
   void setRotation(const Eigen::Matrix3d& R);
+
+  /**
+   * @brief Set the Velocity vector v in RoboState.
+   * 
+   * @param[in] v: 3x1 velocity vector v.
+   */
   void setVelocity(const Eigen::Vector3d& v);
+
+  /**
+   * @brief Set the Position vector p in RoboState.
+   * 
+   * @param[in] p: 3x1 position vector p.
+   */
   void setPosition(const Eigen::Vector3d& p);
 
+  /**
+   * @brief Set the Gyroscope Bias to bias matrix P.
+   * 
+   * @param[in] bg: 3x1 gyroscope bias vector bg.
+   */
   void setGyroscopeBias(const Eigen::Vector3d& bg);
+
+  /**
+   * @brief Set the Accelerometer Bias to bias matrix P.
+   * 
+   * @param[in] ba: 3x1 accelerometer bias vector ba.
+   */
   void setAccelerometerBias(const Eigen::Vector3d& ba);
 
   /**
