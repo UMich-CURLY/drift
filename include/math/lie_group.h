@@ -8,7 +8,7 @@
  *  @file   lie_group.h
  *  @author Ross Hartley
  *  @brief  Header file for various Lie Group functions
- *  @date   September 25, 2018
+ *  @date   November 25, 2022
  **/
 
 #ifndef MATH_LIEGROUP_H

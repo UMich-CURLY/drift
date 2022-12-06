@@ -11,11 +11,11 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <thread>
-// #include "utils/cheetah_data_t.hpp"
-// #include "communication/lcm_handler.hpp"
-#include "inekf/inekf_correct.h"
-#include "inekf/inekf_propagate.h"
+#include "filter/base_correction.h"
+#include "filter/base_propagation.h"
+#include "filter/inekf/correction/velocity_correction.h"
+#include "filter/inekf/propagation/imu_propagation.h"
+#include "filter/noise_params.h"
 #include "state/robot_state.h"
 
 // Boost
@@ -31,37 +31,49 @@ using namespace std::chrono;
 
 
 int main(int argc, char** argv) {
-    Eigen::Matrix<double, 5, 5> m;
-    m << 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1;
+  Eigen::Matrix<double, 5, 5> m;
+  m << 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+      1;
 
-    Eigen::Matrix<double, 6, 1> imu;
-    imu << 0, 0, 0, 0, 0, 9.81;
+  Eigen::Matrix<double, 6, 1> imu;
+  imu << 0, 0, 0, 0, 0, 9.81;
 
-    double dt = 0.01;
+  double dt = 0.01;
 
-    Eigen::Vector3d measured_velocity;
-    measured_velocity << 1, 0, 0;
+  Eigen::Vector3d measured_velocity;
+  measured_velocity << 1, 0, 0;
 
-    Eigen::Matrix3d measured_velocity_covariance;
-    measured_velocity_covariance << 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01;
+  Eigen::Matrix3d measured_velocity_covariance;
+  measured_velocity_covariance << 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01;
 
-    inekf::NoiseParams params;
-    double temp_param = 0;
-    params.setGyroscopeNoise(temp_param);
-    params.setAccelerometerNoise(temp_param);
-    params.setGyroscopeBiasNoise(temp_param);
-    params.setAccelerometerBiasNoise(temp_param);
-    params.setContactNoise(temp_param);
+  NoiseParams params;
+  double temp_param = 0;
+  params.setGyroscopeNoise(temp_param);
+  params.setAccelerometerNoise(temp_param);
+  params.setGyroscopeBiasNoise(temp_param);
+  params.setAccelerometerBiasNoise(temp_param);
+  params.setContactNoise(temp_param);
 
-    sensor_data_t sensor_data_buffer;
-    std::shared_ptr<sensor_data_t> sensor_data_buffer_ptr = std::make_shared<sensor_data_t>(sensor_data_buffer);
+  //   std::queue<Eigen::MatrixXd<double, 6, 1>> imu_data_buffer;
+  //   std::shared_ptr<std::queue<Eigen::MatrixXd<double, 6, 1>>>
+  //   imu_data_buffer_ptr
+  //       = std::make_shared<std::queue<Eigen::MatrixXd<double, 6, 1>>>(
+  //           imu_data_buffer);
 
-    inekf::RobotState state(m);
-    inekf::Propagation propagation(sensor_data_buffer_ptr, params, inekf::ErrorType::RightInvariant);
-    inekf::VelocityCorrection correction(sensor_data_buffer_ptr, inekf::ErrorType::RightInvariant);
+  //   std::queue<Eigen::Vector3d> velocity_data_buffer;
+  //   std::shared_ptr<std::queue<Eigen::Vector3d>> velocity_data_buffer_ptr
+  //       =
+  //       std::make_shared<std::queue<Eigen::Vector3d>>(velocity_data_buffer);
+
+  //   RobotState state(m);
+  //   inekf::Propagation<Eigen::MatrixXd<double, 6, 1>> propagation(
+  //       imu_data_buffer_ptr, params, inekf::ErrorType::RightInvariant);
+  //   inekf::VelocityCorrection<Eigen::Vector3d> correction(
+  //       velocity_data_buffer_ptr, inekf::ErrorType::RightInvariant,
+  //       measured_velocity_covariance);
 
 
-    propagation.Propagate(imu, dt, state);
-    correction.Correct(measured_velocity, measured_velocity_covariance, state);
-    std::cout << state.getX() << std::endl;
+  //   propagation.Propagate(state);
+  //   correction.Correct(state);
+  //   std::cout << state.getX() << std::endl;
 }

@@ -1,15 +1,38 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, Tingjun Li
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   state_estimator.h
+ *  @author Tingjun Li
+ *  @brief  Header file for state estimator class
+ *  @date   December 1, 2022
+ **/
+
 #include <Eigen/Dense>
 #include <boost/circular_buffer.hpp>
 #include <iostream>
 #include <map>
 #include <memory>
 
-#include "inekf/inekf_correct.h"
-#include "inekf/inekf_propagate.h"
+#include "filter/base_correction.h"
+#include "filter/base_propagation.h"
+#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/velocity_correction.h"
+#include "filter/inekf/propagation/imu_propagation.h"
 #include "state/robot_state.h"
 
-namespace inekf {
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
+using namespace inekf;
+
+/**
+ * @class StateEstimator
+ *
+ * A class for state estimation. This class will be used to estimate the state
+ * of the robot using user chosen filter methods.
+ **/
 class StateEstimator {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -30,70 +53,11 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Set imu data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<imu_q_t>: Pointer to the imu data buffer
-   */
-  template<typename imu_q_t>
-  std::shared_ptr<imu_q_t> add_imu_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set landmark data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<landmark_q_t>: Pointer to the landmark data buffer
-   */
-  template<typename landmark_q_t>
-  std::shared_ptr<landmark_q_t> add_landmark_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set contact data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<contact_q_t>: Pointer to the contact data buffer
-   */
-  template<typename contact_q_t>
-  std::shared_ptr<contact_q_t> add_contact_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
-   * @brief Set kinematic data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<kinematic_q_t>: Pointer to the kinematic data
-   * buffer
-   */
-  template<typename kinematic_q_t>
-  std::shared_ptr<kinematic_q_t> add_kinametic_subscriber(
-      std::string topic_name);
-
-
-  // ======================================================================
-  /**
-   * @brief Set velocity data buffer
-   *
-   * @template T: Type of the data buffer
-   * @param[in] topic_name: Name of the sensor's topic
-   * @return std::shared_ptr<velocity_q_t>: Pointer to the velocity data
-   * buffer
-   */
-  template<typename velocity_q_t>
-  std::shared_ptr<velocity_q_t> add_velocity_subscriber(std::string topic_name);
-
-  // ======================================================================
-  /**
    * @brief Set the initial state of the robot
    *
    * @param[in] state: Initial state of the robot
    */
-  void set_state(RobotState state);
+  void set_state(RobotState& state);
   /// @}
 
   /// @name Getters
@@ -104,35 +68,80 @@ class StateEstimator {
    *
    * @return RobotState: State of the robot
    */
-  RobotState get_state();
+  const RobotState get_state() const;
   /// @}
 
-  void add_aug_map(aug_map_t aug_map);
 
+  /// @name Propagation
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Declare a propagation method, which uses imu data to propagate the
+   * state of the robot
+   *
+   * @param[in] buffer_ptr: The imu buffer queue temporarily stores the message
+   * from the subscriber.
+   */
   template<typename imu_q_t>
-  void add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr);
+  void add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr,
+                           const bool estimate_bias);
+  /// @}
 
+  /// @name Correction
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses landmark data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: The landmark buffer queue temporarily stores the
+   * message from the subscriber.
+   */
   template<typename landmark_q_t>
   void add_landmark_correction(std::shared_ptr<landmark_q_t> buffer_ptr);
 
-  template<typename contact_q_t>
-  void add_contact_correction(int contact_size,
-                              std::shared_ptr<contact_q_t> buffer_ptr);
-
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses kinematic data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
+   * message from the subscriber.
+   */
   template<typename kinematic_q_t>
   void add_kinematics_correction(std::shared_ptr<kinematic_q_t> buffer_ptr);
 
+  // ======================================================================
+  /**
+   * @brief Declare a correction method, which uses velocity data to correct
+   * the state of the robot
+   *
+   * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
+   * message from the subscriber.
+   */
   template<typename velocity_q_t>
-  void add_velocity_correction(std::shared_ptr<velocity_q_t> buffer_ptr);
+  void add_velocity_correction(std::shared_ptr<velocity_q_t> buffer_ptr,
+                               const Eigen::Matrix3d& covariance);
+  /// @}
 
-  void run();
+  // ======================================================================
+  /**
+   * @brief Run the filter.
+   *
+   * Users should first add propagation and correction methods, then call this
+   * method. This method will run in a loop, in which the robot state would be
+   * propagated and corrected according to the methods added.
+   *
+   * @param[in] dt: Time step
+   */
+  void run(double dt);
 
  private:
   RobotState state_;
   NoiseParams params_;
   ErrorType error_type_;
-  std::vector<std::shared_ptr<Correction>> corrections;
+  // std::shared_ptr<Correction> correction_;
+  std::vector<std::shared_ptr<Correction>> corrections_;
   std::vector<aug_map_t> aug_maps;
-  std::shared_ptr<Propagation> propagation;
+  std::shared_ptr<Propagation> propagation_;
 };    // class StateEstimator
-}    // namespace inekf
