@@ -257,16 +257,19 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   // std::map<std::string, int> augmented_states = state.get_augmented_map();
   std::map<std::string, int> augmented_states = {};
 
+
+  /// TODO: make sure contact covariance is in the euclidean space
+  /// TODO: change to using the set
   // add a map of augment states for loop
-  for (const auto& augmented_states : state.get_augmented_maps()) {
-    for (std::map<int, int>::const_iterator it = augmented_states.begin();
-         it != augmented_states.end(); ++it) {
-      Qc.block<3, 3>(3 + 3 * (it->second - 3),
-                     3 + 3 * (it->second - 3))
-          = noise_params_.getAugmentCov();    // Augment state noise terms
-    }    // TODO: Use kinematic orientation to map noise from augment state
-         // frame to body frame (not needed if noise is isotropic)
-  }
+  // for (const auto& augmented_states : state.get_augmented_maps()) {
+  //   for (std::map<int, int>::const_iterator it = augmented_states.begin();
+  //        it != augmented_states.end(); ++it) {
+  //     Qc.block<3, 3>(3 + 3 * (it->second - 3),
+  //                    3 + 3 * (it->second - 3))
+  //         = noise_params_.getAugmentCov();    // Augment state noise terms
+  //   }    // TODO: Use kinematic orientation to map noise from augment state
+  //        // frame to body frame (not needed if noise is isotropic)
+  // }
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta)
       = noise_params_.getGyroscopeBiasCov();
