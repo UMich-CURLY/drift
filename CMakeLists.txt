@@ -34,6 +34,12 @@ add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
+add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
+add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
+add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp 
+                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp 
+                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
 
 # #################################################
 #                  Build Examples                 #
@@ -83,4 +89,4 @@ endif(BUILD_DOC)
 #                  Add Executables                #
 # #################################################
 add_executable(curly_state_estimator src/main.cpp)
-target_link_libraries(curly_state_estimator lie_group robot_state noise_params)
+target_link_libraries(curly_state_estimator lie_group robot_state noise_params state_estimator base_propagation base_correction inekf)

@@ -1,3 +1,5 @@
+#include "filter/inekf/propagation/imu_propagation.h"
+
 namespace inekf {
 using namespace std;
 using namespace lie_group;
@@ -5,9 +7,8 @@ using namespace lie_group;
 // IMU propagation child class
 // ==============================================================================
 // IMU propagation constructor
-template<typename sensor_data_t>
-ImuPropagation<sensor_data_t>::ImuPropagation(
-    std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
+ImuPropagation::ImuPropagation(
+    std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer,
     const NoiseParams& params, const ErrorType& error_type,
     const bool estimate_bias)
     : Propagation::Propagation(params, estimate_bias),
@@ -15,15 +16,15 @@ ImuPropagation<sensor_data_t>::ImuPropagation(
       error_type_(error_type) {}
 
 // IMU propagation method
-template<typename sensor_data_t>
-void ImuPropagation<sensor_data_t>::Propagate(RobotState& state, double dt) {
+void ImuPropagation::Propagate(RobotState& state, double dt) {
   // Bias corrected IMU measurements
-  /// TODO: change this to buffer values:
-  Eigen::Matrix<double, 6, 1> imu = sensor_data_buffer_.get()->front();
-  Eigen::Vector3d w
-      = imu.head(3) - state.getGyroscopeBias();    // Angular Velocity
-  Eigen::Vector3d a
-      = imu.tail(3) - state.getAccelerometerBias();    // Linear Acceleration
+
+  /// TODO: double check :
+  auto imu_measurement = sensor_data_buffer_.get()->front();
+  Eigen::Vector3d w = imu_measurement.get_ang_vel()
+                      - state.getGyroscopeBias();    // Angular Velocity
+  Eigen::Vector3d a = imu_measurement.get_lin_acc()
+                      - state.getAccelerometerBias();    // Linear Acceleration
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.getX();
@@ -85,10 +86,10 @@ void ImuPropagation<sensor_data_t>::Propagate(RobotState& state, double dt) {
 }
 
 // Compute Analytical state transition matrix
-template<typename sensor_data_t>
-Eigen::MatrixXd ImuPropagation<sensor_data_t>::StateTransitionMatrix(
-    const Eigen::Vector3d& w, const Eigen::Vector3d& a, const double dt,
-    const RobotState& state) {
+Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
+                                                      const Eigen::Vector3d& a,
+                                                      const double dt,
+                                                      const RobotState& state) {
   Eigen::Vector3d phi = w * dt;
   Eigen::Matrix3d G0 = Gamma_SO3(
       phi,
@@ -228,9 +229,9 @@ Eigen::MatrixXd ImuPropagation<sensor_data_t>::StateTransitionMatrix(
 }
 
 // Compute Discrete noise matrix
-template<typename sensor_data_t>
-Eigen::MatrixXd ImuPropagation<sensor_data_t>::DiscreteNoiseMatrix(
-    const Eigen::MatrixXd& Phi, const double dt, const RobotState& state) {
+Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
+                                                    const double dt,
+                                                    const RobotState& state) {
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();

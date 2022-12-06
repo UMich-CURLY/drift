@@ -1,3 +1,5 @@
+#include "filter/base_correction.h"
+
 using namespace std;
 
 // Constructor with error type
