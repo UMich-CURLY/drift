@@ -69,11 +69,41 @@ class SEK3 {
   ~SEK3() {}
 
   ///@name Getters
+  /**
+   * @brief Get the states matrix X.
+   *
+   * @return Eigen::MatrixXd: States matrix
+   */
   const Eigen::MatrixXd get_X() const;
+
+  /**
+  * @brief Get the rotation matrix R.
+  *
+  * @return Eigen::MatrixXd: Rotation matrix
+  */
   const Eigen::MatrixXd get_R() const;
+
+  /**
+   * @brief Get the position vector p.
+   *
+   * @return Eigen::VectorXd: Position vector
+   */
   const Eigen::MatrixXd get_p() const;
+
+  /**
+   * @brief Get the velocity vector v.
+   *
+   * @return Eigen::VectorXd: Velocity vector
+   */
   const Eigen::MatrixXd get_v() const;
+
+  /**
+   * @brief Get the dimension of the states matrix X.
+   *
+   * @return int: Dimension of X
+   */
   const int get_K() const;
+
   /**
    * @brief Get the dimension of the states matrix X.
    *
