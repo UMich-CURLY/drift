@@ -29,6 +29,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
 
   //---------------------------------------------------------------
   /// TODO: add get_contact in the KinematicsMeasurement() class
+  /// TODO: Be sure to also change and check the whole function
   // --------------------------------------------------------------
   // std::map<int, bool> contacts
   //     = sensor_data_buffer_.get()->front().get_contacts();
@@ -70,12 +71,15 @@ void KinematicsCorrection::Correct(RobotState& state) {
       // If contact is not indicated and id is found in estimated_contacts, then
       // remove state
       remove_contacts.push_back(*it_estimated);    // Add id to remove list
-      state.del_aug_state(*it_estimated);
+      /// TODO: change this to using the new method
+      state.del_aug_state(0, (*it_estimated).second);
     } else if (contact_indicated && !found) {
       //  If contact is indicated and id is not found i n estimated_contacts,
       //  then augment state
       new_contacts.push_back(*it);    // Add to augment list
-      state.add_aug_state(*it);
+
+      /// TODO: Change to using the new method
+      state.add_aug_state(it->id, it->pose.block<3, 1>(0, 3));
     } else if (contact_indicated && found) {
       // If contact is indicated and id is found in estimated_contacts, then
       // correct using kinematics
@@ -114,7 +118,8 @@ void KinematicsCorrection::Correct(RobotState& state) {
       Z.conservativeResize(startIndex + 3, Eigen::NoChange);
       Eigen::Matrix3d R = state.getRotation();
       Eigen::Vector3d p = state.getPosition();
-      Eigen::Vector3d d = state.getVector(it_estimated->second);
+      /// TODO: change this with the new get aug method
+      Eigen::Vector3d d = state.get_aug_state(0, it_estimated->second);
       if (state.getStateType() == StateType::WorldCentric) {
         Z.segment(startIndex, 3) = R * it->pose.block<3, 1>(0, 3) - (d - p);
       } else {
@@ -144,7 +149,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
     Eigen::MatrixXd P_rem = state.getP();
     for (vector<ContactIDandIdx>::iterator it = remove_contacts.begin();
          it != remove_contacts.end(); ++it) {
-      state.del_aug_state(*it);
+      state.del_aug_state(0, it->first);
     }
   }
 
@@ -155,7 +160,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
     Eigen::MatrixXd P_aug = state.getP();
     for (vectorKinematicsIterator it = new_contacts.begin();
          it != new_contacts.end(); ++it) {
-      state.add_aug_state(*it);
+      state.add_aug_state(it->id, it->pose.block<3, 1>(0, 3));
     }
   }
 }
