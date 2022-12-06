@@ -10,38 +10,33 @@ option(BUILD_TESTS "Build the test files" ON)
 option(BUILD_DOC "Build Doxygen documents" ON)
 
 # #################################################
-# Find External Packages             #
+#              Find External Packages             #
 # #################################################
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 
 # #################################################
-# Include Packages                #
+#                 Include Packages                #
 # #################################################
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include(FetchContent)
 
 # #################################################
-# Project Include Dir              #
+#                Project Include Dir              #
 # #################################################
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # #################################################
-# Create Library                 #
+#                  Create Library                 #
 # #################################################
-file(GLOB inekf
-  "${PROJECT_SOURCE_DIR}/src/inekf/*.cpp"
-)
-add_library(inekf ${inekf})
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
-add_library(utils ${PROJECT_SOURCE_DIR}/src/utils/utils.cpp)
 add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
-add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
+add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
 
 # #################################################
-# Build Examples                 #
+#                  Build Examples                 #
 # #################################################
 if(BUILD_EXAMPLES)
   message("Building examples...")
@@ -49,7 +44,7 @@ if(BUILD_EXAMPLES)
 endif(BUILD_EXAMPLES)
 
 # #################################################
-# Build Tests                  #
+#                    Build Tests                  #
 # #################################################
 if(BUILD_TESTS)
   message("Building tests...")
@@ -57,7 +52,7 @@ if(BUILD_TESTS)
 endif(BUILD_TESTS)
 
 # #################################################
-# Build Documents                #
+#                  Build Documents                #
 # #################################################
 if(BUILD_DOC)
   # find doxygen
@@ -85,7 +80,7 @@ if(BUILD_DOC)
 endif(BUILD_DOC)
 
 # #################################################
-# Add Executables                #
+#                  Add Executables                #
 # #################################################
 add_executable(curly_state_estimator src/main.cpp)
-target_link_libraries(curly_state_estimator inekf lie_group robot_state utils)
+target_link_libraries(curly_state_estimator lie_group robot_state noise_params)
