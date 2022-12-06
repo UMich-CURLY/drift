@@ -1,12 +1,15 @@
+#include "filter/inekf/correction/kinematics_correction.h"
+
 namespace inekf {
 using namespace std;
 using namespace lie_group;
 
 using ContactIDandIdx = pair<int, int>;
 
-template<typename sensor_data_t>
-KinematicsCorrection<sensor_data_t>::KinematicsCorrection(
-    std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
+
+KinematicsCorrection::KinematicsCorrection(
+    std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
+        sensor_data_buffer,
     const ErrorType& error_type, int aug_map_idx)
     : Correction::Correction(),
       sensor_data_buffer_(sensor_data_buffer),
@@ -14,8 +17,7 @@ KinematicsCorrection<sensor_data_t>::KinematicsCorrection(
       aug_map_idx_(aug_map_idx) {}
 
 // Correct state using kinematics measured between body frame and contact point
-template<typename sensor_data_t>
-void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
+void KinematicsCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
@@ -24,10 +26,17 @@ void KinematicsCorrection<sensor_data_t>::Correct(RobotState& state) {
   vector<ContactIDandIdx> remove_contacts;
   vectorKinematics new_contacts;
   vector<int> used_contact_ids;
-  std::map<int, bool> contacts
-      = sensor_data_buffer_.get()->front().get_contacts();
-  const vectorKinematics measured_kinematics
-      = sensor_data_buffer_.get()->front().get_kinematics();
+
+  //---------------------------------------------------------------
+  /// TODO: add get_contact in the KinematicsMeasurement() class
+  // --------------------------------------------------------------
+  // std::map<int, bool> contacts
+  //     = sensor_data_buffer_.get()->front().get_contacts();
+  std::map<int, bool> contacts;
+  // const vectorKinematics measured_kinematics
+  //     = sensor_data_buffer_.get()->front().get_kinematics();
+  vectorKinematics measured_kinematics;
+
   std::map<int, int> estimated_contact_positions
       = state.get_augmented_map(aug_map_idx_);
 

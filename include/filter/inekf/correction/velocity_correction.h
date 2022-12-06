@@ -16,10 +16,10 @@
 #include "filter/base_correction.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
+#include "measurement/velocity.h"
 
 namespace inekf {
 
-template<typename sensor_data_t>
 /**
  * @class VelocityCorrection
  *
@@ -38,9 +38,10 @@ class VelocityCorrection : public Correction {
    * RightInvariant
    * @param[in] covariance: Covariance of the velocity measurement
    */
-  VelocityCorrection(
-      std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-      const ErrorType& error_type, const Eigen::Matrix3d& covariance);
+  VelocityCorrection(std::shared_ptr<std::queue<VelocityMeasurement<double>>>
+                         sensor_data_buffer,
+                     const ErrorType& error_type,
+                     const Eigen::Matrix3d& covariance);
 
   /// @name Correction Methods
   /// @{
@@ -58,11 +59,11 @@ class VelocityCorrection : public Correction {
   /// @}
  private:
   const ErrorType error_type_;
-  std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer_;
+  std::shared_ptr<std::queue<VelocityMeasurement<double>>> sensor_data_buffer_;
   const Eigen::Matrix3d covariance_;
 };
 
 }    // namespace inekf
 
-#include "../src/filter/inekf/correction/velocity_correction.cpp"
+
 #endif    // end FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H

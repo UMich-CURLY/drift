@@ -18,6 +18,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <queue>
 #include <vector>
 #include "filter/noise_params.h"
 #include "filter/observations.h"
@@ -52,5 +53,5 @@ class Correction {
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
 };                        // class Correction
 
-#include "../src/filter/base_correction.cpp"
+// #include "../src/filter/base_correction.cpp"
 #endif    // end FILTER_BASE_CORRECTION_H

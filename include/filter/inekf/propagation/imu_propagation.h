@@ -16,9 +16,9 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
+#include "measurement/imu.h"
 
 namespace inekf {
-template<typename sensor_data_t>
 /**
  * @class ImuPropagation
  *
@@ -39,9 +39,10 @@ class ImuPropagation : public Propagation {
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
    */
-  ImuPropagation(std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
-                 const NoiseParams& params, const ErrorType& error_type,
-                 const bool estimate_bias = true);
+  ImuPropagation(
+      std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer,
+      const NoiseParams& params, const ErrorType& error_type,
+      const bool estimate_bias = true);
   /// @}
 
   /// @name Propagation
@@ -100,10 +101,9 @@ class ImuPropagation : public Propagation {
   /// @} // End of helper functions
 
   const ErrorType error_type_;
-  std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer_;
+  std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer_;
 
 };    // End of class ImuPropagation
 }    // namespace inekf
 
-#include "../src/filter/inekf/propagation/imu_propagation.cpp"
 #endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H

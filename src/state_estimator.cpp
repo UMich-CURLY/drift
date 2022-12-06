@@ -12,8 +12,8 @@ const RobotState StateEstimator::get_state() const { return state_; }
 template<typename imu_q_t>
 void StateEstimator::add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr,
                                          const bool estimate_bias) {
-  propagation_ = std::make_shared<ImuPropagation<imu_q_t>>(
-      buffer_ptr, params_, error_type_, estimate_bias);
+  propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, params_,
+                                                  error_type_, estimate_bias);
 }
 
 template<typename kinematic_q_t>
@@ -21,8 +21,8 @@ void StateEstimator::add_kinematics_correction(
     std::shared_ptr<kinematic_q_t> buffer_ptr) {
   int aug_map_idx = state_.add_augmented_map();
   std::shared_ptr<Correction> correction
-      = std::make_shared<KinematicsCorrection<kinematic_q_t>>(
-          buffer_ptr, error_type_, aug_map_idx);
+      = std::make_shared<KinematicsCorrection>(buffer_ptr, error_type_,
+                                               aug_map_idx);
   corrections_.push_back(correction);
 }
 
@@ -30,9 +30,8 @@ template<typename velocity_q_t>
 void StateEstimator::add_velocity_correction(
     std::shared_ptr<velocity_q_t> buffer_ptr,
     const Eigen::Matrix3d& covariance) {
-  std::shared_ptr<Correction> correction
-      = std::make_shared<VelocityCorrection<velocity_q_t>>(
-          buffer_ptr, error_type_, covariance);
+  std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
+      buffer_ptr, error_type_, covariance);
   corrections_.push_back(correction);
 }
 

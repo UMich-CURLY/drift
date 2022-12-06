@@ -1,3 +1,5 @@
+#include "filter/base_propagation.h"
+
 using namespace std;
 
 // Base propagation class

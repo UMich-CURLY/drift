@@ -13,13 +13,14 @@
 
 #ifndef FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 #define FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
+
 #include "filter/base_correction.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
+#include "measurement/kinematics.h"
 
 namespace inekf {
 
-template<typename sensor_data_t>
 /**
  * @class KinematicsCorrection
  *
@@ -45,7 +46,8 @@ class KinematicsCorrection : public Correction {
    * need to pass it by theirselves.
    */
   KinematicsCorrection(
-      std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer,
+      std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
+          sensor_data_buffer,
       const ErrorType& error_type, int aug_map_idx);
 
   /// @name Correction Methods
@@ -67,11 +69,11 @@ class KinematicsCorrection : public Correction {
 
  private:
   const ErrorType error_type_;
-  std::shared_ptr<std::queue<sensor_data_t>> sensor_data_buffer_;
+  std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
+      sensor_data_buffer_;
   int aug_map_idx_;    // Index of the augmented map in the aug_maps vector,
                        // which is stored in state
 };                     // class KinematicsCorrection
 }    // namespace inekf
 
-#include "../src/filter/inekf/correction/kinematics_correction.cpp"
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
