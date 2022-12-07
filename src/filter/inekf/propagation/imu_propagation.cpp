@@ -250,37 +250,34 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   // Continuous noise covariance
   Eigen::MatrixXd Qc = Eigen::MatrixXd::Zero(
       dimP, dimP);    // Landmark noise terms will remain zero
-  Qc.block<3, 3>(0, 0) = noise_params_.getGyroscopeCov();
-  Qc.block<3, 3>(3, 3) = noise_params_.getAccelerometerCov();
+  Qc.block<3, 3>(0, 0) = noise_params_.get_gyroscope_cov();
+  Qc.block<3, 3>(3, 3) = noise_params_.get_accelerometer_cov();
 
   /// TODO: build get_augmented_map() function
   // std::map<std::string, int> augmented_states = state.get_augmented_map();
-  std::map<std::string, int> augmented_states = {};
-
+  // std::map<std::string, int> augmented_states = {};
 
   /// TODO: make sure contact covariance is in the euclidean space
-  /// TODO: change to using the set
-  // add a map of augment states for loop
-  // for (const auto& augmented_states : state.get_augmented_maps()) {
-  //   for (std::map<int, int>::const_iterator it = augmented_states.begin();
-  //        it != augmented_states.end(); ++it) {
-  //     Qc.block<3, 3>(3 + 3 * (it->second - 3),
-  //                    3 + 3 * (it->second - 3))
-  //         = noise_params_.getAugmentCov();    // Augment state noise terms
-  //   }    // TODO: Use kinematic orientation to map noise from augment state
-  //        // frame to body frame (not needed if noise is isotropic)
+
+  /// TODO: Uncomment the following during merge:
+  // for (const auto& column_id_to_aug_type : state.get_matrix_idx_map()) {
+  //   Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
+  //                  3 + 3 * (column_id_to_aug_type.first - 3))
+  //       = noise_params_.get_augment_cov(
+  //           column_id_to_aug_type.second);    // Augment state noise terms
   // }
 
+
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta)
-      = noise_params_.getGyroscopeBiasCov();
+      = noise_params_.get_gyroscope_bias_cov();
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3)
-      = noise_params_.getAccelerometerBiasCov();
+      = noise_params_.get_accelerometer_bias_cov();
 
   // Noise Covariance Discretization
   Eigen::MatrixXd PhiG = Phi * G;
   Eigen::MatrixXd Qd = PhiG * Qc * PhiG.transpose()
-                       * dt;    // Approximated discretized noise matrix
-                                // (TODO: compute analytical)
+                       * dt;    // Approximated discretized noise
+                                // matrix (TODO: compute analytical)
   return Qd;
 }
 
