@@ -70,14 +70,14 @@ void KinematicsCorrection::Correct(RobotState& state) {
       // remove state
       remove_contacts.push_back(it->id);    // Add id to remove list
       /// TODO: change this to using the new method
-      state.del_aug_state(0, aug_id_to_column_id_[it->id]);
+      // state.del_aug_state(0, aug_id_to_column_id_[it->id]);
     } else if (contact_indicated && !found) {
       //  If contact is indicated and id is not found i n estimated_contacts,
       //  then augment state
       new_contacts.push_back(*it);    // Add to augment list
 
       /// TODO: Change to using the new method
-      state.add_aug_state(it->id, it->pose.block<3, 1>(0, 3));
+      // state.add_aug_state(it->id, it->pose.block<3, 1>(0, 3));
     } else if (contact_indicated && found) {
       // If contact is indicated and id is found in estimated_contacts, then
       // correct using kinematics
@@ -117,7 +117,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
       Eigen::Matrix3d R = state.getRotation();
       Eigen::Vector3d p = state.getPosition();
       /// TODO: change this with the new get aug method
-      Eigen::Vector3d d = state.get_aug_state(0, aug_id_to_column_id_[it->id]);
+      Eigen::Vector3d d = state.get_aug_state(aug_id_to_column_id_[it->id]);
       if (state.getStateType() == StateType::WorldCentric) {
         Z.segment(startIndex, 3) = R * it->pose.block<3, 1>(0, 3) - (d - p);
       } else {
@@ -146,8 +146,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
     Eigen::MatrixXd X_rem = state.getX();
     Eigen::MatrixXd P_rem = state.getP();
     for (ContactID contact_id : remove_contacts) {
-      /// TODO: remove the 0 after merge
-      state.del_aug_state(aug_id_to_column_id_[contact_id], 0);
+      state.del_aug_state(aug_id_to_column_id_[contact_id]);
       aug_id_to_column_id_.erase(contact_id);
     }
   }
@@ -202,11 +201,9 @@ void KinematicsCorrection::Correct(RobotState& state) {
                   .eval();
 
       // Send the new contact aug state and aug covariance to robot state
-      // int aug_idx = state.add_aug_state(
-      //     aug_type_, aug_state,
-      //     P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3));
-      int aug_idx = 1;
-
+      int aug_idx = state.add_aug_state(
+          aug_type_, aug_state,
+          P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3));
 
       // Add the aug state matrix index to the augment state information
       // mapping
