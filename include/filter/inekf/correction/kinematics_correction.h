@@ -14,6 +14,7 @@
 #ifndef FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 #define FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 
+#include <unordered_map>
 #include "filter/base_correction.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
@@ -37,18 +38,14 @@ class KinematicsCorrection : public Correction {
    * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] aug_map_idx: Index of the augmented map in state_'s aug_map. For
-   * example, if the state_ has 2 augmented maps in its augmented maps
-   * container, Without lost of generality, let's assume the first one is
-   * contact map, and the second one is landmark map. In this case, for
-   * kinematics correction, aug_map_idx = 1. This input will be passed to the
-   * constructor from the StateEstimator class automatically and users don't
-   * need to pass it by theirselves.
+   * @param[in] aug_map_type: Type of the augmented states in this correction
+   * method. For example, one can use "contact" to indicate the augment state in
+   * this correction method are contact positions
    */
   KinematicsCorrection(
       std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
           sensor_data_buffer,
-      const ErrorType& error_type, int aug_map_idx);
+      const ErrorType& error_type, const std::string& aug_type);
 
   /// @name Correction Methods
   /// @{
@@ -69,11 +66,17 @@ class KinematicsCorrection : public Correction {
 
  private:
   const ErrorType error_type_;
+  // Indicating the type of the augmentation state, e.g. "contact", "landmark"
+  const std::string aug_type_;
+
+  // aug_id_to_column_id map:
+  // key: augmented state id
+  // value: augmented state in the robot state X
+  std::unordered_map<int, int> aug_id_to_column_id_;
+
   std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
       sensor_data_buffer_;
-  int aug_map_idx_;    // Index of the augmented map in the aug_maps vector,
-                       // which is stored in state
-};                     // class KinematicsCorrection
+};    // class KinematicsCorrection
 }    // namespace inekf
 
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

@@ -48,11 +48,11 @@ int main(int argc, char** argv) {
 
   NoiseParams params;
   double temp_param = 0;
-  params.setGyroscopeNoise(temp_param);
-  params.setAccelerometerNoise(temp_param);
-  params.setGyroscopeBiasNoise(temp_param);
-  params.setAccelerometerBiasNoise(temp_param);
-  params.setContactNoise(temp_param);
+  params.set_gyroscope_noise(temp_param);
+  params.set_accelerometer_noise(temp_param);
+  params.set_gyroscope_bias_noise(temp_param);
+  params.set_accelerometer_bias_noise(temp_param);
+  // params.setContactNoise(temp_param);
 
   //   std::queue<Eigen::MatrixXd<double, 6, 1>> imu_data_buffer;
   //   std::shared_ptr<std::queue<Eigen::MatrixXd<double, 6, 1>>>

@@ -14,44 +14,44 @@
 #define INEKF_NOISEPARAMS_H
 #include <Eigen/Dense>
 #include <iostream>
-
+#include <unordered_map>
 
 class NoiseParams {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   NoiseParams();
 
-  void setGyroscopeNoise(double std);
-  void setGyroscopeNoise(const Eigen::Vector3d& std);
-  void setGyroscopeNoise(const Eigen::Matrix3d& cov);
+  void set_gyroscope_noise(double std);
+  void set_gyroscope_noise(const Eigen::Vector3d& std);
+  void set_gyroscope_noise(const Eigen::Matrix3d& cov);
 
-  void setAccelerometerNoise(double std);
-  void setAccelerometerNoise(const Eigen::Vector3d& std);
-  void setAccelerometerNoise(const Eigen::Matrix3d& cov);
+  void set_accelerometer_noise(double std);
+  void set_accelerometer_noise(const Eigen::Vector3d& std);
+  void set_accelerometer_noise(const Eigen::Matrix3d& cov);
 
-  void setGyroscopeBiasNoise(double std);
-  void setGyroscopeBiasNoise(const Eigen::Vector3d& std);
-  void setGyroscopeBiasNoise(const Eigen::Matrix3d& cov);
+  void set_gyroscope_bias_noise(double std);
+  void set_gyroscope_bias_noise(const Eigen::Vector3d& std);
+  void set_gyroscope_bias_noise(const Eigen::Matrix3d& cov);
 
-  void setAccelerometerBiasNoise(double std);
-  void setAccelerometerBiasNoise(const Eigen::Vector3d& std);
-  void setAccelerometerBiasNoise(const Eigen::Matrix3d& cov);
+  void set_accelerometer_bias_noise(double std);
+  void set_accelerometer_bias_noise(const Eigen::Vector3d& std);
+  void set_accelerometer_bias_noise(const Eigen::Matrix3d& cov);
 
   void setAugmentNoise(double std);
   void setAugmentNoise(const Eigen::Vector3d& std);
   void setAugmentNoise(const Eigen::Matrix3d& cov);
 
-  void setContactNoise(double std);
-  void setContactNoise(const Eigen::Vector3d& std);
-  void setContactNoise(const Eigen::Matrix3d& cov);
+  void set_augment_noise(const std::string& aug_type, const double std);
+  void set_augment_noise(const std::string& aug_type,
+                         const Eigen::Vector3d& std);
+  void set_augment_noise(const std::string& aug_type,
+                         const Eigen::Matrix3d& std);
 
-  const Eigen::Matrix3d getGyroscopeCov() const;
-  const Eigen::Matrix3d getAccelerometerCov() const;
-  const Eigen::Matrix3d getGyroscopeBiasCov() const;
-  const Eigen::Matrix3d getAccelerometerBiasCov() const;
-  const Eigen::Matrix3d getContactCov() const;
-  const Eigen::Matrix3d getAugmentCov() const;
-
+  const Eigen::Matrix3d get_gyroscope_cov() const;
+  const Eigen::Matrix3d get_accelerometer_cov() const;
+  const Eigen::Matrix3d get_gyroscope_bias_cov() const;
+  const Eigen::Matrix3d get_accelerometer_bias_cov() const;
+  const Eigen::Matrix3d get_augment_cov(const std::string& aug_type) const;
 
   friend std::ostream& operator<<(std::ostream& os, const NoiseParams& p);
 
@@ -62,6 +62,8 @@ class NoiseParams {
   Eigen::Matrix3d Qba_;
   Eigen::Matrix3d Ql_;
   Eigen::Matrix3d Qc_;
+
+  std::unordered_map<std::string, Eigen::Matrix3d> aug2cov_;
 };
 
 #endif
