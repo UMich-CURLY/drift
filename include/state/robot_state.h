@@ -456,7 +456,7 @@ class RobotState {
    * @param[in] cov: augmented covariance matrix.
    * @return int: index of the augmented covariance matrix in the mapping.
    */
-  int add_aug_cov(const Eigen::Matrix3d& cov);
+  void add_aug_cov(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the aug cov matrix to the certain position(idx_state-th) of the
