@@ -101,92 +101,54 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const {
   return P_.block<3, 3>(12, 12);
 }
 
-std::vector<std::map<int, int>> RobotState::get_augmented_maps() {
-  return idx_maps_;
+std::unordered_map<int, std::string> RobotState::get_matrix_idx_map() {
+  return matrix_idx_map_;
 }
 
-int RobotState::add_augmented_map() {
-  std::map<int, int> idx_map;
-  idx_maps_.push_back(idx_map);
-  return idx_maps_.size() - 1;
-}
-
-std::map<int, int> RobotState::get_augmented_map(int idx) {
-  return idx_maps_[idx];
-}
-
-int RobotState::add_aug_state(int idx_map, const Eigen::Vector3d& aug) {
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (aug.size() != 3) {
-    throw std::invalid_argument("Invalid augmented state size");
-  }
+int RobotState::add_aug_state(std::string measurementType,
+                              const Eigen::Vector3d& aug,
+                              const Eigen::Matrix3d& cov) {
   Eigen::MatrixXd X_aug
       = Eigen::MatrixXd::Identity(this->dimX() + 1, this->dimX() + 1);
   X_aug.block(0, 0, this->dimX(), this->dimX()) = X_;
   X_aug.block(0, this->dimX(), 3, 1) = aug;
   X_ = X_aug;
-  // TODO: check this->dimX, it is 1 based, check map[][]
-  int idx_state = idx_maps_[idx_map].size();
-  idx_maps_[idx_map].insert(std::pair<int, int>(idx_state, this->dimX()));
+
+  Eigen::MatrixXd P_aug
+      = Eigen::MatrixXd::Zero(this->dimP() + 3, this->dimP() + 3);
+  P_aug.block(0, 0, this->dimP(), this->dimP()) = P_;
+  P_aug.block<3, 3>(this->dimP(), this->dimP()) = cov;
+  P_ = P_aug;
+
+  // mapping from measurement type to state index
+  matrix_idx_map_.insert(
+      std::pair<int, std::string>(this->dimX() - 1, measurementType));
+
+  return this->dimX() - 1;
 }
 
-void RobotState::set_aug_state(int idx_map, int idx_state,
-                               const Eigen::Vector3d& aug) {
-  if (idx_state < 0 || idx_state >= this->dimX()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (aug.size() != 3) {
-    throw std::invalid_argument("Invalid augmented state size");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  X_.block<3, 1>(0, idx_maps_[idx_map][idx_state]) = aug;
+void RobotState::set_aug_state(int matrix_idx, const Eigen::Vector3d& aug) {
+  X_.block<3, 1>(0, matrix_idx) = aug;
 }
 
-void RobotState::del_aug_state(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimX()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
+void RobotState::del_aug_state(int matrix_idx) {
   Eigen::MatrixXd X_aug
       = Eigen::MatrixXd::Identity(this->dimX() - 1, this->dimX() - 1);
-  X_aug.block(0, 0, idx_maps_[idx_map][idx_state],
-              idx_maps_[idx_map][idx_state])
-      = X_.block(0, 0, idx_maps_[idx_map][idx_state],
-                 idx_maps_[idx_map][idx_state]);
-  X_aug.block(idx_maps_[idx_map][idx_state], idx_maps_[idx_map][idx_state],
-              this->dimX() - idx_maps_[idx_map][idx_state] - 1,
-              this->dimX() - idx_maps_[idx_map][idx_state] - 1)
-      = X_.block(idx_maps_[idx_map][idx_state] + 1,
-                 idx_maps_[idx_map][idx_state] + 1,
-                 this->dimX() - idx_maps_[idx_map][idx_state] - 1,
-                 this->dimX() - idx_maps_[idx_map][idx_state] - 1);
+  X_aug.block(0, 0, matrix_idx, matrix_idx)
+      = X_.block(0, 0, matrix_idx, matrix_idx);
+  X_aug.block(matrix_idx, matrix_idx, this->dimX() - matrix_idx - 1,
+              this->dimX() - matrix_idx - 1)
+      = X_.block(matrix_idx + 1, matrix_idx + 1, this->dimX() - matrix_idx - 1,
+                 this->dimX() - matrix_idx - 1);
   X_ = X_aug;
-  idx_maps_[idx_map].erase(idx_state);
+  auto it = matrix_idx_map_.find(matrix_idx);
+  if (it != matrix_idx_map_.end()) {
+    matrix_idx_map_.erase(it);
+  }
 }
 
-const Eigen::Vector3d RobotState::get_aug_state(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimX()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= this->idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  return X_.block<3, 1>(0, idx_maps_[idx_map][idx_state]);
+const Eigen::Vector3d RobotState::get_aug_state(int matrix_idx) {
+  return X_.block<3, 1>(0, matrix_idx);
 }
 
 const int RobotState::dimX() const { return X_.cols(); }
@@ -280,67 +242,25 @@ void RobotState::setAccelerometerBias(const Eigen::Vector3d& ba) {
   Theta_.block<3, 1>(0, 3) = ba;
 }
 
-int RobotState::add_aug_bias(int idx_map, const Eigen::Vector3d& baug) {
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (baug.size() != 3) {
-    throw std::invalid_argument("Invalid bias size");
-  }
-  int dim = this->dimTheta();
-  Eigen::VectorXd Theta_aug = Eigen::VectorXd::Zero(dim + 3);
-  Theta_aug.block(0, 0, 1, dim) = Theta_;
-  Theta_aug.block<3, 1>(0, dim) = baug;
+
+void RobotState::add_aug_bias(int matrix_idx, const Eigen::Vector3d& baug) {
+  Eigen::VectorXd Theta_aug = Eigen::VectorXd::Zero(Theta_.rows() + 3);
+  Theta_aug.block(0, 0, 1, Theta_.rows()) = Theta_;
+  Theta_aug.block<3, 1>(0, Theta_.rows()) = baug;
   Theta_ = Theta_aug;
-  return dim;
 }
 
-void RobotState::set_aug_bias(int idx_map, int idx_state,
-                              const Eigen::Vector3d& baug) {
-  if (idx_state < 0 || idx_state >= this->dimTheta()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  Theta_.block<3, 1>(0, idx_maps_[idx_map][idx_state] * 3 - 12) = baug;
-}
 
-void RobotState::del_aug_bias(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimTheta()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  int dim = this->dimTheta();
-  Eigen::VectorXd Theta_aug = Eigen::VectorXd::Zero(dim - 3);
-  int idx_bias = idx_maps_[idx_map][idx_state] * 3 - 12;
-  Theta_aug.block(0, 0, 1, idx_bias) = Theta_.block(0, 0, 1, idx_bias);
-  Theta_aug.block(0, idx_bias, 1, dim - idx_bias - 3)
-      = Theta_.block(0, idx_bias + 3, 1, dim - idx_bias - 3);
+void RobotState::del_aug_bias(int matrix_idx) {
+  Eigen::VectorXd Theta_aug = Eigen::VectorXd::Zero(Theta_.rows() - 3);
+  Theta_aug.block(0, 0, 1, Theta_.rows() - 3)
+      = Theta_.block(0, 0, 1, Theta_.rows() - 3);
   Theta_ = Theta_aug;
-  idx_maps_[idx_map].erase(idx_state);
 }
 
-const Eigen::Vector3d RobotState::get_aug_bias(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimTheta()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  int idx_bias = idx_maps_[idx_map][idx_state] * 3 - 12;
-  return Theta_.block<3, 1>(0, idx_bias);
+
+const Eigen::Vector3d RobotState::get_aug_bias(int matrix_idx) {
+  return Theta_.block<3, 1>(0, Theta_.rows() - 3);
 }
 
 void RobotState::setRotationCovariance(const Eigen::Matrix3d& cov) {
@@ -358,69 +278,32 @@ void RobotState::setGyroscopeBiasCovariance(const Eigen::Matrix3d& cov) {
 void RobotState::setAccelerometerBiasCovariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(12, 12) = cov;
 }
-// void setAugStateCovariance(std::string key, const Eigen::Matrix3d& cov) {
-//     int idx = SEK3::get_aug_index(key) - 1;
-//     P_.block<3,3>(3*idx,3*idx) = cov;
-// }
 
-int RobotState::add_aug_cov(int idx_map, const Eigen::Matrix3d& cov) {
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
+void RobotState::add_aug_cov(const Eigen::Matrix3d& cov) {
   int dim = this->dimP();
   Eigen::MatrixXd P_aug = Eigen::MatrixXd::Zero(dim + 3, dim + 3);
   P_aug.block(0, 0, dim, dim) = P_;
   P_aug.block<3, 3>(dim, dim) = cov;
   P_ = P_aug;
-  return dim;
 }
 
-void RobotState::set_aug_cov(int idx_map, int idx_state,
-                             const Eigen::Matrix3d& cov) {
-  if (idx_state < 0 || idx_state >= this->dimP()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  P_.block<3, 3>(0, idx_maps_[idx_map][idx_state] * 3 - 12) = cov;
+void RobotState::set_aug_cov(int matrix_idx, const Eigen::Matrix3d& cov) {
+  P_.block<3, 3>(P_.rows() - 3, P_.rows() - 3) = cov;
 }
 
-void RobotState::del_aug_cov(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimP()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
+void RobotState::del_aug_cov(int matrix_idx) {
   int dim = this->dimP();
   Eigen::MatrixXd P_aug = Eigen::MatrixXd::Zero(dim - 3, dim - 3);
-  int idx_cov = idx_maps_[idx_map][idx_state] * 3 - 12;
+  int idx_cov = matrix_idx * 3 - 12;
   P_aug.block(0, 0, idx_cov, idx_cov) = P_.block(0, 0, idx_cov, idx_cov);
   P_aug.block(idx_cov, idx_cov, dim - idx_cov - 3, dim - idx_cov - 3)
       = P_.block(idx_cov + 3, idx_cov + 3, dim - idx_cov - 3,
                  dim - idx_cov - 3);
   P_ = P_aug;
-  idx_maps_[idx_map].erase(idx_state);
 }
 
-const Eigen::Matrix3d RobotState::get_aug_cov(int idx_map, int idx_state) {
-  if (idx_state < 0 || idx_state >= this->dimP()) {
-    throw std::invalid_argument("Invalid state index");
-  }
-  if (idx_map < 0 || idx_map >= idx_maps_.size()) {
-    throw std::invalid_argument("Invalid map index");
-  }
-  if (idx_maps_[idx_map].find(idx_state) == idx_maps_[idx_map].end()) {
-    throw std::invalid_argument("Augmented state does not exist");
-  }
-  int idx_cov = idx_maps_[idx_map][idx_state] * 3 - 12;
+const Eigen::Matrix3d RobotState::get_aug_cov(int matrix_idx) {
+  int idx_cov = matrix_idx * 3 - 12;
   return P_.block<3, 3>(idx_cov, idx_cov);
 }
 
