@@ -109,7 +109,8 @@ class StateEstimator {
    * message from the subscriber.
    */
   template<typename kinematic_q_t>
-  void add_kinematics_correction(std::shared_ptr<kinematic_q_t> buffer_ptr);
+  void add_kinematics_correction(std::shared_ptr<kinematic_q_t> buffer_ptr,
+                                 const std::string& aug_type);
 
   // ======================================================================
   /**

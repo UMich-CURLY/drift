@@ -18,11 +18,11 @@ void StateEstimator::add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr,
 
 template<typename kinematic_q_t>
 void StateEstimator::add_kinematics_correction(
-    std::shared_ptr<kinematic_q_t> buffer_ptr) {
+    std::shared_ptr<kinematic_q_t> buffer_ptr, const std::string& aug_type) {
   int aug_map_idx = state_.add_augmented_map();
   std::shared_ptr<Correction> correction
       = std::make_shared<KinematicsCorrection>(buffer_ptr, error_type_,
-                                               aug_map_idx);
+                                               aug_type);
   corrections_.push_back(correction);
 }
 
