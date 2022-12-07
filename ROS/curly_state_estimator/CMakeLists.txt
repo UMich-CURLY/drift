@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
+# documentation for rosbuild macros: http://wiki.ros.org/rosbuild/CMakeLists
 rosbuild_init()
+# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 
 IF(NOT ROS_BUILD_TYPE)
   SET(ROS_BUILD_TYPE Release)
@@ -33,8 +35,6 @@ find_package(Boost REQUIRED)
 
 
 include_directories(
-${PROJECT_SOURCE_DIR}
-${PROJECT_SOURCE_DIR}/../../
 ${PROJECT_SOURCE_DIR}/../../include
 ${EIGEN3_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
@@ -47,9 +47,16 @@ file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 # Node for robot state estimation
 rosbuild_add_executable(robot_state_est
-src/robot_state_est.cpp ${SRC_FILES}
+${PROJECT_SOURCE_DIR}/examples/robot_state_est.cpp 
 )
 
 target_link_libraries(robot_state_est
 ${LIBS}
 )
+
+# temporary test for subscriber
+rosbuild_add_executable(subscriber_test
+${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp)
+
+target_link_libraries(subscriber_test
+${LIBS})
