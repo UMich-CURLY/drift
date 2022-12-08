@@ -69,15 +69,10 @@ void KinematicsCorrection::Correct(RobotState& state) {
       // If contact is not indicated and id is found in estimated_contacts, then
       // remove state
       remove_contacts.push_back(it->id);    // Add id to remove list
-      /// TODO: change this to using the new method
-      // state.del_aug_state(0, aug_id_to_column_id_[it->id]);
     } else if (contact_indicated && !found) {
       //  If contact is indicated and id is not found i n estimated_contacts,
       //  then augment state
       new_contacts.push_back(*it);    // Add to augment list
-
-      /// TODO: Change to using the new method
-      // state.add_aug_state(it->id, it->pose.block<3, 1>(0, 3));
     } else if (contact_indicated && found) {
       // If contact is indicated and id is found in estimated_contacts, then
       // correct using kinematics

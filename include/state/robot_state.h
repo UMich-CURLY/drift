@@ -16,6 +16,7 @@
 
 #include <Eigen/Dense>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -204,7 +205,8 @@ class RobotState {
    * @return std::vector<std::map<int, int>>: vector of different types of index
    * mapping from augmented states to state matrix index.
    */
-  std::unordered_map<int, std::string> get_matrix_idx_map();
+  const std::shared_ptr<std::unordered_map<int, std::string>>
+  get_matrix_idx_map() const;
 
   /**
    * @brief Add the augmented state to the last of the certain(idx_map-th)

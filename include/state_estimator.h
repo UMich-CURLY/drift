@@ -22,6 +22,9 @@
 #include "filter/inekf/correction/kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
+#include "measurement/imu.h"
+#include "measurement/kinematics.h"
+#include "measurement/velocity.h"
 #include "state/robot_state.h"
 
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
@@ -82,9 +85,9 @@ class StateEstimator {
    * @param[in] buffer_ptr: The imu buffer queue temporarily stores the message
    * from the subscriber.
    */
-  template<typename imu_q_t>
-  void add_imu_propagation(std::shared_ptr<imu_q_t> buffer_ptr,
-                           const bool estimate_bias);
+  void add_imu_propagation(
+      std::shared_ptr<std::queue<ImuMeasurement<double>>> buffer_ptr,
+      const bool estimate_bias = true);
   /// @}
 
   /// @name Correction
@@ -108,9 +111,9 @@ class StateEstimator {
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
    */
-  template<typename kinematic_q_t>
-  void add_kinematics_correction(std::shared_ptr<kinematic_q_t> buffer_ptr,
-                                 const std::string& aug_type);
+  void add_kinematics_correction(
+      std::shared_ptr<std::queue<KinematicsMeasurement<double>>> buffer_ptr,
+      const std::string& aug_type);
 
   // ======================================================================
   /**
@@ -120,9 +123,9 @@ class StateEstimator {
    * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
    * message from the subscriber.
    */
-  template<typename velocity_q_t>
-  void add_velocity_correction(std::shared_ptr<velocity_q_t> buffer_ptr,
-                               const Eigen::Matrix3d& covariance);
+  void add_velocity_correction(
+      std::shared_ptr<std::queue<VelocityMeasurement<double>>> buffer_ptr,
+      const Eigen::Matrix3d& covariance);
   /// @}
 
   // ======================================================================
