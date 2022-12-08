@@ -10,25 +10,25 @@ option(BUILD_TESTS "Build the test files" ON)
 option(BUILD_DOC "Build Doxygen documents" ON)
 
 # #################################################
-#              Find External Packages             #
+# Find External Packages             #
 # #################################################
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 
 # #################################################
-#                 Include Packages                #
+# Include Packages                #
 # #################################################
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include(FetchContent)
 
 # #################################################
-#                Project Include Dir              #
+# Project Include Dir              #
 # #################################################
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # #################################################
-#                  Create Library                 #
+# Create Library                 #
 # #################################################
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp)
@@ -37,13 +37,14 @@ add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
 add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
 add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
-add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp 
-                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
-                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp 
-                  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
 
 # #################################################
-#                  Build Examples                 #
+# Build Examples                 #
 # #################################################
 if(BUILD_EXAMPLES)
   message("Building examples...")
@@ -51,7 +52,7 @@ if(BUILD_EXAMPLES)
 endif(BUILD_EXAMPLES)
 
 # #################################################
-#                    Build Tests                  #
+# Build Tests                  #
 # #################################################
 if(BUILD_TESTS)
   message("Building tests...")
@@ -59,7 +60,7 @@ if(BUILD_TESTS)
 endif(BUILD_TESTS)
 
 # #################################################
-#                  Build Documents                #
+# Build Documents                #
 # #################################################
 if(BUILD_DOC)
   # find doxygen
@@ -87,7 +88,8 @@ if(BUILD_DOC)
 endif(BUILD_DOC)
 
 # #################################################
-#                  Add Executables                #
+# Add Executables                #
 # #################################################
 add_executable(curly_state_estimator src/main.cpp)
-target_link_libraries(curly_state_estimator lie_group robot_state noise_params state_estimator base_propagation base_correction inekf)
+target_link_libraries(curly_state_estimator lie_group noise_params state_estimator base_propagation base_correction inekf measurement robot_state se_k_3
+  lie_group noise_params state_estimator base_propagation base_correction inekf measurement robot_state se_k_3)

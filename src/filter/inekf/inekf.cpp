@@ -55,7 +55,6 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   // Compute state correction vector
   Eigen::VectorXd delta = K * Z;
   Eigen::MatrixXd dX = Exp_SEK3(delta.segment(0, delta.rows() - dimTheta));
-  std::cout << "dX:\n" << dX << std::endl;
   Eigen::VectorXd dTheta = delta.segment(delta.rows() - dimTheta, dimTheta);
 
   // Update state

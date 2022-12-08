@@ -101,8 +101,9 @@ const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const {
   return P_.block<3, 3>(12, 12);
 }
 
-std::unordered_map<int, std::string> RobotState::get_matrix_idx_map() {
-  return matrix_idx_map_;
+const std::shared_ptr<std::unordered_map<int, std::string>>
+RobotState::get_matrix_idx_map() const {
+  return make_shared<std::unordered_map<int, std::string>>(matrix_idx_map_);
 }
 
 int RobotState::add_aug_state(std::string measurementType,
