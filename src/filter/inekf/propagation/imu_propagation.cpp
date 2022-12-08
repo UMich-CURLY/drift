@@ -253,19 +253,13 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   Qc.block<3, 3>(0, 0) = noise_params_.get_gyroscope_cov();
   Qc.block<3, 3>(3, 3) = noise_params_.get_accelerometer_cov();
 
-  /// TODO: build get_augmented_map() function
-  // std::map<std::string, int> augmented_states = state.get_augmented_map();
-  // std::map<std::string, int> augmented_states = {};
-
   /// TODO: make sure contact covariance is in the euclidean space
-
-  /// TODO: Uncomment the following during merge:
-  // for (const auto& column_id_to_aug_type : state.get_matrix_idx_map()) {
-  //   Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
-  //                  3 + 3 * (column_id_to_aug_type.first - 3))
-  //       = noise_params_.get_augment_cov(
-  //           column_id_to_aug_type.second);    // Augment state noise terms
-  // }
+  for (auto& column_id_to_aug_type : *(state.get_matrix_idx_map().get())) {
+    Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
+                   3 + 3 * (column_id_to_aug_type.first - 3))
+        = noise_params_.get_augment_cov(
+            column_id_to_aug_type.second);    // Augment state noise terms
+  }
 
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta)
