@@ -1,4 +1,3 @@
-
 # Find google test
 FetchContent_Declare(
   googletest
@@ -17,3 +16,4 @@ add_subdirectory(velocitymeasurement_test)
 add_subdirectory(contactmeasurement_test)
 add_subdirectory(jointstatemeasurement_test)
 add_subdirectory(kinematicsmeasurement_test)
+add_subdirectory(velocitycorrection_test)
