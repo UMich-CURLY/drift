@@ -136,9 +136,8 @@ class StateEstimator {
    * method. This method will run in a loop, in which the robot state would be
    * propagated and corrected according to the methods added.
    *
-   * @param[in] dt: Time step
    */
-  void run(double dt);
+  void run();
 
  private:
   RobotState state_;

@@ -41,7 +41,8 @@ int main(int argc, char** argv) {
   Eigen::Matrix<double, 6, 1> imu;
   imu << 0, 0, 0, 0, 0, 9.81;
 
-  double dt = 1;
+  double dt = 1.0;
+  double T = 3 * dt;
 
   Eigen::Vector3d measured_velocity;
   measured_velocity << 0, 0, 0;
@@ -64,30 +65,57 @@ int main(int argc, char** argv) {
   std::cout << "Before: " << std::endl;
   std::cout << state_estimator.get_state().getX() << std::endl;
 
-  // Set measurements:
-  VelocityMeasurement<double> velocity_measurement;
-  ImuMeasurement<double> imu_measurement;
-
-  velocity_measurement.set_velocity(1, 0, 0);
-  imu_measurement.set_ang_vel(0, 0, 0);
-  imu_measurement.set_lin_acc(0, 1, 9.81);
-
   std::queue<ImuMeasurement<double>> imu_data_buffer;
-  imu_data_buffer.push(imu_measurement);
   std::shared_ptr<std::queue<ImuMeasurement<double>>> imu_data_buffer_ptr
       = std::make_shared<std::queue<ImuMeasurement<double>>>(imu_data_buffer);
 
   std::queue<VelocityMeasurement<double>> velocity_data_buffer;
-  velocity_data_buffer.push(velocity_measurement);
   std::shared_ptr<std::queue<VelocityMeasurement<double>>>
       velocity_data_buffer_ptr
       = std::make_shared<std::queue<VelocityMeasurement<double>>>(
           velocity_data_buffer);
 
-  state_estimator.add_imu_propagation(imu_data_buffer_ptr);
+
+  // // Set measurements:
+  VelocityMeasurement<double> velocity_measurement_1;
+  ImuMeasurement<double> imu_measurement_1;
+
+  velocity_measurement_1.set_velocity(0, 0, 0);
+  velocity_measurement_1.set_time(dt);
+  imu_measurement_1.set_ang_vel(0, 0, 0);
+  imu_measurement_1.set_lin_acc(-1, 0, 9.81);
+  imu_measurement_1.set_time(dt);
+  imu_data_buffer_ptr.get()->push(imu_measurement_1);
+  velocity_data_buffer_ptr.get()->push(velocity_measurement_1);
+
+  VelocityMeasurement<double> velocity_measurement_2;
+  ImuMeasurement<double> imu_measurement_2;
+  velocity_measurement_2.set_velocity(0, 0, 0);
+  velocity_measurement_2.set_time(dt * 2);
+  imu_measurement_2.set_ang_vel(0, 0, 90.0 / 180.0 * M_PI);
+  imu_measurement_2.set_lin_acc(0, 0, 9.81);
+  imu_measurement_2.set_time(dt * 2);
+  imu_data_buffer_ptr.get()->push(imu_measurement_2);
+  velocity_data_buffer_ptr.get()->push(velocity_measurement_2);
+
+  VelocityMeasurement<double> velocity_measurement_3;
+  ImuMeasurement<double> imu_measurement_3;
+  velocity_measurement_3.set_velocity(1, 0, 0);
+  velocity_measurement_3.set_time(dt * 3);
+  imu_measurement_3.set_ang_vel(0, 0, 0);
+  imu_measurement_3.set_lin_acc(1, 0, 9.81);
+  imu_measurement_3.set_time(dt * 3);
+  imu_data_buffer_ptr.get()->push(imu_measurement_3);
+  velocity_data_buffer_ptr.get()->push(velocity_measurement_3);
+
+
+  state_estimator.add_imu_propagation(imu_data_buffer_ptr, false);
   state_estimator.add_velocity_correction(velocity_data_buffer_ptr,
                                           measured_velocity_covariance);
-  state_estimator.run(dt);
-  std::cout << "After: " << std::endl;
-  std::cout << state_estimator.get_state().getX() << std::endl;
+  for (int i = 0; i < 3; i++) {
+    state_estimator.run();
+    std::cout << "After: " << std::endl;
+    std::cout << state_estimator.get_state().getX() << std::endl;
+    std::cout << "------------------------------------------" << std::endl;
+  }
 }

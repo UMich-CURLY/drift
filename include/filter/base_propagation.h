@@ -49,9 +49,8 @@ class Propagation {
    * implemented in the child class.
    *
    * @param[in/out] state: The current state of the robot
-   * @param[in] dt: The time step for the propagation
    */
-  virtual void Propagate(RobotState& state, double dt);
+  virtual void Propagate(RobotState& state);
   /// @}
 
   /// @name Getters
@@ -67,6 +66,7 @@ class Propagation {
 
  protected:
   const NoiseParams noise_params_;
+  double t_prev_;
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;          // Magnetic field vector in world frame (z-up)

@@ -12,10 +12,11 @@ Propagation::Propagation(const NoiseParams& params,
           (Eigen::VectorXd(3) << std::cos(1.2049), 0, std::sin(1.2049))
               .finished()),
       noise_params_(params),
-      estimate_bias_(estimate_bias) {}
+      estimate_bias_(estimate_bias),
+      t_prev_(0.0) {}
 
 // Base method for propagation
-void Propagation::Propagate(RobotState& state, double dt) {
+void Propagation::Propagate(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
 }
 

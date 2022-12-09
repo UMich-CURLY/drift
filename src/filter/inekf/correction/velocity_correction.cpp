@@ -25,6 +25,7 @@ void VelocityCorrection::Correct(RobotState& state) {
   // Get latest measurement:
   const Eigen::Vector3d measured_velocity
       = sensor_data_buffer_.get()->front().get_velocity();
+  sensor_data_buffer_.get()->pop();
 
   // Fill out Y
   // Y.conservativeResize(dimX, Eigen::NoChange);

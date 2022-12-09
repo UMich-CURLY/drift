@@ -35,6 +35,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
   std::map<int, bool> contacts;
   // const vectorKinematics measured_kinematics
   //     = sensor_data_buffer_.get()->front().get_kinematics();
+  // sensor_data_buffer_.get()->pop();
   vectorKinematics measured_kinematics;
 
   for (vectorKinematicsIterator it = measured_kinematics.begin();
