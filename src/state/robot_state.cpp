@@ -54,19 +54,19 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta,
     : X_(X.get_X()), Theta_(Theta), P_(P) {}
 
 // getters
-const Eigen::MatrixXd RobotState::getX() const { return X_; }
-const Eigen::VectorXd RobotState::getTheta() const { return Theta_; }
-const Eigen::MatrixXd RobotState::getP() const { return P_; }
-const Eigen::Matrix3d RobotState::getRotation() const {
+const Eigen::MatrixXd RobotState::get_X() const { return X_; }
+const Eigen::VectorXd RobotState::get_theta() const { return Theta_; }
+const Eigen::MatrixXd RobotState::get_P() const { return P_; }
+const Eigen::Matrix3d RobotState::get_rotation() const {
   return X_.block<3, 3>(0, 0);
 }
-const Eigen::Vector3d RobotState::getVelocity() const {
+const Eigen::Vector3d RobotState::get_velocity() const {
   return X_.block<3, 1>(0, 3);
 }
-const Eigen::Vector3d RobotState::getPosition() const {
+const Eigen::Vector3d RobotState::get_position() const {
   return X_.block<3, 1>(0, 4);
 }
-const Eigen::Vector3d RobotState::getVector(int index) const {
+const Eigen::Vector3d RobotState::get_vector(int index) const {
   return X_.block<3, 1>(0, index);
 }
 // const Eigen::Vector3d RobotState::getAugState(std::string key) {
@@ -74,10 +74,10 @@ const Eigen::Vector3d RobotState::getVector(int index) const {
 //     return X_.block<3,1>(0,idx);
 // }
 
-const Eigen::Vector3d RobotState::getGyroscopeBias() const {
+const Eigen::Vector3d RobotState::get_gyroscope_bias() const {
   return Theta_.block<3, 1>(0, 0);
 }
-const Eigen::Vector3d RobotState::getAccelerometerBias() const {
+const Eigen::Vector3d RobotState::get_accelerometer_bias() const {
   return Theta_.block<3, 1>(3, 0);
 }
 // const Eigen::Vector3d RobotState::getAugStateBias(std::string key) {
@@ -85,19 +85,19 @@ const Eigen::Vector3d RobotState::getAccelerometerBias() const {
 //     return Theta_.block<3,1>(idx,0);
 // }
 
-const Eigen::Matrix3d RobotState::getRotationCovariance() const {
+const Eigen::Matrix3d RobotState::get_rotation_covariance() const {
   return P_.block<3, 3>(0, 0);
 }
-const Eigen::Matrix3d RobotState::getVelocityCovariance() const {
+const Eigen::Matrix3d RobotState::get_velocity_covariance() const {
   return P_.block<3, 3>(3, 3);
 }
-const Eigen::Matrix3d RobotState::getPositionCovariance() const {
+const Eigen::Matrix3d RobotState::get_position_covariance() const {
   return P_.block<3, 3>(6, 6);
 }
-const Eigen::Matrix3d RobotState::getGyroscopeBiasCovariance() const {
+const Eigen::Matrix3d RobotState::get_gyroscope_bias_covariance() const {
   return P_.block<3, 3>(9, 9);
 }
-const Eigen::Matrix3d RobotState::getAccelerometerBiasCovariance() const {
+const Eigen::Matrix3d RobotState::get_accelerometer_bias_covariance() const {
   return P_.block<3, 3>(12, 12);
 }
 
@@ -156,90 +156,90 @@ const int RobotState::dimX() const { return X_.cols(); }
 const int RobotState::dimTheta() const { return Theta_.rows(); }
 const int RobotState::dimP() const { return P_.cols(); }
 
-const StateType RobotState::getStateType() const { return state_type_; }
+const StateType RobotState::get_state_type() const { return state_type_; }
 
-const Eigen::MatrixXd RobotState::getWorldX() const {
+const Eigen::MatrixXd RobotState::get_world_X() const {
   if (state_type_ == StateType::WorldCentric) {
-    return this->getX();
+    return this->get_X();
   } else {
     return this->Xinv();
   }
 }
 
-const Eigen::Matrix3d RobotState::getWorldRotation() const {
+const Eigen::Matrix3d RobotState::get_world_rotation() const {
   if (state_type_ == StateType::WorldCentric) {
-    return this->getRotation();
+    return this->get_rotation();
   } else {
-    return this->getRotation().transpose();
+    return this->get_rotation().transpose();
   }
 }
 
-const Eigen::Vector3d RobotState::getWorldVelocity() const {
+const Eigen::Vector3d RobotState::get_world_velocity() const {
   if (state_type_ == StateType::WorldCentric) {
-    return this->getVelocity();
+    return this->get_velocity();
   } else {
-    return -this->getRotation().transpose() * this->getVelocity();
+    return -this->get_rotation().transpose() * this->get_velocity();
   }
 }
 
-const Eigen::Vector3d RobotState::getWorldPosition() const {
+const Eigen::Vector3d RobotState::get_world_position() const {
   if (state_type_ == StateType::WorldCentric) {
-    return this->getPosition();
+    return this->get_position();
   } else {
-    return -this->getRotation().transpose() * this->getPosition();
+    return -this->get_rotation().transpose() * this->get_position();
   }
 }
 
-const Eigen::MatrixXd RobotState::getBodyX() const {
+const Eigen::MatrixXd RobotState::get_body_X() const {
   if (state_type_ == StateType::BodyCentric) {
-    return this->getX();
+    return this->get_X();
   } else {
     return this->Xinv();
   }
 }
 
-const Eigen::Matrix3d RobotState::getBodyRotation() const {
+const Eigen::Matrix3d RobotState::get_body_rotation() const {
   if (state_type_ == StateType::BodyCentric) {
-    return this->getRotation();
+    return this->get_rotation();
   } else {
-    return this->getRotation().transpose();
+    return this->get_rotation().transpose();
   }
 }
 
-const Eigen::Vector3d RobotState::getBodyVelocity() const {
+const Eigen::Vector3d RobotState::get_body_velocity() const {
   if (state_type_ == StateType::BodyCentric) {
-    return this->getVelocity();
+    return this->get_velocity();
   } else {
-    return -this->getRotation().transpose() * this->getVelocity();
+    return -this->get_rotation().transpose() * this->get_velocity();
   }
 }
 
-const Eigen::Vector3d RobotState::getBodyPosition() const {
+const Eigen::Vector3d RobotState::get_body_position() const {
   if (state_type_ == StateType::BodyCentric) {
-    return this->getPosition();
+    return this->get_position();
   } else {
-    return -this->getRotation().transpose() * this->getPosition();
+    return -this->get_rotation().transpose() * this->get_position();
   }
 }
 
 // setters
-void RobotState::setX(const Eigen::MatrixXd& X) { X_ = X; }
-void RobotState::setTheta(const Eigen::VectorXd& Theta) { Theta_ = Theta; }
-void RobotState::setP(const Eigen::MatrixXd& P) { P_ = P; }
-void RobotState::setRotation(const Eigen::Matrix3d& R) {
+void RobotState::set_X(const Eigen::MatrixXd& X) { X_ = X; }
+void RobotState::set_theta(const Eigen::VectorXd& Theta) { Theta_ = Theta; }
+void RobotState::set_P(const Eigen::MatrixXd& P) { P_ = P; }
+void RobotState::set_rotation(const Eigen::Matrix3d& R) {
   X_.block<3, 3>(0, 0) = R;
 }
-void RobotState::setVelocity(const Eigen::Vector3d& v) {
+void RobotState::set_velocity(const Eigen::Vector3d& v) {
   X_.block<3, 1>(0, 3) = v;
 }
-void RobotState::setPosition(const Eigen::Vector3d& p) {
+void RobotState::set_position(const Eigen::Vector3d& p) {
   X_.block<3, 1>(0, 4) = p;
 }
 
-void RobotState::setGyroscopeBias(const Eigen::Vector3d& bg) {
+void RobotState::set_gyroscope_bias(const Eigen::Vector3d& bg) {
   Theta_.block<3, 1>(0, 0) = bg;
 }
-void RobotState::setAccelerometerBias(const Eigen::Vector3d& ba) {
+void RobotState::set_accelerometer_bias(const Eigen::Vector3d& ba) {
   Theta_.block<3, 1>(0, 3) = ba;
 }
 
@@ -264,19 +264,19 @@ const Eigen::Vector3d RobotState::get_aug_bias(int matrix_idx) {
   return Theta_.block<3, 1>(0, Theta_.rows() - 3);
 }
 
-void RobotState::setRotationCovariance(const Eigen::Matrix3d& cov) {
+void RobotState::set_rotation_covariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(0, 0) = cov;
 }
-void RobotState::setVelocityCovariance(const Eigen::Matrix3d& cov) {
+void RobotState::set_velocity_covariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(3, 3) = cov;
 }
-void RobotState::setPositionCovariance(const Eigen::Matrix3d& cov) {
+void RobotState::set_position_covariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(6, 6) = cov;
 }
-void RobotState::setGyroscopeBiasCovariance(const Eigen::Matrix3d& cov) {
+void RobotState::set_gyroscope_bias(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(9, 9) = cov;
 }
-void RobotState::setAccelerometerBiasCovariance(const Eigen::Matrix3d& cov) {
+void RobotState::set_accelerometer_bias_covariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(12, 12) = cov;
 }
 
@@ -308,7 +308,7 @@ const Eigen::Matrix3d RobotState::get_aug_cov(int matrix_idx) {
   return P_.block<3, 3>(idx_cov, idx_cov);
 }
 
-void RobotState::copyDiagX(int n, Eigen::MatrixXd& BigX) const {
+void RobotState::copy_diag_X(int n, Eigen::MatrixXd& BigX) const {
   int dimX = this->dimX();
   for (int i = 0; i < n; ++i) {
     int startIndex = BigX.rows();
@@ -322,7 +322,7 @@ void RobotState::copyDiagX(int n, Eigen::MatrixXd& BigX) const {
   return;
 }
 
-void RobotState::copyDiagXinv(int n, Eigen::MatrixXd& BigXinv) const {
+void RobotState::copy_diag_Xinv(int n, Eigen::MatrixXd& BigXinv) const {
   int dimX = this->dimX();
   Eigen::MatrixXd Xinv = this->Xinv();
   for (int i = 0; i < n; ++i) {

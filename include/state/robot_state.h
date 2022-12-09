@@ -99,56 +99,56 @@ class RobotState {
    *
    * @return const Eigen::MatrixXd X: represents for state matrix.
    */
-  const Eigen::MatrixXd getX() const;
+  const Eigen::MatrixXd get_X() const;
 
   /**
    * @brief Get the bias matrix Theta.
    *
    * @return const Eigen::VectorXd Theta: represents for bias matrix.
    */
-  const Eigen::VectorXd getTheta() const;
+  const Eigen::VectorXd get_theta() const;
 
   /**
    * @brief Get the covariance matrix P.
    *
    * @return const Eigen::MatrixXd P: represents for covariance matrix.
    */
-  const Eigen::MatrixXd getP() const;
+  const Eigen::MatrixXd get_P() const;
 
   /**
    * @brief Get the Rotation matrix R.
    *
    * @return const Eigen::MatrixXd R: represents for rotation matrix.
    */
-  const Eigen::Matrix3d getRotation() const;
+  const Eigen::Matrix3d get_rotation() const;
 
   /**
    * @brief Get the Velocity matrix V.
    *
    * @return const Eigen::Vector3d V: represents for velocity matrix.
    */
-  const Eigen::Vector3d getVelocity() const;
+  const Eigen::Vector3d get_velocity() const;
 
   /**
    * @brief Get the Position matrix p.
    *
    * @return const Eigen::Vector3d p: represents for position matrix.
    */
-  const Eigen::Vector3d getPosition() const;
+  const Eigen::Vector3d get_position() const;
 
   /**
    * @brief Get the gyroscope bias matrix b.
    *
    * @return const Eigen::Vector3d b: represents for gyroscope bias matrix.
    */
-  const Eigen::Vector3d getGyroscopeBias() const;
+  const Eigen::Vector3d get_gyroscope_bias() const;
 
   /**
    * @brief Get the a 3 by 1 vector from the state
    *
    * @return const Eigen::Vector3d
    */
-  const Eigen::Vector3d getVector(int index) const;
+  const Eigen::Vector3d get_vector(int index) const;
 
   /**
    * @brief Get the accelerometer bias matrix b.
@@ -156,28 +156,28 @@ class RobotState {
    * @return const Eigen::Vector3d b: represents for accelerometer bias
    * matrix.
    */
-  const Eigen::Vector3d getAccelerometerBias() const;
+  const Eigen::Vector3d get_accelerometer_bias() const;
 
   /**
    * @brief Get the rotation covariance matrix P.
    *
    * @return const Eigen::Matrix3d P: represents for rotation covariance matrix.
    */
-  const Eigen::Matrix3d getRotationCovariance() const;
+  const Eigen::Matrix3d get_rotation_covariance() const;
 
   /**
    * @brief Get the velocity covariance matrix P.
    *
    * @return const Eigen::Matrix3d P: represents for velocity covariance matrix.
    */
-  const Eigen::Matrix3d getVelocityCovariance() const;
+  const Eigen::Matrix3d get_velocity_covariance() const;
 
   /**
    * @brief Get the position covariance matrix P.
    *
    * @return const Eigen::Matrix3d P: represents for position covariance matrix.
    */
-  const Eigen::Matrix3d getPositionCovariance() const;
+  const Eigen::Matrix3d get_position_covariance() const;
 
   /**
    * @brief Get the gyroscope bias covariance matrix P.
@@ -185,7 +185,7 @@ class RobotState {
    * @return const Eigen::Matrix3d P: represents for gyroscope bias covariance
    * matrix.
    */
-  const Eigen::Matrix3d getGyroscopeBiasCovariance() const;
+  const Eigen::Matrix3d get_gyroscope_bias_covariance() const;
 
   /**
    * @brief Get the accelerometer bias covariance matrix P.
@@ -193,7 +193,7 @@ class RobotState {
    * @return const Eigen::Matrix3d P: represents for accelerometer bias
    * covariance matrix.
    */
-  const Eigen::Matrix3d getAccelerometerBiasCovariance() const;
+  const Eigen::Matrix3d get_accelerometer_bias_covariance() const;
 
   /**
    * @brief Get the vector of augmented states mapping. Each mapping means
@@ -273,119 +273,119 @@ class RobotState {
    *
    * @return const StateType: dimension of the augmented covariance matrix P.
    */
-  const StateType getStateType() const;
+  const StateType get_state_type() const;
 
   /**
    * @brief Get the WorldCentric state matrix X.
    *
    * @return const Eigen::MatrixXd: state matrix X in world frame.
    */
-  const Eigen::MatrixXd getWorldX() const;
+  const Eigen::MatrixXd get_world_X() const;
 
   /**
    * @brief Get the WorldCentric Rotation matrix R.
    *
    * @return const Eigen::Matrix3d: state matrix R in the world frame.
    */
-  const Eigen::Matrix3d getWorldRotation() const;
+  const Eigen::Matrix3d get_world_rotation() const;
 
   /**
    * @brief Get the WorldCentric Velocity vector v.
    *
    * @return const Eigen::Vector3d: velocity vector v in the world frame.
    */
-  const Eigen::Vector3d getWorldVelocity() const;
+  const Eigen::Vector3d get_world_velocity() const;
 
   /**
    * @brief Get the WorldCentric Position vector p.
    *
    * @return const Eigen::Vector3d: position vector p in the world frame.
    */
-  const Eigen::Vector3d getWorldPosition() const;
+  const Eigen::Vector3d get_world_position() const;
 
   /**
    * @brief Get the BodyCentric state matrix X.
    *
    * @return const Eigen::MatrixXd: state matrix X in body frame.
    */
-  const Eigen::MatrixXd getBodyX() const;
+  const Eigen::MatrixXd get_body_X() const;
 
   /**
    * @brief Get the BodyCentric Rotation matrix R.
    *
    * @return const Eigen::Matrix3d: state matrix R in the body frame.
    */
-  const Eigen::Matrix3d getBodyRotation() const;
+  const Eigen::Matrix3d get_body_rotation() const;
 
   /**
    * @brief Get the BodyCentric Velocity vector v.
    *
    * @return const Eigen::Vector3d: velocity vector v in the body frame.
    */
-  const Eigen::Vector3d getBodyVelocity() const;
+  const Eigen::Vector3d get_body_velocity() const;
 
   /**
    * @brief Get the BodyCentric Position vector p.
    *
    * @return const Eigen::Vector3d: position vector p in the body frame.
    */
-  const Eigen::Vector3d getBodyPosition() const;
+  const Eigen::Vector3d get_body_position() const;
 
   /**
    * @brief Set the RobotState whole matrix.
    *
    * @param[in]: X: state matrix X.
    */
-  void setX(const Eigen::MatrixXd& X);
+  void set_X(const Eigen::MatrixXd& X);
 
   /**
    * @brief Set the RobotState Bias matrix P.
    *
    * @param[in] P: bias matrix P.
    */
-  void setP(const Eigen::MatrixXd& P);
+  void set_P(const Eigen::MatrixXd& P);
 
   /**
    * @brief Set the RobotState covariance matrix Theta.
    *
    * @param[in] Theta: covariance matrix Theta.
    */
-  void setTheta(const Eigen::VectorXd& Theta);
+  void set_theta(const Eigen::VectorXd& Theta);
 
   /**
    * @brief Set the Rotation matrix R in RobotState.
    *
    * @param[in] R: 3x3 rotation matrix R.
    */
-  void setRotation(const Eigen::Matrix3d& R);
+  void set_rotation(const Eigen::Matrix3d& R);
 
   /**
    * @brief Set the Velocity vector v in RoboState.
    *
    * @param[in] v: 3x1 velocity vector v.
    */
-  void setVelocity(const Eigen::Vector3d& v);
+  void set_velocity(const Eigen::Vector3d& v);
 
   /**
    * @brief Set the Position vector p in RoboState.
    *
    * @param[in] p: 3x1 position vector p.
    */
-  void setPosition(const Eigen::Vector3d& p);
+  void set_position(const Eigen::Vector3d& p);
 
   /**
    * @brief Set the Gyroscope Bias to bias matrix P.
    *
    * @param[in] bg: 3x1 gyroscope bias vector bg.
    */
-  void setGyroscopeBias(const Eigen::Vector3d& bg);
+  void set_gyroscope_bias(const Eigen::Vector3d& bg);
 
   /**
    * @brief Set the Accelerometer Bias to bias matrix P.
    *
    * @param[in] ba: 3x1 accelerometer bias vector ba.
    */
-  void setAccelerometerBias(const Eigen::Vector3d& ba);
+  void set_accelerometer_bias(const Eigen::Vector3d& ba);
 
   /**
    * @brief add the Gyroscope Bias vector baug to the end of the mapping.
@@ -419,35 +419,35 @@ class RobotState {
    *
    * @param[in] cov: covariance matrix for the rotation.
    */
-  void setRotationCovariance(const Eigen::Matrix3d& cov);
+  void set_rotation_covariance(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the Velocity Covariance cov to private member P_.
    *
    * @param[in] cov: covariance matrix for the velocity.
    */
-  void setVelocityCovariance(const Eigen::Matrix3d& cov);
+  void set_velocity_covariance(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the Position Covariance cov to private member P_.
    *
    * @param[in] cov: covariance matrix for the position.
    */
-  void setPositionCovariance(const Eigen::Matrix3d& cov);
+  void set_position_covariance(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the Gyroscope Bias Covariance cov to private member P_.
    *
    * @param[in] cov: covariance matrix for the gyroscope bias.
    */
-  void setGyroscopeBiasCovariance(const Eigen::Matrix3d& cov);
+  void set_gyroscope_bias(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the Accelerometer Bias Covariance cov to private member P_.
    *
    * @param[in] cov: covariance matrix for the accelerometer bias.
    */
-  void setAccelerometerBiasCovariance(const Eigen::Matrix3d& cov);
+  void set_accelerometer_bias_covariance(const Eigen::Matrix3d& cov);
 
 
   /// augment state covariance
@@ -495,7 +495,7 @@ class RobotState {
    * @param[in] n: number of copies of X_.
    * @param[in] BigX: larger matrix of states.
    */
-  void copyDiagX(int n, Eigen::MatrixXd& BigX) const;
+  void copy_diag_X(int n, Eigen::MatrixXd& BigX) const;
 
   /**
    * @brief copy inverse of X_ to right-lower side of the larger matrix BigX.
@@ -503,7 +503,7 @@ class RobotState {
    * @param[in] n: number of copies of X_.
    * @param[in] BigXinv: larger matrix of inverse of states.
    */
-  void copyDiagXinv(int n, Eigen::MatrixXd& BigXinv) const;
+  void copy_diag_Xinv(int n, Eigen::MatrixXd& BigXinv) const;
 
   /**
    * @brief compute the inverse of the state matrix X_.

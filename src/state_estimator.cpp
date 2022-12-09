@@ -35,7 +35,7 @@ void StateEstimator::add_velocity_correction(
 
 void StateEstimator::run() {
   propagation_.get()->Propagate(state_);
-  std::cout << "After prop:\n" << state_.getX() << std::endl;
+  std::cout << "After prop:\n" << state_.get_X() << std::endl;
   for (auto correction : corrections_) {
     correction.get()->Correct(state_);
   }
