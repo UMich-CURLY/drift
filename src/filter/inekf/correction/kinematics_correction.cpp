@@ -29,6 +29,8 @@ void KinematicsCorrection::Correct(RobotState& state) {
   //---------------------------------------------------------------
   /// TODO: add get_contact in the KinematicsMeasurement() class
   /// TODO: Be sure to also change and check the whole function
+  /// TOASK: Should we use map<int, bool> or just Matrix<int, CONTACT_DIM,1> for
+  /// contact measurements?
   // --------------------------------------------------------------
   // std::map<int, bool> contacts
   //     = sensor_data_buffer_.get()->front().get_contacts();
