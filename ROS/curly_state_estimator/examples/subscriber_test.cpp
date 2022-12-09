@@ -25,8 +25,8 @@ int main(int argc, char** argv) {
 
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  ros_sub.add_imu_subscriber("/gx5_0/imu/data");
-
+  auto q1 = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto q2 = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
   // TODO: Create robot state system -- initialize all system threads
 
   // Set noise parameters. From husky_estimator:
@@ -36,6 +36,22 @@ int main(int argc, char** argv) {
     // Step behavior
 
     ros::spinOnce();
+  }
+
+  std::cout << "q1 msg: " << std::endl;
+  for (int i = 0; i < 10; ++i) {
+    auto q1_first = q1->front()->get_lin_acc();
+    std::cout << q1_first[0] << ", " << q1_first[1] << ", " << q1_first[2]
+              << std::endl;
+    q1->pop();
+  }
+
+  std::cout << "q2 msg: " << std::endl;
+  for (int i = 0; i < 10; ++i) {
+    auto q2_first = q2->front()->get_lin_acc();
+    std::cout << q2_first[0] << ", " << q2_first[1] << ", " << q2_first[2]
+              << std::endl;
+    q2->pop();
   }
 
   // Stop all threads

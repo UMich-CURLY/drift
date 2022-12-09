@@ -14,21 +14,7 @@ MESSAGE("Build type: " ${ROS_BUILD_TYPE})
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -Wall  -O3 -march=native ")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
 
-# Check C++11 or C++0x support
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-   add_definitions(-DCOMPILEDWITHC11)
-   message(STATUS "Using flag -std=c++11.")
-elseif(COMPILER_SUPPORTS_CXX0X)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-   add_definitions(-DCOMPILEDWITHC0X)
-   message(STATUS "Using flag -std=c++0x.")
-else()
-   message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
+set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
@@ -36,6 +22,7 @@ find_package(Boost REQUIRED)
 
 include_directories(
 ${PROJECT_SOURCE_DIR}/../../include
+${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 )
@@ -56,7 +43,13 @@ ${LIBS}
 
 # temporary test for subscriber
 rosbuild_add_executable(subscriber_test
-${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp)
+${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp )
+
+add_library(subscriber_test_lib
+${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp)
 
 target_link_libraries(subscriber_test
-${LIBS})
+${LIBS}
+subscriber_test_lib
+)
