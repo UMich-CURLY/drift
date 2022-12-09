@@ -27,6 +27,7 @@ include(FetchContent)
 # #################################################
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+
 # #################################################
 # Create Library                 #
 # #################################################
@@ -90,6 +91,3 @@ endif(BUILD_DOC)
 # #################################################
 # Add Executables                #
 # #################################################
-add_executable(curly_state_estimator src/main.cpp)
-target_link_libraries(curly_state_estimator lie_group noise_params state_estimator base_propagation base_correction inekf measurement robot_state se_k_3
-  lie_group noise_params state_estimator base_propagation base_correction inekf measurement robot_state se_k_3)
