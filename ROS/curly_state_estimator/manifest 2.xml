@@ -1,0 +1,10 @@
+<package format="2">
+  <description>CURLY State Estimator ROS1 Wrapper</description>
+  <author>Justin Yu, Justin Lin</author>
+  <license>GPLv3</license>
+  <depend package="roscpp"/>
+  <depend package="std_msgs"/>
+  <depend package="tf"/>
+  <buildtool_depend>catkin</buildtool_depend>
+
+</package>
