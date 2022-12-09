@@ -56,11 +56,9 @@ class ImuPropagation : public Propagation {
    * right invariant error.
    *
    * @param[in/out] state: state of the robot
-   * @param[in] dt: double indicating how long to integrate the inertial
-   * measurements for
    * @return None
    */
-  void Propagate(RobotState& state, double dt);
+  void Propagate(RobotState& state);
   /// @} End of Propagation
 
  private:

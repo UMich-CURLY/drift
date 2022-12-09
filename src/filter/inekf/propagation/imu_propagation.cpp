@@ -16,11 +16,16 @@ ImuPropagation::ImuPropagation(
       error_type_(error_type) {}
 
 // IMU propagation method
-void ImuPropagation::Propagate(RobotState& state, double dt) {
+void ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
   auto imu_measurement = sensor_data_buffer_.get()->front();
+  sensor_data_buffer_.get()->pop();
+
+  double dt = imu_measurement.get_time() - t_prev_;
+  t_prev_ = imu_measurement.get_time();
+
   Eigen::Vector3d w = imu_measurement.get_ang_vel()
                       - state.getGyroscopeBias();    // Angular Velocity
   Eigen::Vector3d a = imu_measurement.get_lin_acc()
