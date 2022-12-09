@@ -27,14 +27,14 @@ void ImuPropagation::Propagate(RobotState& state) {
   t_prev_ = imu_measurement.get_time();
 
   Eigen::Vector3d w = imu_measurement.get_ang_vel()
-                      - state.getGyroscopeBias();    // Angular Velocity
+                      - state.get_gyroscope_bias();    // Angular Velocity
   Eigen::Vector3d a = imu_measurement.get_lin_acc()
-                      - state.getAccelerometerBias();    // Linear Acceleration
+                      - state.get_accelerometer_bias();    // Linear Acceleration
 
   // Get current state estimate and dimensions
-  Eigen::MatrixXd X = state.getX();
+  Eigen::MatrixXd X = state.get_X();
   Eigen::MatrixXd Xinv = state.Xinv();
-  Eigen::MatrixXd P = state.getP();
+  Eigen::MatrixXd P = state.get_P();
   int dimX = state.dimX();
   int dimP = state.dimP();
   int dimTheta = state.dimTheta();
@@ -55,9 +55,9 @@ void ImuPropagation::Propagate(RobotState& state) {
   }
 
   //  ------------ Propagate Mean --------------- //
-  Eigen::Matrix3d R = state.getRotation();
-  Eigen::Vector3d v = state.getVelocity();
-  Eigen::Vector3d p = state.getPosition();
+  Eigen::Matrix3d R = state.get_rotation();
+  Eigen::Vector3d v = state.get_velocity();
+  Eigen::Vector3d p = state.get_position();
 
   Eigen::Vector3d phi = w * dt;
   Eigen::Matrix3d G0 = Gamma_SO3(
@@ -67,7 +67,7 @@ void ImuPropagation::Propagate(RobotState& state) {
   Eigen::Matrix3d G2 = Gamma_SO3(phi, 2);
 
   Eigen::MatrixXd X_pred = X;
-  if (state.getStateType() == StateType::WorldCentric) {
+  if (state.get_state_type() == StateType::WorldCentric) {
     // Propagate world-centric state estimate
     X_pred.block<3, 3>(0, 0) = R * G0;
     X_pred.block<3, 1>(0, 3) = v + (R * G1 * a + g_) * dt;
@@ -86,8 +86,8 @@ void ImuPropagation::Propagate(RobotState& state) {
   }
 
   //  ------------ Update State --------------- //
-  state.setX(X_pred);
-  state.setP(P_pred);
+  state.set_X(X_pred);
+  state.set_P(P_pred);
 }
 
 // Compute Analytical state transition matrix
@@ -185,9 +185,9 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
   }
 
   // Fill out analytical state transition matrices
-  if ((state.getStateType() == StateType::WorldCentric
+  if ((state.get_state_type() == StateType::WorldCentric
        && error_type_ == ErrorType::LeftInvariant)
-      || (state.getStateType() == StateType::BodyCentric
+      || (state.get_state_type() == StateType::BodyCentric
           && error_type_ == ErrorType::RightInvariant)) {
     // Compute left-invariant state transisition matrix
     Phi.block<3, 3>(0, 0) = G0t;                          // Phi_11
@@ -208,9 +208,9 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     // Compute right-invariant state transition matrix (Assumes unpropagated
     // state)
     Eigen::Matrix3d gx = skew(g_);
-    Eigen::Matrix3d R = state.getRotation();
-    Eigen::Vector3d v = state.getVelocity();
-    Eigen::Vector3d p = state.getPosition();
+    Eigen::Matrix3d R = state.get_rotation();
+    Eigen::Vector3d v = state.get_velocity();
+    Eigen::Vector3d p = state.get_position();
     Eigen::Matrix3d RG0 = R * G0;
     Eigen::Matrix3d RG1dt = R * G1 * dt;
     Eigen::Matrix3d RG2dt2 = R * G2 * dt2;
@@ -225,7 +225,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
           + RG0 * Phi35L;    // Phi_35
     for (int i = 5; i < dimX; ++i) {
       Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-          = -skew(state.getVector(i)) * RG1dt;    // Phi_(3+i)5
+          = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
     }
     Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
     Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
@@ -244,12 +244,12 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
 
   // Compute G using Adjoint of Xk if needed, otherwise identity (Assumes
   // unpropagated state)
-  if ((state.getStateType() == StateType::WorldCentric
+  if ((state.get_state_type() == StateType::WorldCentric
        && error_type_ == ErrorType::RightInvariant)
-      || (state.getStateType() == StateType::BodyCentric
+      || (state.get_state_type() == StateType::BodyCentric
           && error_type_ == ErrorType::LeftInvariant)) {
     G.block(0, 0, dimP - dimTheta, dimP - dimTheta)
-        = Adjoint_SEK3(state.getWorldX());
+        = Adjoint_SEK3(state.get_world_X());
   }
 
   // Continuous noise covariance

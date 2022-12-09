@@ -24,9 +24,9 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                            const Eigen::MatrixXd& N, RobotState& state,
                            ErrorType error_type) {
   // Get current state estimate
-  Eigen::MatrixXd X = state.getX();
-  Eigen::VectorXd Theta = state.getTheta();
-  Eigen::MatrixXd P = state.getP();
+  Eigen::MatrixXd X = state.get_X();
+  Eigen::VectorXd Theta = state.get_theta();
+  Eigen::MatrixXd P = state.get_P();
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -62,8 +62,8 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   Eigen::VectorXd Theta_new = Theta + dTheta;
 
   // Set new state
-  state.setX(X_new);
-  state.setTheta(Theta_new);
+  state.set_X(X_new);
+  state.set_theta(Theta_new);
 
   // Update Covariance
   Eigen::MatrixXd IKH = Eigen::MatrixXd::Identity(dimP, dimP) - K * H;
@@ -79,7 +79,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   }
 
   // Set new covariance
-  state.setP(P_new);
+  state.set_P(P_new);
 }
 
 
@@ -88,9 +88,9 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
                           ErrorType error_type) {
   // Get current state estimate
-  Eigen::MatrixXd X = state.getX();
-  Eigen::VectorXd Theta = state.getTheta();
-  Eigen::MatrixXd P = state.getP();
+  Eigen::MatrixXd X = state.get_X();
+  Eigen::VectorXd Theta = state.get_theta();
+  Eigen::MatrixXd P = state.get_P();
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -118,8 +118,8 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   Eigen::VectorXd Theta_new = Theta + dTheta;
 
   // Set new state
-  state.setX(X_new);
-  state.setTheta(Theta_new);
+  state.set_X(X_new);
+  state.set_theta(Theta_new);
 
   // Update Covariance
   Eigen::MatrixXd IKH = Eigen::MatrixXd::Identity(dimP, dimP) - K * H;
@@ -134,7 +134,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   }
 
   // Set new covariance
-  state.setP(P_new);
+  state.set_P(P_new);
 }
 
 }    // namespace inekf

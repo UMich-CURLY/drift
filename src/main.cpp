@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
   RobotState state(m);
   state_estimator.set_state(state);
   std::cout << "Before: " << std::endl;
-  std::cout << state_estimator.get_state().getX() << std::endl;
+  std::cout << state_estimator.get_state().get_X() << std::endl;
 
   std::queue<ImuMeasurement<double>> imu_data_buffer;
   std::shared_ptr<std::queue<ImuMeasurement<double>>> imu_data_buffer_ptr
@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
   for (int i = 0; i < 3; i++) {
     state_estimator.run();
     std::cout << "After: " << std::endl;
-    std::cout << state_estimator.get_state().getX() << std::endl;
+    std::cout << state_estimator.get_state().get_X() << std::endl;
     std::cout << "------------------------------------------" << std::endl;
   }
 }

@@ -54,8 +54,8 @@ void VelocityCorrection::Correct(RobotState& state) {
 
   // Fill out Z
   // Z = X*Y-b = PI*X*Y
-  Eigen::Matrix3d R = state.getRotation();
-  Eigen::Vector3d v = state.getVelocity();
+  Eigen::Matrix3d R = state.get_rotation();
+  Eigen::Vector3d v = state.get_velocity();
 
 
   int startIndex = Z.rows();
