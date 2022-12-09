@@ -17,6 +17,7 @@ int main(int argc, char** argv) {
   ros_wrapper::ROSSubscriber ros_sub(&nh);
   auto q1 = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
   auto q2 = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto qv = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
   ros_sub.start_subscribing_thread();
   // TODO: Create robot state system -- initialize all system threads
 
@@ -54,6 +55,16 @@ int main(int argc, char** argv) {
               << std::endl;
     q2->pop();
   }
+
+  std::cout << "qv msg: " << std::endl;
+  for (int i = 0; i < 10; ++i) {
+    auto qv_first = qv->front()->get_velocity();
+    auto qv_t = qv->front()->get_time();
+    std::cout << std::setprecision(16) << qv_t << ", " << qv_first[0] << ", "
+              << qv_first[1] << ", " << qv_first[2] << std::endl;
+    qv->pop();
+  }
+
 
   return 0;
 }
