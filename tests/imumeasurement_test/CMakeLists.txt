@@ -1,6 +1,6 @@
-file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+
 # Create the test binary
-add_executable(${test_prefix}_imumeasurement_test imumeasurement_test.cpp ${SRC_FILES})
+add_executable(${test_prefix}_imumeasurement_test imumeasurement_test.cpp ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
 # Link tests
 
 target_link_libraries(
