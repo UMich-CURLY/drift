@@ -88,7 +88,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
       startIndex = H.rows();
       H.conservativeResize(startIndex + 3, dimP);
       H.block(startIndex, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
-      if (state.getStateType() == StateType::WorldCentric) {
+      if (state.get_state_type() == StateType::WorldCentric) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
         H.block(startIndex, 3 * aug_id_to_column_id_[it->id] - dimTheta, 3, 3)
             = Eigen::Matrix3d::Identity();    // I
@@ -106,17 +106,17 @@ void KinematicsCorrection::Correct(RobotState& state) {
       N.block(0, startIndex, startIndex, 3)
           = Eigen::MatrixXd::Zero(startIndex, 3);
       N.block(startIndex, startIndex, 3, 3)
-          = state.getWorldRotation() * it->covariance.block<3, 3>(3, 3)
-            * state.getWorldRotation().transpose();
+          = state.get_world_rotation() * it->covariance.block<3, 3>(3, 3)
+            * state.get_world_rotation().transpose();
 
       // Fill out Z
       startIndex = Z.rows();
       Z.conservativeResize(startIndex + 3, Eigen::NoChange);
-      Eigen::Matrix3d R = state.getRotation();
-      Eigen::Vector3d p = state.getPosition();
+      Eigen::Matrix3d R = state.get_rotation();
+      Eigen::Vector3d p = state.get_position();
       /// TODO: change this with the new get aug method
       Eigen::Vector3d d = state.get_aug_state(aug_id_to_column_id_[it->id]);
-      if (state.getStateType() == StateType::WorldCentric) {
+      if (state.get_state_type() == StateType::WorldCentric) {
         Z.segment(startIndex, 3) = R * it->pose.block<3, 1>(0, 3) - (d - p);
       } else {
         Z.segment(startIndex, 3)
@@ -132,7 +132,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
-    if (state.getStateType() == StateType::WorldCentric) {
+    if (state.get_state_type() == StateType::WorldCentric) {
       CorrectRightInvariant(Z, H, N, state, error_type_);
     } else {
       CorrectLeftInvariant(Z, H, N, state, error_type_);
@@ -141,8 +141,8 @@ void KinematicsCorrection::Correct(RobotState& state) {
 
   // Remove contacts from state
   if (remove_contacts.size() > 0) {
-    Eigen::MatrixXd X_rem = state.getX();
-    Eigen::MatrixXd P_rem = state.getP();
+    Eigen::MatrixXd X_rem = state.get_X();
+    Eigen::MatrixXd P_rem = state.get_P();
     for (ContactID contact_id : remove_contacts) {
       state.del_aug_state(aug_id_to_column_id_[contact_id]);
       aug_id_to_column_id_.erase(contact_id);
@@ -151,17 +151,17 @@ void KinematicsCorrection::Correct(RobotState& state) {
 
   // Augment state with newly detected contacts
   if (new_contacts.size() > 0) {
-    Eigen::MatrixXd X_aug = state.getX();
-    Eigen::MatrixXd P_aug = state.getP();
+    Eigen::MatrixXd X_aug = state.get_X();
+    Eigen::MatrixXd P_aug = state.get_P();
     for (vectorKinematicsIterator it = new_contacts.begin();
          it != new_contacts.end(); ++it) {
       // Initialize new contact position mean
       Eigen::Vector3d aug_state;
-      if (state.getStateType() == StateType::WorldCentric) {
-        aug_state = state.getPosition()
-                    + state.getRotation() * it->pose.block<3, 1>(0, 3);
+      if (state.get_state_type() == StateType::WorldCentric) {
+        aug_state = state.get_position()
+                    + state.get_rotation() * it->pose.block<3, 1>(0, 3);
       } else {
-        aug_state = state.getPosition() - it->pose.block<3, 1>(0, 3);
+        aug_state = state.get_position() - it->pose.block<3, 1>(0, 3);
       }
 
       // Initialize new contact covariance - TODO:speed up
@@ -178,14 +178,14 @@ void KinematicsCorrection::Correct(RobotState& state) {
                                       state.dimTheta());    // for theta
       Eigen::MatrixXd G = Eigen::MatrixXd::Zero(F.rows(), 3);
       // Blocks for new contact
-      if ((state.getStateType() == StateType::WorldCentric
+      if ((state.get_state_type() == StateType::WorldCentric
            && error_type_ == ErrorType::RightInvariant)
-          || (state.getStateType() == StateType::BodyCentric
+          || (state.get_state_type() == StateType::BodyCentric
               && error_type_ == ErrorType::LeftInvariant)) {
         F.block(state.dimP() - state.dimTheta(), 6, 3, 3)
             = Eigen::Matrix3d::Identity();
         G.block(G.rows() - state.dimTheta() - 3, 0, 3, 3)
-            = state.getWorldRotation();
+            = state.get_world_rotation();
       } else {
         F.block(state.dimP() - state.dimTheta(), 6, 3, 3)
             = Eigen::Matrix3d::Identity();

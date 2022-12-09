@@ -62,7 +62,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   RobotState state(m);
   state_estimator.set_state(state);
   std::cout << "Before: " << std::endl;
-  std::cout << state_estimator.get_state().getX() << std::endl;
+  std::cout << state_estimator.get_state().get_X() << std::endl;
 
   std::queue<ImuMeasurement<double>> imu_data_buffer;
   std::shared_ptr<std::queue<ImuMeasurement<double>>> imu_data_buffer_ptr
@@ -129,8 +129,8 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   for (int i = 0; i < 3; i++) {
     state_estimator.run();
     std::cout << "After: " << std::endl;
-    std::cout << state_estimator.get_state().getX() << std::endl;
-    EXPECT_EQ(state_estimator.get_state().getX()(0, 0), expect_X[i](0, 0));
+    std::cout << state_estimator.get_state().get_X() << std::endl;
+    EXPECT_EQ(state_estimator.get_state().get_X()(0, 0), expect_X[i](0, 0));
     std::cout << "------------------------------------------" << std::endl;
   }
 }
