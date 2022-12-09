@@ -38,9 +38,13 @@ class ROSSubscriber {
 
   IMUQueuePtr add_imu_subscriber(const std::string topic_name);
 
+  void start_subscribing_thread();
+
  private:
   void imu_call_back(const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
-                     IMUQueuePtr& imu_queue, std::shared_ptr<std::mutex> mutex);
+                     const std::shared_ptr<std::mutex> mutex,
+                     IMUQueuePtr& imu_queue);
+  void velocity_call_back();
   void ros_spin();
 
   ros::NodeHandle* nh_;
@@ -50,9 +54,8 @@ class ROSSubscriber {
   std::vector<IMUQueuePtr> imu_queue_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;
 
+  bool thread_started_;
   std::thread subscribing_thread_;
-
-  int test_idx = 1;
 };
 
 
