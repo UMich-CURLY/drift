@@ -130,7 +130,13 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
     state_estimator.run();
     std::cout << "After: " << std::endl;
     std::cout << state_estimator.get_state().get_X() << std::endl;
-    EXPECT_EQ(state_estimator.get_state().get_X()(0, 0), expect_X[i](0, 0));
+    auto est_state = state_estimator.get_state().get_X();
+    for (int j = 0; j < 5; j++) {
+      for (int k = 0; k < 5; k++) {
+        EXPECT_NEAR(est_state(j, k), expect_X[i](j, k), 1e-6);
+      }
+    }
+
     std::cout << "------------------------------------------" << std::endl;
   }
 }
