@@ -11,6 +11,13 @@ void Measurement::set_time(double t) { header.stamp = t; }
 
 void Measurement::set_header(const MeasurementHeader& h) { header = h; }
 
+void Measurement::set_header(const uint64_t seq_in, const double time_stamp_in,
+                             const std::string frame_id_in) {
+  header.seq = seq_in;
+  header.stamp = time_stamp_in;
+  header.frame_id = frame_id_in;
+};
+
 double Measurement::get_time() const { return header.stamp; }
 
 MeasurementType Measurement::get_type() const { return type_; }

@@ -26,7 +26,7 @@ class ImuMeasurement : public Measurement {
 
   /**
    * @brief Set the imu measurement quaternion coefficients.
-   *
+   * @warning Arguments must be normalized.
    * @param[in] w: real quaternion coefficient.
    * @param[in] x: imaginary quaternion coefficient.
    * @param[in] y: imaginary quaternion coefficient.
