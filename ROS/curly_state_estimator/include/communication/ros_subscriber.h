@@ -22,13 +22,18 @@
 #include <vector>
 
 #include "boost/bind.hpp"
+#include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
+#include "sensor_msgs/JointState.h"
 
 #include "measurement/imu.h"
+#include "measurement/velocity.h"
 
 typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
 typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
+typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
+typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 
 namespace ros_wrapper {
 class ROSSubscriber {
@@ -37,14 +42,21 @@ class ROSSubscriber {
   ~ROSSubscriber();
 
   IMUQueuePtr add_imu_subscriber(const std::string topic_name);
-
+  VelocityQueuePtr add_velocity_subscriber(const std::string topic_name);
+  VelocityQueuePtr add_differential_drive_velocity_subscriber(
+      const std::string topic_name);
   void start_subscribing_thread();
 
  private:
   void imu_call_back(const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
-                     const std::shared_ptr<std::mutex> mutex,
+                     const std::shared_ptr<std::mutex>& mutex,
                      IMUQueuePtr& imu_queue);
-  void velocity_call_back();
+  void velocity_call_back(
+      const boost::shared_ptr<const geometry_msgs::Twist>& vel_msg,
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+  void differential_encoder2velocity_call_back(
+      const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
   void ros_spin();
 
   ros::NodeHandle* nh_;
@@ -52,6 +64,7 @@ class ROSSubscriber {
 
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;
+  std::vector<VelocityQueuePtr> vel_queue_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;
 
   bool thread_started_;

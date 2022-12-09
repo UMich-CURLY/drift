@@ -4,9 +4,9 @@ VelocityMeasurement<T>::VelocityMeasurement()
 
 template<typename T>
 void VelocityMeasurement<T>::set_velocity(T vx, T vy, T vz) {
-  vel_.x() = vx;
-  vel_.y() = vy;
-  vel_.z() = vz;
+  vel_(0) = vx;
+  vel_(1) = vy;
+  vel_(2) = vz;
 }
 
 template<typename T>
