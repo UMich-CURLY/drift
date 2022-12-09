@@ -61,6 +61,16 @@ class Measurement {
   void set_header(const MeasurementHeader& header);
 
   /**
+   * @brief Set the header value for the measurement.
+   *
+   * @param[in] seq_in: The sequence number
+   * @param[in] time_stamp_in: The time stamp of this measurement
+   * @param[in] frame_id_in: The frame id
+   */
+  void set_header(const uint64_t seq_in, const double time_stamp_in,
+                  const std::string frame_id_in);
+
+  /**
    * @brief Get the timestamp value for the measurement.
    *
    * @return Measurement timestamp.

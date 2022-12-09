@@ -30,6 +30,8 @@
 *.exe
 *.out
 *.app
+robot_state_est
+subscriber_test
 
 build/
 lib/

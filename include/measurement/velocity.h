@@ -1,5 +1,5 @@
 /**
- *  @file   imu.h
+ *  @file   velocity.h
  *  @author Justin Yu
  *  @brief  Header file for robot velocity estimate
  *  @date   Nov 16, 2022
