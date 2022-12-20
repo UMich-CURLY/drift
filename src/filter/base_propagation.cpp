@@ -22,6 +22,11 @@ void Propagation::Propagate(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
 }
 
+// Return measurement queue
+MeasurementQueuePtr Propagation::get_sensor_data_buffer_ptr() {
+  return nullptr;
+}
+
 // Return noise params
 const NoiseParams Propagation::get_noise_params() const {
   return noise_params_;
