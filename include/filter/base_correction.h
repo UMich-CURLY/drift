@@ -22,6 +22,7 @@
 #include <vector>
 #include "filter/noise_params.h"
 #include "filter/observations.h"
+#include "measurement/measurement.h"
 #include "state/robot_state.h"
 
 enum class CorrectionType {
@@ -29,6 +30,10 @@ enum class CorrectionType {
   KINEMATICS,
   VELOCITY,
 };
+
+typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
+typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
+
 class Correction {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -50,6 +55,9 @@ class Correction {
    */
   virtual void Correct(RobotState& state);
   /// @}
+
+  /// @name Getters
+  virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
   CorrectionType get_correction_type();
 
