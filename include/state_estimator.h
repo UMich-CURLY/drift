@@ -114,6 +114,8 @@ class StateEstimator {
                                const Eigen::Matrix3d& covariance);
   /// @}
 
+  void initStateByImuAndVelocity();
+
   // ======================================================================
   /**
    * @brief Run the filter once.
@@ -133,4 +135,5 @@ class StateEstimator {
   std::vector<std::shared_ptr<Correction>> corrections_;
   std::vector<aug_map_t> aug_maps;
   std::shared_ptr<Propagation> propagation_;
+  bool enabled_ = false;
 };    // class StateEstimator
