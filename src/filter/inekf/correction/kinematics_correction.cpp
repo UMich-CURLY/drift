@@ -17,6 +17,11 @@ KinematicsCorrection::KinematicsCorrection(
   correction_type_ = CorrectionType::KINEMATICS;
 }
 
+const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()
+    const {
+  return sensor_data_buffer_ptr_;
+}
+
 // Correct state using kinematics measured between body frame and contact point
 void KinematicsCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;

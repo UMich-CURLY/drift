@@ -15,6 +15,10 @@ VelocityCorrection::VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
   correction_type_ = CorrectionType::VELOCITY;
 }
 
+const VelocityQueuePtr VelocityCorrection::get_sensor_data_buffer_ptr() const {
+  return sensor_data_buffer_ptr_;
+}
+
 // Correct using measured body velocity with the estimated velocity
 void VelocityCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;

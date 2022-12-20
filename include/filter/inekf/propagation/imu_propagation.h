@@ -75,6 +75,8 @@ class ImuPropagation : public Propagation {
   // ======================================================================
   const bool get_bias_initialized() const { return bias_initialized_; }
 
+  // ======================================================================
+  const IMUQueuePtr get_sensor_data_buffer_ptr() const;
 
  private:
   /// @name helper functions
