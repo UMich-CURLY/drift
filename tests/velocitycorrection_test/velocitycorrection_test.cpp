@@ -64,15 +64,12 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   std::cout << "Before: " << std::endl;
   std::cout << state_estimator.get_state().get_X() << std::endl;
 
-  std::queue<ImuMeasurement<double>> imu_data_buffer;
-  std::shared_ptr<std::queue<ImuMeasurement<double>>> imu_data_buffer_ptr
-      = std::make_shared<std::queue<ImuMeasurement<double>>>(imu_data_buffer);
+  IMUQueue imu_data_buffer;
+  IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
 
-  std::queue<VelocityMeasurement<double>> velocity_data_buffer;
-  std::shared_ptr<std::queue<VelocityMeasurement<double>>>
-      velocity_data_buffer_ptr
-      = std::make_shared<std::queue<VelocityMeasurement<double>>>(
-          velocity_data_buffer);
+  VelocityQueue velocity_data_buffer;
+  VelocityQueuePtr velocity_data_buffer_ptr
+      = std::make_shared<VelocityQueue>(velocity_data_buffer);
 
 
   // Set measurements:
@@ -84,8 +81,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   imu_measurement_1.set_ang_vel(0, 0, 0);
   imu_measurement_1.set_lin_acc(-1, 0, 9.81);
   imu_measurement_1.set_time(dt);
-  imu_data_buffer_ptr.get()->push(imu_measurement_1);
-  velocity_data_buffer_ptr.get()->push(velocity_measurement_1);
+  imu_data_buffer_ptr.get()->push(
+      std::make_shared<ImuMeasurement<double>>(imu_measurement_1));
+  velocity_data_buffer_ptr.get()->push(
+      std::make_shared<VelocityMeasurement<double>>(velocity_measurement_1));
 
   VelocityMeasurement<double> velocity_measurement_2;
   ImuMeasurement<double> imu_measurement_2;
@@ -94,8 +93,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   imu_measurement_2.set_ang_vel(0, 0, 90.0 / 180.0 * M_PI);
   imu_measurement_2.set_lin_acc(0, 0, 9.81);
   imu_measurement_2.set_time(dt * 2);
-  imu_data_buffer_ptr.get()->push(imu_measurement_2);
-  velocity_data_buffer_ptr.get()->push(velocity_measurement_2);
+  imu_data_buffer_ptr.get()->push(
+      std::make_shared<ImuMeasurement<double>>(imu_measurement_2));
+  velocity_data_buffer_ptr.get()->push(
+      std::make_shared<VelocityMeasurement<double>>(velocity_measurement_2));
 
   VelocityMeasurement<double> velocity_measurement_3;
   ImuMeasurement<double> imu_measurement_3;
@@ -104,8 +105,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   imu_measurement_3.set_ang_vel(0, 0, 0);
   imu_measurement_3.set_lin_acc(1, 0, 9.81);
   imu_measurement_3.set_time(dt * 3);
-  imu_data_buffer_ptr.get()->push(imu_measurement_3);
-  velocity_data_buffer_ptr.get()->push(velocity_measurement_3);
+  imu_data_buffer_ptr.get()->push(
+      std::make_shared<ImuMeasurement<double>>(imu_measurement_3));
+  velocity_data_buffer_ptr.get()->push(
+      std::make_shared<VelocityMeasurement<double>>(velocity_measurement_3));
 
   // Add propagation and correction methods
   state_estimator.add_imu_propagation(imu_data_buffer_ptr, false);
@@ -127,7 +130,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   expect_X.push_back(X);
 
   for (int i = 0; i < 3; i++) {
-    state_estimator.run();
+    state_estimator.run_once();
     std::cout << "After: " << std::endl;
     std::cout << state_estimator.get_state().get_X() << std::endl;
     auto est_state = state_estimator.get_state().get_X();

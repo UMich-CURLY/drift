@@ -7,13 +7,15 @@ using namespace lie_group;
 using ContactID = int;
 
 KinematicsCorrection::KinematicsCorrection(
-    std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
-        sensor_data_buffer,
-    const ErrorType& error_type, const std::string& aug_type)
+    KinematicsQueuePtr sensor_data_buffer_ptr, const ErrorType& error_type,
+    const std::string& aug_type)
     : Correction::Correction(),
-      sensor_data_buffer_(sensor_data_buffer),
+      sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
+      sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
-      aug_type_(aug_type) {}
+      aug_type_(aug_type) {
+  correction_type_ = CorrectionType::KINEMATICS;
+}
 
 // Correct state using kinematics measured between body frame and contact point
 void KinematicsCorrection::Correct(RobotState& state) {
@@ -33,11 +35,11 @@ void KinematicsCorrection::Correct(RobotState& state) {
   /// contact measurements?
   // --------------------------------------------------------------
   // std::map<int, bool> contacts
-  //     = sensor_data_buffer_.get()->front().get_contacts();
+  //     = sensor_data_buffer_.front().get()->get_contacts();
   std::map<int, bool> contacts;
   // const vectorKinematics measured_kinematics
-  //     = sensor_data_buffer_.get()->front().get_kinematics();
-  // sensor_data_buffer_.get()->pop();
+  //     = sensor_data_buffer_.front().get()->get_kinematics();
+  // sensor_data_buffer_.pop();
   vectorKinematics measured_kinematics;
 
   for (vectorKinematicsIterator it = measured_kinematics.begin();

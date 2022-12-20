@@ -7,29 +7,35 @@ using namespace lie_group;
 // IMU propagation child class
 // ==============================================================================
 // IMU propagation constructor
-ImuPropagation::ImuPropagation(
-    std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer,
-    const NoiseParams& params, const ErrorType& error_type,
-    const bool estimate_bias)
+ImuPropagation::ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
+                               const NoiseParams& params,
+                               const ErrorType& error_type,
+                               const bool estimate_bias,
+                               const std::vector<double>& imu2body)
     : Propagation::Propagation(params, estimate_bias),
-      sensor_data_buffer_(sensor_data_buffer),
-      error_type_(error_type) {}
+      sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
+      sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
+      error_type_(error_type),
+      R_imu2body_(compute_R_imu2body(imu2body)) {
+  propagation_type_ = PropagationType::IMU;
+}
 
 // IMU propagation method
 void ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
-  auto imu_measurement = sensor_data_buffer_.get()->front();
-  sensor_data_buffer_.get()->pop();
+  auto imu_measurement = *(sensor_data_buffer_.front().get());
+  sensor_data_buffer_.pop();
 
   double dt = imu_measurement.get_time() - t_prev_;
   t_prev_ = imu_measurement.get_time();
 
   Eigen::Vector3d w = imu_measurement.get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
-  Eigen::Vector3d a = imu_measurement.get_lin_acc()
-                      - state.get_accelerometer_bias();    // Linear Acceleration
+  Eigen::Vector3d a
+      = imu_measurement.get_lin_acc()
+        - state.get_accelerometer_bias();    // Linear Acceleration
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -278,6 +284,57 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
                        * dt;    // Approximated discretized noise
                                 // matrix (TODO: compute analytical)
   return Qd;
+}
+
+void ImuPropagation::InitImuBias() {
+  if (!static_bias_initialization_) {
+    bias_initialized_ = true;
+    std::cout << "Bias inialization is set to false." << std::endl;
+    std::cout << "Bias is initialized using prior as: \n" << bg0_ << std::endl;
+    std::cout << ba0_ << std::endl;
+    return;
+  }
+  // Initialize bias based on imu orientation and static assumption
+  if (bias_init_vec_.size() < 250) {
+    auto imu_measurement = *(sensor_data_buffer_.front().get());
+    sensor_data_buffer_.pop();
+
+    Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity
+    Eigen::Vector3d a = imu_measurement.get_lin_acc();    // Linear Acceleration
+
+    Eigen::Quaternion<double> quat = imu_measurement.get_quaternion();
+    Eigen::Matrix3d R;
+    if (use_imu_ori_est_init_bias_) {
+      R = quat.toRotationMatrix();
+    } else {
+      R = Eigen::Matrix3d::Identity();
+    }
+
+    a = (R.transpose() * (R * a + g_)).eval();
+    Eigen::Matrix<double, 6, 1> v;
+    v << w(0), w(1), w(2), a(0), a(1), a(2);
+    bias_init_vec_.push_back(v);    // Store imu data with gravity removed
+  } else {
+    // Compute average bias of stored data
+    Eigen::Matrix<double, 6, 1> avg = Eigen::Matrix<double, 6, 1>::Zero();
+    for (int i = 0; i < bias_init_vec_.size(); ++i) {
+      avg = (avg + bias_init_vec_[i]).eval();
+    }
+    avg = (avg / bias_init_vec_.size()).eval();
+    std::cout << "IMU bias initialized to: " << avg.transpose() << std::endl;
+    bg0_ = avg.head<3>();
+    ba0_ = avg.tail<3>();
+    bias_initialized_ = true;
+  }
+}
+
+Eigen::Matrix3d ImuPropagation::compute_R_imu2body(
+    const std::vector<double> imu2body) {
+  Eigen::Quaternion<double> quarternion_imu2body(imu2body[0], imu2body[1],
+                                                 imu2body[2], imu2body[3]);
+  Eigen::Matrix3d R_imu2body;
+  R_imu2body = quarternion_imu2body.toRotationMatrix();
+  return R_imu2body;
 }
 
 }    // namespace inekf
