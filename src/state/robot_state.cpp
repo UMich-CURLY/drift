@@ -242,7 +242,7 @@ void RobotState::set_gyroscope_bias(const Eigen::Vector3d& bg) {
   Theta_.block<3, 1>(0, 0) = bg;
 }
 void RobotState::set_accelerometer_bias(const Eigen::Vector3d& ba) {
-  Theta_.block<3, 1>(0, 3) = ba;
+  Theta_.block<3, 1>(3, 0) = ba;
 }
 
 

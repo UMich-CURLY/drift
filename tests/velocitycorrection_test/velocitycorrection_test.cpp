@@ -59,10 +59,8 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
-  RobotState state(m);
-  state_estimator.set_state(state);
-  std::cout << "Before: " << std::endl;
-  std::cout << state_estimator.get_state().get_X() << std::endl;
+  // RobotState state(m);
+  // state_estimator.set_state(state);
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
@@ -73,6 +71,19 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
 
   // Set measurements:
+  VelocityMeasurement<double> velocity_measurement_0;
+  ImuMeasurement<double> imu_measurement_0;
+
+  velocity_measurement_0.set_velocity(1, 0, 0);
+  velocity_measurement_0.set_time(0);
+  imu_measurement_0.set_ang_vel(0, 0, 0);
+  imu_measurement_0.set_lin_acc(0, 0, 9.81);
+  imu_measurement_0.set_time(0);
+  imu_data_buffer_ptr.get()->push(
+      std::make_shared<ImuMeasurement<double>>(imu_measurement_0));
+  velocity_data_buffer_ptr.get()->push(
+      std::make_shared<VelocityMeasurement<double>>(velocity_measurement_0));
+
   VelocityMeasurement<double> velocity_measurement_1;
   ImuMeasurement<double> imu_measurement_1;
 
@@ -117,6 +128,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();
+
+  X(0, 3) = 1;
+  expect_X.push_back(X);
+
+  X(0, 3) = 0;
   X(0, 4) = 0.5;
   expect_X.push_back(X);
 
@@ -129,7 +145,12 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   X(1, 4) = 0.5;
   expect_X.push_back(X);
 
-  for (int i = 0; i < 3; i++) {
+  // Set initial state:
+  state_estimator.initStateByImuAndVelocity();
+  std::cout << "Initial State: " << std::endl;
+  std::cout << state_estimator.get_state().get_X() << std::endl;
+
+  for (int i = 0; i < 4; i++) {
     state_estimator.run_once();
     std::cout << "After: " << std::endl;
     std::cout << state_estimator.get_state().get_X() << std::endl;

@@ -6,7 +6,6 @@ StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
 
 void StateEstimator::run_once() {
   propagation_.get()->Propagate(state_);
-  std::cout << "After prop:\n" << state_.get_X() << std::endl;
   for (auto correction : corrections_) {
     correction.get()->Correct(state_);
   }
@@ -138,16 +137,13 @@ void StateEstimator::initStateByImuAndVelocity() {
 
   R0 = Eigen::Matrix3d::Identity();
   RobotState initial_state;
-
   Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
   Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();
-
   initial_state.set_rotation(R0);
   initial_state.set_velocity(v0);
   initial_state.set_position(p0);
   initial_state.set_gyroscope_bias(bg0);
   initial_state.set_accelerometer_bias(ba0);
-
   // Initialize state covariance
   initial_state.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
   initial_state.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
@@ -156,13 +152,11 @@ void StateEstimator::initStateByImuAndVelocity() {
                                               * Eigen::Matrix3d::Identity());
   initial_state.set_accelerometer_bias_covariance(
       0.0025 * Eigen::Matrix3d::Identity());
-
   this->set_state(initial_state);
   std::cout << "Robot's state mean is initialized to: \n";
   std::cout << this->get_state().get_X() << std::endl;
   std::cout << "Robot's state covariance is initialized to: \n";
   std::cout << this->get_state().get_P() << std::endl;
-
   // Set enabled flag
   double t_prev = imu_packet_in.get_time();
   state_.set_time(t_prev);
