@@ -58,10 +58,16 @@ class VelocityCorrection : public Correction {
    */
   void Correct(RobotState& state);
   /// @}
+
+  /// @name Getters
+  /// @{
+  // ======================================================================
+  const VelocityQueuePtr get_sensor_data_buffer_ptr() const;
+
  private:
   const ErrorType error_type_;
   VelocityQueuePtr sensor_data_buffer_ptr_;
-  VelocityQueue sensor_data_buffer_;
+  VelocityQueue& sensor_data_buffer_;
   const Eigen::Matrix3d& covariance_;
 };
 
