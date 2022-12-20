@@ -209,6 +209,13 @@ class RobotState {
   get_matrix_idx_map() const;
 
   /**
+   * @brief Get timestamp of the state.
+   *
+   * @return double timestamp: timestamp of the state.
+   */
+  const double get_time() const;
+
+  /**
    * @brief Add the augmented state to the last of the certain(idx_map-th)
    * mapping in the idx_maps_ vector.
    *
@@ -388,6 +395,13 @@ class RobotState {
   void set_accelerometer_bias(const Eigen::Vector3d& ba);
 
   /**
+   * @brief Set timestamp to the state
+   *
+   * @param[in] t: timestamp of the state
+   */
+  void set_time(const double& t);
+
+  /**
    * @brief add the Gyroscope Bias vector baug to the end of the mapping.
    *
    * @param[in] idx_map: index of the mapping in the mapping vector idx_maps_.
@@ -440,7 +454,7 @@ class RobotState {
    *
    * @param[in] cov: covariance matrix for the gyroscope bias.
    */
-  void set_gyroscope_bias(const Eigen::Matrix3d& cov);
+  void set_gyroscope_bias_covariance(const Eigen::Matrix3d& cov);
 
   /**
    * @brief Set the Accelerometer Bias Covariance cov to private member P_.
@@ -521,6 +535,7 @@ class RobotState {
   Eigen::VectorXd Theta_;
   Eigen::MatrixXd P_;
   std::vector<std::map<int, int>> idx_maps_;
+  double t_;
 };
 
 #endif
