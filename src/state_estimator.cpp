@@ -101,7 +101,7 @@ void StateEstimator::add_velocity_correction(
 void StateEstimator::initStateByImuAndVelocity() {
   /// TODO: Implement clear filter
   // Clear filter
-  // filter_.clear();
+  this->clear();
 
   // Initialize state mean
   std::shared_ptr<ImuPropagation> imu_propagation_ptr
@@ -168,3 +168,5 @@ void StateEstimator::initStateByImuAndVelocity() {
   state_.set_time(t_prev);
   enabled_ = true;
 }
+
+void StateEstimator::clear() {}

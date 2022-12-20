@@ -127,6 +127,14 @@ class StateEstimator {
    */
   void run_once();
 
+
+  // ======================================================================
+  /**
+   * @brief Clear the filter
+   *
+   */
+  void clear();
+
  private:
   RobotState state_;
   NoiseParams params_;
