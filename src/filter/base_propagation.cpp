@@ -13,7 +13,9 @@ Propagation::Propagation(const NoiseParams& params,
               .finished()),
       noise_params_(params),
       estimate_bias_(estimate_bias),
-      t_prev_(0.0) {}
+      t_prev_(0.0) {
+  propagation_type_ = PropagationType::BASE;
+}
 
 // Base method for propagation
 void Propagation::Propagate(RobotState& state) {

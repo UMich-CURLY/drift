@@ -13,12 +13,16 @@
 
 #ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
 #define FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+#include <vector>
 #include "filter/base_propagation.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
 #include "measurement/imu.h"
 
 namespace inekf {
+typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
+typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
+
 /**
  * @class ImuPropagation
  *
@@ -34,15 +38,14 @@ class ImuPropagation : public Propagation {
   /**
    * @brief Constructor for the propagation class
    *
-   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] params: Noise parameters for the propagation
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
    */
-  ImuPropagation(
-      std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer,
-      const NoiseParams& params, const ErrorType& error_type,
-      const bool estimate_bias = true);
+  ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr, const NoiseParams& params,
+                 const ErrorType& error_type, const bool estimate_bias = true,
+                 const std::vector<double>& imu2body = {1, 0, 0, 0});
   /// @}
 
   /// @name Propagation
@@ -60,6 +63,18 @@ class ImuPropagation : public Propagation {
    */
   void Propagate(RobotState& state);
   /// @} End of Propagation
+
+  /// @name Getters
+  /// @{
+  // ======================================================================
+  const Eigen::Vector3d get_estimate_gyro_bias() const { return bg0_; }
+
+  // ======================================================================
+  const Eigen::Vector3d get_estimate_accel_bias() const { return ba0_; }
+
+  // ======================================================================
+  const bool get_bias_initialized() const { return bias_initialized_; }
+
 
  private:
   /// @name helper functions
@@ -98,8 +113,26 @@ class ImuPropagation : public Propagation {
                                       const double dt, const RobotState& state);
   /// @} // End of helper functions
 
+  void InitImuBias();
+
+  static Eigen::Matrix3d compute_R_imu2body(const std::vector<double> imu2body);
+
+
   const ErrorType error_type_;
-  std::shared_ptr<std::queue<ImuMeasurement<double>>> sensor_data_buffer_;
+  IMUQueuePtr sensor_data_buffer_ptr_;
+  IMUQueue& sensor_data_buffer_;
+  const Eigen::Matrix3d R_imu2body_;
+
+  // IMU bias initialization related variables:
+  Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();
+  Eigen::Vector3d ba0_ = Eigen::Vector3d::Zero();
+  bool static_bias_initialization_ = false;
+  bool estimator_debug_enabled_ = false;
+  bool use_imu_ori_est_init_bias_ = false;
+  bool bias_initialized_ = false;
+  std::vector<Eigen::Matrix<double, 6, 1>,
+              Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
+      bias_init_vec_;
 
 };    // End of class ImuPropagation
 }    // namespace inekf

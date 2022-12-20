@@ -85,24 +85,12 @@ class StateEstimator {
    * @param[in] buffer_ptr: The imu buffer queue temporarily stores the message
    * from the subscriber.
    */
-  void add_imu_propagation(
-      std::shared_ptr<std::queue<ImuMeasurement<double>>> buffer_ptr,
-      const bool estimate_bias = true);
+  void add_imu_propagation(IMUQueuePtr buffer_ptr,
+                           const bool estimate_bias = true);
   /// @}
 
   /// @name Correction
   /// @{
-  // ======================================================================
-  /**
-   * @brief Declare a correction method, which uses landmark data to correct
-   * the state of the robot
-   *
-   * @param[in] buffer_ptr: The landmark buffer queue temporarily stores the
-   * message from the subscriber.
-   */
-  template<typename landmark_q_t>
-  void add_landmark_correction(std::shared_ptr<landmark_q_t> buffer_ptr);
-
   // ======================================================================
   /**
    * @brief Declare a correction method, which uses kinematic data to correct
@@ -111,9 +99,8 @@ class StateEstimator {
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
    */
-  void add_kinematics_correction(
-      std::shared_ptr<std::queue<KinematicsMeasurement<double>>> buffer_ptr,
-      const std::string& aug_type);
+  void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
+                                 const std::string& aug_type);
 
   // ======================================================================
   /**
@@ -123,21 +110,20 @@ class StateEstimator {
    * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
    * message from the subscriber.
    */
-  void add_velocity_correction(
-      std::shared_ptr<std::queue<VelocityMeasurement<double>>> buffer_ptr,
-      const Eigen::Matrix3d& covariance);
+  void add_velocity_correction(VelocityQueuePtr buffer_ptr,
+                               const Eigen::Matrix3d& covariance);
   /// @}
 
   // ======================================================================
   /**
-   * @brief Run the filter.
+   * @brief Run the filter once.
    *
    * Users should first add propagation and correction methods, then call this
    * method. This method will run in a loop, in which the robot state would be
    * propagated and corrected according to the methods added.
    *
    */
-  void run();
+  void run_once();
 
  private:
   RobotState state_;

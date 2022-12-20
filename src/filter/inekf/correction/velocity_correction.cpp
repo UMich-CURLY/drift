@@ -4,13 +4,16 @@ namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-VelocityCorrection::VelocityCorrection(
-    std::shared_ptr<std::queue<VelocityMeasurement<double>>> sensor_data_buffer,
-    const ErrorType& error_type, const Eigen::Matrix3d& covariance)
+VelocityCorrection::VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
+                                       const ErrorType& error_type,
+                                       const Eigen::Matrix3d& covariance)
     : Correction::Correction(),
-      sensor_data_buffer_(sensor_data_buffer),
+      sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
+      sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
-      covariance_(covariance) {}
+      covariance_(covariance) {
+  correction_type_ = CorrectionType::VELOCITY;
+}
 
 // Correct using measured body velocity with the estimated velocity
 void VelocityCorrection::Correct(RobotState& state) {
@@ -24,8 +27,8 @@ void VelocityCorrection::Correct(RobotState& state) {
 
   // Get latest measurement:
   const Eigen::Vector3d measured_velocity
-      = sensor_data_buffer_.get()->front().get_velocity();
-  sensor_data_buffer_.get()->pop();
+      = sensor_data_buffer_.front().get()->get_velocity();
+  sensor_data_buffer_.pop();
 
   // Fill out Y
   // Y.conservativeResize(dimX, Eigen::NoChange);

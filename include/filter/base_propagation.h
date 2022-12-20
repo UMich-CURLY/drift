@@ -23,6 +23,10 @@
 #include "filter/noise_params.h"
 #include "state/robot_state.h"
 
+enum class PropagationType {
+  BASE,
+  IMU,
+};
 
 class Propagation {
  public:
@@ -64,6 +68,8 @@ class Propagation {
   const NoiseParams get_noise_params() const;
   /// @}
 
+  PropagationType get_propagation_type();
+
  protected:
   const NoiseParams noise_params_;
   double t_prev_;
@@ -72,7 +78,8 @@ class Propagation {
       magnetic_field_;          // Magnetic field vector in world frame (z-up)
   const bool estimate_bias_;    // Whether to estimate the gyro and
                                 // accelerometer biases
-};                              // End of class Propagation
+  PropagationType propagation_type_;
+};    // End of class Propagation
 
 
 // #include "../src/filter/base_propagation.cpp"

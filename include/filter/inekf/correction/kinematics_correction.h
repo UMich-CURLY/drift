@@ -21,6 +21,9 @@
 #include "measurement/kinematics.h"
 
 namespace inekf {
+typedef std::queue<std::shared_ptr<KinematicsMeasurement<double>>>
+    KinematicsQueue;
+typedef std::shared_ptr<KinematicsQueue> KinematicsQueuePtr;
 
 /**
  * @class KinematicsCorrection
@@ -35,17 +38,16 @@ class KinematicsCorrection : public Correction {
   /**
    * @brief Constructor for the correction class
    *
-   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] aug_map_type: Type of the augmented states in this correction
    * method. For example, one can use "contact" to indicate the augment state in
    * this correction method are contact positions
    */
-  KinematicsCorrection(
-      std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
-          sensor_data_buffer,
-      const ErrorType& error_type, const std::string& aug_type);
+  KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
+                       const ErrorType& error_type,
+                       const std::string& aug_type);
 
   /// @name Correction Methods
   /// @{
@@ -73,9 +75,8 @@ class KinematicsCorrection : public Correction {
   // key: augmented state id
   // value: augmented state in the robot state X
   std::unordered_map<int, int> aug_id_to_column_id_;
-
-  std::shared_ptr<std::queue<KinematicsMeasurement<double>>>
-      sensor_data_buffer_;
+  KinematicsQueuePtr sensor_data_buffer_ptr_;
+  KinematicsQueue sensor_data_buffer_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 
