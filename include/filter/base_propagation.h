@@ -21,12 +21,16 @@
 #include <queue>
 #include <vector>
 #include "filter/noise_params.h"
+#include "measurement/measurement.h"
 #include "state/robot_state.h"
 
 enum class PropagationType {
   BASE,
   IMU,
 };
+
+typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
+typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
 
 class Propagation {
  public:
@@ -67,6 +71,9 @@ class Propagation {
    */
   const NoiseParams get_noise_params() const;
   /// @}
+
+  /// @name Getters
+  virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
   PropagationType get_propagation_type();
 

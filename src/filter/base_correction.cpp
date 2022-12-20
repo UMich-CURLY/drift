@@ -14,4 +14,6 @@ void Correction::Correct(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
 }
 
+MeasurementQueuePtr Correction::get_sensor_data_buffer_ptr() { return nullptr; }
+
 CorrectionType Correction::get_correction_type() { return correction_type_; }
