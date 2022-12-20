@@ -66,6 +66,11 @@ class KinematicsCorrection : public Correction {
   void Correct(RobotState& state);
   /// @}
 
+  /// @name Getters
+  /// @{
+  // ======================================================================
+  const KinematicsQueuePtr get_sensor_data_buffer_ptr() const;
+
  private:
   const ErrorType error_type_;
   // Indicating the type of the augmentation state, e.g. "contact", "landmark"
@@ -76,7 +81,7 @@ class KinematicsCorrection : public Correction {
   // value: augmented state in the robot state X
   std::unordered_map<int, int> aug_id_to_column_id_;
   KinematicsQueuePtr sensor_data_buffer_ptr_;
-  KinematicsQueue sensor_data_buffer_;
+  KinematicsQueue& sensor_data_buffer_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 

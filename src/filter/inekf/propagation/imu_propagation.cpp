@@ -20,6 +20,10 @@ ImuPropagation::ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
   propagation_type_ = PropagationType::IMU;
 }
 
+const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
+  return sensor_data_buffer_ptr_;
+}
+
 // IMU propagation method
 void ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
