@@ -19,6 +19,8 @@
 #include "measurement/velocity.h"
 
 namespace inekf {
+typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
+typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 
 /**
  * @class VelocityCorrection
@@ -33,13 +35,12 @@ class VelocityCorrection : public Correction {
   /**
    * @brief Constructor for the correction class
    *
-   * @param[in] sensor_data_buffer: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] covariance: Covariance of the velocity measurement
    */
-  VelocityCorrection(std::shared_ptr<std::queue<VelocityMeasurement<double>>>
-                         sensor_data_buffer,
+  VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      const ErrorType& error_type,
                      const Eigen::Matrix3d& covariance);
 
@@ -59,8 +60,9 @@ class VelocityCorrection : public Correction {
   /// @}
  private:
   const ErrorType error_type_;
-  std::shared_ptr<std::queue<VelocityMeasurement<double>>> sensor_data_buffer_;
-  const Eigen::Matrix3d covariance_;
+  VelocityQueuePtr sensor_data_buffer_ptr_;
+  VelocityQueue sensor_data_buffer_;
+  const Eigen::Matrix3d& covariance_;
 };
 
 }    // namespace inekf
