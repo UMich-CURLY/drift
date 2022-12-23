@@ -43,7 +43,7 @@ ${LIBS}
 
 # temporary test for subscriber
 rosbuild_add_executable(subscriber_test
-${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp )
+${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
 
 add_library(subscriber_test_lib
 ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
@@ -52,4 +52,19 @@ ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp)
 target_link_libraries(subscriber_test
 ${LIBS}
 subscriber_test_lib
+)
+
+# temporary test for ros communicator: subscriber + publisher
+rosbuild_add_executable(ros_comm_test
+${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
+
+add_library(ros_comm_test_lib
+${PROJECT_SOURCE_DIR}/src/communication/ros_comm_test.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
+${PROJECT_SOURCE_DIR}/../../src/state_estimator.cpp
+${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp)
+
+target_link_libraries(ros_comm_test
+${LIBS}
+ros_comm_test_lib
 )

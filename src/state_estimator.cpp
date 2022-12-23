@@ -2,13 +2,21 @@
 
 
 StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
-    : params_(params), error_type_(error_type) {}
+    : params_(params), error_type_(error_type) {
+  robot_state_queue_ptr_
+      = std::make_shared<RobotStateQueue>(robot_state_queue_);
+}
 
 void StateEstimator::run_once() {
   propagation_.get()->Propagate(state_);
   for (auto correction : corrections_) {
     correction.get()->Correct(state_);
   }
+  robot_state_queue_.push(std::make_shared<RobotState>(state_));
+}
+
+RobotStateQueuePtr StateEstimator::get_robot_state_queue_ptr() {
+  return robot_state_queue_ptr_;
 }
 
 void StateEstimator::set_state(RobotState& state) { state_ = state; }
@@ -34,6 +42,29 @@ void StateEstimator::add_velocity_correction(
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
       buffer_ptr, error_type_, covariance);
   corrections_.push_back(correction);
+}
+
+const bool StateEstimator::enabled() const { return enabled_; }
+
+void StateEstimator::enableFilter() { enabled_ = true; }
+
+const bool StateEstimator::biasInitialized() const {
+  if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
+    return true;
+  }
+
+  std::shared_ptr<ImuPropagation> imu_propagation_ptr
+      = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
+  return imu_propagation_ptr.get()->get_bias_initialized();
+}
+
+void StateEstimator::initBias() {
+  if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
+    return;
+  }
+  std::shared_ptr<ImuPropagation> imu_propagation_ptr
+      = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
+  imu_propagation_ptr.get()->InitImuBias();
 }
 
 // void BodyEstimator::initState(

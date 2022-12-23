@@ -30,6 +30,9 @@
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
 using namespace inekf;
 
+typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue;
+typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
+
 /**
  * @class StateEstimator
  *
@@ -72,6 +75,14 @@ class StateEstimator {
    * @return RobotState: State of the robot
    */
   const RobotState get_state() const;
+
+  // ======================================================================
+  /**
+   * @brief Get the robot state queue pointer
+   *
+   * @return RobotStateQueuePtr: Pointer to the robot state queue
+   */
+  RobotStateQueuePtr get_robot_state_queue_ptr();
   /// @}
 
 
@@ -82,8 +93,8 @@ class StateEstimator {
    * @brief Declare a propagation method, which uses imu data to propagate the
    * state of the robot
    *
-   * @param[in] buffer_ptr: The imu buffer queue temporarily stores the message
-   * from the subscriber.
+   * @param[in] buffer_ptr: The imu buffer queue temporarily stores the
+   * message from the subscriber.
    */
   void add_imu_propagation(IMUQueuePtr buffer_ptr,
                            const bool estimate_bias = true);
@@ -114,6 +125,17 @@ class StateEstimator {
                                const Eigen::Matrix3d& covariance);
   /// @}
 
+  const bool enabled() const;
+
+  void enableFilter();
+
+  // ======================================================================
+  void initBias();
+
+  // ======================================================================
+  const bool biasInitialized() const;
+
+  // ======================================================================
   void initStateByImuAndVelocity();
 
   // ======================================================================
@@ -139,9 +161,10 @@ class StateEstimator {
   RobotState state_;
   NoiseParams params_;
   ErrorType error_type_;
-  // std::shared_ptr<Correction> correction_;
   std::vector<std::shared_ptr<Correction>> corrections_;
   std::vector<aug_map_t> aug_maps;
   std::shared_ptr<Propagation> propagation_;
   bool enabled_ = false;
+  RobotStateQueue robot_state_queue_;
+  RobotStateQueuePtr robot_state_queue_ptr_ = nullptr;
 };    // class StateEstimator

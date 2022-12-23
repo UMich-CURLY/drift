@@ -75,7 +75,7 @@ class Propagation {
   /// @name Getters
   virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
-  PropagationType get_propagation_type();
+  const PropagationType get_propagation_type() const;
 
  protected:
   const NoiseParams noise_params_;

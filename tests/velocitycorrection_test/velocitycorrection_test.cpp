@@ -58,9 +58,8 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   params.set_augment_noise("contact", temp_param);
 
   inekf::ErrorType error_type = RightInvariant;
+
   StateEstimator state_estimator(params, error_type);
-  // RobotState state(m);
-  // state_estimator.set_state(state);
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
@@ -68,7 +67,6 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   VelocityQueue velocity_data_buffer;
   VelocityQueuePtr velocity_data_buffer_ptr
       = std::make_shared<VelocityQueue>(velocity_data_buffer);
-
 
   // Set measurements:
   VelocityMeasurement<double> velocity_measurement_0;
@@ -147,20 +145,35 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   // Set initial state:
   state_estimator.initStateByImuAndVelocity();
-  std::cout << "Initial State: " << std::endl;
-  std::cout << state_estimator.get_state().get_X() << std::endl;
+  auto init_state = state_estimator.get_state().get_X();
+  // Check initial state value:
+  for (int j = 0; j < 5; j++) {
+    for (int k = 0; k < 5; k++) {
+      EXPECT_NEAR(init_state(j, k), expect_X[0](j, k), 1e-6);
+    }
+  }
+
 
   for (int i = 0; i < 4; i++) {
-    state_estimator.run_once();
-    std::cout << "After: " << std::endl;
-    std::cout << state_estimator.get_state().get_X() << std::endl;
-    auto est_state = state_estimator.get_state().get_X();
-    for (int j = 0; j < 5; j++) {
-      for (int k = 0; k < 5; k++) {
-        EXPECT_NEAR(est_state(j, k), expect_X[i](j, k), 1e-6);
+    // Check propagation and correction:
+    if (state_estimator.enabled()) {
+      state_estimator.run_once();
+      std::cout << "After Correction: " << std::endl;
+      std::cout << state_estimator.get_state().get_X() << std::endl;
+      auto est_state = state_estimator.get_state().get_X();
+      for (int j = 0; j < 5; j++) {
+        for (int k = 0; k < 5; k++) {
+          EXPECT_NEAR(est_state(j, k), expect_X[i](j, k), 1e-6);
+        }
+      }
+      std::cout << "------------------------------------------" << std::endl;
+    } else {
+      if (state_estimator.biasInitialized()) {
+        state_estimator.initStateByImuAndVelocity();
+        state_estimator.enableFilter();
+      } else {
+        state_estimator.initBias();
       }
     }
-
-    std::cout << "------------------------------------------" << std::endl;
   }
 }
