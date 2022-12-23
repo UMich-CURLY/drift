@@ -32,8 +32,12 @@
 
 typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
 typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
+typedef std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> IMUQueuePair;
+
 typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
 typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
+typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
+    VelocityQueuePair;
 
 namespace ros_wrapper {
 class ROSSubscriber {
@@ -41,9 +45,9 @@ class ROSSubscriber {
   ROSSubscriber(ros::NodeHandle* nh);
   ~ROSSubscriber();
 
-  IMUQueuePtr add_imu_subscriber(const std::string topic_name);
-  VelocityQueuePtr add_velocity_subscriber(const std::string topic_name);
-  VelocityQueuePtr add_differential_drive_velocity_subscriber(
+  IMUQueuePair add_imu_subscriber(const std::string topic_name);
+  VelocityQueuePair add_velocity_subscriber(const std::string topic_name);
+  VelocityQueuePair add_differential_drive_velocity_subscriber(
       const std::string topic_name);
   void start_subscribing_thread();
 

@@ -16,6 +16,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
@@ -97,6 +98,7 @@ class StateEstimator {
    * message from the subscriber.
    */
   void add_imu_propagation(IMUQueuePtr buffer_ptr,
+                           std::shared_ptr<std::mutex> buffer_mutex_ptr,
                            const bool estimate_bias = true);
   /// @}
 
@@ -111,6 +113,7 @@ class StateEstimator {
    * message from the subscriber.
    */
   void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
+                                 std::shared_ptr<std::mutex> buffer_mutex_ptr,
                                  const std::string& aug_type);
 
   // ======================================================================
@@ -122,6 +125,7 @@ class StateEstimator {
    * message from the subscriber.
    */
   void add_velocity_correction(VelocityQueuePtr buffer_ptr,
+                               std::shared_ptr<std::mutex> buffer_mutex_ptr,
                                const Eigen::Matrix3d& covariance);
   /// @}
 
@@ -167,4 +171,5 @@ class StateEstimator {
   bool enabled_ = false;
   RobotStateQueue robot_state_queue_;
   RobotStateQueuePtr robot_state_queue_ptr_ = nullptr;
+  std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_ = nullptr;
 };    // class StateEstimator

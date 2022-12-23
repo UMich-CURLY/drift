@@ -3,7 +3,7 @@
 
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
-#include "state_estimator/state_estimator.h"
+#include "state_estimator.h"
 using namespace std;
 
 
@@ -17,9 +17,19 @@ int main(int argc, char** argv) {
 
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  auto q1 = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
-  auto q2 = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
-  auto qv = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+  auto q1_and_mutex = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto q1 = q1_and_mutex.first;
+  auto q1_mutex = q1_and_mutex.second;
+
+  auto q2_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto q2 = q2_and_mutex.first;
+  auto q2_mutex = q2_and_mutex.second;
+
+  auto qv_and_mutex
+      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+  auto qv = qv_and_mutex.first;
+  auto qv_mutex = qv_and_mutex.second;
+
   ros_sub.start_subscribing_thread();
   // TODO: Create robot state system -- initialize all system threads
 
@@ -29,17 +39,17 @@ int main(int argc, char** argv) {
   params.set_accelerometer_noise(temp_param);
   params.set_gyroscope_bias_noise(temp_param);
   params.set_accelerometer_bias_noise(temp_param);
-  params.set_augment_noise("contact", temp_param);
 
   Eigen::Matrix3d measured_velocity_covariance;
   measured_velocity_covariance << 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01;
 
   inekf::ErrorType error_type = RightInvariant;
-  StateEstimator::StateEstimator state_estimator(params, error_type);
+  StateEstimator state_estimator(params, error_type);
 
   // Publisher:
-  state_estimator.add_imu_propagation(q2);
-  state_estimator.add_velocity_correction(qv, measured_velocity_covariance);
+  state_estimator.add_imu_propagation(q2, q2_mutex);
+  state_estimator.add_velocity_correction(qv, qv_mutex,
+                                          measured_velocity_covariance);
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
 
@@ -54,12 +64,11 @@ int main(int argc, char** argv) {
     } else {
       if (state_estimator.biasInitialized()) {
         state_estimator.initStateByImuAndVelocity();
-        state_estimator.enableFilter();
       } else {
         state_estimator.initBias();
       }
     }
-    // ros::spinOnce();
+    ros::spinOnce();
   }
 
   std::cout << "q1 msg: " << std::endl;

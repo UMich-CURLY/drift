@@ -7,10 +7,12 @@ using namespace lie_group;
 using ContactID = int;
 
 KinematicsCorrection::KinematicsCorrection(
-    KinematicsQueuePtr sensor_data_buffer_ptr, const ErrorType& error_type,
-    const std::string& aug_type)
+    KinematicsQueuePtr sensor_data_buffer_ptr,
+    std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+    const ErrorType& error_type, const std::string& aug_type)
     : Correction::Correction(),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
+      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       aug_type_(aug_type) {
@@ -39,12 +41,14 @@ void KinematicsCorrection::Correct(RobotState& state) {
   /// TOASK: Should we use map<int, bool> or just Matrix<int, CONTACT_DIM,1> for
   /// contact measurements?
   // --------------------------------------------------------------
+  // sensor_data_buffer_mutex_ptr_.get()->lock();
   // std::map<int, bool> contacts
   //     = sensor_data_buffer_.front().get()->get_contacts();
   std::map<int, bool> contacts;
   // const vectorKinematics measured_kinematics
   //     = sensor_data_buffer_.front().get()->get_kinematics();
   // sensor_data_buffer_.pop();
+  // sensor_data_buffer_mutex_ptr_.get()->unlock();
   vectorKinematics measured_kinematics;
 
   for (vectorKinematicsIterator it = measured_kinematics.begin();
