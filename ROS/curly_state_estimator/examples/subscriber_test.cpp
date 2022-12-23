@@ -15,9 +15,13 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  auto q1 = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
-  auto q2 = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
-  auto qv = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+  auto q1_and_mutex = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto q1 = q1_and_mutex.first;
+  auto q2_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto q2 = q2_and_mutex.first;
+  auto qv_and_mutex
+      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+  auto qv = qv_and_mutex.first;
   ros_sub.start_subscribing_thread();
   // TODO: Create robot state system -- initialize all system threads
 

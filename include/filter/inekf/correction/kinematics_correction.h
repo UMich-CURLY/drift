@@ -39,6 +39,8 @@ class KinematicsCorrection : public Correction {
    * @brief Constructor for the correction class
    *
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
+   * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] aug_map_type: Type of the augmented states in this correction
@@ -46,6 +48,7 @@ class KinematicsCorrection : public Correction {
    * this correction method are contact positions
    */
   KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
+                       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                        const ErrorType& error_type,
                        const std::string& aug_type);
 
@@ -82,6 +85,7 @@ class KinematicsCorrection : public Correction {
   std::unordered_map<int, int> aug_id_to_column_id_;
   KinematicsQueuePtr sensor_data_buffer_ptr_;
   KinematicsQueue& sensor_data_buffer_;
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 

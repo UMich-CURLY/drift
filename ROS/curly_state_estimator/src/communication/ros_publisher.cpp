@@ -7,18 +7,21 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
       robot_sate_queue_ptr_(robot_state_queue_ptr),
       robot_state_queue_(*robot_state_queue_ptr.get()),
       thread_started_(false) {
-  nh_.param<std::string>("/settings/pose_topic", pose_topic,
-                         "/robot/inekf_estimation/pose");
-  nh_.param<std::string>("/settings/map_frame_id", pose_frame_, "/odom");
-  nh.param<std::string>("/settings/path_topic", path_topic,
-                        "/robot/inekf_estimation/path");
-  nh_.param<double>("/settings/publish_rate", publish_rate_, 1000);
-  nh_.param<uint32_t>("/settings/pose_skip", pose_skip_, 0);
+  std::string pose_topic;
+  std::string path_topic;
+  nh_->param<std::string>("/settings/pose_topic", pose_topic,
+                          "/robot/inekf_estimation/pose");
+  nh_->param<std::string>("/settings/map_frame_id", pose_frame_, "/odom");
+  nh->param<std::string>("/settings/path_topic", path_topic,
+                         "/robot/inekf_estimation/path");
+  nh_->param<double>("/settings/pose_publish_rate", pose_publish_rate_, 1000);
+  nh_->param<double>("/settings/pose_publish_rate", path_publish_rate_, 1000);
+  nh_->param<int>("/settings/pose_skip", pose_skip_, 0);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
             << std::endl;
-  std::cout << "path publish rate: " << publish_rate_ << std::endl;
+  std::cout << "path publish rate: " << path_publish_rate_ << std::endl;
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);
@@ -34,6 +37,7 @@ ROSPublisher::~ROSPublisher() {
 }
 
 void ROSPublisher::start_publishing_thread() {
+  std::cout << "start publishing thread" << std::endl;
   this->pose_publishing_thread_
       = std::thread([this] { this->posePublishingThread(); });
   this->path_publishing_thread_
@@ -43,7 +47,11 @@ void ROSPublisher::start_publishing_thread() {
 }
 
 // Publishes pose
-void ROSPublisher::posePublish(const RobotState& state) {
+void ROSPublisher::posePublish() {
+  if (robot_state_queue_.empty()) {
+    std::cout << "pose queue is empty" << std::endl;
+    return;
+  }
   const std::shared_ptr<RobotState> state_ptr = robot_state_queue_.front();
   robot_state_queue_.pop();
   const RobotState& state = *state_ptr.get();
@@ -65,14 +73,14 @@ void ROSPublisher::posePublish(const RobotState& state) {
   pose_msg.pose.pose.position.z
       = state.get_world_position()(2) - first_pose_[2];
 
-  Eigen::Quaterniond quat(state.getworld_rotation());
-  pose_msg.pose.pose.orientation.w = quat(3);
-  pose_msg.pose.pose.orientation.x = quat(0);
-  pose_msg.pose.pose.orientation.y = quat(1);
-  pose_msg.pose.pose.orientation.z = quat(2);
+  Eigen::Quaterniond quat(state.get_world_rotation());
+  pose_msg.pose.pose.orientation.w = quat.w();
+  pose_msg.pose.pose.orientation.x = quat.x();
+  pose_msg.pose.pose.orientation.y = quat.y();
+  pose_msg.pose.pose.orientation.z = quat.z();
 
   // Covariance msg
-  Eigen::MatrixXd& cov = state.get_P();
+  auto& cov = state.get_P();
   // Get the 6x6 covariance matrix in the following order:
   // (x, y, z, rotation about X axis, rotation about Y axis, rotation
   // about Z axis)
@@ -88,7 +96,7 @@ void ROSPublisher::posePublish(const RobotState& state) {
   pose_pub_.publish(pose_msg);
   pose_seq_++;
 
-  if (pose_seq_ % pose_skip_ == 0) {
+  if (int(pose_seq_) % pose_skip_ == 0) {
     geometry_msgs::PoseStamped pose_stamped;
     pose_stamped.header = pose_msg.header;
     pose_stamped.pose = pose_msg.pose.pose;
@@ -101,7 +109,7 @@ void ROSPublisher::posePublish(const RobotState& state) {
 // Pose publishing thread
 void ROSPublisher::posePublishingThread() {
   // Loop and publish data
-  ros::Rate loop_rate(publish_rate_);
+  ros::Rate loop_rate(pose_publish_rate_);
   while (ros::ok()) {
     posePublish();
     loop_rate.sleep();
@@ -111,9 +119,13 @@ void ROSPublisher::posePublishingThread() {
 // Publishes path
 void ROSPublisher::pathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
+  if (poses_.size() == 0) {
+    // std::cout << "path is empty" << std::endl;
+    return;
+  }
   nav_msgs::Path path_msg;
   path_msg.header.seq = path_seq_;
-  path_msg.header.stamp = poses.back().header.stamp;
+  path_msg.header.stamp = poses_.back().header.stamp;
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
   // std::cout<<"publishing current path:
@@ -128,7 +140,7 @@ void ROSPublisher::pathPublish() {
 // Path publishing thread
 void ROSPublisher::pathPublishingThread() {
   // Loop and publish data
-  ros::Rate loop_rate(publish_rate_);
+  ros::Rate loop_rate(path_publish_rate_);
   while (ros::ok()) {
     pathPublish();
     loop_rate.sleep();

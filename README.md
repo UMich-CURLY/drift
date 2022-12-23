@@ -41,6 +41,11 @@ make -j4
   ```
   export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/TO/curly_state_estimator/ROS/curly_state_estimator
   ```
+
+Then
+  ```
+  source ~/.bashrc
+  ```
   
 2. Execute `build_ros.sh` script:
 

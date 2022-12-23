@@ -36,11 +36,14 @@ class VelocityCorrection : public Correction {
    * @brief Constructor for the correction class
    *
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
+   * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] covariance: Covariance of the velocity measurement
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
+                     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                      const ErrorType& error_type,
                      const Eigen::Matrix3d& covariance);
 
@@ -68,6 +71,7 @@ class VelocityCorrection : public Correction {
   const ErrorType error_type_;
   VelocityQueuePtr sensor_data_buffer_ptr_;
   VelocityQueue& sensor_data_buffer_;
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
   const Eigen::Matrix3d& covariance_;
 };
 

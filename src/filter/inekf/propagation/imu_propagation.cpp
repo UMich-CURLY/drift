@@ -7,13 +7,14 @@ using namespace lie_group;
 // IMU propagation child class
 // ==============================================================================
 // IMU propagation constructor
-ImuPropagation::ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
-                               const NoiseParams& params,
-                               const ErrorType& error_type,
-                               const bool estimate_bias,
-                               const std::vector<double>& imu2body)
+ImuPropagation::ImuPropagation(
+    IMUQueuePtr sensor_data_buffer_ptr,
+    std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+    const NoiseParams& params, const ErrorType& error_type,
+    const bool estimate_bias, const std::vector<double>& imu2body)
     : Propagation::Propagation(params, estimate_bias),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
+      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       R_imu2body_(compute_R_imu2body(imu2body)) {
@@ -30,8 +31,13 @@ void ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  if (sensor_data_buffer_.empty()) {
+    return;
+  }
   auto imu_measurement = *(sensor_data_buffer_.front().get());
   sensor_data_buffer_.pop();
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
 
   double dt = imu_measurement.get_time() - t_prev_;
   t_prev_ = imu_measurement.get_time();
@@ -299,10 +305,17 @@ void ImuPropagation::InitImuBias() {
     std::cout << ba0_ << std::endl;
     return;
   }
+
+  if (sensor_data_buffer_.empty()) {
+    return;
+  }
+
   // Initialize bias based on imu orientation and static assumption
   if (bias_init_vec_.size() < init_bias_size_) {
+    sensor_data_buffer_mutex_ptr_.get()->lock();
     auto imu_measurement = *(sensor_data_buffer_.front().get());
     sensor_data_buffer_.pop();
+    sensor_data_buffer_mutex_ptr_.get()->unlock();
 
     Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity
     Eigen::Vector3d a = imu_measurement.get_lin_acc();    // Linear Acceleration
