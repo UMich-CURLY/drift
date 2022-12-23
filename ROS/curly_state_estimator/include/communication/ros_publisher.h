@@ -35,7 +35,8 @@ typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
 namespace ros_wrapper {
 class ROSPublisher {
  public:
-  ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue);
+  ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
+               std::shared_ptr<std::mutex> robot_state_queue_mutex);
   ~ROSPublisher();
 
   void start_publishing_thread();
@@ -44,6 +45,7 @@ class ROSPublisher {
   ros::NodeHandle* nh_;
   RobotStateQueuePtr robot_sate_queue_ptr_;
   RobotStateQueue& robot_state_queue_;
+  std::shared_ptr<std::mutex> robot_state_queue_mutex_;
 
   bool thread_started_;
 
