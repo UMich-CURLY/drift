@@ -5,15 +5,12 @@ using namespace std;
 // Base propagation class
 // ======================================================================
 // Default constructor
-Propagation::Propagation(const NoiseParams& params,
-                         const bool estimate_bias = true)
+Propagation::Propagation(const NoiseParams& params)
     : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
       magnetic_field_(
           (Eigen::VectorXd(3) << std::cos(1.2049), 0, std::sin(1.2049))
               .finished()),
-      noise_params_(params),
-      estimate_bias_(estimate_bias),
-      t_prev_(0.0) {
+      noise_params_(params) {
   propagation_type_ = PropagationType::BASE;
 }
 

@@ -108,7 +108,8 @@ class StateEstimator {
    */
   void add_imu_propagation(IMUQueuePtr buffer_ptr,
                            std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                           const bool estimate_bias = true);
+                           const bool estimate_bias = true,
+                           const std::vector<double>& imu2body = {1, 0, 0, 0});
   /// @}
 
   /// @name Correction
@@ -178,7 +179,6 @@ class StateEstimator {
   std::vector<aug_map_t> aug_maps;
   std::shared_ptr<Propagation> propagation_;
   bool enabled_ = false;
-  RobotStateQueue robot_state_queue_;
-  RobotStateQueuePtr robot_state_queue_ptr_ = nullptr;
+  RobotStateQueuePtr robot_state_queue_ptr_;
   std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_;
 };    // class StateEstimator

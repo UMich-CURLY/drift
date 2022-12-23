@@ -44,11 +44,9 @@ class Propagation {
    * @brief Constructor for the propagation class
    *
    * @param[in] params: The noise parameter for propagation
-   * @param[in] error_type: Error type for the propagation. LeftInvariant or
-   * RightInvariant
    */
   /// @}
-  Propagation(const NoiseParams& params, const bool estimate_bias);
+  Propagation(const NoiseParams& params);
 
   /// @name Propagation
   /// @{
@@ -80,12 +78,9 @@ class Propagation {
 
  protected:
   const NoiseParams noise_params_;
-  double t_prev_;
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
-      magnetic_field_;          // Magnetic field vector in world frame (z-up)
-  const bool estimate_bias_;    // Whether to estimate the gyro and
-                                // accelerometer biases
+      magnetic_field_;    // Magnetic field vector in world frame (z-up)
   PropagationType propagation_type_;
 };    // End of class Propagation
 

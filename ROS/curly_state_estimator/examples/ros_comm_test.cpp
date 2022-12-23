@@ -47,7 +47,8 @@ int main(int argc, char** argv) {
   StateEstimator state_estimator(params, error_type);
 
   // Publisher:
-  state_estimator.add_imu_propagation(q2, q2_mutex);
+  state_estimator.add_imu_propagation(
+      q2, q2_mutex, true, {0, 0.7071, -0.7071, 0});    // Husky's setting
   state_estimator.add_velocity_correction(qv, qv_mutex,
                                           measured_velocity_covariance);
   RobotStateQueuePtr robot_state_queue_ptr
@@ -64,6 +65,8 @@ int main(int argc, char** argv) {
     // Step behavior
     if (state_estimator.enabled()) {
       state_estimator.run_once();
+      std::cout << "In example test, state queue size: "
+                << robot_state_queue_ptr.get()->size() << std::endl;
     } else {
       if (state_estimator.biasInitialized()) {
         state_estimator.initStateByImuAndVelocity();
