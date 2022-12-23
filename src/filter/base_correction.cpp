@@ -16,4 +16,6 @@ void Correction::Correct(RobotState& state) {
 
 MeasurementQueuePtr Correction::get_sensor_data_buffer_ptr() { return nullptr; }
 
-CorrectionType Correction::get_correction_type() { return correction_type_; }
+const CorrectionType Correction::get_correction_type() const {
+  return correction_type_;
+}

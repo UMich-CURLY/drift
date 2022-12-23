@@ -18,6 +18,7 @@ ImuPropagation::ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
       error_type_(error_type),
       R_imu2body_(compute_R_imu2body(imu2body)) {
   propagation_type_ = PropagationType::IMU;
+  init_bias_size_ = 0;
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -299,7 +300,7 @@ void ImuPropagation::InitImuBias() {
     return;
   }
   // Initialize bias based on imu orientation and static assumption
-  if (bias_init_vec_.size() < 250) {
+  if (bias_init_vec_.size() < init_bias_size_) {
     auto imu_measurement = *(sensor_data_buffer_.front().get());
     sensor_data_buffer_.pop();
 
@@ -339,6 +340,18 @@ Eigen::Matrix3d ImuPropagation::compute_R_imu2body(
   Eigen::Matrix3d R_imu2body;
   R_imu2body = quarternion_imu2body.toRotationMatrix();
   return R_imu2body;
+}
+
+const Eigen::Vector3d ImuPropagation::get_estimate_gyro_bias() const {
+  return bg0_;
+}
+
+const Eigen::Vector3d ImuPropagation::get_estimate_accel_bias() const {
+  return ba0_;
+}
+
+const bool ImuPropagation::get_bias_initialized() const {
+  return bias_initialized_;
 }
 
 }    // namespace inekf

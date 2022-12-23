@@ -41,6 +41,8 @@ class ImuPropagation : public Propagation {
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] params: Noise parameters for the propagation
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
+   * @param[in] estimate_bias: Whether to estimate the bias
+   * @param[in] imu2body: The transformation from imu frame to body frame
    * RightInvariant
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr, const NoiseParams& params,
@@ -67,16 +69,21 @@ class ImuPropagation : public Propagation {
   /// @name Getters
   /// @{
   // ======================================================================
-  const Eigen::Vector3d get_estimate_gyro_bias() const { return bg0_; }
+  const Eigen::Vector3d get_estimate_gyro_bias() const;
 
   // ======================================================================
-  const Eigen::Vector3d get_estimate_accel_bias() const { return ba0_; }
+  const Eigen::Vector3d get_estimate_accel_bias() const;
 
   // ======================================================================
-  const bool get_bias_initialized() const { return bias_initialized_; }
+  const bool get_bias_initialized() const;
 
   // ======================================================================
   const IMUQueuePtr get_sensor_data_buffer_ptr() const;
+  /// @} End of Getters
+
+  // ======================================================================
+  void InitImuBias();
+
 
  private:
   /// @name helper functions
@@ -115,8 +122,6 @@ class ImuPropagation : public Propagation {
                                       const double dt, const RobotState& state);
   /// @} // End of helper functions
 
-  void InitImuBias();
-
   static Eigen::Matrix3d compute_R_imu2body(const std::vector<double> imu2body);
 
 
@@ -132,6 +137,8 @@ class ImuPropagation : public Propagation {
   bool estimator_debug_enabled_ = false;
   bool use_imu_ori_est_init_bias_ = false;
   bool bias_initialized_ = false;
+  int init_bias_size_ = 0;    // Number of IMU measurements to use for bias
+                              // initialization
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
       bias_init_vec_;
