@@ -84,6 +84,15 @@ class StateEstimator {
    * @return RobotStateQueuePtr: Pointer to the robot state queue
    */
   RobotStateQueuePtr get_robot_state_queue_ptr();
+
+  // ======================================================================
+  /**
+   * @brief Get the robot state queue mutex pointer
+   *
+   * @return std::shared_ptr<std::mutex>: Pointer to the robot state queue
+   * mutex
+   */
+  std::shared_ptr<std::mutex> get_robot_state_queue_mutex_ptr();
   /// @}
 
 
@@ -91,8 +100,8 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Declare a propagation method, which uses imu data to propagate the
-   * state of the robot
+   * @brief Declare a propagation method, which uses imu data to propagate
+   * the state of the robot
    *
    * @param[in] buffer_ptr: The imu buffer queue temporarily stores the
    * message from the subscriber.
@@ -171,5 +180,5 @@ class StateEstimator {
   bool enabled_ = false;
   RobotStateQueue robot_state_queue_;
   RobotStateQueuePtr robot_state_queue_ptr_ = nullptr;
-  std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_ = nullptr;
+  std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_;
 };    // class StateEstimator

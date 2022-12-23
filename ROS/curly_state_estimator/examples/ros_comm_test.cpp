@@ -53,7 +53,10 @@ int main(int argc, char** argv) {
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
 
-  ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr);
+  std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr
+      = state_estimator.get_robot_state_queue_mutex_ptr();
+  ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
+                                    robot_state_queue_mutex_ptr);
   ros_pub.start_publishing_thread();
 
   // block until we stop the ros to print out the value

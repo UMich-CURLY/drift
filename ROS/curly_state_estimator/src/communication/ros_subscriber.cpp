@@ -53,7 +53,7 @@ VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(
   // Keep the ownership of the data queue in this class
   vel_queue_list_.push_back(vel_queue_ptr);
 
-  return vel_queue_ptr;
+  return {vel_queue_ptr, mutex_list_.back()};
 };
 
 
