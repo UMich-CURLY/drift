@@ -51,7 +51,7 @@ void ROSPublisher::start_publishing_thread() {
 // Publishes pose
 void ROSPublisher::posePublish() {
   if (robot_state_queue_.empty()) {
-    std::cout << "pose queue is empty" << std::endl;
+    // std::cout << "pose queue is empty" << std::endl;
     return;
   }
 

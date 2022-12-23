@@ -2,18 +2,26 @@
 
 
 StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
-    : params_(params), error_type_(error_type) {
-  robot_state_queue_ptr_
-      = std::make_shared<RobotStateQueue>(robot_state_queue_);
-  robot_state_queue_mutex_ptr_ = std::make_shared<std::mutex>();
-}
+    : params_(params),
+      error_type_(error_type),
+      robot_state_queue_ptr_(new RobotStateQueue),
+      robot_state_queue_mutex_ptr_(new std::mutex) {}
 
 void StateEstimator::run_once() {
   propagation_.get()->Propagate(state_);
+  std::cout << "State Estimator After Propagation: "
+            << state_.get_position().transpose() << std::endl;
   for (auto correction : corrections_) {
     correction.get()->Correct(state_);
   }
-  robot_state_queue_.push(std::make_shared<RobotState>(state_));
+
+  std::cout << "State Estimator After Correction: "
+            << state_.get_position().transpose() << std::endl;
+  robot_state_queue_mutex_ptr_.get()->lock();
+  robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
+  std::cout << "State queue size: " << robot_state_queue_ptr_.get()->size()
+            << std::endl;
+  robot_state_queue_mutex_ptr_.get()->unlock();
 }
 
 RobotStateQueuePtr StateEstimator::get_robot_state_queue_ptr() {
@@ -30,9 +38,10 @@ const RobotState StateEstimator::get_state() const { return state_; }
 
 void StateEstimator::add_imu_propagation(
     IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const bool estimate_bias) {
-  propagation_ = std::make_shared<ImuPropagation>(
-      buffer_ptr, buffer_mutex_ptr, params_, error_type_, estimate_bias);
+    const bool estimate_bias, const std::vector<double>& imu2body) {
+  propagation_
+      = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr, params_,
+                                         error_type_, estimate_bias, imu2body);
 }
 
 void StateEstimator::add_kinematics_correction(
@@ -147,7 +156,7 @@ void StateEstimator::initStateByImuAndVelocity() {
   const IMUQueuePtr imu_queue_ptr
       = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();
   if (imu_queue_ptr.get()->empty()) {
-    std::cout << "IMU queue is empty, cannot initialize state" << std::endl;
+    // std::cout << "IMU queue is empty, cannot initialize state" << std::endl;
     return;
   }
   const ImuMeasurement<double>& imu_packet_in = *(imu_queue_ptr->front().get());
@@ -167,8 +176,8 @@ void StateEstimator::initStateByImuAndVelocity() {
           = velocity_correction_ptr.get()->get_sensor_data_buffer_ptr();
 
       if (velocity_queue_ptr.get()->empty()) {
-        std::cout << "Velocity queue is empty, cannot initialize state"
-                  << std::endl;
+        // std::cout << "Velocity queue is empty, cannot initialize state"
+        // << std::endl;
         return;
       }
       const VelocityMeasurement<double>& velocity_packet_in
