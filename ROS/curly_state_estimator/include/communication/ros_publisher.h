@@ -68,7 +68,7 @@ class ROSPublisher {
   void pathPublish();
 
   void posePublishingThread();
-  void posePublish(const RobotState& state);
+  void posePublish();
 };
 
 

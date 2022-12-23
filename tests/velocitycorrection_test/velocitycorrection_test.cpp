@@ -119,9 +119,19 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   velocity_data_buffer_ptr.get()->push(
       std::make_shared<VelocityMeasurement<double>>(velocity_measurement_3));
 
+  // std::mutex imu_buffer_mutex;
+  std::shared_ptr<std::mutex> imu_buffer_mutex_ptr(new std::mutex);
+  // = std::make_shared<std::mutex>(imu_buffer_mutex);
+
+  // std::mutex velocity_buffer_mutex;
+  std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
+  // = std::make_shared<std::mutex>(velocity_buffer_mutex);
+
   // Add propagation and correction methods
-  state_estimator.add_imu_propagation(imu_data_buffer_ptr, false);
+  state_estimator.add_imu_propagation(imu_data_buffer_ptr, imu_buffer_mutex_ptr,
+                                      false);
   state_estimator.add_velocity_correction(velocity_data_buffer_ptr,
+                                          velocity_buffer_mutex_ptr,
                                           measured_velocity_covariance);
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;

@@ -17,7 +17,7 @@ ROSSubscriber::~ROSSubscriber() {
 }
 
 
-IMUQueuePtr ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
+IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   // Create a new queue for data buffers
   IMUQueuePtr imu_queue_ptr(new IMUQueue);
 
@@ -33,10 +33,10 @@ IMUQueuePtr ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   // Keep the ownership of the data queue in this class
   imu_queue_list_.push_back(imu_queue_ptr);
 
-  return imu_queue_ptr;
+  return {imu_queue_ptr, mutex_list_.back()};
 }
 
-VelocityQueuePtr ROSSubscriber::add_differential_drive_velocity_subscriber(
+VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(
     const std::string topic_name) {
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);

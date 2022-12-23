@@ -39,14 +39,18 @@ class ImuPropagation : public Propagation {
    * @brief Constructor for the propagation class
    *
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
+   * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
+   * sensor data buffer
    * @param[in] params: Noise parameters for the propagation
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * @param[in] estimate_bias: Whether to estimate the bias
    * @param[in] imu2body: The transformation from imu frame to body frame
    * RightInvariant
    */
-  ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr, const NoiseParams& params,
-                 const ErrorType& error_type, const bool estimate_bias = true,
+  ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
+                 std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+                 const NoiseParams& params, const ErrorType& error_type,
+                 const bool estimate_bias = true,
                  const std::vector<double>& imu2body = {1, 0, 0, 0});
   /// @}
 
@@ -128,6 +132,7 @@ class ImuPropagation : public Propagation {
   const ErrorType error_type_;
   IMUQueuePtr sensor_data_buffer_ptr_;
   IMUQueue& sensor_data_buffer_;
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
   const Eigen::Matrix3d R_imu2body_;
 
   // IMU bias initialization related variables:

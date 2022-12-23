@@ -18,6 +18,7 @@
 #include <boost/circular_buffer.hpp>
 #include <iostream>
 #include <map>
+#include <mutex>
 #include <queue>
 #include <vector>
 #include "filter/noise_params.h"

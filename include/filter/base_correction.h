@@ -18,6 +18,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <queue>
 #include <vector>
 #include "filter/noise_params.h"
