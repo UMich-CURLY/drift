@@ -51,7 +51,8 @@ class ImuPropagation : public Propagation {
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                  const NoiseParams& params, const ErrorType& error_type,
                  const bool estimate_bias = true,
-                 const std::vector<double>& imu2body = {1, 0, 0, 0});
+                 const std::vector<double>& imu2body = {1, 0, 0, 0},
+                 const bool static_bias_initialization = true);
   /// @}
 
   /// @name Propagation
@@ -138,6 +139,7 @@ class ImuPropagation : public Propagation {
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();
   Eigen::Vector3d ba0_ = Eigen::Vector3d::Zero();
+  const bool estimate_bias_;
   bool static_bias_initialization_ = false;
   bool estimator_debug_enabled_ = false;
   bool use_imu_ori_est_init_bias_ = false;

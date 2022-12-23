@@ -11,15 +11,18 @@ ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const NoiseParams& params, const ErrorType& error_type,
-    const bool estimate_bias, const std::vector<double>& imu2body)
-    : Propagation::Propagation(params, estimate_bias),
+    const bool estimate_bias, const std::vector<double>& imu2body,
+    const bool static_bias_initialization)
+    : Propagation::Propagation(params),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
+      estimate_bias_(estimate_bias),
+      static_bias_initialization_(static_bias_initialization),
       R_imu2body_(compute_R_imu2body(imu2body)) {
   propagation_type_ = PropagationType::IMU;
-  init_bias_size_ = 0;
+  init_bias_size_ = 250;
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -39,8 +42,8 @@ void ImuPropagation::Propagate(RobotState& state) {
   sensor_data_buffer_.pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  double dt = imu_measurement.get_time() - t_prev_;
-  t_prev_ = imu_measurement.get_time();
+  double dt = imu_measurement.get_time() - state.get_time();
+  state.set_time(imu_measurement.get_time());
 
   Eigen::Vector3d w = imu_measurement.get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
