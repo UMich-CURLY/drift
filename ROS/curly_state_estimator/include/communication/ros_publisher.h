@@ -21,29 +21,29 @@
 #include <thread>
 #include <vector>
 
+#include <nav_msgs/Path.h>
 #include "boost/bind.hpp"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/JointState.h"
 
-#include "measurement/imu.h"
-#include "measurement/velocity.h"
+#include "state/robot_state.h"
 
-typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
-typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
-typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
+typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue;
+typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
 
 namespace ros_wrapper {
 class ROSPublisher {
  public:
-  ROSPublisher(ros::NodeHandle* nh);
+  ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue);
   ~ROSPublisher();
 
+  void start_publishing_thread();
 
  private:
   ros::NodeHandle* nh_;
+  RobotStateQueuePtr robot_sate_queue_ptr_;
+  RobotStateQueue& robot_state_queue_;
 
   bool thread_started_;
 
@@ -68,7 +68,7 @@ class ROSPublisher {
   void pathPublish();
 
   void posePublishingThread();
-  void posePublish();
+  void posePublish(const RobotState& state);
 };
 
 

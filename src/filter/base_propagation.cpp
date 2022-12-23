@@ -27,6 +27,11 @@ MeasurementQueuePtr Propagation::get_sensor_data_buffer_ptr() {
   return nullptr;
 }
 
+// Return propagation type
+const PropagationType Propagation::get_propagation_type() const {
+  return propagation_type_;
+}
+
 // Return noise params
 const NoiseParams Propagation::get_noise_params() const {
   return noise_params_;

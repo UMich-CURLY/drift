@@ -59,7 +59,7 @@ class Correction {
   /// @name Getters
   virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
-  CorrectionType get_correction_type();
+  const CorrectionType get_correction_type() const;
 
  protected:
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)

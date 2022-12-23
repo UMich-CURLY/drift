@@ -1,13 +1,17 @@
 #include "communication/ros_publisher.h"
 
 namespace ros_wrapper {
-ROSPublisher::ROSPublisher(ros::NodeHandle* nh)
-    : nh_(nh), thread_started_(false) {
+ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
+                           RobotStateQueuePtr& robot_state_queue_ptr)
+    : nh_(nh),
+      robot_sate_queue_ptr_(robot_state_queue_ptr),
+      robot_state_queue_(*robot_state_queue_ptr.get()),
+      thread_started_(false) {
   nh_.param<std::string>("/settings/pose_topic", pose_topic,
-                         "/husky/inekf_estimation/pose");
+                         "/robot/inekf_estimation/pose");
   nh_.param<std::string>("/settings/map_frame_id", pose_frame_, "/odom");
   nh.param<std::string>("/settings/path_topic", path_topic,
-                        "/husky/inekf_estimation/path");
+                        "/robot/inekf_estimation/path");
   nh_.param<double>("/settings/publish_rate", publish_rate_, 1000);
   nh_.param<uint32_t>("/settings/pose_skip", pose_skip_, 0);
   first_pose_ = {0, 0, 0};
@@ -18,11 +22,7 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh)
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);
-  path_pub_ = n_.advertise<nav_msgs::Path>(path_topic, 10);
-  this->pose_publishing_thread_
-      = std::thread([this] { this->posePublishingThread(); });
-  this->path_publishing_thread_
-      = std::thread([this] { this->pathPublishingThread(); });
+  path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
 }
 
 ROSPublisher::~ROSPublisher() {
@@ -33,29 +33,62 @@ ROSPublisher::~ROSPublisher() {
   poses_.clear();
 }
 
+void ROSPublisher::start_publishing_thread() {
+  this->pose_publishing_thread_
+      = std::thread([this] { this->posePublishingThread(); });
+  this->path_publishing_thread_
+      = std::thread([this] { this->pathPublishingThread(); });
+
+  thread_started_ = true;
+}
+
 // Publishes pose
-void ROSPublisher::posePublish(const husky_inekf::HuskyState& state_) {
-  // std::array<float,3> cur_pose = pose_from_csv_.front();
-  // pose_from_csv_.pop();
+void ROSPublisher::posePublish(const RobotState& state) {
+  const std::shared_ptr<RobotState> state_ptr = robot_state_queue_.front();
+  robot_state_queue_.pop();
+  const RobotState& state = *state_ptr.get();
 
   geometry_msgs::PoseWithCovarianceStamped pose_msg;
+  // Header msg
   pose_msg.header.seq = pose_seq_;
-  pose_msg.header.stamp = ros::Time::now();
+  int sec = int(state.get_time());
+  int nsec = (state.get_time() - sec) * 1e9;
+  pose_msg.header.stamp.sec = sec;
+  pose_msg.header.stamp.sec = nsec;
   pose_msg.header.frame_id = pose_frame_;
-  pose_msg.pose.pose.position.x = state_.x() - first_pose_[0];
-  pose_msg.pose.pose.position.y = state_.y() - first_pose_[1];
-  pose_msg.pose.pose.position.z = state_.z() - first_pose_[2];
-  pose_msg.pose.pose.orientation.w = state_.getQuaternion().w();
-  pose_msg.pose.pose.orientation.x = state_.getQuaternion().x();
-  pose_msg.pose.pose.orientation.y = state_.getQuaternion().y();
-  pose_msg.pose.pose.orientation.z = state_.getQuaternion().z();
+
+  // Pose msg
+  pose_msg.pose.pose.position.x
+      = state.get_world_position()(0) - first_pose_[0];
+  pose_msg.pose.pose.position.y
+      = state.get_world_position()(1) - first_pose_[1];
+  pose_msg.pose.pose.position.z
+      = state.get_world_position()(2) - first_pose_[2];
+
+  Eigen::Quaterniond quat(state.getworld_rotation());
+  pose_msg.pose.pose.orientation.w = quat(3);
+  pose_msg.pose.pose.orientation.x = quat(0);
+  pose_msg.pose.pose.orientation.y = quat(1);
+  pose_msg.pose.pose.orientation.z = quat(2);
+
+  // Covariance msg
+  Eigen::MatrixXd& cov = state.get_P();
+  // Get the 6x6 covariance matrix in the following order:
+  // (x, y, z, rotation about X axis, rotation about Y axis, rotation
+  // about Z axis)
+  for (int i = 0; i < 6; i++) {
+    for (int j = 0; j < 6; j++) {
+      pose_msg.pose.covariance[i * 6 + j] = cov(i, j);
+    }
+  }
+
   // std::cout<<"publishing: "<<pose_msg.pose.pose.position.x<<",
   // "<<pose_msg.pose.pose.position.y<<",
   // "<<pose_msg.pose.pose.position.z<<std::endl;
   pose_pub_.publish(pose_msg);
   pose_seq_++;
 
-  if (seq_ % pose_skip_ == 0) {
+  if (pose_seq_ % pose_skip_ == 0) {
     geometry_msgs::PoseStamped pose_stamped;
     pose_stamped.header = pose_msg.header;
     pose_stamped.pose = pose_msg.pose.pose;
@@ -80,7 +113,7 @@ void ROSPublisher::pathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
   nav_msgs::Path path_msg;
   path_msg.header.seq = path_seq_;
-  path_msg.header.stamp = ros::Time::now();
+  path_msg.header.stamp = poses.back().header.stamp;
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
   // std::cout<<"publishing current path:

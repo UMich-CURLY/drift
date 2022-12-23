@@ -211,7 +211,7 @@ class RobotState {
   /**
    * @brief Get timestamp of the state.
    *
-   * @return double timestamp: timestamp of the state.
+   * @return double t: timestamp of the state.
    */
   const double get_time() const;
 
