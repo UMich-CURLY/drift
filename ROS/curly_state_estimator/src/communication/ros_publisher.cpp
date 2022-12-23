@@ -2,10 +2,12 @@
 
 namespace ros_wrapper {
 ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
-                           RobotStateQueuePtr& robot_state_queue_ptr)
+                           RobotStateQueuePtr& robot_state_queue_ptr,
+                           std::shared_ptr<std::mutex> robot_state_queue_mutex)
     : nh_(nh),
       robot_sate_queue_ptr_(robot_state_queue_ptr),
       robot_state_queue_(*robot_state_queue_ptr.get()),
+      robot_state_queue_mutex_(robot_state_queue_mutex),
       thread_started_(false) {
   std::string pose_topic;
   std::string path_topic;
@@ -52,8 +54,13 @@ void ROSPublisher::posePublish() {
     std::cout << "pose queue is empty" << std::endl;
     return;
   }
+
+  // Get the first pose
+  robot_state_queue_mutex_.get()->lock();
   const std::shared_ptr<RobotState> state_ptr = robot_state_queue_.front();
   robot_state_queue_.pop();
+  robot_state_queue_mutex_.get()->unlock();
+
   const RobotState& state = *state_ptr.get();
 
   geometry_msgs::PoseWithCovarianceStamped pose_msg;

@@ -5,6 +5,7 @@ StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
     : params_(params), error_type_(error_type) {
   robot_state_queue_ptr_
       = std::make_shared<RobotStateQueue>(robot_state_queue_);
+  robot_state_queue_mutex_ptr_ = std::make_shared<std::mutex>();
 }
 
 void StateEstimator::run_once() {
@@ -17,6 +18,10 @@ void StateEstimator::run_once() {
 
 RobotStateQueuePtr StateEstimator::get_robot_state_queue_ptr() {
   return robot_state_queue_ptr_;
+}
+
+std::shared_ptr<std::mutex> StateEstimator::get_robot_state_queue_mutex_ptr() {
+  return robot_state_queue_mutex_ptr_;
 }
 
 void StateEstimator::set_state(RobotState& state) { state_ = state; }
