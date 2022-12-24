@@ -45,6 +45,7 @@ class ImuPropagation : public Propagation {
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * @param[in] estimate_bias: Whether to estimate the bias
    * @param[in] imu2body: The transformation from imu frame to body frame
+   * @param[in] static_bias_initialization: Whether to initialize the bias
    * RightInvariant
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
@@ -144,8 +145,8 @@ class ImuPropagation : public Propagation {
   bool estimator_debug_enabled_ = false;
   bool use_imu_ori_est_init_bias_ = false;
   bool bias_initialized_ = false;
-  int init_bias_size_ = 0;    // Number of IMU measurements to use for bias
-                              // initialization
+  int init_bias_size_;    // Number of IMU measurements to use for bias
+                          // initialization
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
       bias_init_vec_;

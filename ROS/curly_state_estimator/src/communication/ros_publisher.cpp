@@ -17,8 +17,8 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
   nh->param<std::string>("/settings/path_topic", path_topic,
                          "/robot/inekf_estimation/path");
   nh_->param<double>("/settings/pose_publish_rate", pose_publish_rate_, 1000);
-  nh_->param<double>("/settings/pose_publish_rate", path_publish_rate_, 1000);
-  nh_->param<int>("/settings/pose_skip", pose_skip_, 0);
+  nh_->param<double>("/settings/path_publish_rate", path_publish_rate_, 1000);
+  nh_->param<int>("/settings/pose_skip", pose_skip_, 1);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
@@ -97,9 +97,9 @@ void ROSPublisher::posePublish() {
     }
   }
 
-  // std::cout<<"publishing: "<<pose_msg.pose.pose.position.x<<",
-  // "<<pose_msg.pose.pose.position.y<<",
-  // "<<pose_msg.pose.pose.position.z<<std::endl;
+  std::cout << "pose publishing: " << pose_msg.pose.pose.position.x << ", "
+            << pose_msg.pose.pose.position.y << ", "
+            << pose_msg.pose.pose.position.z << std::endl;
   pose_pub_.publish(pose_msg);
   pose_seq_++;
 
