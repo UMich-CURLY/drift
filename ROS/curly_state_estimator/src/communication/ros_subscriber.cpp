@@ -87,8 +87,11 @@ void ROSSubscriber::imu_call_back(
       imu_msg->orientation.w, imu_msg->orientation.x, imu_msg->orientation.y,
       imu_msg->orientation.z);
 
-  std::lock_guard<std::mutex> lock(*mutex);
+  // std::lock_guard<std::mutex> lock(*mutex);
+  mutex.get()->lock();
   imu_queue->push(imu_measurement);
+  mutex.get()->unlock();
+  // std::cout << "mutex id: " << mutex.get() << std::endl;
 }
 
 void ROSSubscriber::differential_encoder2velocity_call_back(
@@ -122,6 +125,7 @@ void ROSSubscriber::ros_spin() {
   while (ros::ok()) {
     ros::spinOnce();
   }
+  // spinner_.spin();
 }
 
 }    // namespace ros_wrapper

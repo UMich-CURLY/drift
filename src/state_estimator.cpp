@@ -15,6 +15,7 @@ void StateEstimator::run_once() {
     correction.get()->Correct(state_);
   }
 
+  /// TODO: Don't publish if no new information is added
   std::cout << "State Estimator After Correction: "
             << state_.get_position().transpose() << std::endl;
   robot_state_queue_mutex_ptr_.get()->lock();

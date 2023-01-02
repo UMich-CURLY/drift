@@ -15,13 +15,9 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  auto q1_and_mutex = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
-  auto q1 = q1_and_mutex.first;
-  auto q2_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
-  auto q2 = q2_and_mutex.first;
-  auto qv_and_mutex
-      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
-  auto qv = qv_and_mutex.first;
+  auto q1 = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto q2 = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto qv = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
   ros_sub.start_subscribing_thread();
   // TODO: Create robot state system -- initialize all system threads
 
@@ -29,7 +25,7 @@ int main(int argc, char** argv) {
   while (ros::ok()) {
     // Step behavior
 
-    ros::spinOnce();
+    // ros::spinOnce();
   }
 
   std::cout << "q1 msg: " << std::endl;
