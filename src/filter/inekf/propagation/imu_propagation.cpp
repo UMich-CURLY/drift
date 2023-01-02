@@ -34,13 +34,22 @@ void ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
+
+  // std::cout << "mutex id in propagate: " <<
+  // sensor_data_buffer_mutex_ptr_.get()
+  //           << std::endl;
   sensor_data_buffer_mutex_ptr_.get()->lock();
+  // std::cout << "mutex unlocked? "
+  //           << sensor_data_buffer_mutex_ptr_.get()->try_lock() << std::endl;
   if (sensor_data_buffer_.empty()) {
+    sensor_data_buffer_mutex_ptr_.get()->unlock();
     return;
   }
+  std::cout << "imu buffer size: " << sensor_data_buffer_.size() << std::endl;
   auto imu_measurement = *(sensor_data_buffer_.front().get());
   sensor_data_buffer_.pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
+
 
   double dt = imu_measurement.get_time() - state.get_time();
   state.set_time(imu_measurement.get_time());
@@ -309,13 +318,14 @@ void ImuPropagation::InitImuBias() {
     return;
   }
 
-  if (sensor_data_buffer_.empty()) {
-    return;
-  }
 
   // Initialize bias based on imu orientation and static assumption
   if (bias_init_vec_.size() < init_bias_size_) {
     sensor_data_buffer_mutex_ptr_.get()->lock();
+    if (sensor_data_buffer_.empty()) {
+      sensor_data_buffer_mutex_ptr_.get()->unlock();
+      return;
+    }
     auto imu_measurement = *(sensor_data_buffer_.front().get());
     sensor_data_buffer_.pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();

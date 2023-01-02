@@ -73,8 +73,9 @@ class ROSSubscriber {
 
   bool thread_started_;
   std::thread subscribing_thread_;
-};
 
+  ros::MultiThreadedSpinner spinner_;
+};
 
 }    // namespace ros_wrapper
 
