@@ -34,6 +34,7 @@ void VelocityCorrection::Correct(RobotState& state) {
   // Get latest measurement:
   sensor_data_buffer_mutex_ptr_->lock();
   if (sensor_data_buffer_.empty()) {
+    sensor_data_buffer_mutex_ptr_->unlock();
     return;
   }
   const Eigen::Vector3d measured_velocity
