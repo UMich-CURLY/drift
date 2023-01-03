@@ -18,7 +18,7 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
                          "/robot/inekf_estimation/path");
   nh_->param<double>("/settings/pose_publish_rate", pose_publish_rate_, 1000);
   nh_->param<double>("/settings/path_publish_rate", path_publish_rate_, 1000);
-  nh_->param<int>("/settings/pose_skip", pose_skip_, 1);
+  nh_->param<int>("/settings/pose_skip", pose_skip_, 100);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
@@ -97,9 +97,6 @@ void ROSPublisher::posePublish() {
     }
   }
 
-  std::cout << "pose publishing: " << pose_msg.pose.pose.position.x << ", "
-            << pose_msg.pose.pose.position.y << ", "
-            << pose_msg.pose.pose.position.z << std::endl;
   pose_pub_.publish(pose_msg);
   pose_seq_++;
 
@@ -110,6 +107,7 @@ void ROSPublisher::posePublish() {
 
     std::lock_guard<std::mutex> lock(poses_mutex_);
     poses_.push_back(pose_stamped);
+    new_pose_ = true;
   }
 }
 
@@ -126,7 +124,7 @@ void ROSPublisher::posePublishingThread() {
 // Publishes path
 void ROSPublisher::pathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
-  if (poses_.size() == 0) {
+  if (poses_.size() == 0 || !new_pose_) {
     // std::cout << "path is empty" << std::endl;
     return;
   }
@@ -135,10 +133,11 @@ void ROSPublisher::pathPublish() {
   path_msg.header.stamp = poses_.back().header.stamp;
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
-  // std::cout<<"publishing current path:
-  // "<<path_msg.poses.back().pose.position.x<<",
-  // "<<path_msg.poses.back().pose.position.y<<",
-  // "<<path_msg.poses.back().pose.position.z<<std::endl;
+  new_pose_ = false;
+  std::cout << "publishing current path: "
+            << path_msg.poses.back().pose.position.x << ","
+            << path_msg.poses.back().pose.position.y << ","
+            << path_msg.poses.back().pose.position.z << std::endl;
 
   path_pub_.publish(path_msg);
   path_seq_++;
