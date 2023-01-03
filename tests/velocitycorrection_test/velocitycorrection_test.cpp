@@ -149,7 +149,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   expect_X.push_back(X);
 
   // Set initial state:
-  state_estimator.initStateByImuAndVelocity();
+  state_estimator.initStateFromImu();
   auto init_state = state_estimator.get_state().get_X();
   // Check initial state value:
   for (int j = 0; j < 5; j++) {
@@ -174,7 +174,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       std::cout << "------------------------------------------" << std::endl;
     } else {
       if (state_estimator.biasInitialized()) {
-        state_estimator.initStateByImuAndVelocity();
+        state_estimator.initStateFromImu();
         state_estimator.enableFilter();
       } else {
         state_estimator.initBias();
