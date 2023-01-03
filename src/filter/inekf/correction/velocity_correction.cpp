@@ -22,7 +22,7 @@ const VelocityQueuePtr VelocityCorrection::get_sensor_data_buffer_ptr() const {
 }
 
 // Correct using measured body velocity with the estimated velocity
-void VelocityCorrection::Correct(RobotState& state) {
+bool VelocityCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
@@ -35,12 +35,36 @@ void VelocityCorrection::Correct(RobotState& state) {
   sensor_data_buffer_mutex_ptr_->lock();
   if (sensor_data_buffer_.empty()) {
     sensor_data_buffer_mutex_ptr_->unlock();
-    return;
+    return false;
   }
-  const Eigen::Vector3d measured_velocity
-      = sensor_data_buffer_.front().get()->get_velocity();
+  auto measured_velocity = sensor_data_buffer_.front();
   sensor_data_buffer_.pop();
   sensor_data_buffer_mutex_ptr_->unlock();
+
+  double t_diff = measured_velocity->get_time() - state.get_propagate_time();
+  if (t_diff < -t_diff_thres_) {
+    while (t_diff < -t_diff_thres_) {
+      sensor_data_buffer_mutex_ptr_->lock();
+      measured_velocity = sensor_data_buffer_.front();
+      sensor_data_buffer_.pop();
+      sensor_data_buffer_mutex_ptr_->unlock();
+
+      t_diff = measured_velocity->get_time() - state.get_propagate_time();
+    }
+  } else if (t_diff > t_diff_thres_) {
+    std::cerr
+        << std::setprecision(20)
+        << "Measurement received in the velocity correction is way faster than "
+           "the last propagation time. Skipping this correction. Last "
+           "propagation time: "
+        << state.get_propagate_time()
+        << ", this measurement time: " << measured_velocity->get_time()
+        << ", time diff: " << t_diff << ", set threshold: " << t_diff_thres_
+        << std::endl;
+  }
+
+
+  state.set_time(measured_velocity->get_time());
 
   // Fill out Y
   // Y.conservativeResize(dimX, Eigen::NoChange);
@@ -75,11 +99,13 @@ void VelocityCorrection::Correct(RobotState& state) {
 
   int startIndex = Z.rows();
   Z.conservativeResize(startIndex + 3, Eigen::NoChange);
-  Z.segment(0, 3) = R * measured_velocity - v;
+  Z.segment(0, 3) = R * measured_velocity->get_velocity() - v;
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     CorrectRightInvariant(Z, H, N, state, error_type_);
   }
+
+  return true;
 }
 }    // namespace inekf

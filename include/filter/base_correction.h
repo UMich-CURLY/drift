@@ -13,14 +13,18 @@
 
 #ifndef FILTER_BASE_CORRECTION_H
 #define FILTER_BASE_CORRECTION_H
-#include <Eigen/Dense>
+
 #include <algorithm>
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <vector>
+
+#include <Eigen/Dense>
+
 #include "filter/noise_params.h"
 #include "filter/observations.h"
 #include "measurement/measurement.h"
@@ -53,8 +57,10 @@ class Correction {
    * implemented in the child class.
    *
    * @param[in/out] state: The current state of the robot
+   * @return bool: successfully correct state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
-  virtual void Correct(RobotState& state);
+  virtual bool Correct(RobotState& state);
   /// @}
 
   /// @name Getters
@@ -67,6 +73,8 @@ class Correction {
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
   CorrectionType correction_type_;
+  /// TODO: Move this to yaml
+  double t_diff_thres_ = 0.3;
 };    // class Correction
 
 // #include "../src/filter/base_correction.cpp"

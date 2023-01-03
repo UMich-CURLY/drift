@@ -108,6 +108,8 @@ RobotState::get_matrix_idx_map() const {
 
 const double RobotState::get_time() const { return t_; }
 
+const double RobotState::get_propagate_time() const { return t_prop_; }
+
 int RobotState::add_aug_state(std::string measurementType,
                               const Eigen::Vector3d& aug,
                               const Eigen::Matrix3d& cov) {
@@ -281,7 +283,10 @@ void RobotState::set_gyroscope_bias_covariance(const Eigen::Matrix3d& cov) {
 void RobotState::set_accelerometer_bias_covariance(const Eigen::Matrix3d& cov) {
   P_.block<3, 3>(12, 12) = cov;
 }
-void RobotState::set_time(const double& t) { t_ = t; }
+void RobotState::set_time(const double t) { t_ = t; }
+
+void RobotState::set_propagate_time(const double t) { t_prop_ = t; }
+
 
 void RobotState::add_aug_cov(const Eigen::Matrix3d& cov) {
   int dim = this->dimP();
