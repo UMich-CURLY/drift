@@ -9,19 +9,19 @@ StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
 
 void StateEstimator::run_once() {
   propagation_.get()->Propagate(state_);
-  std::cout << "State Estimator After Propagation: "
-            << state_.get_position().transpose() << std::endl;
+  // std::cout << "State Estimator After Propagation: "
+  //           << state_.get_position().transpose() << std::endl;
   for (auto correction : corrections_) {
     correction.get()->Correct(state_);
   }
 
   /// TODO: Don't publish if no new information is added
-  std::cout << "State Estimator After Correction: "
-            << state_.get_position().transpose() << std::endl;
+  // std::cout << "State Estimator After Correction: "
+  //           << state_.get_position().transpose() << std::endl;
   robot_state_queue_mutex_ptr_.get()->lock();
   robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
-  std::cout << "State queue size: " << robot_state_queue_ptr_.get()->size()
-            << std::endl;
+  // std::cout << "State queue size: " << robot_state_queue_ptr_.get()->size()
+  //           << std::endl;
   robot_state_queue_mutex_ptr_.get()->unlock();
 }
 

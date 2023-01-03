@@ -68,8 +68,6 @@ int main(int argc, char** argv) {
     // i++;
     if (state_estimator.enabled()) {
       state_estimator.run_once();
-      std::cout << "In example test, state queue size: "
-                << robot_state_queue_ptr.get()->size() << std::endl;
     } else {
       if (state_estimator.biasInitialized()) {
         state_estimator.initStateByImuAndVelocity();
