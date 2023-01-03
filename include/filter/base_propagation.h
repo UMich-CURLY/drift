@@ -56,8 +56,10 @@ class Propagation {
    * implemented in the child class.
    *
    * @param[in/out] state: The current state of the robot
+   * @return bool: successfully propagate state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
-  virtual void Propagate(RobotState& state);
+  virtual bool Propagate(RobotState& state);
   /// @}
 
   /// @name Getters

@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Ross Hartley
+ * Copyright 2022, Tingjun Li, Tzu-Yuan Lin, Ross Hartley
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   velocity_correction.h
- *  @author Tingjun Li, Ross Hartley
+ *  @author Tingjun Li, Tzu-Yuan Lin, Ross Hartley
  *  @brief  Header file for Invariant EKF velocity correction method
  *  @date   November 25, 2022
  **/
@@ -41,6 +41,8 @@ class VelocityCorrection : public Correction {
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] covariance: Covariance of the velocity measurement
+   * @return bool: successfully correct state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
@@ -57,9 +59,10 @@ class VelocityCorrection : public Correction {
    *
    * @param[in/out] state: the current state estimate
    *
-   * @return None
+   * @return bool: successfully correct state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
-  void Correct(RobotState& state);
+  bool Correct(RobotState& state);
   /// @}
 
   /// @name Getters

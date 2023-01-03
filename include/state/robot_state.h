@@ -216,6 +216,13 @@ class RobotState {
   const double get_time() const;
 
   /**
+   * @brief Get timestamp of the state propagation.
+   *
+   * @return double t: timestamp of the state propagation.
+   */
+  const double get_propagate_time() const;
+
+  /**
    * @brief Add the augmented state to the last of the certain(idx_map-th)
    * mapping in the idx_maps_ vector.
    *
@@ -399,7 +406,14 @@ class RobotState {
    *
    * @param[in] t: timestamp of the state
    */
-  void set_time(const double& t);
+  void set_time(const double t);
+
+  /**
+   * @brief Set timestamp of the state propagation.
+   *
+   * @param[in] t: timestamp of the state propagation.
+   */
+  void set_propagate_time(const double t);
 
   /**
    * @brief add the Gyroscope Bias vector baug to the end of the mapping.
@@ -536,6 +550,7 @@ class RobotState {
   Eigen::MatrixXd P_;
   std::vector<std::map<int, int>> idx_maps_;
   double t_;
+  double t_prop_;
 };
 
 #endif

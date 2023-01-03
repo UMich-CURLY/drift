@@ -107,7 +107,6 @@ void ROSPublisher::posePublish() {
 
     std::lock_guard<std::mutex> lock(poses_mutex_);
     poses_.push_back(pose_stamped);
-    new_pose_ = true;
   }
 }
 
@@ -124,7 +123,7 @@ void ROSPublisher::posePublishingThread() {
 // Publishes path
 void ROSPublisher::pathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
-  if (poses_.size() == 0 || !new_pose_) {
+  if (poses_.size() == 0) {
     // std::cout << "path is empty" << std::endl;
     return;
   }
@@ -133,7 +132,6 @@ void ROSPublisher::pathPublish() {
   path_msg.header.stamp = poses_.back().header.stamp;
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
-  new_pose_ = false;
   std::cout << "publishing current path: "
             << path_msg.poses.back().pose.position.x << ","
             << path_msg.poses.back().pose.position.y << ","

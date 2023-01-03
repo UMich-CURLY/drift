@@ -179,6 +179,7 @@ class StateEstimator {
   std::vector<aug_map_t> aug_maps;
   std::shared_ptr<Propagation> propagation_;
   bool enabled_ = false;
+  bool new_pose_ready_ = false;
   RobotStateQueuePtr robot_state_queue_ptr_;
   std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_;
 };    // class StateEstimator

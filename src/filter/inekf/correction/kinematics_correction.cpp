@@ -25,7 +25,7 @@ const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()
 }
 
 // Correct state using kinematics measured between body frame and contact point
-void KinematicsCorrection::Correct(RobotState& state) {
+bool KinematicsCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
@@ -219,5 +219,7 @@ void KinematicsCorrection::Correct(RobotState& state) {
       aug_id_to_column_id_[it->id] = aug_idx;
     }
   }
+
+  return true;
 }
 }    // namespace inekf
