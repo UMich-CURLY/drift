@@ -151,7 +151,7 @@ void StateEstimator::initBias() {
 //   enabled_ = true;
 // }
 
-void StateEstimator::initStateByImuAndVelocity() {
+void StateEstimator::initStateFromImu() {
   /// TODO: Implement clear filter
   // Clear filter
   this->clear();
@@ -161,12 +161,21 @@ void StateEstimator::initStateByImuAndVelocity() {
       = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
   const IMUQueuePtr imu_queue_ptr
       = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();
+
+  std::cout << "Before lock" << std::endl;
+  std::cout << imu_propagation_ptr.get()->get_mutex_ptr().get() << std::endl;
+  imu_propagation_ptr.get()->get_mutex_ptr()->lock();
+  std::cout << "After lock" << std::endl;
+
   if (imu_queue_ptr.get()->empty()) {
+    imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
     // std::cout << "IMU queue is empty, cannot initialize state" << std::endl;
     return;
   }
   const ImuMeasurement<double>& imu_packet_in = *(imu_queue_ptr->front().get());
-  // imu_queue_ptr->pop();
+  imu_queue_ptr->pop();
+  imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
+
   Eigen::Quaternion<double> quat = imu_packet_in.get_quaternion();
   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
   // VectorNav estimate
@@ -181,14 +190,18 @@ void StateEstimator::initStateByImuAndVelocity() {
       const VelocityQueuePtr velocity_queue_ptr
           = velocity_correction_ptr.get()->get_sensor_data_buffer_ptr();
 
+      velocity_correction_ptr.get()->get_mutex_ptr()->lock();
       if (velocity_queue_ptr.get()->empty()) {
         // std::cout << "Velocity queue is empty, cannot initialize state"
+        velocity_correction_ptr.get()->get_mutex_ptr()->unlock();
         // << std::endl;
         return;
       }
       const VelocityMeasurement<double>& velocity_packet_in
           = *(velocity_queue_ptr->front().get());
-      // velocity_queue_ptr->pop();
+      velocity_queue_ptr->pop();
+      velocity_correction_ptr.get()->get_mutex_ptr()->unlock();
+
       v0_body = velocity_packet_in.get_velocity();
       break;
     }
@@ -224,6 +237,7 @@ void StateEstimator::initStateByImuAndVelocity() {
   // Set enabled flag
   double t_prev = imu_packet_in.get_time();
   state_.set_time(t_prev);
+  state_.set_propagate_time(t_prev);
   enabled_ = true;
 }
 

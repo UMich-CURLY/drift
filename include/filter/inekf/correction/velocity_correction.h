@@ -74,7 +74,6 @@ class VelocityCorrection : public Correction {
   const ErrorType error_type_;
   VelocityQueuePtr sensor_data_buffer_ptr_;
   VelocityQueue& sensor_data_buffer_;
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
   const Eigen::Matrix3d& covariance_;
 };
 

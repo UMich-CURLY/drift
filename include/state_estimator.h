@@ -150,7 +150,7 @@ class StateEstimator {
   const bool biasInitialized() const;
 
   // ======================================================================
-  void initStateByImuAndVelocity();
+  void initStateFromImu();
 
   // ======================================================================
   /**
