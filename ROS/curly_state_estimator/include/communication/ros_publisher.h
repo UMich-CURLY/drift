@@ -52,6 +52,7 @@ class ROSPublisher {
   ros::Publisher pose_pub_;
   std::string pose_frame_;
   uint32_t pose_seq_ = 0;
+  bool new_pose_ = false;
   double pose_publish_rate_;
   std::thread pose_publishing_thread_;
 

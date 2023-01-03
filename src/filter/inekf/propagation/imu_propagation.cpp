@@ -45,7 +45,8 @@ void ImuPropagation::Propagate(RobotState& state) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return;
   }
-  std::cout << "imu buffer size: " << sensor_data_buffer_.size() << std::endl;
+  // std::cout << "imu buffer size: " << sensor_data_buffer_.size() <<
+  // std::endl;
   auto imu_measurement = *(sensor_data_buffer_.front().get());
   sensor_data_buffer_.pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
