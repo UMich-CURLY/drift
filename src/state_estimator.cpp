@@ -162,10 +162,7 @@ void StateEstimator::initStateFromImu() {
   const IMUQueuePtr imu_queue_ptr
       = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();
 
-  std::cout << "Before lock" << std::endl;
-  std::cout << imu_propagation_ptr.get()->get_mutex_ptr().get() << std::endl;
   imu_propagation_ptr.get()->get_mutex_ptr()->lock();
-  std::cout << "After lock" << std::endl;
 
   if (imu_queue_ptr.get()->empty()) {
     imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
