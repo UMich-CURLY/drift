@@ -46,6 +46,8 @@ class KinematicsCorrection : public Correction {
    * @param[in] aug_map_type: Type of the augmented states in this correction
    * method. For example, one can use "contact" to indicate the augment state in
    * this correction method are contact positions
+   * @return bool: successfully correct state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
   KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
                        std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
@@ -64,9 +66,10 @@ class KinematicsCorrection : public Correction {
    * right-invariant measurement model.
    *
    * @param[in/out] state: the current state estimate
-   * @return None
+   * @return bool: successfully correct state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
-  void Correct(RobotState& state);
+  bool Correct(RobotState& state);
   /// @}
 
   /// @name Getters

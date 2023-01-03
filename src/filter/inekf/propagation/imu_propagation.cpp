@@ -30,7 +30,7 @@ const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
 }
 
 // IMU propagation method
-void ImuPropagation::Propagate(RobotState& state) {
+bool ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
@@ -43,7 +43,7 @@ void ImuPropagation::Propagate(RobotState& state) {
   //           << sensor_data_buffer_mutex_ptr_.get()->try_lock() << std::endl;
   if (sensor_data_buffer_.empty()) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
-    return;
+    return false;
   }
   // std::cout << "imu buffer size: " << sensor_data_buffer_.size() <<
   // std::endl;
@@ -52,14 +52,20 @@ void ImuPropagation::Propagate(RobotState& state) {
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
 
-  double dt = imu_measurement.get_time() - state.get_time();
+  double dt = imu_measurement.get_time() - state.get_propagate_time();
   state.set_time(imu_measurement.get_time());
+  state.set_propagate_time(imu_measurement.get_time());
 
   Eigen::Vector3d w = imu_measurement.get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
+
   Eigen::Vector3d a
       = imu_measurement.get_lin_acc()
         - state.get_accelerometer_bias();    // Linear Acceleration
+
+  // Rotate imu frame to align it with the body frame:
+  w = R_imu2body_ * w;
+  a = R_imu2body_ * a;
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -118,6 +124,8 @@ void ImuPropagation::Propagate(RobotState& state) {
   //  ------------ Update State --------------- //
   state.set_X(X_pred);
   state.set_P(P_pred);
+
+  return true;
 }
 
 // Compute Analytical state transition matrix
@@ -333,6 +341,10 @@ void ImuPropagation::InitImuBias() {
 
     Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity
     Eigen::Vector3d a = imu_measurement.get_lin_acc();    // Linear Acceleration
+
+    // Rotate imu frame to align it with the body frame:
+    w = R_imu2body_ * w;
+    a = R_imu2body_ * a;
 
     Eigen::Quaternion<double> quat = imu_measurement.get_quaternion();
     Eigen::Matrix3d R;

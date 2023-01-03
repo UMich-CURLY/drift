@@ -10,8 +10,9 @@ Correction::Correction()
   correction_type_ = CorrectionType::BASE;
 }
 
-void Correction::Correct(RobotState& state) {
+bool Correction::Correct(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
+  return false;
 }
 
 MeasurementQueuePtr Correction::get_sensor_data_buffer_ptr() { return nullptr; }

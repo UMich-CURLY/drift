@@ -67,9 +67,10 @@ class ImuPropagation : public Propagation {
    * right invariant error.
    *
    * @param[in/out] state: state of the robot
-   * @return None
+   * @return bool: successfully propagate state or not (if we do not receive a
+   * new message and this method is called it'll return false.)
    */
-  void Propagate(RobotState& state);
+  bool Propagate(RobotState& state);
   /// @} End of Propagation
 
   /// @name Getters

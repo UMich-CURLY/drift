@@ -15,7 +15,7 @@ Propagation::Propagation(const NoiseParams& params)
 }
 
 // Base method for propagation
-void Propagation::Propagate(RobotState& state) {
+bool Propagation::Propagate(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
 }
 
