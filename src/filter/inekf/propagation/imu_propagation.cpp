@@ -13,9 +13,8 @@ ImuPropagation::ImuPropagation(
     const NoiseParams& params, const ErrorType& error_type,
     const bool estimate_bias, const std::vector<double>& imu2body,
     const bool static_bias_initialization)
-    : Propagation::Propagation(params),
+    : Propagation::Propagation(params, sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       estimate_bias_(estimate_bias),

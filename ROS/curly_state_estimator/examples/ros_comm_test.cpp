@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
       state_estimator.run_once();
     } else {
       if (state_estimator.biasInitialized()) {
-        state_estimator.initStateByImuAndVelocity();
+        state_estimator.initStateFromImu();
       } else {
         state_estimator.initBias();
       }

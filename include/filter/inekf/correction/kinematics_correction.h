@@ -88,7 +88,6 @@ class KinematicsCorrection : public Correction {
   std::unordered_map<int, int> aug_id_to_column_id_;
   KinematicsQueuePtr sensor_data_buffer_ptr_;
   KinematicsQueue& sensor_data_buffer_;
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 

@@ -8,9 +8,8 @@ VelocityCorrection::VelocityCorrection(
     VelocityQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const Eigen::Matrix3d& covariance)
-    : Correction::Correction(),
+    : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       covariance_(covariance) {

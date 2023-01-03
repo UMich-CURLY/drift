@@ -12,11 +12,11 @@ KinematicsCorrection::KinematicsCorrection(
     const ErrorType& error_type, const std::string& aug_type)
     : Correction::Correction(),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       aug_type_(aug_type) {
   correction_type_ = CorrectionType::KINEMATICS;
+  sensor_data_buffer_mutex_ptr_ = sensor_data_buffer_mutex_ptr;
 }
 
 const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()

@@ -49,6 +49,14 @@ class Correction {
    */
   Correction();
 
+  /**
+   * @brief Construct a new Correction object with mutex
+   *
+   * @param[in] sensor_data_buffer_mutex_ptr: a pointer to the mutex of the
+   * sensor data buffer
+   */
+  Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+
   /// @name Correction
   /// @{
   // ======================================================================
@@ -68,6 +76,8 @@ class Correction {
 
   const CorrectionType get_correction_type() const;
 
+  std::shared_ptr<std::mutex> get_mutex_ptr();
+
  protected:
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
@@ -75,6 +85,7 @@ class Correction {
   CorrectionType correction_type_;
   /// TODO: Move this to yaml
   double t_diff_thres_ = 0.3;
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
 };    // class Correction
 
 // #include "../src/filter/base_correction.cpp"

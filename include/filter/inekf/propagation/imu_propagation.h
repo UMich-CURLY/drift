@@ -135,7 +135,6 @@ class ImuPropagation : public Propagation {
   const ErrorType error_type_;
   IMUQueuePtr sensor_data_buffer_ptr_;
   IMUQueue& sensor_data_buffer_;
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
   const Eigen::Matrix3d R_imu2body_;
 
   // IMU bias initialization related variables:

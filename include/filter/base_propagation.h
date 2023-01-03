@@ -48,6 +48,16 @@ class Propagation {
   /// @}
   Propagation(const NoiseParams& params);
 
+  /**
+   * @brief Construct a new Propagation object with mutex
+   *
+   * @param[in] params: The noise parameter for propagation
+   * @param[in] sensor_data_buffer_mutex_ptr: a pointer to the mutex of the
+   * sensor data buffer
+   */
+  Propagation(const NoiseParams& params,
+              std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+
   /// @name Propagation
   /// @{
   // ======================================================================
@@ -78,12 +88,16 @@ class Propagation {
 
   const PropagationType get_propagation_type() const;
 
+  std::shared_ptr<std::mutex> get_mutex_ptr();
+
+
  protected:
   const NoiseParams noise_params_;
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
   PropagationType propagation_type_;
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
 };    // End of class Propagation
 
 
