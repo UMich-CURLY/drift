@@ -11,14 +11,17 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
       thread_started_(false) {
   std::string pose_topic;
   std::string path_topic;
-  nh_->param<std::string>("/settings/pose_topic", pose_topic,
+  nh_->param<std::string>("/curly_state_est_settings/pose_topic", pose_topic,
                           "/robot/inekf_estimation/pose");
-  nh_->param<std::string>("/settings/map_frame_id", pose_frame_, "/odom");
-  nh->param<std::string>("/settings/path_topic", path_topic,
+  nh_->param<std::string>("/curly_state_est_settings/map_frame_id", pose_frame_,
+                          "/odom");
+  nh->param<std::string>("/curly_state_est_settings/path_topic", path_topic,
                          "/robot/inekf_estimation/path");
-  nh_->param<double>("/settings/pose_publish_rate", pose_publish_rate_, 1000);
-  nh_->param<double>("/settings/path_publish_rate", path_publish_rate_, 1000);
-  nh_->param<int>("/settings/pose_skip", pose_skip_, 1);
+  nh_->param<double>("/curly_state_est_settings/pose_publish_rate",
+                     pose_publish_rate_, 1000);
+  nh_->param<double>("/curly_state_est_settings/path_publish_rate",
+                     path_publish_rate_, 1000);
+  nh_->param<int>("/curly_state_est_settings/pose_skip", pose_skip_, 1);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
@@ -69,7 +72,7 @@ void ROSPublisher::posePublish() {
   int sec = int(state.get_time());
   int nsec = (state.get_time() - sec) * 1e9;
   pose_msg.header.stamp.sec = sec;
-  pose_msg.header.stamp.sec = nsec;
+  pose_msg.header.stamp.nsec = nsec;
   pose_msg.header.frame_id = pose_frame_;
 
   // Pose msg
