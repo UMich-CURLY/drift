@@ -29,6 +29,7 @@ Propagation::Propagation(
 // Base method for propagation
 bool Propagation::Propagate(RobotState& state) {
   // Just a skeleton, to be implemented in the child class
+  return false;
 }
 
 // Return measurement queue
