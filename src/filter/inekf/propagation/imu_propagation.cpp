@@ -33,23 +33,14 @@ bool ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   /// TODO: double check :
-
-  // std::cout << "mutex id in propagate: " <<
-  // sensor_data_buffer_mutex_ptr_.get()
-  //           << std::endl;
   sensor_data_buffer_mutex_ptr_.get()->lock();
-  // std::cout << "mutex unlocked? "
-  //           << sensor_data_buffer_mutex_ptr_.get()->try_lock() << std::endl;
   if (sensor_data_buffer_.empty()) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
-  // std::cout << "imu buffer size: " << sensor_data_buffer_.size() <<
-  // std::endl;
   auto imu_measurement = *(sensor_data_buffer_.front().get());
   sensor_data_buffer_.pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
-
 
   double dt = imu_measurement.get_time() - state.get_propagate_time();
   state.set_time(imu_measurement.get_time());

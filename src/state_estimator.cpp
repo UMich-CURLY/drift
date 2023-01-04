@@ -8,23 +8,20 @@ StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
 void StateEstimator::run_once() {
+  // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
-  // std::cout << "State Estimator After Propagation: "
-  //           << state_.get_position().transpose() << std::endl;
+
+  // Correct
   for (auto& correction : corrections_) {
     if (correction.get()->Correct(state_)) {
       new_pose_ready_ = true;
     }
   }
 
-  /// TODO: Don't publish if no new information is added
-  // std::cout << "State Estimator After Correction: "
-  //           << state_.get_position().transpose() << std::endl;
+  // Publish when new information is added
   if (new_pose_ready_) {
     robot_state_queue_mutex_ptr_.get()->lock();
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
-    // std::cout << "State queue size: " << robot_state_queue_ptr_.get()->size()
-    //           << std::endl;
     robot_state_queue_mutex_ptr_.get()->unlock();
   }
   new_pose_ready_ = false;
@@ -90,67 +87,6 @@ void StateEstimator::initBias() {
   imu_propagation_ptr.get()->InitImuBias();
 }
 
-// void BodyEstimator::initState(
-//     const ImuMeasurement<double>& imu_packet_in,
-//     const JointStateMeasurement& joint_state_packet_in, HuskyState& state) {
-//   // Clear filter
-//   // filter_.clear();
-
-//   // Initialize state mean
-//   Eigen::Quaternion<double> quat(
-//       imu_packet_in.orientation.w, imu_packet_in.orientation.x,
-//       imu_packet_in.orientation.y, imu_packet_in.orientation.z);
-//   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
-//   // VectorNav estimate
-//   Eigen::Matrix3d R0;
-
-//   if (use_imu_ori_est_init_bias_) {
-//     R0 = quat.toRotationMatrix();
-//   } else {
-//     R0 = Eigen::Matrix3d::Identity();
-//   }
-
-//   Eigen::Vector3d v0_body = joint_state_packet_in.getBodyLinearVelocity();
-//   Eigen::Vector3d v0 = R0 * v0_body;    // initial velocity
-
-//   // Eigen::Vector3d v0 = {0.0,0.0,0.0};
-//   Eigen::Vector3d p0
-//       = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world
-//   frame
-
-//       inekf::RobotState initial_state;
-//   initial_state.setRotation(R0);
-//   initial_state.setVelocity(v0);
-//   initial_state.setPosition(p0);
-//   initial_state.setGyroscopeBias(bg0_);
-//   initial_state.setAccelerometerBias(ba0_);
-
-//   // Initialize state covariance
-//   initial_state.setRotationCovariance(0.03 * Eigen::Matrix3d::Identity());
-//   initial_state.setVelocityCovariance(0.01 * Eigen::Matrix3d::Identity());
-//   initial_state.setPositionCovariance(0.00001 * Eigen::Matrix3d::Identity());
-//   initial_state.setGyroscopeBiasCovariance(0.0001
-//                                            * Eigen::Matrix3d::Identity());
-//   initial_state.setAccelerometerBiasCovariance(0.0025
-//                                                * Eigen::Matrix3d::Identity());
-
-//   filter_.setState(initial_state);
-//   std::cout << "Robot's state mean is initialized to: \n";
-//   std::cout << filter_.getState() << std::endl;
-//   std::cout << "Robot's state covariance is initialized to: \n";
-//   std::cout << filter_.getState().getP() << std::endl;
-
-//   // Set enabled flag
-//   t_prev_ = imu_packet_in.getTime();
-//   state.setTime(t_prev_);
-//   imu_prev_ << imu_packet_in.angular_velocity.x,
-//       imu_packet_in.angular_velocity.y, imu_packet_in.angular_velocity.z;
-//   imu_packet_in.linear_acceleration.x, imu_packet_in.linear_acceleration.y,
-//       imu_packet_in.linear_acceleration.z;
-
-//   enabled_ = true;
-// }
-
 void StateEstimator::initStateFromImu() {
   /// TODO: Implement clear filter
   // Clear filter
@@ -164,9 +100,9 @@ void StateEstimator::initStateFromImu() {
 
   imu_propagation_ptr.get()->get_mutex_ptr()->lock();
 
+  // Don't initialize if IMU queue is empty
   if (imu_queue_ptr.get()->empty()) {
     imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
-    // std::cout << "IMU queue is empty, cannot initialize state" << std::endl;
     return;
   }
   const ImuMeasurement<double>& imu_packet_in = *(imu_queue_ptr->front().get());
