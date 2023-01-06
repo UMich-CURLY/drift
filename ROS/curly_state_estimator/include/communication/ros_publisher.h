@@ -7,7 +7,7 @@
 /**
  *  @file   ros_publisher.h
  *  @author Tingjun Li
- *  @brief  Header file for ROS subscriber class
+ *  @brief  Header file for ROS publisher class
  *  @date   December 20, 2022
  **/
 

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Ross Hartley
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */

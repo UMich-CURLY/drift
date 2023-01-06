@@ -1,3 +1,16 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   velocity_correction.cpp
+ *  @author Tingjun Li, Tzu-Yuan Lin
+ *  @brief  Source file for Invariant EKF velocity correction method
+ *  @date   November 25, 2022
+ **/
+
 #include "filter/inekf/correction/velocity_correction.h"
 
 namespace inekf {
