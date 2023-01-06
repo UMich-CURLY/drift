@@ -1,13 +1,19 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Ross Hartley
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   imu_propagation.h
- *  @author Tingjun Li, Ross Hartley
+ *  @author Tingjun Li
  *  @brief  Header file for Invariant EKF imu propagation method
+ *  Part of the code is modified from Ross Hartley's work:
+ *  Paper:
+ *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
+ *  Github repo:
+ *  https://github.com/RossHartley/invariant-ekf
+ *
  *  @date   November 25, 2022
  **/
 

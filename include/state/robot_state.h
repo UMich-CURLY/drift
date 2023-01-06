@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Ross Hartley, Wenzhe Tong
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   robot_state.h
- *  @author Ross Hartley, Wenzhe Tong
+ *  @author Wenzhe Tong
  *  @brief  Header file for robot state
  *  @date   November 1, 2022
  **/
