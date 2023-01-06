@@ -14,12 +14,17 @@ option(BUILD_DOC "Build Doxygen documents" ON)
 # #################################################
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
+message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
+message("Boost include dir: ${Boost_INCLUDE_DIRS}")
+message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 # #################################################
 # Include Packages                #
 # #################################################
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
+include_directories(${YAML_CPP_INCLUDE_DIR})
 include(FetchContent)
 
 # #################################################

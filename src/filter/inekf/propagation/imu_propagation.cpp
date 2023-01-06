@@ -11,17 +11,77 @@ ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const NoiseParams& params, const ErrorType& error_type,
-    const bool estimate_bias, const std::vector<double>& imu2body,
-    const bool static_bias_initialization)
+    const std::string& yaml_filepath)
     : Propagation::Propagation(params, sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
-      error_type_(error_type),
-      estimate_bias_(estimate_bias),
-      static_bias_initialization_(static_bias_initialization),
-      R_imu2body_(compute_R_imu2body(imu2body)) {
+      error_type_(error_type) {
   propagation_type_ = PropagationType::IMU;
-  init_bias_size_ = 250;
+
+  cout << "Loading imu propagation config from " << yaml_filepath << endl;
+  YAML::Node config_ = YAML::LoadFile(yaml_filepath);
+
+  // Setting config parameters
+  static_bias_initialization_
+      = config_["settings"]["static_bias_initialization"]
+            ? config_["settings"]["static_bias_initialization"].as<bool>()
+            : true;
+
+  estimate_bias_ = config_["settings"]["enable_bias_update"]
+                       ? config_["settings"]["enable_bias_update"].as<bool>()
+                       : true;
+
+  init_bias_size_ = config_["settings"]["init_bias_size"]
+                        ? config_["settings"]["init_bias_size"].as<int>()
+                        : 250;
+  use_imu_ori_est_init_bias_
+      = config_["settings"]["use_imu_ori_est_init_bias"]
+            ? config_["settings"]["use_imu_ori_est_init_bias"].as<bool>()
+            : false;
+
+  // Set the imu to body rotation
+  const std::vector<double> quat_imu2body
+      = config_["settings"]["rotation_imu2body"]
+            ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
+            : std::vector<double>({1, 0, 0, 0});
+  R_imu2body_ = compute_R_imu2body(quat_imu2body);
+
+  // Set the noise parameters
+  double gyro_std = config_["noises"]["gyroscope_std"]
+                        ? config_["noises"]["gyroscope_std"].as<double>()
+                        : 0.1;
+  double accel_std = config_["noises"]["accelerometer_std"]
+                         ? config_["noises"]["accelerometer_std"].as<double>()
+                         : 0.1;
+  double gyro_bias_std
+      = config_["noises"]["gyroscope_bias_std"]
+            ? config_["noises"]["gyroscope_bias_std"].as<double>()
+            : 0.1;
+  double accel_bias_std
+      = config_["noises"]["accelerometer_bias_std"]
+            ? config_["noises"]["accelerometer_bias_std"].as<double>()
+            : 0.1;
+
+  gyro_cov_ = gyro_std * gyro_std * Eigen::Matrix<double, 3, 3>::Identity();
+  gyro_bias_cov_
+      = gyro_bias_std * gyro_bias_std * Eigen::Matrix<double, 3, 3>::Identity();
+  accel_cov_ = accel_std * accel_std * Eigen::Matrix<double, 3, 3>::Identity();
+  accel_bias_cov_ = accel_bias_std * accel_bias_std
+                    * Eigen::Matrix<double, 3, 3>::Identity();
+
+  // Set the initial bias
+  std::vector<double> gyroscope_bias
+      = config_["priors"]["gyroscope_bias"]
+            ? config_["priors"]["gyroscope_bias"].as<std::vector<double>>()
+            : std::vector<double>({0, 0, 0});
+  bg0_ = Eigen::Vector3d(gyroscope_bias[0], gyroscope_bias[1],
+                         gyroscope_bias[2]);
+
+  std::vector<double> accelerometer_bias
+      = config_["priors"]["accelerometer_bias"]
+            ? config_["priors"]["accelerometer_bias"].as<std::vector<double>>()
+            : std::vector<double>({0, 0, 0});
+  ba0_ = Eigen::Vector3d(accelerometer_bias[0], accelerometer_bias[1],
+                         accelerometer_bias[2]);
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -34,12 +94,12 @@ bool ImuPropagation::Propagate(RobotState& state) {
 
   /// TODO: double check :
   sensor_data_buffer_mutex_ptr_.get()->lock();
-  if (sensor_data_buffer_.empty()) {
+  if (sensor_data_buffer_ptr_->empty()) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
-  auto imu_measurement = *(sensor_data_buffer_.front().get());
-  sensor_data_buffer_.pop();
+  auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+  sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
   double dt = imu_measurement.get_time() - state.get_propagate_time();
@@ -283,22 +343,20 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   // Continuous noise covariance
   Eigen::MatrixXd Qc = Eigen::MatrixXd::Zero(
       dimP, dimP);    // Landmark noise terms will remain zero
-  Qc.block<3, 3>(0, 0) = noise_params_.get_gyroscope_cov();
-  Qc.block<3, 3>(3, 3) = noise_params_.get_accelerometer_cov();
+  Qc.block<3, 3>(0, 0) = gyro_cov_;
+  Qc.block<3, 3>(3, 3) = accel_cov_;
 
   /// TODO: make sure contact covariance is in the euclidean space
-  for (auto& column_id_to_aug_type : *(state.get_matrix_idx_map().get())) {
-    Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
-                   3 + 3 * (column_id_to_aug_type.first - 3))
-        = noise_params_.get_augment_cov(
-            column_id_to_aug_type.second);    // Augment state noise terms
-  }
+  // for (auto& column_id_to_aug_type : *(state.get_matrix_idx_map().get())) {
+  //   Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
+  //                  3 + 3 * (column_id_to_aug_type.first - 3))
+  //       = noise_params_.get_augment_cov(
+  //           column_id_to_aug_type.second);    // Augment state noise terms
+  // }
 
 
-  Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta)
-      = noise_params_.get_gyroscope_bias_cov();
-  Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3)
-      = noise_params_.get_accelerometer_bias_cov();
+  Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
+  Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
 
   // Noise Covariance Discretization
   Eigen::MatrixXd PhiG = Phi * G;
@@ -321,12 +379,12 @@ void ImuPropagation::InitImuBias() {
   // Initialize bias based on imu orientation and static assumption
   if (bias_init_vec_.size() < init_bias_size_) {
     sensor_data_buffer_mutex_ptr_.get()->lock();
-    if (sensor_data_buffer_.empty()) {
+    if (sensor_data_buffer_ptr_->empty()) {
       sensor_data_buffer_mutex_ptr_.get()->unlock();
       return;
     }
-    auto imu_measurement = *(sensor_data_buffer_.front().get());
-    sensor_data_buffer_.pop();
+    auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+    sensor_data_buffer_ptr_->pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();
 
     Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity

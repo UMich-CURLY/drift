@@ -55,7 +55,6 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   params.set_accelerometer_noise(temp_param);
   params.set_gyroscope_bias_noise(temp_param);
   params.set_accelerometer_bias_noise(temp_param);
-  params.set_augment_noise("contact", temp_param);
 
   inekf::ErrorType error_type = RightInvariant;
 
@@ -123,11 +122,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
 
   // Add propagation and correction methods
-  state_estimator.add_imu_propagation(imu_data_buffer_ptr, imu_buffer_mutex_ptr,
-                                      false);
+  state_estimator.add_imu_propagation(imu_data_buffer_ptr,
+                                      imu_buffer_mutex_ptr);
   state_estimator.add_velocity_correction(velocity_data_buffer_ptr,
-                                          velocity_buffer_mutex_ptr,
-                                          measured_velocity_covariance);
+                                          velocity_buffer_mutex_ptr);
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();

@@ -40,11 +40,9 @@ void StateEstimator::set_state(RobotState& state) { state_ = state; }
 const RobotState StateEstimator::get_state() const { return state_; }
 
 void StateEstimator::add_imu_propagation(
-    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const bool estimate_bias, const std::vector<double>& imu2body) {
-  propagation_
-      = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr, params_,
-                                         error_type_, estimate_bias, imu2body);
+    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {
+  propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr,
+                                                  params_, error_type_);
 }
 
 void StateEstimator::add_kinematics_correction(
@@ -57,10 +55,9 @@ void StateEstimator::add_kinematics_correction(
 }
 
 void StateEstimator::add_velocity_correction(
-    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const Eigen::Matrix3d& covariance) {
+    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
-      buffer_ptr, buffer_mutex_ptr, error_type_, covariance);
+      buffer_ptr, buffer_mutex_ptr, error_type_);
   corrections_.push_back(correction);
 }
 

@@ -40,17 +40,12 @@ int main(int argc, char** argv) {
   params.set_gyroscope_bias_noise(temp_param);
   params.set_accelerometer_bias_noise(temp_param);
 
-  Eigen::Matrix3d measured_velocity_covariance;
-  measured_velocity_covariance << 0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01;
-
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
 
   // Publisher:
-  state_estimator.add_imu_propagation(
-      q2, q2_mutex, true, {0, 0.7071, -0.7071, 0});    // Husky's setting
-  state_estimator.add_velocity_correction(qv, qv_mutex,
-                                          measured_velocity_covariance);
+  state_estimator.add_imu_propagation(q2, q2_mutex);    // Husky's setting
+  state_estimator.add_velocity_correction(qv, qv_mutex);
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
 
