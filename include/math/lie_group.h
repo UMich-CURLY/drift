@@ -6,7 +6,7 @@
 
 /**
  *  @file   lie_group.h
- *  @author Ross Hartley
+ *  @author Ross Hartley, Tzu-Yuan Lin
  *  @brief  Header file for various Lie Group functions
  *  @date   November 25, 2022
  **/

@@ -6,7 +6,7 @@
 
 /**
  *  @file   ros_subsriber.h
- *  @author Justin Lin
+ *  @author Tzu-Yuan Lin
  *  @brief  Header file for ROS subscriber class
  *  @date   December 6, 2022
  **/

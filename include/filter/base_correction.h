@@ -1,13 +1,13 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Ross Hartley
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   base_correction.h
- *  @author Tingjun Li, Ross Hartley
- *  @brief  Header file for Invariant EKF base correction method
+ *  @author Tingjun Li
+ *  @brief  Header file for base correction method
  *  @date   November 25, 2022
  **/
 

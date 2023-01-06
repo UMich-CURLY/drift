@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Tzu-Yuan Lin, Ross Hartley
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   velocity_correction.h
- *  @author Tingjun Li, Tzu-Yuan Lin, Ross Hartley
+ *  @author Tingjun Li, Tzu-Yuan Lin
  *  @brief  Header file for Invariant EKF velocity correction method
  *  @date   November 25, 2022
  **/

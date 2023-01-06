@@ -1,3 +1,9 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
 /**
  *  @file   measurement.h
  *  @author Justin Yu
