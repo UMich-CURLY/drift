@@ -21,6 +21,8 @@
 #include <mutex>
 #include <queue>
 #include <vector>
+#include "yaml-cpp/yaml.h"
+
 #include "filter/noise_params.h"
 #include "measurement/measurement.h"
 #include "state/robot_state.h"

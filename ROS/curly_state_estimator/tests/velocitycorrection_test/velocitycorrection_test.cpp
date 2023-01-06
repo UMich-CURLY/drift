@@ -47,7 +47,6 @@ int main(int argc, char** argv) {
   params.set_accelerometer_noise(0.1);
   params.set_gyroscope_bias_noise(0.1);
   params.set_accelerometer_bias_noise(0.1);
-  Eigen::Matrix3d measured_vel_cov = Eigen::Matrix3d::Identity();
 
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
@@ -64,8 +63,7 @@ int main(int argc, char** argv) {
   state_estimator::init_state();
   auto velocity_data_buffer_ptr
       = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
-  state_estimator.add_velocity_correction(velocity_data_buffer_ptr,
-                                          measured_velocity_covariance);
+  state_estimator.add_velocity_correction(velocity_data_buffer_ptr);
 
 
   ros_sub.start_subscribing_thread();

@@ -12,7 +12,6 @@ KinematicsCorrection::KinematicsCorrection(
     const ErrorType& error_type, const std::string& aug_type)
     : Correction::Correction(),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      sensor_data_buffer_(*sensor_data_buffer_ptr.get()),
       error_type_(error_type),
       aug_type_(aug_type) {
   correction_type_ = CorrectionType::KINEMATICS;
@@ -43,11 +42,11 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   // --------------------------------------------------------------
   // sensor_data_buffer_mutex_ptr_.get()->lock();
   // std::map<int, bool> contacts
-  //     = sensor_data_buffer_.front().get()->get_contacts();
+  //     = sensor_data_buffer_ptr_->front().get()->get_contacts();
   std::map<int, bool> contacts;
   // const vectorKinematics measured_kinematics
-  //     = sensor_data_buffer_.front().get()->get_kinematics();
-  // sensor_data_buffer_.pop();
+  //     = sensor_data_buffer_ptr_->front().get()->get_kinematics();
+  // sensor_data_buffer_ptr_->pop();
   // sensor_data_buffer_mutex_ptr_.get()->unlock();
   vectorKinematics measured_kinematics;
 

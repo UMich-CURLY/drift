@@ -43,17 +43,15 @@ class ImuPropagation : public Propagation {
    * sensor data buffer
    * @param[in] params: Noise parameters for the propagation
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
-   * @param[in] estimate_bias: Whether to estimate the bias
-   * @param[in] imu2body: The transformation from imu frame to body frame
-   * @param[in] static_bias_initialization: Whether to initialize the bias
+   * @param[in] yaml_filename: Name of the yaml file for the propagation
    * RightInvariant
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                  const NoiseParams& params, const ErrorType& error_type,
-                 const bool estimate_bias = true,
-                 const std::vector<double>& imu2body = {1, 0, 0, 0},
-                 const bool static_bias_initialization = true);
+                 const std::string& yaml_filepath
+                 = "config/filter/inekf/"
+                   "propagation/imu_propagation.yaml");
   /// @}
 
   /// @name Propagation
@@ -134,16 +132,19 @@ class ImuPropagation : public Propagation {
 
   const ErrorType error_type_;
   IMUQueuePtr sensor_data_buffer_ptr_;
-  IMUQueue& sensor_data_buffer_;
-  const Eigen::Matrix3d R_imu2body_;
+  Eigen::Matrix3d R_imu2body_;
 
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();
   Eigen::Vector3d ba0_ = Eigen::Vector3d::Zero();
-  const bool estimate_bias_;
-  bool static_bias_initialization_ = false;
-  bool estimator_debug_enabled_ = false;
-  bool use_imu_ori_est_init_bias_ = false;
+  Eigen::Matrix3d gyro_cov_;
+  Eigen::Matrix3d accel_cov_;
+  Eigen::Matrix3d gyro_bias_cov_;
+  Eigen::Matrix3d accel_bias_cov_;
+
+  bool estimate_bias_;
+  bool static_bias_initialization_;
+  bool use_imu_ori_est_init_bias_;
   bool bias_initialized_ = false;
   int init_bias_size_;    // Number of IMU measurements to use for bias
                           // initialization

@@ -18,12 +18,18 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
+find_package(yaml-cpp REQUIRED)
+
+message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
+message("Boost include dir: ${Boost_INCLUDE_DIRS}")
+message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 
 
 include_directories(
 ${PROJECT_SOURCE_DIR}/../../include
 ${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
+${YAML_CPP_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 )
 
@@ -81,4 +87,5 @@ ${lie_group} ${noise_params} ${state_estimator} ${base_propagation} ${base_corre
 target_link_libraries(ros_comm_test
 ${LIBS}
 ros_comm_test_lib
+yaml-cpp
 )
