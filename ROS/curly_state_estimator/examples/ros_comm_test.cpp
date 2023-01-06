@@ -17,13 +17,10 @@ int main(int argc, char** argv) {
 
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  // auto q1_and_mutex = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
-  // auto q1 = q1_and_mutex.first;
-  // auto q1_mutex = q1_and_mutex.second;
 
-  auto q2_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
-  auto q2 = q2_and_mutex.first;
-  auto q2_mutex = q2_and_mutex.second;
+  auto qimu_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto qimu = qimu_and_mutex.first;
+  auto qimu_mutex = qimu_and_mutex.second;
 
   auto qv_and_mutex
       = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
@@ -48,7 +45,7 @@ int main(int argc, char** argv) {
 
   // Publisher:
   state_estimator.add_imu_propagation(
-      q2, q2_mutex, true, {0, 0.7071, -0.7071, 0});    // Husky's setting
+      qimu, qimu_mutex, true, {0, 0.7071, -0.7071, 0});    // Husky's setting
   state_estimator.add_velocity_correction(qv, qv_mutex,
                                           measured_velocity_covariance);
   RobotStateQueuePtr robot_state_queue_ptr
@@ -60,12 +57,9 @@ int main(int argc, char** argv) {
                                     robot_state_queue_mutex_ptr);
   ros_pub.start_publishing_thread();
 
-  // block until we stop the ros to print out the value
-  // int i = 0;
+  // Start running
   while (ros::ok()) {
     // Step behavior
-    // std::cout << i << std::endl;
-    // i++;
     if (state_estimator.enabled()) {
       state_estimator.run_once();
     } else {

@@ -1,3 +1,9 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
 template<typename T>
 VelocityMeasurement<T>::VelocityMeasurement()
     : Measurement(VELOCITY), vel_{0, 0, 0} {}

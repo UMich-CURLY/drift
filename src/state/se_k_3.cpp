@@ -1,6 +1,12 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
 /**
  *  @file   se_k_3.cpp
- *  @author Ross Hartley, Wenzhe Tong
+ *  @author Wenzhe Tong
  *  @brief  Source file for various SE(3) functions
  *  @date   October 5th, 2022
  **/
