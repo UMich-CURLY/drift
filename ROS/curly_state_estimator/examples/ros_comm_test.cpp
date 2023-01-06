@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
   StateEstimator state_estimator(params, error_type);
 
   // Publisher:
-  state_estimator.add_imu_propagation(q2, q2_mutex);    // Husky's setting
+  state_estimator.add_imu_propagation(qimu, qimu_mutex);    // Husky's setting
   state_estimator.add_velocity_correction(qv, qv_mutex);
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
