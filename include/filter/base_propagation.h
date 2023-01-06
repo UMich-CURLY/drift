@@ -1,13 +1,13 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li, Ross Hartley
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   base_propagation.h
- *  @author Tingjun Li, Ross Hartley
- *  @brief  Header file for Invariant EKF base propagation method
+ *  @author Tingjun Li
+ *  @brief  Header file for base propagation method
  *  @date   November 25, 2022
  **/
 
