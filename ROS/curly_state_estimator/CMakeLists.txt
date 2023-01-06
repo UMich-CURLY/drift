@@ -32,15 +32,6 @@ ${EIGEN3_LIBS}
 )
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
-# Node for robot state estimation
-rosbuild_add_executable(robot_state_est
-${PROJECT_SOURCE_DIR}/examples/robot_state_est.cpp 
-)
-
-target_link_libraries(robot_state_est
-${LIBS}
-)
-
 # temporary test for subscriber
 rosbuild_add_executable(subscriber_test
 ${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
