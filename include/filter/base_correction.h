@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <Eigen/Dense>
+#include "yaml-cpp/yaml.h"
 
 #include "filter/noise_params.h"
 #include "filter/observations.h"

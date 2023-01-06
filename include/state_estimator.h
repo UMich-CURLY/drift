@@ -107,9 +107,7 @@ class StateEstimator {
    * message from the subscriber.
    */
   void add_imu_propagation(IMUQueuePtr buffer_ptr,
-                           std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                           const bool estimate_bias = true,
-                           const std::vector<double>& imu2body = {1, 0, 0, 0});
+                           std::shared_ptr<std::mutex> buffer_mutex_ptr);
   /// @}
 
   /// @name Correction
@@ -135,8 +133,7 @@ class StateEstimator {
    * message from the subscriber.
    */
   void add_velocity_correction(VelocityQueuePtr buffer_ptr,
-                               std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                               const Eigen::Matrix3d& covariance);
+                               std::shared_ptr<std::mutex> buffer_mutex_ptr);
   /// @}
 
   const bool enabled() const;
