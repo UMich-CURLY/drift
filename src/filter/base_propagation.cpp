@@ -1,3 +1,16 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   base_propagation.cpp
+ *  @author Tingjun Li
+ *  @brief  Source file for base propagation method
+ *  @date   November 25, 2022
+ **/
+
 #include "filter/base_propagation.h"
 
 using namespace std;

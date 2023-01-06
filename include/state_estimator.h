@@ -1,12 +1,12 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, Tingjun Li
+ * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   state_estimator.h
- *  @author Tingjun Li
+ *  @author Tzu-Yuan Lin, Tingjun Li
  *  @brief  Header file for state estimator class
  *  @date   December 1, 2022
  **/

@@ -1,3 +1,16 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   ros_publisher.cpp
+ *  @author Tingjun Li
+ *  @brief  Source file for ROS publisher class
+ *  @date   December 20, 2022
+ **/
+
 #include "communication/ros_publisher.h"
 
 namespace ros_wrapper {

@@ -1,3 +1,9 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
 template<typename T>
 KinematicsMeasurement<T>::KinematicsMeasurement() : Measurement(KINEMATICS) {
   position_.setZero();
