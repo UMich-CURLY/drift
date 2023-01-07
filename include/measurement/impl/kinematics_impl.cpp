@@ -11,15 +11,13 @@ KinematicsMeasurement<T>::KinematicsMeasurement() : Measurement(KINEMATICS) {
   effort_.setZero();
 }
 
-
 template<typename T>
 void KinematicsMeasurement<T>::set_kin_state(
-    const Eigen::Matrix<T, 3, 1>& position,
-    const Eigen::Matrix<T, 3, 1>& velocity,
-    const Eigen::Matrix<T, 3, 1>& effort) {
-  position_ = position;
-  velocity_ = velocity;
-  effort_ = effort;
+    const Eigen::Matrix<T, 3, 1>& pos, const Eigen::Matrix<T, 3, 1>& vel,
+    const Eigen::Matrix<T, 3, 1>& eft) {
+  position_ = pos;
+  velocity_ = vel;
+  effort_ = eft;
 }
 
 template<typename T>

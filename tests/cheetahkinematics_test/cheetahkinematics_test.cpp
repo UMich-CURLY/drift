@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
-#include "measurement/kinematics.h"
+#include "kinematics/mini_cheetah_kinematics.h"
 
 #define tol3 1e-9
 
-TEST(KinematicsMeasurementTest, Ctor) {
-  KinematicsMeasurement<double> kin_data;
+TEST(cheetahkinematicstest, Ctor) {
+  MiniCheetahKin kin_data;
   EXPECT_EQ(kin_data.get_type(), 2);
   EXPECT_EQ(kin_data.get_type(), KINEMATICS);
 
@@ -15,8 +15,8 @@ TEST(KinematicsMeasurementTest, Ctor) {
   }
 }
 
-TEST(KinematicsMeasurementTest, SetGetBasic) {
-  KinematicsMeasurement<double> kin_data;
+TEST(cheetahkinematicstest, SetGetBasic) {
+  MiniCheetahKin kin_data;
   Eigen::Vector3d v;
   Eigen::Vector3d p;
   Eigen::Vector3d e;

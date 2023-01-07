@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "Jp_Body_to_FrontLeftFoot.h"
+#include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"
 
 #ifdef _MSC_VER
   #define INLINE __forceinline /* use __forceinline (VC++ specific) */
