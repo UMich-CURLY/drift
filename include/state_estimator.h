@@ -20,7 +20,7 @@
 
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
-#include "filter/inekf/correction/kinematics_correction.h"
+// #include "filter/inekf/correction/kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "measurement/imu.h"
@@ -50,10 +50,9 @@ class StateEstimator {
   /**
    * @brief
    *
-   * @param[in] params: Noise parameters
    * @param[in] error_type: Error type of the filter
    */
-  StateEstimator(NoiseParams params, ErrorType error_type);
+  StateEstimator(ErrorType error_type);
   /// @}
 
   /// @name Setters
@@ -120,9 +119,10 @@ class StateEstimator {
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
    */
-  void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
-                                 std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                                 const std::string& aug_type);
+  // void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
+  //                                std::shared_ptr<std::mutex>
+  //                                buffer_mutex_ptr, const std::string&
+  //                                aug_type);
 
   // ======================================================================
   /**
@@ -170,7 +170,6 @@ class StateEstimator {
 
  private:
   RobotState state_;
-  NoiseParams params_;
   ErrorType error_type_;
   std::vector<std::shared_ptr<Correction>> corrections_;
   std::vector<aug_map_t> aug_maps;

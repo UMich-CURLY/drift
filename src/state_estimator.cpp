@@ -13,9 +13,8 @@
 
 #include "state_estimator.h"
 
-StateEstimator::StateEstimator(NoiseParams params, ErrorType error_type)
-    : params_(params),
-      error_type_(error_type),
+StateEstimator::StateEstimator(ErrorType error_type)
+    : error_type_(error_type),
       robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
@@ -54,17 +53,17 @@ const RobotState StateEstimator::get_state() const { return state_; }
 void StateEstimator::add_imu_propagation(
     IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {
   propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr,
-                                                  params_, error_type_);
+                                                  error_type_);
 }
 
-void StateEstimator::add_kinematics_correction(
-    KinematicsQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const std::string& aug_type) {
-  std::shared_ptr<Correction> correction
-      = std::make_shared<KinematicsCorrection>(buffer_ptr, buffer_mutex_ptr,
-                                               error_type_, aug_type);
-  corrections_.push_back(correction);
-}
+// void StateEstimator::add_kinematics_correction(
+//     KinematicsQueuePtr buffer_ptr, std::shared_ptr<std::mutex>
+//     buffer_mutex_ptr, const std::string& aug_type) {
+//   std::shared_ptr<Correction> correction
+//       = std::make_shared<KinematicsCorrection>(buffer_ptr, buffer_mutex_ptr,
+//                                                error_type_, aug_type);
+//   corrections_.push_back(correction);
+// }
 
 void StateEstimator::add_velocity_correction(
     VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {

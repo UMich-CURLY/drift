@@ -17,7 +17,6 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
-#include "filter/noise_params.h"
 #include "measurement/imu.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
@@ -40,13 +39,6 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-
-
-  NoiseParams params;
-  params.set_gyroscope_noise(0.1);
-  params.set_accelerometer_noise(0.1);
-  params.set_gyroscope_bias_noise(0.1);
-  params.set_accelerometer_bias_noise(0.1);
 
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
