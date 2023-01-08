@@ -48,7 +48,7 @@ long int factorial(int n);
 Eigen::Matrix3d skew(const Eigen::Vector3d& v);
 /**
  * @brief Computes mth integral of the exponential map:
- * \Gamma_m = \sum_{n=0}^{\infty} \dfrac{1}{(n+m)!} (w^\wedge)^n
+ * \f$ \Gamma_m = \sum_{n=0}^{\infty} \dfrac{1}{(n+m)!} (w^\wedge)^n \f$
  *
  * @param[in] w: Input vector.
  * @param[in] m: mth integral.

@@ -41,9 +41,6 @@ class VelocityCorrection : public Correction {
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] yaml_filename: Name of the yaml file for the correction
-   *
-   * @return bool: successfully correct state or not (if we do not receive a
-   * new message and this method is called it'll return false.)
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
@@ -71,16 +68,22 @@ class VelocityCorrection : public Correction {
   /// @name Getters
   /// @{
   // ======================================================================
+  /**
+   * @brief Return the pointer of the sensor data buffer
+   *
+   * @return VelocityQueuePtr: pointer of the sensor data buffer
+   */
   const VelocityQueuePtr get_sensor_data_buffer_ptr() const;
+  /// @}
 
-
-  static Eigen::Matrix3d compute_R_vel2body(const std::vector<double> vel2body);
 
  private:
-  const ErrorType error_type_;
-  VelocityQueuePtr sensor_data_buffer_ptr_;
-  Eigen::Matrix3d covariance_;
-  Eigen::Matrix3d R_vel2body_;
+  const ErrorType error_type_;    // Error type for the correction.
+                                  // LeftInvariant or RightInvariant
+  VelocityQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor buffer
+  Eigen::Matrix3d covariance_;                 // Velocity covariance
+  Eigen::Matrix3d
+      R_vel2body_;    // Rotation matrix from velocity frame to body frame
 };
 
 }    // namespace inekf
