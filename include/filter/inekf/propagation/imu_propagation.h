@@ -19,7 +19,9 @@
 
 #ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
 #define FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+
 #include <vector>
+
 #include "filter/base_propagation.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
@@ -44,20 +46,18 @@ class ImuPropagation : public Propagation {
   /**
    * @brief Constructor for the propagation class
    *
-   * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
-   * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
-   * sensor data buffer
-   * @param[in] params: Noise parameters for the propagation
+   * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data.
+   * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the.
+   * sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
-   * @param[in] yaml_filename: Name of the yaml file for the propagation
    * RightInvariant
+   * @param[in] yaml_filename: Name of the yaml file for the propagation
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                 const NoiseParams& params, const ErrorType& error_type,
+                 const ErrorType& error_type,
                  const std::string& yaml_filepath
-                 = "config/filter/inekf/"
-                   "propagation/imu_propagation.yaml");
+                 = "config/filter/inekf/propagation/imu_propagation.yaml");
   /// @}
 
   /// @name Propagation
@@ -70,7 +70,7 @@ class ImuPropagation : public Propagation {
    * The propagation model currently assumes that the covariance is for the
    * right invariant error.
    *
-   * @param[in/out] state: state of the robot
+   * @param[in/out] state: state of the robot.
    * @return bool: successfully propagate state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
@@ -80,20 +80,57 @@ class ImuPropagation : public Propagation {
   /// @name Getters
   /// @{
   // ======================================================================
+  /**
+   * @brief Get the estimate gyro bias.
+   *
+   * @return const Eigen::Vector3d: Estimated gyro bias. \f$(rad/s)\f$
+   */
   const Eigen::Vector3d get_estimate_gyro_bias() const;
 
   // ======================================================================
+  /**
+   * @brief Get the estimate accel bias.
+   *
+   * @return const Eigen::Vector3d:Estimated acceleration bias. \f$(m/s^2)\f$
+   */
   const Eigen::Vector3d get_estimate_accel_bias() const;
 
   // ======================================================================
+  /**
+   * @brief Check if the bias is initialized or not.
+   *
+   * @return true: Bias has been successfully initialized or the static bias
+   * initialization feature is turned off.
+   * @return false: The bias has not been initialized.
+   */
   const bool get_bias_initialized() const;
 
   // ======================================================================
+  /**
+   * @brief Get the pointer to the sensor data buffer, which is a queue that
+   * contains all the measurements received from the sensor.
+   *
+   * @return const IMUQueuePtr: A smart pointer to the IMU measurement queue.
+   * `std::shared_ptr<std::queue<std::shared_ptr<ImuMeasurement<double>>>>`
+   */
   const IMUQueuePtr get_sensor_data_buffer_ptr() const;
   /// @} End of Getters
 
+  /// @name InitImuBias
+  //{
   // ======================================================================
+  /**
+   * @brief Initialize IMU bias using the static assumption. This assumes the
+   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.81
+   * m/s^2/f$ is pointing downward.)
+   *
+   * The function takes the first n data points, average their value, and
+   * subtract the gravity to get the initial bias.
+   *
+   *
+   */
   void InitImuBias();
+  ///@} End of InitImuBias
 
 
  private:
@@ -124,8 +161,8 @@ class ImuPropagation : public Propagation {
    * https://journals.sagepub.com/doi/10.1177/0278364919894385
    *
    * @param[in] Phi: The state transition matrix.
-   * @param[in] dt: Time step
-   * @param[in/out] state: The robot state
+   * @param[in] dt: Time step.
+   * @param[in/out] state: The robot state.
    *
    * @return Eigen::MatrixXd: The discretized noise matrix
    */
@@ -133,30 +170,42 @@ class ImuPropagation : public Propagation {
                                       const double dt, const RobotState& state);
   /// @} // End of helper functions
 
-  static Eigen::Matrix3d compute_R_imu2body(const std::vector<double> imu2body);
 
-
-  const ErrorType error_type_;
-  IMUQueuePtr sensor_data_buffer_ptr_;
-  Eigen::Matrix3d R_imu2body_;
+  const ErrorType error_type_;            // Error type for the propagation.
+                                          // LeftInvariant or RightInvariant.
+  IMUQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor data buffer.
+  Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
+                                  // from IMU frame to body frame (meas_body = R
+                                  // * meas_imu).
 
   // IMU bias initialization related variables:
-  Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();
-  Eigen::Vector3d ba0_ = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d gyro_cov_;
-  Eigen::Matrix3d accel_cov_;
-  Eigen::Matrix3d gyro_bias_cov_;
-  Eigen::Matrix3d accel_bias_cov_;
+  Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
+  Eigen::Vector3d ba0_
+      = Eigen::Vector3d::Zero();      // Accelerometer bias prior.
+  Eigen::Matrix3d gyro_cov_;          // Gyroscope measurement covariance.
+  Eigen::Matrix3d accel_cov_;         // Accelerometer measurement covariance.
+  Eigen::Matrix3d gyro_bias_cov_;     // Gyroscope bias covariance.
+  Eigen::Matrix3d accel_bias_cov_;    // Accelerometer bias covariance.
 
-  bool estimate_bias_;
-  bool static_bias_initialization_;
-  bool use_imu_ori_est_init_bias_;
-  bool bias_initialized_ = false;
+  bool estimate_bias_;    // Boolean value that allows IMU bias update during
+                          // propagation (true for enabling bias update, false
+                          // for disabling).
+  bool static_bias_initialization_;    // Flag for static bias initialization
+  bool use_imu_ori_est_init_bias_;     // Flag for using orientation estimated
+                                       // from the imu to perform static bias
+                                       // initialization. If set to false, the
+  // initial orientation is set to identity.
+  // i.e. assumes the robot is on a
+  // horizontal flat surface.
+
+  bool bias_initialized_ = false;    // Indicating whether IMU bias has been
+                                     // initialized using measurements.
   int init_bias_size_;    // Number of IMU measurements to use for bias
-                          // initialization
+                          // initialization.
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
-      bias_init_vec_;
+      bias_init_vec_;    // The initialized IMU bias value in the order of
+                         // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
 
 };    // End of class ImuPropagation
 }    // namespace inekf

@@ -29,9 +29,8 @@ using namespace lie_group;
 ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const NoiseParams& params, const ErrorType& error_type,
-    const std::string& yaml_filepath)
-    : Propagation::Propagation(params, sensor_data_buffer_mutex_ptr),
+    const ErrorType& error_type, const std::string& yaml_filepath)
+    : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   propagation_type_ = PropagationType::IMU;
@@ -62,7 +61,10 @@ ImuPropagation::ImuPropagation(
       = config_["settings"]["rotation_imu2body"]
             ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
             : std::vector<double>({1, 0, 0, 0});
-  R_imu2body_ = compute_R_imu2body(quat_imu2body);
+
+  Eigen::Quaternion<double> quarternion_imu2body(
+      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
+  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
 
   // Set the noise parameters
   double gyro_std = config_["noises"]["gyroscope_std"]
@@ -388,12 +390,11 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
 void ImuPropagation::InitImuBias() {
   if (!static_bias_initialization_) {
     bias_initialized_ = true;
-    std::cout << "Bias inialization is set to false." << std::endl;
+    std::cout << "Static bias inialization is set to false." << std::endl;
     std::cout << "Bias is initialized using prior as: \n" << bg0_ << std::endl;
     std::cout << ba0_ << std::endl;
     return;
   }
-
 
   // Initialize bias based on imu orientation and static assumption
   if (bias_init_vec_.size() < init_bias_size_) {
@@ -437,15 +438,6 @@ void ImuPropagation::InitImuBias() {
     ba0_ = avg.tail<3>();
     bias_initialized_ = true;
   }
-}
-
-Eigen::Matrix3d ImuPropagation::compute_R_imu2body(
-    const std::vector<double> imu2body) {
-  Eigen::Quaternion<double> quarternion_imu2body(imu2body[0], imu2body[1],
-                                                 imu2body[2], imu2body[3]);
-  Eigen::Matrix3d R_imu2body;
-  R_imu2body = quarternion_imu2body.toRotationMatrix();
-  return R_imu2body;
 }
 
 const Eigen::Vector3d ImuPropagation::get_estimate_gyro_bias() const {

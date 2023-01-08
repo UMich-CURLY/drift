@@ -23,8 +23,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include "filter/noise_params.h"
-#include "filter/observations.h"
+
 #include "math/lie_group.h"
 #include "state/robot_state.h"
 

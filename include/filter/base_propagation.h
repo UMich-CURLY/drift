@@ -23,7 +23,6 @@
 #include <vector>
 #include "yaml-cpp/yaml.h"
 
-#include "filter/noise_params.h"
 #include "measurement/measurement.h"
 #include "state/robot_state.h"
 
@@ -45,20 +44,17 @@ class Propagation {
   /**
    * @brief Constructor for the propagation class
    *
-   * @param[in] params: The noise parameter for propagation
    */
   /// @}
-  Propagation(const NoiseParams& params);
+  Propagation();
 
   /**
    * @brief Construct a new Propagation object with mutex
    *
-   * @param[in] params: The noise parameter for propagation
    * @param[in] sensor_data_buffer_mutex_ptr: a pointer to the mutex of the
    * sensor data buffer
    */
-  Propagation(const NoiseParams& params,
-              std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+  Propagation(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
 
   /// @name Propagation
   /// @{
@@ -78,29 +74,35 @@ class Propagation {
   /// @{
   // ======================================================================
   /**
-   * @brief Gets the current noise parameters.
+   * @brief Get the pointer of sensor data buffer
    *
-   * @return inekf::NoiseParams: The current noise parameters.
+   * @return MeasurementQueuePtr: a pointer to the sensor data buffer
    */
-  const NoiseParams get_noise_params() const;
-  /// @}
-
-  /// @name Getters
   virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
+  /**
+   * @brief Get the propagation type
+   *
+   * @return PropagationType: the propagation type
+   */
   const PropagationType get_propagation_type() const;
 
+  /**
+   * @brief Get the mutex pointer
+   *
+   * @return std::shared_ptr<std::mutex>: a pointer to the mutex
+   */
   std::shared_ptr<std::mutex> get_mutex_ptr();
-
+  /// @}   // End of getters
 
  protected:
-  const NoiseParams noise_params_;
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
-  PropagationType propagation_type_;
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
-};    // End of class Propagation
+  PropagationType propagation_type_;    // The type of the propagation method
+  std::shared_ptr<std::mutex>
+      sensor_data_buffer_mutex_ptr_;    // The mutex of the sensor data buffer
+};                                      // End of class Propagation
 
 
 // #include "../src/filter/base_propagation.cpp"

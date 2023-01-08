@@ -26,8 +26,6 @@
 #include <Eigen/Dense>
 #include "yaml-cpp/yaml.h"
 
-#include "filter/noise_params.h"
-#include "filter/observations.h"
 #include "measurement/measurement.h"
 #include "state/robot_state.h"
 
@@ -73,21 +71,41 @@ class Correction {
   /// @}
 
   /// @name Getters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Get the pointer to the sensor data buffer
+   *
+   * @return MeasurementQueuePtr: a pointer to the sensor data buffer
+   */
   virtual MeasurementQueuePtr get_sensor_data_buffer_ptr();
 
+  /**
+   * @brief Get the correction type
+   *
+   * @return CorrectionType: the correction type
+   */
   const CorrectionType get_correction_type() const;
 
+  /**
+   * @brief Get the pointer to the mutex of the sensor data buffer
+   *
+   * @return std::shared_ptr<std::mutex>: a pointer to the mutex of the sensor
+   * data buffer
+   */
   std::shared_ptr<std::mutex> get_mutex_ptr();
+  /// @} End of Getters
 
  protected:
   const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
   CorrectionType correction_type_;
-  /// TODO: Move this to yaml
-  double t_diff_thres_ = 0.3;
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;
+  double t_diff_thres_;    // Threshold for time difference between two
+                           // measurements
+  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;    // Mutex for the
+                                                                // sensor data
+                                                                // buffer
 };    // class Correction
 
-// #include "../src/filter/base_correction.cpp"
 #endif    // end FILTER_BASE_CORRECTION_H

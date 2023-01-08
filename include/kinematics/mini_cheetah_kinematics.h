@@ -9,7 +9,6 @@
 #include "kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
 #include "kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
 
-#include "filter/observations.h"
 
 class MiniCheetahKinematis {
  public:

@@ -30,15 +30,9 @@ int main(int argc, char** argv) {
   ros_sub.start_subscribing_thread();
   // TODO: Create robot state system -- initialize all system threads
 
-  NoiseParams params;
-  double temp_param = 0.1;
-  params.set_gyroscope_noise(temp_param);
-  params.set_accelerometer_noise(temp_param);
-  params.set_gyroscope_bias_noise(temp_param);
-  params.set_accelerometer_bias_noise(temp_param);
 
   inekf::ErrorType error_type = RightInvariant;
-  StateEstimator state_estimator(params, error_type);
+  StateEstimator state_estimator(error_type);
 
   // Publisher:
   state_estimator.add_imu_propagation(qimu, qimu_mutex);    // Husky's setting
