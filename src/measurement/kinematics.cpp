@@ -11,6 +11,13 @@ kinematics::kinematics() : Measurement(KINEMATICS) {
   velocity_.setZero();
 }
 
+void kinematics::set_contact(const Eigen::Matrix<bool, -1, 1>& ct) {
+  contact_ = ct;
+}
+void kinematics::set_joint_state(const Eigen::Matrix<double, -1, 1>& js) {
+  encoder_position_ = js;
+}
+
 Eigen::Matrix<double, -1, -1> kinematics::get_J() const { return jacobian_; }
 Eigen::Matrix<bool, -1, 1> kinematics::get_contact() const { return contact_; }
 

@@ -29,12 +29,46 @@ class kinematics : public Measurement {
    */
   kinematics();
 
+  /**
+   * @brief Computes
+   *
+   * @param[in] ct Vector of contact states
+   */
   virtual void compute_kinematics() = 0;
 
+  /**
+   * @brief Set the ground contact state vector.
+   *
+   * @param[in] ct Vector of contact states
+   */
+  void set_contact(const Eigen::Matrix<bool, -1, 1>& ct);
+
+  /**
+   * @brief Set the encoder position state vector.
+   *
+   * @param[in] js Vector of encoder position coefficients (rad)
+   */
+  void set_joint_state(const Eigen::Matrix<double, -1, 1>& js);
+
+  /**
+   * @brief Get the Jacobian matrix.
+   *
+   * @return Jacobian Matrix
+   */
   Eigen::Matrix<double, -1, -1> get_J() const;
 
+  /**
+   * @brief Get the ground contact state vector.
+   *
+   * @return Vector of contact states
+   */
   Eigen::Matrix<bool, -1, 1> get_contact() const;
 
+  /**
+   * @brief Get the encoder position state vector.
+   *
+   * @return Vector of encoder position coefficients (rad)
+   */
   Eigen::Matrix<double, -1, 1> get_joint_state() const;
 
   /**
@@ -65,7 +99,6 @@ class kinematics : public Measurement {
   Eigen::Matrix<double, -1, -1> jacobian_;
   Eigen::Matrix<bool, -1, 1> contact_;
   Eigen::Matrix<double, -1, 1> encoder_position_;
-  Eigen::Matrix<double, 3, -1> body_to_foot_;
 };
 
 

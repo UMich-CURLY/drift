@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <iostream>
 #include "kinematics/mini_cheetah_kinematics.h"
 
 #define tol3 1e-9
@@ -30,4 +31,13 @@ TEST(cheetahkinematicstest, Ctor) {
   for (size_t i = 0; i < 12; i++) {
     EXPECT_EQ(kin_data.get_joint_state()(i), 0);
   }
+}
+
+TEST(cheetahkinematicstest, JointStateSet) {
+  MiniCheetahKin kin_data;
+  Eigen::Matrix<double, 12, 1> v;
+  v << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
+      1.234, 1.345;
+  kin_data.set_joint_state(v);
+  std::cout << kin_data.get_joint_state();
 }

@@ -7,8 +7,6 @@ MiniCheetahKin::MiniCheetahKin() {
   contact_.setZero();
   encoder_position_.resize(12, 1);
   encoder_position_.setZero();
-  body_to_foot_.resize(3, 4);
-  body_to_foot_.setZero();
 }
 
 void MiniCheetahKin::compute_kinematics() {
