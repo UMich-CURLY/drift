@@ -60,7 +60,7 @@ class ROSPublisher {
  private:
   ros::NodeHandle* nh_;    // ROS node handle
   RobotStateQueuePtr
-      robot_sate_queue_ptr_;    // Pointer to the robot state queue
+      robot_state_queue_ptr_;    // Pointer to the robot state queue
   std::shared_ptr<std::mutex>
       robot_state_queue_mutex_;    // Pointer to the robot state queue mutex
 
