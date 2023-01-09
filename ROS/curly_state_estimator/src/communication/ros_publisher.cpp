@@ -19,7 +19,6 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
                            std::shared_ptr<std::mutex> robot_state_queue_mutex)
     : nh_(nh),
       robot_sate_queue_ptr_(robot_state_queue_ptr),
-      robot_state_queue_(*robot_state_queue_ptr.get()),
       robot_state_queue_mutex_(robot_state_queue_mutex),
       thread_started_(false) {
   std::string pose_topic;
@@ -54,27 +53,27 @@ ROSPublisher::~ROSPublisher() {
   poses_.clear();
 }
 
-void ROSPublisher::start_publishing_thread() {
+void ROSPublisher::StartPublishingThread() {
   std::cout << "start publishing thread" << std::endl;
   this->pose_publishing_thread_
-      = std::thread([this] { this->posePublishingThread(); });
+      = std::thread([this] { this->PosePublishingThread(); });
   this->path_publishing_thread_
-      = std::thread([this] { this->pathPublishingThread(); });
+      = std::thread([this] { this->PathPublishingThread(); });
 
   thread_started_ = true;
 }
 
 // Publishes pose
-void ROSPublisher::posePublish() {
-  if (robot_state_queue_.empty()) {
+void ROSPublisher::PosePublish() {
+  if (robot_state_queue_ptr_->empty()) {
     // std::cout << "pose queue is empty" << std::endl;
     return;
   }
 
   // Get the first pose
   robot_state_queue_mutex_.get()->lock();
-  const std::shared_ptr<RobotState> state_ptr = robot_state_queue_.front();
-  robot_state_queue_.pop();
+  const std::shared_ptr<RobotState> state_ptr = robot_state_queue_ptr_->front();
+  robot_state_queue_ptr_->pop();
   robot_state_queue_mutex_.get()->unlock();
 
   const RobotState& state = *state_ptr.get();
@@ -127,17 +126,17 @@ void ROSPublisher::posePublish() {
 }
 
 // Pose publishing thread
-void ROSPublisher::posePublishingThread() {
+void ROSPublisher::PosePublishingThread() {
   // Loop and publish data
   ros::Rate loop_rate(pose_publish_rate_);
   while (ros::ok()) {
-    posePublish();
+    PosePublish();
     loop_rate.sleep();
   }
 }
 
 // Publishes path
-void ROSPublisher::pathPublish() {
+void ROSPublisher::PathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
   if (poses_.size() == 0) {
     // std::cout << "path is empty" << std::endl;
@@ -158,11 +157,11 @@ void ROSPublisher::pathPublish() {
 }
 
 // Path publishing thread
-void ROSPublisher::pathPublishingThread() {
+void ROSPublisher::PathPublishingThread() {
   // Loop and publish data
   ros::Rate loop_rate(path_publish_rate_);
   while (ros::ok()) {
-    pathPublish();
+    PathPublish();
     loop_rate.sleep();
   }
 }

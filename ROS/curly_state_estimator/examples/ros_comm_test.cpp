@@ -18,16 +18,16 @@ int main(int argc, char** argv) {
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
-  auto qimu_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/gx5_1/imu/data");
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 
   auto qv_and_mutex
-      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 
-  ros_sub.start_subscribing_thread();
+  ros_sub.StartSubscribingThread();
   // TODO: Create robot state system -- initialize all system threads
 
 
@@ -44,18 +44,18 @@ int main(int argc, char** argv) {
       = state_estimator.get_robot_state_queue_mutex_ptr();
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
                                     robot_state_queue_mutex_ptr);
-  ros_pub.start_publishing_thread();
+  ros_pub.StartPublishingThread();
 
   // Start running
   while (ros::ok()) {
     // Step behavior
-    if (state_estimator.enabled()) {
-      state_estimator.run_once();
+    if (state_estimator.is_enabled()) {
+      state_estimator.RunOnce();
     } else {
-      if (state_estimator.biasInitialized()) {
-        state_estimator.initStateFromImu();
+      if (state_estimator.BiasInitialized()) {
+        state_estimator.InitStateFromImu();
       } else {
-        state_estimator.initBias();
+        state_estimator.InitBias();
       }
     }
     ros::spinOnce();

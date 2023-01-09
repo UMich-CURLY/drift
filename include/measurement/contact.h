@@ -47,7 +47,9 @@ class ContactMeasurement : public Measurement {
   Eigen::Matrix<bool, CONTACT_DIM, 1> get_contact() const;
 
  private:
-  Eigen::Matrix<bool, CONTACT_DIM, 1> contacts_;
+  Eigen::Matrix<bool, CONTACT_DIM, 1>
+      contacts_;    // boolean 1D matrix representing the status of contact. 1 =
+                    // contact, 0 = no contact
 };
 #include "measurement/impl/contact_impl.cpp"
 

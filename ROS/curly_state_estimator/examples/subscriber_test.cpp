@@ -15,14 +15,14 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  auto q1_and_mutex = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto q1_and_mutex = ros_sub.AddIMUSubscriber("/gx5_0/imu/data");
   auto q1 = q1_and_mutex.first;
-  auto q2_and_mutex = ros_sub.add_imu_subscriber("/gx5_1/imu/data");
+  auto q2_and_mutex = ros_sub.AddIMUSubscriber("/gx5_1/imu/data");
   auto q2 = q2_and_mutex.first;
   auto qv_and_mutex
-      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
   auto qv = qv_and_mutex.first;
-  ros_sub.start_subscribing_thread();
+  ros_sub.StartSubscribingThread();
   // TODO: Create robot state system -- initialize all system threads
 
   // block until we stop the ros to print out the value

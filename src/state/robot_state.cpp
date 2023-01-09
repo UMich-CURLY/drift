@@ -296,18 +296,16 @@ void RobotState::set_propagate_time(const double t) { t_prop_ = t; }
 
 void RobotState::add_aug_cov(const Eigen::Matrix3d& cov) {
   int dim = this->dimP();
+  /// TODO: Add conservative resize to avoid construction of new matrix
   Eigen::MatrixXd P_aug = Eigen::MatrixXd::Zero(dim + 3, dim + 3);
   P_aug.block(0, 0, dim, dim) = P_;
   P_aug.block<3, 3>(dim, dim) = cov;
   P_ = P_aug;
 }
 
-void RobotState::set_aug_cov(int matrix_idx, const Eigen::Matrix3d& cov) {
-  P_.block<3, 3>(P_.rows() - 3, P_.rows() - 3) = cov;
-}
-
 void RobotState::del_aug_cov(int matrix_idx) {
   int dim = this->dimP();
+  /// TODO: Add conservative resize to avoid construction of new matrix
   Eigen::MatrixXd P_aug = Eigen::MatrixXd::Zero(dim - 3, dim - 3);
   int idx_cov = matrix_idx * 3 - 12;
   P_aug.block(0, 0, idx_cov, idx_cov) = P_.block(0, 0, idx_cov, idx_cov);
