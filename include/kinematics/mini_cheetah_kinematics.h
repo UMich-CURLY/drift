@@ -11,21 +11,9 @@
 #include "measurement/joint_state.h"
 #include "measurement/kinematics.h"
 
-class MiniCheetahKin : public KinematicsMeasurement<double> {
+class MiniCheetahKin : public kinematics {
  public:
   MiniCheetahKin();
 
   void compute_kinematics() override;
-
-  void set_joint_state(const JointStateMeasurement<12, double>& js);
-
-  void set_contact_state(const ContactMeasurement<4>& ct);
-
-  JointStateMeasurement<12, double> get_joint_state() const;
-
-  ContactMeasurement<4> get_contact_state() const;
-
- private:
-  ContactMeasurement<4> contact_;
-  JointStateMeasurement<12, double> js_;
 };

@@ -5,9 +5,9 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   KinematicsMeasurement.h
+ *  @file   kinematics.h
  *  @author Justin Yu
- *  @brief  Header file for robot KinematicsMeasurement state measurement
+ *  @brief  Header file for robot kinematics state measurement
  *  @date   Nov 16, 2022
  **/
 
@@ -17,52 +17,56 @@
 #include "measurement.h"
 
 /**
- * @class KinematicsMeasurement
+ * @class kinematics
  *
- * TODO: Edit -> Derived measurement class containing information
+ * Derived measurement class containing information
  * about world-frame robot state
  */
-template<typename T>
-class KinematicsMeasurement : public Measurement {
+class kinematics : public Measurement {
  public:
   /**
    * @brief Default constructor.
    */
-  KinematicsMeasurement();
+  kinematics();
 
   virtual void compute_kinematics() = 0;
 
-  void set_kin_state(const Eigen::Matrix<T, 3, 1>& pos,
-                     const Eigen::Matrix<T, 3, 1>& vel,
-                     const Eigen::Matrix<T, 3, 1>& eft);
+  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> get_J() const;
+
+  Eigen::Matrix<bool, Eigen::Dynamic, 1> get_contact() const;
+
+  Eigen::Matrix<double, Eigen::Dynamic, 1> get_joint_state() const;
 
   /**
    * @brief Get the world-frame position in Euclidean space.
    *
    * @return 3-vector of Kinematics position coefficients (m)
    */
-  Eigen::Matrix<T, 3, 1> get_kin_pos() const;
+  Eigen::Matrix<double, 3, 1> get_kin_pos() const;
 
   /**
    * @brief Get the world-frame velocity in Euclidean space.
    *
    * @return 3-vector of Kinematics velocity (m/s)
    */
-  Eigen::Matrix<T, 3, 1> get_kin_vel() const;
+  Eigen::Matrix<double, 3, 1> get_kin_vel() const;
 
   /**
    * @brief Get the world-frame effort (force) in Euclidean space.
    *
    * @return 3-vector of Kinematics effort (Newtons).
    */
-  Eigen::Matrix<T, 3, 1> get_kin_effort() const;
+  // Eigen::Matrix<double, 3, 1> get_kin_effort() const;
 
- private:
-  Eigen::Matrix<T, 3, 1> position_;
-  Eigen::Matrix<T, 3, 1> velocity_;
-  Eigen::Matrix<T, 3, 1> effort_;
+ protected:
+  Eigen::Matrix<double, 3, 1> position_;
+  Eigen::Matrix<double, 3, 1> velocity_;
+  // Eigen::Matrix<T, 3, 1> effort_;
+  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian_;
+  Eigen::Matrix<bool, Eigen::Dynamic, 1> contact_;
+  Eigen::Matrix<double, Eigen::Dynamic, 1> encoder_position_;
+  Eigen::Matrix<double, 3, Eigen::Dynamic> body_to_foot_;
 };
 
-#include "measurement/impl/kinematics_impl.cpp"
 
 #endif

@@ -8,7 +8,8 @@ ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/p_Body_to_FrontLeftFoot
 ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.cpp
 ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.cpp
 ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.cpp)
-set(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
+set(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+${PROJECT_SOURCE_DIR}/src/measurement/kinematics.cpp)
 
 # Create the test binary
 add_executable(${test_prefix}_cheetahkinematics_test cheetahkinematics_test.cpp ${measurement} ${kinematics} ${minicheetah})
