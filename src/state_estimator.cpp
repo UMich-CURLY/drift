@@ -13,12 +13,16 @@
 
 #include "state_estimator.h"
 
+StateEstimator::StateEstimator()
+    : robot_state_queue_ptr_(new RobotStateQueue),
+      robot_state_queue_mutex_ptr_(new std::mutex) {}
+
 StateEstimator::StateEstimator(ErrorType error_type)
     : error_type_(error_type),
       robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-void StateEstimator::run_once() {
+void StateEstimator::RunOnce() {
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
@@ -51,9 +55,10 @@ void StateEstimator::set_state(RobotState& state) { state_ = state; }
 const RobotState StateEstimator::get_state() const { return state_; }
 
 void StateEstimator::add_imu_propagation(
-    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {
+    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
   propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr,
-                                                  error_type_);
+                                                  error_type_, yaml_filepath);
 }
 
 // void StateEstimator::add_kinematics_correction(
@@ -66,17 +71,18 @@ void StateEstimator::add_imu_propagation(
 // }
 
 void StateEstimator::add_velocity_correction(
-    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr) {
+    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
-      buffer_ptr, buffer_mutex_ptr, error_type_);
+      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
   corrections_.push_back(correction);
 }
 
-const bool StateEstimator::enabled() const { return enabled_; }
+const bool StateEstimator::is_enabled() const { return enabled_; }
 
-void StateEstimator::enableFilter() { enabled_ = true; }
+void StateEstimator::EnableFilter() { enabled_ = true; }
 
-const bool StateEstimator::biasInitialized() const {
+const bool StateEstimator::BiasInitialized() const {
   if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
     return true;
   }
@@ -86,7 +92,7 @@ const bool StateEstimator::biasInitialized() const {
   return imu_propagation_ptr.get()->get_bias_initialized();
 }
 
-void StateEstimator::initBias() {
+void StateEstimator::InitBias() {
   if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
     return;
   }
@@ -95,7 +101,7 @@ void StateEstimator::initBias() {
   imu_propagation_ptr.get()->InitImuBias();
 }
 
-void StateEstimator::initStateFromImu() {
+void StateEstimator::InitStateFromImu() {
   /// TODO: Implement clear filter
   // Clear filter
   this->clear();

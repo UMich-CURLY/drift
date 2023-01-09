@@ -47,18 +47,18 @@ int main(int argc, char** argv) {
 
   // Add propagation and correction methods
 
-  auto imu_data_buffer_ptr = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto imu_data_buffer_ptr = ros_sub.AddIMUSubscriber("/gx5_0/imu/data");
   state_estimator.add_imu_propagation(imu_data_buffer_ptr, false);
 
 
   state_estimator::init_bias(){};
   state_estimator::init_state();
   auto velocity_data_buffer_ptr
-      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
   state_estimator.add_velocity_correction(velocity_data_buffer_ptr);
 
 
-  ros_sub.start_subscribing_thread();
+  ros_sub.StartSubscribingThread();
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();

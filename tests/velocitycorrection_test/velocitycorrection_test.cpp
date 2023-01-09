@@ -139,7 +139,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   expect_X.push_back(X);
 
   // Set initial state:
-  state_estimator.initStateFromImu();
+  state_estimator.InitStateFromImu();
   auto init_state = state_estimator.get_state().get_X();
   // Check initial state value:
   for (int j = 0; j < 5; j++) {
@@ -151,8 +151,8 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   for (int i = 0; i < 4; i++) {
     // Check propagation and correction:
-    if (state_estimator.enabled()) {
-      state_estimator.run_once();
+    if (state_estimator.is_enabled()) {
+      state_estimator.RunOnce();
       std::cout << "After Correction: " << std::endl;
       std::cout << state_estimator.get_state().get_X() << std::endl;
       auto est_state = state_estimator.get_state().get_X();
@@ -163,11 +163,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       }
       std::cout << "------------------------------------------" << std::endl;
     } else {
-      if (state_estimator.biasInitialized()) {
-        state_estimator.initStateFromImu();
-        state_estimator.enableFilter();
+      if (state_estimator.BiasInitialized()) {
+        state_estimator.InitStateFromImu();
+        state_estimator.EnableFilter();
       } else {
-        state_estimator.initBias();
+        state_estimator.InitBias();
       }
     }
   }

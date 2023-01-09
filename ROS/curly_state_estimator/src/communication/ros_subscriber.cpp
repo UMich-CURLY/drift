@@ -29,7 +29,7 @@ ROSSubscriber::~ROSSubscriber() {
 }
 
 
-IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
+IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   // Create a new queue for data buffers
   IMUQueuePtr imu_queue_ptr(new IMUQueue);
 
@@ -48,7 +48,7 @@ IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(
+VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
     const std::string topic_name) {
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
@@ -69,7 +69,7 @@ VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(
 };
 
 
-void ROSSubscriber::start_subscribing_thread() {
+void ROSSubscriber::StartSubscribingThread() {
   subscribing_thread_ = std::thread([this] { this->ros_spin(); });
   thread_started_ = true;
 }
