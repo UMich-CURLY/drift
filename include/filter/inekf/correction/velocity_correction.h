@@ -40,14 +40,12 @@ class VelocityCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] yaml_filename: Name of the yaml file for the correction
+   * @param[in] yaml_filepath: Name of the yaml file for the correction
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                      const ErrorType& error_type,
-                     const std::string& yaml_filepath
-                     = "config/filter/inekf/"
-                       "correction/velocity_correction.yaml");
+                     const std::string& yaml_filepath);
 
   /// @name Correction Methods
   /// @{

@@ -51,13 +51,11 @@ class ImuPropagation : public Propagation {
    * sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
-   * @param[in] yaml_filename: Name of the yaml file for the propagation
+   * @param[in] yaml_filepath: Name of the yaml file for the propagation
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                 const ErrorType& error_type,
-                 const std::string& yaml_filepath
-                 = "config/filter/inekf/propagation/imu_propagation.yaml");
+                 const ErrorType& error_type, const std::string& yaml_filepath);
   /// @}
 
   /// @name Propagation
