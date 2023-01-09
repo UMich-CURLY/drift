@@ -31,11 +31,11 @@ class kinematics : public Measurement {
 
   virtual void compute_kinematics() = 0;
 
-  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> get_J() const;
+  Eigen::Matrix<double, -1, -1> get_J() const;
 
-  Eigen::Matrix<bool, Eigen::Dynamic, 1> get_contact() const;
+  Eigen::Matrix<bool, -1, 1> get_contact() const;
 
-  Eigen::Matrix<double, Eigen::Dynamic, 1> get_joint_state() const;
+  Eigen::Matrix<double, -1, 1> get_joint_state() const;
 
   /**
    * @brief Get the world-frame position in Euclidean space.
@@ -62,10 +62,10 @@ class kinematics : public Measurement {
   Eigen::Matrix<double, 3, 1> position_;
   Eigen::Matrix<double, 3, 1> velocity_;
   // Eigen::Matrix<T, 3, 1> effort_;
-  Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> jacobian_;
-  Eigen::Matrix<bool, Eigen::Dynamic, 1> contact_;
-  Eigen::Matrix<double, Eigen::Dynamic, 1> encoder_position_;
-  Eigen::Matrix<double, 3, Eigen::Dynamic> body_to_foot_;
+  Eigen::Matrix<double, -1, -1> jacobian_;
+  Eigen::Matrix<bool, -1, 1> contact_;
+  Eigen::Matrix<double, -1, 1> encoder_position_;
+  Eigen::Matrix<double, 3, -1> body_to_foot_;
 };
 
 

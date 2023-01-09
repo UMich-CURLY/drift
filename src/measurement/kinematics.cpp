@@ -11,15 +11,10 @@ kinematics::kinematics() : Measurement(KINEMATICS) {
   velocity_.setZero();
 }
 
-Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> kinematics::get_J()
-    const {
-  return jacobian_;
-}
-Eigen::Matrix<bool, Eigen::Dynamic, 1> kinematics::get_contact() const {
-  return contact_;
-}
+Eigen::Matrix<double, -1, -1> kinematics::get_J() const { return jacobian_; }
+Eigen::Matrix<bool, -1, 1> kinematics::get_contact() const { return contact_; }
 
-Eigen::Matrix<double, Eigen::Dynamic, 1> kinematics::get_joint_state() const {
+Eigen::Matrix<double, -1, 1> kinematics::get_joint_state() const {
   return encoder_position_;
 }
 
