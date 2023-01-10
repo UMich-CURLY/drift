@@ -43,6 +43,7 @@ class Correction {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @name Constructors
+  /// @{
   /**
    * @brief Constructor for the base correction class
    */
@@ -55,6 +56,7 @@ class Correction {
    * sensor data buffer
    */
   Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+  /// @}
 
   /// @name Correction
   /// @{

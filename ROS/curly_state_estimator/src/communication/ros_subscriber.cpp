@@ -39,7 +39,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
       topic_name, 1000,
-      boost::bind(&ROSSubscriber::imu_call_back, this, _1, mutex_list_.back(),
+      boost::bind(&ROSSubscriber::IMUCallback, this, _1, mutex_list_.back(),
                   imu_queue_ptr)));
 
   // Keep the ownership of the data queue in this class
@@ -59,7 +59,7 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
       topic_name, 1000,
-      boost::bind(&ROSSubscriber::differential_encoder2velocity_call_back, this,
+      boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback, this,
                   _1, mutex_list_.back(), vel_queue_ptr)));
 
   // Keep the ownership of the data queue in this class
@@ -70,11 +70,11 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
 
 
 void ROSSubscriber::StartSubscribingThread() {
-  subscribing_thread_ = std::thread([this] { this->ros_spin(); });
+  subscribing_thread_ = std::thread([this] { this->RosSpin(); });
   thread_started_ = true;
 }
 
-void ROSSubscriber::imu_call_back(
+void ROSSubscriber::IMUCallback(
     const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
     const std::shared_ptr<std::mutex>& mutex, IMUQueuePtr& imu_queue) {
   // Create an imu measurement object
@@ -106,7 +106,7 @@ void ROSSubscriber::imu_call_back(
   // std::cout << "mutex id: " << mutex.get() << std::endl;
 }
 
-void ROSSubscriber::differential_encoder2velocity_call_back(
+void ROSSubscriber::DifferentialEncoder2VelocityCallback(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
   // Create an velocity measurement object
@@ -133,7 +133,7 @@ void ROSSubscriber::differential_encoder2velocity_call_back(
 }
 
 
-void ROSSubscriber::ros_spin() {
+void ROSSubscriber::RosSpin() {
   while (ros::ok()) {
     ros::spinOnce();
   }
