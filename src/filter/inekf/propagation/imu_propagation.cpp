@@ -119,19 +119,19 @@ bool ImuPropagation::Propagate(RobotState& state) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
-  auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+  const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  double dt = imu_measurement.get_time() - state.get_propagate_time();
-  state.set_time(imu_measurement.get_time());
-  state.set_propagate_time(imu_measurement.get_time());
+  double dt = imu_measurement->get_time() - state.get_propagate_time();
+  state.set_time(imu_measurement->get_time());
+  state.set_propagate_time(imu_measurement->get_time());
 
-  Eigen::Vector3d w = imu_measurement.get_ang_vel()
+  Eigen::Vector3d w = imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
 
   Eigen::Vector3d a
-      = imu_measurement.get_lin_acc()
+      = imu_measurement->get_lin_acc()
         - state.get_accelerometer_bias();    // Linear Acceleration
 
   // Rotate imu frame to align it with the body frame:
@@ -403,18 +403,19 @@ void ImuPropagation::InitImuBias() {
       sensor_data_buffer_mutex_ptr_.get()->unlock();
       return;
     }
-    auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+    const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
     sensor_data_buffer_ptr_->pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-    Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity
-    Eigen::Vector3d a = imu_measurement.get_lin_acc();    // Linear Acceleration
+    Eigen::Vector3d w = imu_measurement->get_ang_vel();    // Angular Velocity
+    Eigen::Vector3d a
+        = imu_measurement->get_lin_acc();    // Linear Acceleration
 
     // Rotate imu frame to align it with the body frame:
     w = R_imu2body_ * w;
     a = R_imu2body_ * a;
 
-    Eigen::Quaternion<double> quat = imu_measurement.get_quaternion();
+    Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
     Eigen::Matrix3d R;
     if (use_imu_ori_est_init_bias_) {
       R = quat.toRotationMatrix();

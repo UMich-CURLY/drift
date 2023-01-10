@@ -119,11 +119,11 @@ void StateEstimator::InitStateFromImu() {
     imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
     return;
   }
-  const ImuMeasurement<double>& imu_packet_in = *(imu_queue_ptr->front().get());
+  const ImuMeasurementPtr imu_packet_in = imu_queue_ptr->front();
   imu_queue_ptr->pop();
   imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
 
-  Eigen::Quaternion<double> quat = imu_packet_in.get_quaternion();
+  Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
   // VectorNav estimate
   Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
@@ -144,12 +144,12 @@ void StateEstimator::InitStateFromImu() {
         // << std::endl;
         return;
       }
-      const VelocityMeasurement<double>& velocity_packet_in
-          = *(velocity_queue_ptr->front().get());
+      const VelocityMeasurementPtr velocity_packet_in
+          = velocity_queue_ptr->front();
       velocity_queue_ptr->pop();
       velocity_correction_ptr.get()->get_mutex_ptr()->unlock();
 
-      v0_body = velocity_packet_in.get_velocity();
+      v0_body = velocity_packet_in->get_velocity();
       break;
     }
   }
@@ -182,7 +182,7 @@ void StateEstimator::InitStateFromImu() {
   std::cout << "Robot's state covariance is initialized to: \n";
   std::cout << this->get_state().get_P() << std::endl;
   // Set enabled flag
-  double t_prev = imu_packet_in.get_time();
+  double t_prev = imu_packet_in->get_time();
   state_.set_time(t_prev);
   state_.set_propagate_time(t_prev);
   enabled_ = true;

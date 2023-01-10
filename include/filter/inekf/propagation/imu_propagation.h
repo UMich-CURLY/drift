@@ -28,7 +28,8 @@
 #include "measurement/imu.h"
 
 namespace inekf {
-typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
+typedef std::shared_ptr<ImuMeasurement<double>> ImuMeasurementPtr;
+typedef std::queue<ImuMeasurementPtr> IMUQueue;
 typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
 
 /**
