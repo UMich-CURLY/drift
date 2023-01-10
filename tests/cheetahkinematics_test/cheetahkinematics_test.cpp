@@ -45,12 +45,16 @@ TEST(cheetahkinematicstest, OverloadCtor) {
       1.234, 1.345;
   ct << 1, 0, 0, 1;
   MiniCheetahKin kin_data(js, ct);
-  std::cout << kin_data.get_joint_state();
+  std::cout << kin_data.get_joint_state() << std::endl;
   kin_data.compute_kinematics();
-  std::cout << kin_data.get_kin_pos(FL);
+  std::cout << kin_data.get_kin_pos(FL) << std::endl;
   EXPECT_EQ(kin_data.get_contact(FR), true);
   EXPECT_EQ(kin_data.get_contact(FL), false);
-  EXPECT_EQ(kin_data.get_contact(HL), false);
-  EXPECT_EQ(kin_data.get_contact(HR), true);
-  std::cout << kin_data.get_J(FR);
+  EXPECT_EQ(kin_data.get_contact(HR), false);
+  EXPECT_EQ(kin_data.get_contact(HL), true);
+
+  std::cout << kin_data.get_J(FR) << std::endl;
+  std::cout << kin_data.get_J(FL) << std::endl;
+  std::cout << kin_data.get_J(HR) << std::endl;
+  std::cout << kin_data.get_J(HL) << std::endl;
 }

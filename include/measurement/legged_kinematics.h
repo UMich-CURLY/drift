@@ -36,7 +36,8 @@ class legged_kinematics : public Measurement {
                     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   /**
-   * @brief Computes the
+   * @brief Computes and stores foot position and Jacobian matricies based on
+   * encoder values
    */
   virtual void compute_kinematics() = 0;
 

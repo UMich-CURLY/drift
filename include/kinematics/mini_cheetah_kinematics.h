@@ -1,3 +1,8 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
 
 #include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"
 #include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
@@ -11,7 +16,7 @@
 #include "measurement/joint_state.h"
 #include "measurement/legged_kinematics.h"
 
-enum Leg { FR, FL, HL, HR };
+enum Leg { FR, FL, HR, HL };
 
 class MiniCheetahKin : public legged_kinematics {
  public:
