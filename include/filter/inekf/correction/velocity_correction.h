@@ -32,6 +32,7 @@ class VelocityCorrection : public Correction {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @name Constructors
+  /// @{
   /**
    * @brief Constructor for the correction class
    *
@@ -46,6 +47,7 @@ class VelocityCorrection : public Correction {
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                      const ErrorType& error_type,
                      const std::string& yaml_filepath);
+  /// @}
 
   /// @name Correction Methods
   /// @{

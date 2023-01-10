@@ -45,7 +45,6 @@ class Propagation {
    * @brief Constructor for the propagation class
    *
    */
-  /// @}
   Propagation();
 
   /**
@@ -55,6 +54,7 @@ class Propagation {
    * sensor data buffer
    */
   Propagation(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+  /// @}
 
   /// @name Propagation
   /// @{

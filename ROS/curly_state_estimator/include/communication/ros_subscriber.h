@@ -42,17 +42,23 @@ typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
 namespace ros_wrapper {
 class ROSSubscriber {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Construct a new ROSSubscriber object
    *
    * @param[in] nh ROS node handle
    */
   ROSSubscriber(ros::NodeHandle* nh);
+  /// @}
 
+  /// @name Destructors
+  /// @{
   /**
    * @brief Destroy the ROSSubscriber object
    */
   ~ROSSubscriber();
+  /// @}
 
   /**
    * @brief Add IMU subscriber
@@ -85,6 +91,8 @@ class ROSSubscriber {
   void StartSubscribingThread();
 
  private:
+  /// @name Callback functions
+  /// @{
   /**
    * @brief IMU callback function
    *
@@ -92,9 +100,9 @@ class ROSSubscriber {
    * @param[in] mutex: mutex for the buffer queue
    * @param[in] imu_queue: pointer to the buffer queue
    */
-  void imu_call_back(const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
-                     const std::shared_ptr<std::mutex>& mutex,
-                     IMUQueuePtr& imu_queue);
+  void IMUCallback(const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
+                   const std::shared_ptr<std::mutex>& mutex,
+                   IMUQueuePtr& imu_queue);
 
   /**
    * @brief Velocity callback function
@@ -103,7 +111,7 @@ class ROSSubscriber {
    * @param[in] mutex: mutex for the buffer queue
    * @param[in] vel_queue: pointer to the buffer queue
    */
-  void velocity_call_back(
+  void VelocityCallback(
       const boost::shared_ptr<const geometry_msgs::Twist>& vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
@@ -114,10 +122,12 @@ class ROSSubscriber {
    * @param mutex: mutex for the buffer queue
    * @param vel_queue: pointer to the buffer queue
    */
-  void differential_encoder2velocity_call_back(
+  void DifferentialEncoder2VelocityCallback(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
-  void ros_spin();
+  /// @}
+
+  void RosSpin();
 
   ros::NodeHandle* nh_;                             // The ROS handle
   std::vector<ros::Subscriber> subscriber_list_;    // List of subscribers
