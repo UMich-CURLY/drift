@@ -19,7 +19,8 @@
 #include "measurement/velocity.h"
 
 namespace inekf {
-typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
+typedef std::shared_ptr<VelocityMeasurement<double>> VelocityMeasurementPtr;
+typedef std::queue<VelocityMeasurementPtr> VelocityQueue;
 typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 
 /**
