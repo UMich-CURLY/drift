@@ -35,6 +35,8 @@ typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
 namespace ros_wrapper {
 class ROSPublisher {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Construct a new ROS Publisher object
    *
@@ -44,12 +46,16 @@ class ROSPublisher {
    */
   ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
                std::shared_ptr<std::mutex> robot_state_queue_mutex);
+  /// @}
 
+  /// @name Destructors
+  /// @{
   /**
    * @brief Destroy the ROSPublisher object
    *
    */
   ~ROSPublisher();
+  /// @}
 
   /**
    * @brief Start publishing thread for pose and path publishers
@@ -85,6 +91,8 @@ class ROSPublisher {
       poses_;                 // Path message in ROS, a list of poses
   std::mutex poses_mutex_;    // mutex for the path
 
+  /// @name Publishing methods
+  /// @{
   /**
    * @brief A thread for publishing path messages
    */
@@ -104,6 +112,7 @@ class ROSPublisher {
    * @brief Publish a pose message
    */
   void PosePublish();
+  /// @}
 };
 
 
