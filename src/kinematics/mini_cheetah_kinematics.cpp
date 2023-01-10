@@ -1,28 +1,33 @@
 #include "kinematics/mini_cheetah_kinematics.h"
 
 MiniCheetahKin::MiniCheetahKin() {
-  jacobian_.resize(3, 12);
-  jacobian_.setZero();
-  contact_.resize(4, 1);
-  contact_.setZero();
-  encoder_position_.resize(12, 1);
-  encoder_position_.setZero();
+  position_.setConstant(3, 4, 0);
+  velocity_.setConstant(3, 4, 0);
+  jacobian_.setConstant(3, 12, 0);
+  contacts_.setConstant(4, 1, 0);
+  encoders_.setConstant(12, 1, 0);
+}
+
+MiniCheetahKin::MiniCheetahKin(
+    const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+    const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
+    : legged_kinematics(encoders, contacts) {
+  position_.setConstant(3, 4, 0);
+  velocity_.setConstant(3, 4, 0);
+  jacobian_.setConstant(3, 12, 0);
 }
 
 void MiniCheetahKin::compute_kinematics() {
-  Eigen::Matrix<double, 12, 1> encoders = encoder_position_;
-
-  Eigen::Matrix<double, 3, 1> p_FL = p_Body_to_FrontLeftFoot(encoders);
-  Eigen::Matrix<double, 3, 1> p_FR = p_Body_to_FrontRightFoot(encoders);
-  Eigen::Matrix<double, 3, 1> p_HL = p_Body_to_HindLeftFoot(encoders);
-  Eigen::Matrix<double, 3, 1> p_HR = p_Body_to_HindRightFoot(encoders);
-  Eigen::Matrix<double, 3, 12> JpFL = Jp_Body_to_FrontLeftFoot(encoders);
-  Eigen::Matrix<double, 3, 12> JpFR = Jp_Body_to_FrontRightFoot(encoders);
-  Eigen::Matrix<double, 3, 12> JpHL = Jp_Body_to_HindLeftFoot(encoders);
-  Eigen::Matrix<double, 3, 12> JpHR = Jp_Body_to_HindRightFoot(encoders);
-
-  body_to_foot_.col(0) = p_FR;
-  body_to_foot_.col(1) = p_HR;
-  body_to_foot_.col(2) = p_HL;
-  body_to_foot_.col(3) = p_FL;
+  position_.col(FR) = p_Body_to_FrontRightFoot(encoders_);
+  position_.col(FL) = p_Body_to_FrontLeftFoot(encoders_);
+  position_.col(HL) = p_Body_to_HindLeftFoot(encoders_);
+  position_.col(HR) = p_Body_to_HindRightFoot(encoders_);
+  jacobian_.block(0, FR * 3, 3, 3)
+      = Jp_Body_to_FrontRightFoot(encoders_).block(0, FR * 3, 3, 3);
+  jacobian_.block(0, FL * 3, 3, 3)
+      = Jp_Body_to_FrontLeftFoot(encoders_).block(0, FL * 3, 3, 3);
+  jacobian_.block(0, HL * 3, 3, 3)
+      = Jp_Body_to_HindLeftFoot(encoders_).block(0, HL * 3, 3, 3);
+  jacobian_.block(0, HR * 3, 3, 3)
+      = Jp_Body_to_HindRightFoot(encoders_).block(0, HR * 3, 3, 3);
 }
