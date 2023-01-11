@@ -112,18 +112,10 @@ class StateEstimator {
    * @param[in] buffer_mutex_ptr: The imu buffer mutex pointer
    * @param[in] yaml_filepath: The yaml file path for the imu propagation config
    */
-<<<<<<< HEAD
-  void add_imu_propagation(IMUQueuePtr buffer_ptr,
-                           std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                           const std::string& yaml_filepath
-                           = "/Users/tingjun/code/curly_state_estimator/config/"
-                             "filter/inekf/propagation/imu_propagation.yaml");
-=======
   void add_imu_propagation(
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
       = "config/filter/inekf/propagation/imu_propagation.yaml");
->>>>>>> 2c8576349538028ebaee05be110a29fb784ab999
   /// @}
 
   /// @name Correction
@@ -151,11 +143,11 @@ class StateEstimator {
    * @param[in] yaml_filepath: The yaml file path for the velocity correction
    * config
    */
-  void add_velocity_correction(
-      VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-      const std::string& yaml_filepath
-      = "/Users/tingjun/code/curly_state_estimator/config/filter/inekf/"
-        "correction/velocity_correction.yaml");
+  void add_velocity_correction(VelocityQueuePtr buffer_ptr,
+                               std::shared_ptr<std::mutex> buffer_mutex_ptr,
+                               const std::string& yaml_filepath
+                               = "config/filter/inekf/"
+                                 "correction/velocity_correction.yaml");
   /// @}
 
   // ======================================================================
