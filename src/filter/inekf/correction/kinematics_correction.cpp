@@ -4,19 +4,16 @@ namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-using ContactID = int;
-
 KinematicsCorrection::KinematicsCorrection(
     KinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const std::string& aug_type,
-    const string& yaml_filepath)
-    : Correction::Correction(),
+    const std::string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type),
       aug_type_(aug_type) {
   correction_type_ = CorrectionType::KINEMATICS;
-  sensor_data_buffer_mutex_ptr_ = sensor_data_buffer_mutex_ptr;
   cout << "Loading kinematics correction config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
   encoder_cov_val_ = config_["noises"]["encoder_std"]
@@ -40,9 +37,8 @@ bool KinematicsCorrection::Correct(RobotState& state) {
 
   // Initialize containers to store contacts that will be removed or augmented
   // after correction
-  vector<ContactID> remove_contacts;
-  vectorKinematics new_contacts;
-  vector<int> used_contact_ids;
+  vector<int> remove_contacts;         // leg id of contacts to be removed
+  vector<ContactInfo> new_contacts;    // new contacts to be added
 
   //---------------------------------------------------------------
   /// TODO: add get_contact in the KinematicsMeasurement() class
@@ -50,72 +46,41 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   /// TOASK: Should we use map<int, bool> or just Matrix<int, CONTACT_DIM,1> for
   /// contact measurements?
   // --------------------------------------------------------------
-  // sensor_data_buffer_mutex_ptr_.get()->lock();
-  // std::map<int, bool> contacts
-  //     = sensor_data_buffer_ptr_->front().get()->get_contacts();
-  std::map<int, bool> contacts;
-  // const std::shared_ptr<KinematicsMeasurement> measured_kinematics
-  //     = sensor_data_buffer_ptr_->front().get()->get_kinematics();
-  // sensor_data_buffer_ptr_->pop();
-  // sensor_data_buffer_mutex_ptr_.get()->unlock();
 
   sensor_data_buffer_mutex_ptr_.get()->lock();
-  std::shared_ptr<KinematicsMeasurement> kinematics_measurement
+  KinematicsMeasurementPtr kinematics_measurement
       = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  num_legs = kinematics_measurement->get_num_legs();
+  int num_legs = kinematics_measurement->get_num_legs();
   kinematics_measurement->compute_kinematics();
 
-  for (int i = 0; i < num_legs; i++) {
-    bool has_contact = kinematics_measurement->get_contact(i);
-    Eigen::Vector3d pose = kinematics_measurement->get_pose(i);
-    Eigen::Matrix3d J = kinematics_measurement->get_jacobian(i);
-    Eigen::Matrix<double, 6, 6> cov = Eigen::Matrix<double, 6, 6>::Identity();
-    cov.block<3, 3>(3, 3)
-        = J * encoder_cov_ * J.transpose() + kinematics_prior_cov_;
-  }
+  for (int id = 0; id < num_legs; id++) {
+    bool has_contact = kinematics_measurement->get_contact(id);
+    Eigen::Vector3d pose = kinematics_measurement->get_pose(id);
+    Eigen::Matrix3d J = kinematics_measurement->get_jacobian(id);
+    Eigen::Matrix3d cov
+        = J * encoder_cov_val_ * J.transpose()
+          + kinematics_additive_cov_val_ * Eigen::Matrix3d::Identity();
 
-  for (vectorKinematicsIterator it = measured_kinematics.begin();
-       it != measured_kinematics.end(); ++it) {
-    // Detect and skip if an ID is not unique (this would cause singularity
-    // issues in InEKF::Correct)
-    if (find(used_contact_ids.begin(), used_contact_ids.end(), it->id)
-        != used_contact_ids.end()) {
-      cout << "Duplicate contact ID detected! Skipping measurement.\n";
-      continue;
-    } else {
-      used_contact_ids.push_back(it->id);
-    }
+    bool found = aug_id_to_column_id_.count(id);
 
-    // Find contact indicator for the kinematics measurement
-    // The contact data comes from sensor_data_buffer_, which is updated in the
-    // main loop
-    map<int, bool>::iterator it_contact = contacts.find(it->id);
-    if (it_contact == contacts.end()) {
-      continue;
-    }    // Skip if contact state is unknown
-    bool contact_indicated = it_contact->second;
-
-    // See if we can find id for augmented states (in this case, contact id) in
-    // the state
-    // map<int, int>::iterator it_estimated = aug_id_to_column_id_.find(it->id);
-    // bool found = it_estimated != aug_id_to_column_id_.end();
-
-    bool found = aug_id_to_column_id_.count(it->id);
-
-    if (!contact_indicated && found) {
-      // If contact is not indicated and id is found in estimated_contacts, then
-      // remove state
-      remove_contacts.push_back(it->id);    // Add id to remove list
-    } else if (contact_indicated && !found) {
-      //  If contact is indicated and id is not found i n estimated_contacts,
-      //  then augment state
-      new_contacts.push_back(*it);    // Add to augment list
-    } else if (contact_indicated && found) {
-      // If contact is indicated and id is found in estimated_contacts, then
-      // correct using kinematics
+    if (!has_contact && found) {
+      // If contact is not indicated and leg id is found in previous existing
+      // contact map, then remove state
+      remove_contacts.push_back(id);    // Add id to remove list
+    } else if (has_contact && !found) {
+      //  If contact is indicated and leg id is not found in previous exisiting
+      //  contact map, then augment state
+      ContactInfo new_contact;
+      new_contact.id = id;
+      new_contact.pose = pose;
+      new_contact.cov = cov;
+      new_contacts.push_back(new_contact);    // Add id to add map
+    } else if (has_contact && found) {
+      // If contact is indicated and leg id is found in previous existing
+      // contact map, then correct using kinematics
       int dimX = state.dimX();
       int dimTheta = state.dimTheta();
       int dimP = state.dimP();
@@ -127,11 +92,11 @@ bool KinematicsCorrection::Correct(RobotState& state) {
       H.block(startIndex, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
       if (state.get_state_type() == StateType::WorldCentric) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
-        H.block(startIndex, 3 * aug_id_to_column_id_[it->id] - dimTheta, 3, 3)
+        H.block(startIndex, 3 * aug_id_to_column_id_[id] - dimTheta, 3, 3)
             = Eigen::Matrix3d::Identity();    // I
       } else {
         H.block(startIndex, 6, 3, 3) = Eigen::Matrix3d::Identity();    // I
-        H.block(startIndex, 3 * aug_id_to_column_id_[it->id] - dimTheta, 3, 3)
+        H.block(startIndex, 3 * aug_id_to_column_id_[id] - dimTheta, 3, 3)
             = -Eigen::Matrix3d::Identity();    // -I
       }
 
@@ -143,7 +108,7 @@ bool KinematicsCorrection::Correct(RobotState& state) {
       N.block(0, startIndex, startIndex, 3)
           = Eigen::MatrixXd::Zero(startIndex, 3);
       N.block(startIndex, startIndex, 3, 3)
-          = state.get_world_rotation() * it->covariance.block<3, 3>(3, 3)
+          = state.get_world_rotation() * cov
             * state.get_world_rotation().transpose();
 
       // Fill out Z
@@ -152,12 +117,11 @@ bool KinematicsCorrection::Correct(RobotState& state) {
       Eigen::Matrix3d R = state.get_rotation();
       Eigen::Vector3d p = state.get_position();
       /// TODO: change this with the new get aug method
-      Eigen::Vector3d d = state.get_aug_state(aug_id_to_column_id_[it->id]);
+      Eigen::Vector3d d = state.get_aug_state(aug_id_to_column_id_[id]);
       if (state.get_state_type() == StateType::WorldCentric) {
-        Z.segment(startIndex, 3) = R * it->pose.block<3, 1>(0, 3) - (d - p);
+        Z.segment(startIndex, 3) = R * pose - (d - p);
       } else {
-        Z.segment(startIndex, 3)
-            = R.transpose() * (it->pose.block<3, 1>(0, 3) - (p - d));
+        Z.segment(startIndex, 3) = R.transpose() * (pose - (p - d));
       }
 
     } else {
@@ -180,9 +144,9 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   if (remove_contacts.size() > 0) {
     Eigen::MatrixXd X_rem = state.get_X();
     Eigen::MatrixXd P_rem = state.get_P();
-    for (ContactID contact_id : remove_contacts) {
-      state.del_aug_state(aug_id_to_column_id_[contact_id]);
-      aug_id_to_column_id_.erase(contact_id);
+    for (int id : remove_contacts) {
+      state.del_aug_state(aug_id_to_column_id_[id]);
+      aug_id_to_column_id_.erase(id);
     }
   }
 
@@ -190,15 +154,14 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   if (new_contacts.size() > 0) {
     Eigen::MatrixXd X_aug = state.get_X();
     Eigen::MatrixXd P_aug = state.get_P();
-    for (vectorKinematicsIterator it = new_contacts.begin();
-         it != new_contacts.end(); ++it) {
+    for (auto& new_contact : new_contacts) {
       // Initialize new contact position mean
       Eigen::Vector3d aug_state;
       if (state.get_state_type() == StateType::WorldCentric) {
-        aug_state = state.get_position()
-                    + state.get_rotation() * it->pose.block<3, 1>(0, 3);
+        aug_state
+            = state.get_position() + state.get_rotation() * new_contact.pose;
       } else {
-        aug_state = state.get_position() - it->pose.block<3, 1>(0, 3);
+        aug_state = state.get_position() - new_contact.pose;
       }
 
       // Initialize new contact covariance - TODO:speed up
@@ -227,12 +190,11 @@ bool KinematicsCorrection::Correct(RobotState& state) {
         F.block(state.dimP() - state.dimTheta(), 6, 3, 3)
             = Eigen::Matrix3d::Identity();
         F.block(state.dimP() - state.dimTheta(), 0, 3, 3)
-            = skew(-it->pose.block<3, 1>(0, 3));
+            = skew(-new_contact.pose);
         G.block(G.rows() - state.dimTheta() - 3, 0, 3, 3)
             = Eigen::Matrix3d::Identity();
       }
-      P_aug = (F * P_aug * F.transpose()
-               + G * it->covariance.block<3, 3>(3, 3) * G.transpose())
+      P_aug = (F * P_aug * F.transpose() + G * new_contact.cov * G.transpose())
                   .eval();
 
       // Send the new contact aug state and aug covariance to robot state
@@ -242,7 +204,7 @@ bool KinematicsCorrection::Correct(RobotState& state) {
 
       // Add the aug state matrix index to the augment state information
       // mapping
-      aug_id_to_column_id_[it->id] = aug_idx;
+      aug_id_to_column_id_[new_contact.id] = aug_idx;
     }
   }
 

@@ -130,7 +130,10 @@ class StateEstimator {
    */
   void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
                                  std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                                 const std::string& aug_type);
+                                 const std::string& aug_type,
+                                 const std::string& yaml_filepath
+                                 = "config/filter/inekf/"
+                                   "correction/kinematics_correction.yaml");
 
   // ======================================================================
   /**
@@ -225,4 +228,4 @@ class StateEstimator {
   std::shared_ptr<std::mutex>
       robot_state_queue_mutex_ptr_;    // Mutex of the robot
                                        // state queue
-};                                     // class StateEstimator
+};    // class StateEstimator

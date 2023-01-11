@@ -344,6 +344,13 @@ class RobotState {
   const Eigen::Vector3d get_body_position() const;
 
   /**
+   * @brief Get the continuous noise covariance matrix
+   *
+   * @return Eigen::MatrixXd: Continuous noise covariance matrix
+   */
+  Eigen::MatrixXd get_continuous_noise_covariance();
+
+  /**
    * @brief Set the RobotState whole matrix.
    *
    * @param[in]: X: state matrix X.
@@ -474,6 +481,13 @@ class RobotState {
    */
   void set_accelerometer_bias_covariance(const Eigen::Matrix3d& cov);
 
+  /**
+   * @brief Set the Continuous Noise Covariance cov to private member Qc_.
+   *
+   * @param[in] cov: covariance matrix for the continuous noise.
+   */
+  void set_continuous_noise_covariance(const Eigen::Matrix3d& cov);
+
 
   /// augment state covariance
   /**
@@ -535,6 +549,7 @@ class RobotState {
   std::vector<std::map<int, int>> idx_maps_;
   double t_;         // The latest time when the state X_ is updated
   double t_prop_;    // The latest time when the state X_ is propagated
+  Eigen::MatrixXd Qc_;
 };
 
 #endif
