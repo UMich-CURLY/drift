@@ -17,7 +17,15 @@ KinematicsCorrection::KinematicsCorrection(
       aug_type_(aug_type) {
   correction_type_ = CorrectionType::KINEMATICS;
   sensor_data_buffer_mutex_ptr_ = sensor_data_buffer_mutex_ptr;
-  
+  cout << "Loading kinematics correction config from " << yaml_filepath << endl;
+  YAML::Node config_ = YAML::LoadFile(yaml_filepath);
+  encoder_cov_val_ = config_["noises"]["encoder_std"]
+                         ? config_["noises"]["encoder_std"].as<double>()
+                         : 0.01;
+  kinematics_additive_cov_val_
+      = config_["noises"]["kinematics_additive_std"]
+            ? config_["noises"]["kinematics_additive_std"].as<double>()
+            : 0.05;
 }
 
 const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()
