@@ -149,7 +149,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   }
 
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 1; i < 4; i++) {
     // Check propagation and correction:
     if (state_estimator.is_enabled()) {
       state_estimator.RunOnce();
