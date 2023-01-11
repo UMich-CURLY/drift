@@ -48,11 +48,10 @@ IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-KINQueuePair ROSSubscriber::add_kinematics_subscriber(
-    const std::string contact_topic_name,
-    const std::string encoder_topic_name) {
+KINQueuePair ROSSubscriber::add_contact_subscriber(
+    const std::string topic_name) {
   // Create a new queue for data buffers
-  IMUQueuePtr imu_queue_ptr(new IMUQueue);
+  KINQueuePtr kin_queue_ptr(new KINQueue);
 
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
@@ -64,9 +63,9 @@ KINQueuePair ROSSubscriber::add_kinematics_subscriber(
                   imu_queue_ptr)));
 
   // Keep the ownership of the data queue in this class
-  imu_queue_list_.push_back(imu_queue_ptr);
+  kin_queue_list_.push_back(kin_queue_ptr);
 
-  return {imu_queue_ptr, mutex_list_.back()};
+  return {kin_queue_ptr, mutex_list_.back()};
 }
 
 VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(

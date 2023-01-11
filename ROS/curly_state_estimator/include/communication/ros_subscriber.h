@@ -42,7 +42,7 @@ typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair;
 
-typedef std::queue<std::shared_ptr<ContactMeasurement<double>>> ContactQueue;
+typedef std::queue<std::shared_ptr<ContactMeasurement>> ContactQueue;
 typedef std::shared_ptr<ContactQueue> ContactQueuePtr;
 typedef std::pair<ContactQueuePtr, std::shared_ptr<std::mutex>>
     ContactQueuePair;
@@ -67,6 +67,7 @@ class ROSSubscriber {
   VelocityQueuePair add_velocity_subscriber(const std::string topic_name);
   VelocityQueuePair add_differential_drive_velocity_subscriber(
       const std::string topic_name);
+  IMUQueuePair add_kin_subscriber(const std::string topic_name);
   void start_subscribing_thread();
 
  private:

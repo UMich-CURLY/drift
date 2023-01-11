@@ -4,20 +4,13 @@
 #define tol2 1e-9
 
 TEST(JointStateMeasurementTest, Ctor) {
-  JointStateMeasurement<12, double> joint_data;
+  JointStateMeasurement<double> joint_data;
   EXPECT_EQ(joint_data.get_type(), 4);
   EXPECT_EQ(joint_data.get_type(), JOINT_STATE);
-
-  EXPECT_EQ(joint_data.get_joint_pos().size(), 12);
-  for (size_t i = 0; i < 12; i++) {
-    EXPECT_EQ(joint_data.get_joint_pos()[i], 0);
-    EXPECT_EQ(joint_data.get_joint_vel()[i], 0);
-    EXPECT_EQ(joint_data.get_joint_effort()[i], 0);
-  }
 }
 
 TEST(JointStateMeasurementTest, SetGetBasic) {
-  JointStateMeasurement<3, double> joint_data;
+  JointStateMeasurement<double> joint_data;
   Eigen::Vector3d v;
   Eigen::Vector3d p;
   Eigen::Vector3d e;
@@ -33,5 +26,10 @@ TEST(JointStateMeasurementTest, SetGetBasic) {
     EXPECT_NEAR(joint_data.get_joint_pos()[i], 0.123 + i * 0.111, tol2);
     EXPECT_NEAR(joint_data.get_joint_vel()[i], 0.456 + i * 0.111, tol2);
     EXPECT_NEAR(joint_data.get_joint_effort()[i], 0.789 + i * 0.111, tol2);
+  }
+
+  joint_data.set_encoders(e);
+  for (size_t i = 0; i < 3; i++) {
+    EXPECT_NEAR(joint_data.get_joint_pos()[i], 0.789 + i * 0.111, tol2);
   }
 }

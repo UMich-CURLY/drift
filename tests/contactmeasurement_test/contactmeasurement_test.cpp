@@ -2,18 +2,13 @@
 #include "measurement/contact.h"
 
 TEST(ContactMeasurementTest, Ctor) {
-  ContactMeasurement<4> contact_data;
+  ContactMeasurement contact_data;
   EXPECT_EQ(contact_data.get_type(), 5);
   EXPECT_EQ(contact_data.get_type(), CONTACT);
-
-  EXPECT_EQ(contact_data.get_contact().size(), 4);
-  for (size_t i = 0; i < 4; i++) {
-    EXPECT_EQ(contact_data.get_contact()[i], 0);
-  }
 }
 
 TEST(ContactMeasurementTest, ContactSetGetBasic) {
-  ContactMeasurement<6> contact_data;
+  ContactMeasurement contact_data;
   Eigen::Matrix<bool, 6, 1> ct;
   ct << 1, 0, 1, 0, 1, 1;
   contact_data.set_contact(ct);

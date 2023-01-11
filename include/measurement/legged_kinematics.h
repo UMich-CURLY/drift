@@ -7,12 +7,12 @@
 /**
  *  @file   legged_kinematics.h
  *  @author Justin Yu
- *  @brief  Header file for robot legged kinematics state measurement
+ *  @brief  Header file for legged robot kinematics state measurement
  *  @date   Nov 16, 2022
  **/
 
-#ifndef KINEMATICS_H
-#define KINEMATICS_H
+#ifndef LEG_KINEMATICS_H
+#define LEG_KINEMATICS_H
 
 #include "measurement.h"
 
@@ -116,4 +116,4 @@ class LeggedKinematics : public Measurement {
 };
 
 
-#endif
+#endif    // LEG_KINEMATICS_H

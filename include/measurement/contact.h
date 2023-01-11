@@ -22,7 +22,7 @@
  * Derived measurement class containing robot-ground
  * contact state.
  */
-template<unsigned int CONTACT_DIM>
+
 class ContactMeasurement : public Measurement {
  public:
   /**
@@ -33,21 +33,19 @@ class ContactMeasurement : public Measurement {
   /**
    * @brief Set the contact state vector for this measurement.
    *
-   * @param[in] contacts: vector of booleans containing contact state with
-   * length CONTACT_DIM.
+   * @param[in] contacts: vector of booleans containing contact state.
    */
-  void set_contact(const Eigen::Matrix<bool, CONTACT_DIM, 1>& contacts);
+  void set_contact(const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   /**
    * @brief Get the contact state vector for this measurement.
    *
-   * @return vector of booleans containing contact state with
-   * length CONTACT_DIM.
+   * @return vector of booleans containing contact state.
    */
-  Eigen::Matrix<bool, CONTACT_DIM, 1> get_contact() const;
+  Eigen::Matrix<bool, Eigen::Dynamic, 1> get_contact() const;
 
  private:
-  Eigen::Matrix<bool, CONTACT_DIM, 1> contacts_;
+  Eigen::Matrix<bool, Eigen::Dynamic, 1> contacts_;
 };
 #include "measurement/impl/contact_impl.cpp"
 

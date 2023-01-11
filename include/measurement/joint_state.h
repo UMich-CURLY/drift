@@ -23,7 +23,7 @@
  * actuator measurements (encoder position, actuator angular velocity, acutator
  * torque).
  */
-template<unsigned int JOINT_DIM, typename T>
+template<typename T>
 class JointStateMeasurement : public Measurement {
  public:
   /**
@@ -38,36 +38,43 @@ class JointStateMeasurement : public Measurement {
    * @param[in] velocity: vector of joint velocity coefficients (rad/s).
    * @param[in] effort: vector of joint effort coefficients (Newton-meters).
    */
-  void set_joint_state(const Eigen::Matrix<T, JOINT_DIM, 1>& position,
-                       const Eigen::Matrix<T, JOINT_DIM, 1>& velocity,
-                       const Eigen::Matrix<T, JOINT_DIM, 1>& effort);
+  void set_joint_state(const Eigen::Matrix<T, Eigen::Dynamic, 1>& position,
+                       const Eigen::Matrix<T, Eigen::Dynamic, 1>& velocity,
+                       const Eigen::Matrix<T, Eigen::Dynamic, 1>& effort);
+
+  /**
+   * @brief Set the encoder position coefficients.
+   *
+   * @param[in] position: vector of joint position coefficients (rad).
+   */
+  void set_encoders(const Eigen::Matrix<T, Eigen::Dynamic, 1>& position);
 
   /**
    * @brief Get the joint-axis position coefficients.
    *
    * @return Vector of joint position coefficients (rad).
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_pos() const;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> get_joint_pos() const;
 
   /**
    * @brief Get the joint-axis velocity coefficients.
    *
    * @return Vector of joint velocity coefficients (rad/s).
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_vel() const;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> get_joint_vel() const;
 
   /**
    * @brief Get the joint-axis effort (torque) coefficients.
    *
    * @return Vector of joint effort coefficients (Newton-meters).
    */
-  Eigen::Matrix<T, JOINT_DIM, 1> get_joint_effort() const;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> get_joint_effort() const;
 
 
  private:
-  Eigen::Matrix<T, JOINT_DIM, 1> joint_position_;
-  Eigen::Matrix<T, JOINT_DIM, 1> joint_velocity_;
-  Eigen::Matrix<T, JOINT_DIM, 1> joint_effort_;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> joint_position_;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> joint_velocity_;
+  Eigen::Matrix<T, Eigen::Dynamic, 1> joint_effort_;
 };
 #include "measurement/impl/joint_state_impl.cpp"
 
