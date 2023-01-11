@@ -4,38 +4,49 @@
 
 #define tol3 1e-9
 
-TEST(cheetahkinematicstest, Ctor) {
-  MiniCheetahKin kin_data;
+TEST(cheetahkinematicstest, DefaultCtor) {
+  MiniCheetahKinematics kin_data;
   EXPECT_EQ(kin_data.get_type(), 2);
   EXPECT_EQ(kin_data.get_type(), KINEMATICS);
 
   for (size_t i = 0; i < 3; i++) {
     EXPECT_EQ(kin_data.get_kin_pos(1)(i), 0);
-    EXPECT_EQ(kin_data.get_kin_vel(1)(i), 0);
   }
-  /*
-    EXPECT_EQ(kin_data.get_J(1).rows(), 3);
-    EXPECT_EQ(kin_data.get_J(1).cols(), 3);
-    for (size_t i = 0; i < 9; i++) {
-      EXPECT_EQ(kin_data.get_J(1)(i), 0);
-    }
-  */
+
+  EXPECT_EQ(kin_data.get_J(1).rows(), 3);
+  EXPECT_EQ(kin_data.get_J(1).cols(), 3);
+  for (size_t i = 0; i < 9; i++) {
+    EXPECT_EQ(kin_data.get_J(1)(i), 0);
+  }
+
   for (size_t i = 0; i < 4; i++) {
     EXPECT_EQ(kin_data.get_contact(i), 0);
   }
 
   for (size_t i = 0; i < 12; i++) {
-    EXPECT_EQ(kin_data.get_joint_state()(i), 0);
+    EXPECT_EQ(kin_data.get_joint_state(i), 0);
   }
 }
 
-TEST(cheetahkinematicstest, JointStateSet) {
-  MiniCheetahKin kin_data;
+TEST(cheetahkinematicstest, JointStateSetGet) {
+  MiniCheetahKinematics kin_data;
   Eigen::Matrix<double, 12, 1> v;
   v << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
       1.234, 1.345;
   kin_data.set_joint_state(v);
-  std::cout << kin_data.get_joint_state();
+  for (size_t i = 0; i < 12; i++) {
+    EXPECT_EQ(kin_data.get_joint_state(i), v[i]);
+  }
+}
+
+TEST(cheetahkinematicstest, ContactsSetGet) {
+  MiniCheetahKinematics kin_data;
+  Eigen::Matrix<bool, 4, 1> c;
+  c << 0, 1, 1, 0;
+  kin_data.set_contact(c);
+  for (size_t i = 0; i < 4; i++) {
+    EXPECT_EQ(kin_data.get_contact(i), c[i]);
+  }
 }
 
 TEST(cheetahkinematicstest, OverloadCtor) {
@@ -44,17 +55,46 @@ TEST(cheetahkinematicstest, OverloadCtor) {
   js << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
       1.234, 1.345;
   ct << 1, 0, 0, 1;
-  MiniCheetahKin kin_data(js, ct);
-  std::cout << kin_data.get_joint_state() << std::endl;
-  kin_data.compute_kinematics();
-  std::cout << kin_data.get_kin_pos(FL) << std::endl;
+  MiniCheetahKinematics kin_data(js, ct);
   EXPECT_EQ(kin_data.get_contact(FR), true);
   EXPECT_EQ(kin_data.get_contact(FL), false);
   EXPECT_EQ(kin_data.get_contact(HR), false);
   EXPECT_EQ(kin_data.get_contact(HL), true);
+  kin_data.compute_kinematics();
+  Eigen::Matrix<double, 3, 3> JpFR = kin_data.get_J(FR);
+  Eigen::Matrix<double, 3, 3> JpFL = kin_data.get_J(FL);
+  Eigen::Matrix<double, 3, 3> JpHR = kin_data.get_J(HR);
+  Eigen::Matrix<double, 3, 3> JpHL = kin_data.get_J(HL);
+  js << 0.123, 0.234, 0.345, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+  kin_data.set_joint_state(js);
+  kin_data.compute_kinematics();
+  EXPECT_EQ(kin_data.get_J(FR), JpFR);
+  EXPECT_NE(kin_data.get_J(FL), JpFL);
+  EXPECT_NE(kin_data.get_J(HR), JpHR);
+  EXPECT_NE(kin_data.get_J(HL), JpHL);
+}
 
-  std::cout << kin_data.get_J(FR) << std::endl;
-  std::cout << kin_data.get_J(FL) << std::endl;
-  std::cout << kin_data.get_J(HR) << std::endl;
-  std::cout << kin_data.get_J(HL) << std::endl;
+TEST(cheetahkinematicstest, Position) {
+  Eigen::Matrix<double, 12, 1> js;
+  Eigen::Matrix<bool, 4, 1> ct;
+  js << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
+      1.234, 1.345;
+  ct << 0, 1, 0, 1;
+  MiniCheetahKinematics kin_data(js, ct);
+  EXPECT_EQ(kin_data.get_contact(FR), false);
+  EXPECT_EQ(kin_data.get_contact(FL), true);
+  EXPECT_EQ(kin_data.get_contact(HR), false);
+  EXPECT_EQ(kin_data.get_contact(HL), true);
+  kin_data.compute_kinematics();
+  Eigen::Matrix<double, 3, 1> pFR = kin_data.get_kin_pos(FR);
+  Eigen::Matrix<double, 3, 1> pFL = kin_data.get_kin_pos(FL);
+  Eigen::Matrix<double, 3, 1> pHR = kin_data.get_kin_pos(HR);
+  Eigen::Matrix<double, 3, 1> pHL = kin_data.get_kin_pos(HL);
+  js << 0.123, 0.234, 0.345, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5;
+  kin_data.set_joint_state(js);
+  kin_data.compute_kinematics();
+  EXPECT_EQ(kin_data.get_kin_pos(FR), pFR);
+  EXPECT_NE(kin_data.get_kin_pos(FL), pFL);
+  EXPECT_NE(kin_data.get_kin_pos(HR), pHR);
+  EXPECT_NE(kin_data.get_kin_pos(HL), pHL);
 }

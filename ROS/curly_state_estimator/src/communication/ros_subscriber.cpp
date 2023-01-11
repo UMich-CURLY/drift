@@ -48,6 +48,27 @@ IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
+KINQueuePair ROSSubscriber::add_kinematics_subscriber(
+    const std::string contact_topic_name,
+    const std::string encoder_topic_name) {
+  // Create a new queue for data buffers
+  IMUQueuePtr imu_queue_ptr(new IMUQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::imu_call_back, this, _1, mutex_list_.back(),
+                  imu_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  imu_queue_list_.push_back(imu_queue_ptr);
+
+  return {imu_queue_ptr, mutex_list_.back()};
+}
+
 VelocityQueuePair ROSSubscriber::add_differential_drive_velocity_subscriber(
     const std::string topic_name) {
   // Create a new queue for data buffers

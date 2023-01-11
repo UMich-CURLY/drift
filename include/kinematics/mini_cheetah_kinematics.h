@@ -18,11 +18,12 @@
 
 enum Leg { FR, FL, HR, HL };
 
-class MiniCheetahKin : public legged_kinematics {
+class MiniCheetahKinematics : public LeggedKinematics {
  public:
-  MiniCheetahKin();
-  MiniCheetahKin(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
-                 const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
+  MiniCheetahKinematics();
+  MiniCheetahKinematics(
+      const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+      const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   void compute_kinematics() override;
 };

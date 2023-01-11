@@ -27,7 +27,10 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 
+#include "measurement/contact.h"
 #include "measurement/imu.h"
+#include "measurement/joint_state.h"
+#include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
 
 typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
@@ -38,6 +41,21 @@ typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
 typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair;
+
+typedef std::queue<std::shared_ptr<ContactMeasurement<double>>> ContactQueue;
+typedef std::shared_ptr<ContactQueue> ContactQueuePtr;
+typedef std::pair<ContactQueuePtr, std::shared_ptr<std::mutex>>
+    ContactQueuePair;
+
+typedef std::queue<std::shared_ptr<JointStateMeasurement<double>>>
+    JointStateQueue;
+typedef std::shared_ptr<JointStateQueue> JointStateQueuePtr;
+typedef std::pair<JointStateQueuePtr, std::shared_ptr<std::mutex>>
+    JointStateQueuePair;
+
+typedef std::queue<std::shared_ptr<LeggedKinematics>> KINQueue;
+typedef std::shared_ptr<KINQueue> KINQueuePtr;
+typedef std::pair<KINQueuePtr, std::shared_ptr<std::mutex>> KINQueuePair;
 
 namespace ros_wrapper {
 class ROSSubscriber {

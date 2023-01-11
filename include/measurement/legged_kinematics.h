@@ -17,23 +17,23 @@
 #include "measurement.h"
 
 /**
- * @class legged_kinematics
+ * @class LeggedKinematics
  *
  * Derived measurement class containing information
  * about world-frame robot state
  */
-class legged_kinematics : public Measurement {
+class LeggedKinematics : public Measurement {
  public:
   /**
    * @brief Default constructor.
    */
-  legged_kinematics();
+  LeggedKinematics();
 
   /**
    * @brief Overload constructor.
    */
-  legged_kinematics(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
-                    const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
+  LeggedKinematics(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+                   const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   /**
    * @brief Computes and stores foot position and Jacobian matricies based on
@@ -79,7 +79,7 @@ class legged_kinematics : public Measurement {
    *
    * @return Vector of encoder position coefficients (rad)
    */
-  Eigen::Matrix<double, Eigen::Dynamic, 1> get_joint_state() const;
+  double get_joint_state(int encoder) const;
 
   /**
    * @brief Get the world-frame position in Euclidean space.
@@ -97,7 +97,7 @@ class legged_kinematics : public Measurement {
    *
    * @return 3-vector of body-to-foot frame velocity (m/s)
    */
-  Eigen::Matrix<double, 3, 1> get_kin_vel(int leg) const;
+  // Eigen::Matrix<double, 3, 1> get_kin_vel(int leg) const;
 
   /**
    * @brief Get the world-frame effort (force) in Euclidean space.
@@ -108,8 +108,8 @@ class legged_kinematics : public Measurement {
 
  protected:
   Eigen::Matrix<double, 3, Eigen::Dynamic> position_;
-  Eigen::Matrix<double, 3, Eigen::Dynamic> velocity_;
-  // Eigen::Matrix<T, 3, 1> effort_;
+  // Eigen::Matrix<double, 3, Eigen::Dynamic> velocity_;
+  // Eigen::Matrix<T, 3, Eigen::Dynamic> effort_;
   Eigen::Matrix<double, 3, Eigen::Dynamic> jacobian_;
   Eigen::Matrix<bool, Eigen::Dynamic, 1> contacts_;
   Eigen::Matrix<double, Eigen::Dynamic, 1> encoders_;
