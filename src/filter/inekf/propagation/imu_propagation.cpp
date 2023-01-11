@@ -286,7 +286,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
                  * (wx2 * ax * wx2));
 
 
-  // TODO: Get better approximation using taylor series when theta < tol
+  /// TODO: Get better approximation using taylor series when theta < tol
   const double tol = 1e-6;
   if (theta < tol) {
     Phi25L = (1 / 2) * ax * dt2;
