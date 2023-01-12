@@ -34,7 +34,8 @@ class MiniCheetahKinematics : public LeggedKinematics {
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
       const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
-  void compute_kinematics() override;
+  void ComputeKinematics() override;
+  int get_num_legs() override;
 };
 
 #endif    // MC_KIN_H

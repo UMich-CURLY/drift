@@ -39,7 +39,12 @@ class LeggedKinematics : public Measurement {
    * @brief Computes and stores foot position and Jacobian matricies based on
    * encoder values
    */
-  virtual void compute_kinematics() = 0;
+  virtual void ComputeKinematics() = 0;
+
+  /**
+   * @brief Returns the number of actuated robot legs
+   */
+  virtual int get_num_legs() = 0;
 
   /**
    * @brief Set the ground contact state vector.

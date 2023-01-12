@@ -24,7 +24,7 @@ MiniCheetahKinematics::MiniCheetahKinematics(
   jacobian_.setConstant(3, NLEG * NAPL, 0);
 }
 
-void MiniCheetahKinematics::compute_kinematics() {
+void MiniCheetahKinematics::ComputeKinematics() {
   position_.col(FR) = p_Body_to_FrontRightFoot(encoders_);
   position_.col(FL) = p_Body_to_FrontLeftFoot(encoders_);
   position_.col(HR) = p_Body_to_HindRightFoot(encoders_);
@@ -38,3 +38,5 @@ void MiniCheetahKinematics::compute_kinematics() {
   jacobian_.block(0, HL * NAPL, 3, NAPL)
       = Jp_Body_to_HindLeftFoot(encoders_).block(0, HL * NAPL, 3, NAPL);
 }
+
+int MiniCheetahKinematics::get_num_legs() { return NLEG; }
