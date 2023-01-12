@@ -6,7 +6,7 @@
 
 /**
  *  @file   robot_state.cpp
- *  @author Wenzhe Tong
+ *  @author Wenzhe Tong, Tingjun Li
  *  @brief  Source file for RobotState
  *  @date   Nov 1st, 2022
  **/

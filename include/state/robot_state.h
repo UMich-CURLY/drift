@@ -6,7 +6,7 @@
 
 /**
  *  @file   robot_state.h
- *  @author Wenzhe Tong
+ *  @author Wenzhe Tong, Tingjun Li
  *  @brief  Header file for robot state
  *  @date   November 1, 2022
  **/
