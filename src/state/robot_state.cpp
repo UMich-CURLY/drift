@@ -19,13 +19,15 @@ using namespace std;
 RobotState::RobotState()
     : X_(Eigen::MatrixXd::Identity(5, 5)),
       Theta_(Eigen::MatrixXd::Zero(6, 1)),
-      P_(Eigen::MatrixXd::Identity(15, 15)) {}
+      P_(Eigen::MatrixXd::Identity(15, 15)),
+      Qc_(Eigen::MatrixXd::Identity(15, 15)) {}
 
 // Initialize with X
 RobotState::RobotState(const Eigen::MatrixXd& X)
     : X_(X), Theta_(Eigen::MatrixXd::Zero(6, 1)) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
 }
 
 // Initialize with X and Theta
@@ -33,18 +35,22 @@ RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta)
     : X_(X), Theta_(Theta) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
 }
 
 // Initialize with X, Theta and P
 RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
-    : X_(X), Theta_(Theta), P_(P) {}
+    : X_(X), Theta_(Theta), P_(P) {
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+}
 
 // Initialize with SEK3
 RobotState::RobotState(SEK3& X)
     : X_(X.get_X()), Theta_(Eigen::MatrixXd::Zero(3 * (this->dimX() - 3), 1)) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
 }
 
 // Initialize with SEK3 and Theta
@@ -52,17 +58,24 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta)
     : X_(X.get_X()), Theta_(Theta) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
 }
 
 // Initialize with SEK3, Theta and P
 RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
-    : X_(X.get_X()), Theta_(Theta), P_(P) {}
+    : X_(X.get_X()), Theta_(Theta), P_(P) {
+  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+}
 
 // getters
 const Eigen::MatrixXd RobotState::get_X() const { return X_; }
 const Eigen::VectorXd RobotState::get_theta() const { return Theta_; }
 const Eigen::MatrixXd RobotState::get_P() const { return P_; }
+
+Eigen::MatrixXd RobotState::get_continuous_noise_covariance() const {
+  return Qc_;
+}
 const Eigen::Matrix3d RobotState::get_rotation() const {
   return X_.block<3, 3>(0, 0);
 }
@@ -107,18 +120,13 @@ const Eigen::Matrix3d RobotState::get_accelerometer_bias_covariance() const {
   return P_.block<3, 3>(12, 12);
 }
 
-const std::shared_ptr<std::unordered_map<int, std::string>>
-RobotState::get_matrix_idx_map() const {
-  return make_shared<std::unordered_map<int, std::string>>(matrix_idx_map_);
-}
-
 const double RobotState::get_time() const { return t_; }
 
 const double RobotState::get_propagate_time() const { return t_prop_; }
 
-int RobotState::add_aug_state(std::string measurementType,
-                              const Eigen::Vector3d& aug,
-                              const Eigen::Matrix3d& cov) {
+int RobotState::add_aug_state(const Eigen::Vector3d& aug,
+                              const Eigen::Matrix3d& cov,
+                              const Eigen::Matrix3d& noise_cov) {
   Eigen::MatrixXd X_aug
       = Eigen::MatrixXd::Identity(this->dimX() + 1, this->dimX() + 1);
   X_aug.block(0, 0, this->dimX(), this->dimX()) = X_;
@@ -131,9 +139,12 @@ int RobotState::add_aug_state(std::string measurementType,
   P_aug.block<3, 3>(this->dimP(), this->dimP()) = cov;
   P_ = P_aug;
 
-  // mapping from measurement type to state index
-  matrix_idx_map_.insert(
-      std::pair<int, std::string>(this->dimX() - 1, measurementType));
+  // Augment Qc
+  Eigen::MatrixXd Qc_aug
+      = Eigen::MatrixXd::Zero(this->dimQc() + 3, this->dimQc() + 3);
+  Qc_aug.block(0, 0, this->dimQc(), this->dimQc()) = Qc_;
+  Qc_aug.block<3, 3>(this->dimQc(), this->dimQc()) = noise_cov;
+  Qc_ = Qc_aug;
 
   return this->dimX() - 1;
 }
@@ -152,10 +163,10 @@ void RobotState::del_aug_state(int matrix_idx) {
       = X_.block(matrix_idx + 1, matrix_idx + 1, this->dimX() - matrix_idx - 1,
                  this->dimX() - matrix_idx - 1);
   X_ = X_aug;
-  auto it = matrix_idx_map_.find(matrix_idx);
-  if (it != matrix_idx_map_.end()) {
-    matrix_idx_map_.erase(it);
-  }
+
+  this->del_aug_cov(matrix_idx);
+  this->del_aug_bias(matrix_idx);
+  this->del_aug_noise_cov(matrix_idx);
 }
 
 const Eigen::Vector3d RobotState::get_aug_state(int matrix_idx) {
@@ -165,6 +176,7 @@ const Eigen::Vector3d RobotState::get_aug_state(int matrix_idx) {
 const int RobotState::dimX() const { return X_.cols(); }
 const int RobotState::dimTheta() const { return Theta_.rows(); }
 const int RobotState::dimP() const { return P_.cols(); }
+const int RobotState::dimQc() const { return Qc_.cols(); }
 
 const StateType RobotState::get_state_type() const { return state_type_; }
 
@@ -236,6 +248,10 @@ const Eigen::Vector3d RobotState::get_body_position() const {
 void RobotState::set_X(const Eigen::MatrixXd& X) { X_ = X; }
 void RobotState::set_theta(const Eigen::VectorXd& Theta) { Theta_ = Theta; }
 void RobotState::set_P(const Eigen::MatrixXd& P) { P_ = P; }
+void RobotState::set_continuous_noise_covariance(const Eigen::MatrixXd& cov) {
+  Qc_ = cov;
+}
+
 void RobotState::set_rotation(const Eigen::Matrix3d& R) {
   X_.block<3, 3>(0, 0) = R;
 }
@@ -293,7 +309,6 @@ void RobotState::set_time(const double t) { t_ = t; }
 
 void RobotState::set_propagate_time(const double t) { t_prop_ = t; }
 
-
 void RobotState::add_aug_cov(const Eigen::Matrix3d& cov) {
   int dim = this->dimP();
   /// TODO: Add conservative resize to avoid construction of new matrix
@@ -313,6 +328,18 @@ void RobotState::del_aug_cov(int matrix_idx) {
       = P_.block(idx_cov + 3, idx_cov + 3, dim - idx_cov - 3,
                  dim - idx_cov - 3);
   P_ = P_aug;
+}
+
+void RobotState::del_aug_noise_cov(int matrix_idx) {
+  int dim = this->dimQc();
+  /// TODO: Add conservative resize to avoid construction of new matrix
+  Eigen::MatrixXd Qc_aug = Eigen::MatrixXd::Zero(dim - 3, dim - 3);
+  int idx_cov = matrix_idx * 3 - 12;
+  Qc_aug.block(0, 0, idx_cov, idx_cov) = Qc_.block(0, 0, idx_cov, idx_cov);
+  Qc_aug.block(idx_cov, idx_cov, dim - idx_cov - 3, dim - idx_cov - 3)
+      = Qc_.block(idx_cov + 3, idx_cov + 3, dim - idx_cov - 3,
+                  dim - idx_cov - 3);
+  Qc_ = Qc_aug;
 }
 
 const Eigen::Matrix3d RobotState::get_aug_cov(int matrix_idx) {

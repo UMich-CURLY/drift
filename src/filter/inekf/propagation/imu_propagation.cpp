@@ -362,19 +362,11 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   }
 
   // Continuous noise covariance
-  Eigen::MatrixXd Qc = Eigen::MatrixXd::Zero(
-      dimP, dimP);    // Landmark noise terms will remain zero
+  Eigen::MatrixXd Qc
+      = state.get_continuous_noise_covariance();    // Landmark noise terms will
+                                                    // remain zero
   Qc.block<3, 3>(0, 0) = gyro_cov_;
   Qc.block<3, 3>(3, 3) = accel_cov_;
-
-  /// TODO: make sure contact covariance is in the euclidean space
-  // for (auto& column_id_to_aug_type : *(state.get_matrix_idx_map().get())) {
-  //   Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
-  //                  3 + 3 * (column_id_to_aug_type.first - 3))
-  //       = noise_params_.get_augment_cov(
-  //           column_id_to_aug_type.second);    // Augment state noise terms
-  // }
-
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;

@@ -59,7 +59,7 @@ class KinematicsCorrection : public Correction {
    */
   KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
                        std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                       const ErrorType& error_type, const std::string& aug_type,
+                       const ErrorType& error_type,
                        const std::string& yaml_filepath);
 
   /// @name Correction Methods
@@ -93,8 +93,6 @@ class KinematicsCorrection : public Correction {
 
  private:
   const ErrorType error_type_;
-  // Indicating the type of the augmentation state, e.g. "contact", "landmark"
-  const std::string aug_type_;
 
   // aug_id_to_column_id map:
   // key: augmented state id
@@ -103,6 +101,7 @@ class KinematicsCorrection : public Correction {
   KinematicsQueuePtr sensor_data_buffer_ptr_;
   double encoder_cov_val_;
   double kinematics_additive_cov_val_;
+  Eigen::Matrix3d contact_noise_cov_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 

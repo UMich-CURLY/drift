@@ -7,12 +7,10 @@ using namespace lie_group;
 KinematicsCorrection::KinematicsCorrection(
     KinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, const std::string& aug_type,
-    const std::string& yaml_filepath)
+    const ErrorType& error_type, const std::string& yaml_filepath)
     : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      error_type_(error_type),
-      aug_type_(aug_type) {
+      error_type_(error_type) {
   correction_type_ = CorrectionType::KINEMATICS;
   cout << "Loading kinematics correction config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
@@ -23,6 +21,13 @@ KinematicsCorrection::KinematicsCorrection(
       = config_["noises"]["kinematics_additive_std"]
             ? config_["noises"]["kinematics_additive_std"].as<double>()
             : 0.05;
+
+  double contact_noise_std
+      = config_["noises"]["contact_noise_std"]
+            ? config_["noises"]["contact_noise_std"].as<double>()
+            : 0.1;
+  contact_noise_cov_ = contact_noise_std * contact_noise_std
+                       * Eigen::Matrix<double, 3, 3>::Identity();
 }
 
 const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()
@@ -199,8 +204,8 @@ bool KinematicsCorrection::Correct(RobotState& state) {
 
       // Send the new contact aug state and aug covariance to robot state
       int aug_idx = state.add_aug_state(
-          aug_type_, aug_state,
-          P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3));
+          aug_state, P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3),
+          contact_noise_cov_);
 
       // Add the aug state matrix index to the augment state information
       // mapping

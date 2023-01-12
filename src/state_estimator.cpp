@@ -63,10 +63,10 @@ void StateEstimator::add_imu_propagation(
 
 void StateEstimator::add_kinematics_correction(
     KinematicsQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const std::string& aug_type, const std::string& yaml_filepath) {
+    const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction
-      = std::make_shared<KinematicsCorrection>(
-          buffer_ptr, buffer_mutex_ptr, error_type_, aug_type, yaml_filepath);
+      = std::make_shared<KinematicsCorrection>(buffer_ptr, buffer_mutex_ptr,
+                                               error_type_, yaml_filepath);
   corrections_.push_back(correction);
 }
 

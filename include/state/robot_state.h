@@ -196,19 +196,6 @@ class RobotState {
   const Eigen::Matrix3d get_accelerometer_bias_covariance() const;
 
   /**
-   * @brief Get the vector of augmented states mapping. Each mapping means
-   * certain types of augmented states(contact, landmark, additional IMU
-   * measurement etc.) restores the mapping from augmented states index(e.g.
-   * contact 1, 2, 3, 4) to the state matrix index(e.g. 6th, 7th, 8th, 9th
-   * columns in state matrix X).
-   *
-   * @return std::vector<std::map<int, int>>: vector of different types of index
-   * mapping from augmented states to state matrix index.
-   */
-  const std::shared_ptr<std::unordered_map<int, std::string>>
-  get_matrix_idx_map() const;
-
-  /**
    * @brief Get timestamp of the state.
    *
    * @return double t: timestamp of the state.
@@ -231,8 +218,8 @@ class RobotState {
    * @param[in] aug: Augmented state to be added to the index mapping.
    * @param[in] cov: Covariance of the augmented state.
    */
-  int add_aug_state(std::string measurementType, const Eigen::Vector3d& aug,
-                    const Eigen::Matrix3d& cov);
+  int add_aug_state(const Eigen::Vector3d& aug, const Eigen::Matrix3d& cov,
+                    const Eigen::Matrix3d& noise_cov);
 
   /**
    * @brief Set the augmented to the certain position(matrix_idx-th) in the
@@ -245,11 +232,19 @@ class RobotState {
 
   /**
    * @brief Delete certain augmented state(matrix_idx-th) from the state
-   * vector and erase it from the indexing mapping as well.
+   * matrix.
    *
    * @param[in] matrix_idx: index of the augmented state in the state.
    */
   void del_aug_state(int matrix_idx);
+
+  /**
+   * @brief Delete certain augmented state(matrix_idx-th) from the augmented
+   * noise covariance matrix.
+   *
+   * @param[in] matrix_idx: index of the augmented state in the state.
+   */
+  void del_aug_noise_cov(int matrix_idx);
 
   /**
    * @brief Get the augmented state vector giving matrix_idx in the state.
@@ -267,18 +262,25 @@ class RobotState {
   const int dimX() const;
 
   /**
-   * @brief get the dimension of the augmented state matrix X.
+   * @brief get the dimension of the augmented state matrix, X.
    *
    * @return const int: dimension of the augmented state matrix X.
    */
   const int dimTheta() const;
 
   /**
-   * @brief get the dimension of the covariance matrix P.
+   * @brief get the dimension of the covariance matrix, P.
    *
    * @return const int: dimension of the augmented covariance matrix P.
    */
   const int dimP() const;
+
+  /**
+   * @brief get the dimension of the continuous noise covariance, Qc.
+   *
+   * @return const int: dimension of the continuous noise covariance, Qc.
+   */
+  const int dimQc() const;
 
   /**
    * @brief get the the state type from: {WorldCentric, BodyCentric}
@@ -348,7 +350,7 @@ class RobotState {
    *
    * @return Eigen::MatrixXd: Continuous noise covariance matrix
    */
-  Eigen::MatrixXd get_continuous_noise_covariance();
+  Eigen::MatrixXd get_continuous_noise_covariance() const;
 
   /**
    * @brief Set the RobotState whole matrix.
@@ -486,7 +488,7 @@ class RobotState {
    *
    * @param[in] cov: covariance matrix for the continuous noise.
    */
-  void set_continuous_noise_covariance(const Eigen::Matrix3d& cov);
+  void set_continuous_noise_covariance(const Eigen::MatrixXd& cov);
 
 
   /// augment state covariance
@@ -541,7 +543,6 @@ class RobotState {
 
  private:
   StateType state_type_ = StateType::WorldCentric;
-  std::unordered_map<int, std::string> matrix_idx_map_;
   Eigen::MatrixXd
       X_;    // Matrix of SE or SEk group represents for robot state.
   Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
