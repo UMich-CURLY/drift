@@ -48,8 +48,9 @@ IMUQueuePair ROSSubscriber::add_imu_subscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-KINQueuePair ROSSubscriber::add_contact_subscriber(
-    const std::string topic_name) {
+KINQueuePair ROSSubscriber::add_kinematics_subscriber(
+    const std::string contact_topic_name,
+    const std::string encoder_topic_name) {
   // Create a new queue for data buffers
   KINQueuePtr kin_queue_ptr(new KINQueue);
 
@@ -59,8 +60,22 @@ KINQueuePair ROSSubscriber::add_contact_subscriber(
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
       topic_name, 1000,
-      boost::bind(&ROSSubscriber::imu_call_back, this, _1, mutex_list_.back(),
+      boost::bind(&ROSSubscriber::kin_call_back, this, _1, mutex_list_.back(),
                   imu_queue_ptr)));
+
+  message_filters::Subscriber<sensor_msgs::Contact> contact_sub(
+      nh, contact_topic_name, 1);
+  message_filters::Subscriber<sensor_msgs::JoinState> encoder_sub(
+      nh, encoder_topic_name, 1);
+
+  typedef sync_policies::ApproximateTime<sensor_msgs::Contact,
+                                         sensor_msgs::JoinState>
+      MySyncPolicy;
+
+  // ApproximateTime takes a queue size as its constructor argument, hence
+  // MySyncPolicy(10)
+  Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), contact_sub, encoder_sub);
+  sync.registerCallback(boost::bind(&ROSSubscriber::kin_call_back, _1, _2));
 
   // Keep the ownership of the data queue in this class
   kin_queue_list_.push_back(kin_queue_ptr);
@@ -152,6 +167,19 @@ void ROSSubscriber::differential_encoder2velocity_call_back(
   vel_queue->push(vel_measurement);
 }
 
+void kin_call_back(
+    const boost::shared_ptr<const sensor_msgs::Contact>& contact_msg,
+    const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+    const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
+  // Create a legged kinematics measurement object
+  std::shared_ptr<LeggedKinematics> kin_measurement(new LeggedKinematics);
+  // Set headers and time stamps
+  // TODO: Figure out how headers are set for a kinematics measurement
+  kin_measurement->set_header(
+      msg->header.seq,
+      msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0,
+      msg->header.frame_id);
+}
 
 void ROSSubscriber::ros_spin() {
   while (ros::ok()) {

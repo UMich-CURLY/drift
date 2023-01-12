@@ -3,6 +3,7 @@
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
+
 /**
  *  @file   mini_cheetah_kinematics.h
  *  @author Justin Yu
@@ -36,4 +37,4 @@ class MiniCheetahKinematics : public LeggedKinematics {
   void compute_kinematics() override;
 };
 
-#endif    // MINICHEETAH_KIN_H
+#endif    // MC_KIN_H
