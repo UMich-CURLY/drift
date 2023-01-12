@@ -7,24 +7,24 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3")
 
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_TESTS "Build the test files" ON)
-option(BUILD_DOC "Build Doxygen documents" OFF)
+option(BUILD_DOC "Build Doxygen documents" ON)
 
 # #################################################
 # Find External Packages             #
 # #################################################
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
-# find_package(yaml-cpp REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 message("Boost include dir: ${Boost_INCLUDE_DIRS}")
-# message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
+message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 # #################################################
 # Include Packages                #
 # #################################################
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
-# include_directories(${YAML_CPP_INCLUDE_DIR})
+include_directories(${YAML_CPP_INCLUDE_DIR})
 include(FetchContent)
 
 # #################################################
@@ -38,15 +38,15 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # #################################################
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp)
-#add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
+add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
-#add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
-#add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
-#add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
-#add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
+add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
+add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
+add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
 
 # #################################################
