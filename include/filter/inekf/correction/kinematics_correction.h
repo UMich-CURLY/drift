@@ -6,7 +6,7 @@
 
 /**
  *  @file   kinematics_correction.h
- *  @author Tingjun Li, Ross Hartley
+ *  @author Tingjun Li
  *  @brief  Header file for Invariant EKF kinematic correction method
  *  @date   November 25, 2022
  **/
@@ -21,9 +21,16 @@
 #include "measurement/kinematics.h"
 
 namespace inekf {
+typedef std::shared_ptr<KinematicsMeasurement<double>> KinematicsMeasurementPtr;
 typedef std::queue<std::shared_ptr<KinematicsMeasurement<double>>>
     KinematicsQueue;
 typedef std::shared_ptr<KinematicsQueue> KinematicsQueuePtr;
+
+struct ContactInfo {
+  int id;
+  Eigen::Vector3d pose;
+  Eigen::Matrix3d cov;
+};
 
 /**
  * @class KinematicsCorrection
@@ -46,13 +53,14 @@ class KinematicsCorrection : public Correction {
    * @param[in] aug_map_type: Type of the augmented states in this correction
    * method. For example, one can use "contact" to indicate the augment state in
    * this correction method are contact positions
+   * @param[in] yaml_filepath: Path of the yaml file for the correction
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
   KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
                        std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                        const ErrorType& error_type,
-                       const std::string& aug_type);
+                       const std::string& yaml_filepath);
 
   /// @name Correction Methods
   /// @{
@@ -75,18 +83,25 @@ class KinematicsCorrection : public Correction {
   /// @name Getters
   /// @{
   // ======================================================================
+  /**
+   * @brief Return the pointer of the sensor data buffer
+   *
+   * @return KinematicsQueuePtr: pointer of the sensor data buffer
+   */
   const KinematicsQueuePtr get_sensor_data_buffer_ptr() const;
+  /// @}
 
  private:
   const ErrorType error_type_;
-  // Indicating the type of the augmentation state, e.g. "contact", "landmark"
-  const std::string aug_type_;
 
   // aug_id_to_column_id map:
   // key: augmented state id
   // value: augmented state in the robot state X
   std::unordered_map<int, int> aug_id_to_column_id_;
   KinematicsQueuePtr sensor_data_buffer_ptr_;
+  double encoder_cov_val_;
+  double kinematics_additive_cov_val_;
+  Eigen::Matrix3d contact_noise_cov_;
 };    // class KinematicsCorrection
 }    // namespace inekf
 

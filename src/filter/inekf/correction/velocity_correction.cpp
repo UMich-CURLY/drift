@@ -47,17 +47,12 @@ VelocityCorrection::VelocityCorrection(
             ? config_["settings"]["rotation_vel2body"].as<std::vector<double>>()
             : std::vector<double>({1, 0, 0, 0});
 
-  R_vel2body_ = compute_R_vel2body(quat_vel2body);
+  // Convert quaternion to rotation matrix for frame transformation
+  Eigen::Quaternion<double> quarternion_vel2body(
+      quat_vel2body[0], quat_vel2body[1], quat_vel2body[2], quat_vel2body[3]);
+  R_vel2body_ = quarternion_vel2body.toRotationMatrix();
 }
 
-Eigen::Matrix3d VelocityCorrection::compute_R_vel2body(
-    const std::vector<double> vel2body) {
-  Eigen::Quaternion<double> quarternion_vel2body(vel2body[0], vel2body[1],
-                                                 vel2body[2], vel2body[3]);
-  Eigen::Matrix3d R_vel2body;
-  R_vel2body = quarternion_vel2body.toRotationMatrix();
-  return R_vel2body;
-}
 
 const VelocityQueuePtr VelocityCorrection::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
@@ -79,7 +74,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
     sensor_data_buffer_mutex_ptr_->unlock();
     return false;
   }
-  auto measured_velocity = sensor_data_buffer_ptr_->front();
+  VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_->unlock();
 

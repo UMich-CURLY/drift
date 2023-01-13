@@ -29,9 +29,8 @@ using namespace lie_group;
 ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const NoiseParams& params, const ErrorType& error_type,
-    const std::string& yaml_filepath)
-    : Propagation::Propagation(params, sensor_data_buffer_mutex_ptr),
+    const ErrorType& error_type, const std::string& yaml_filepath)
+    : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   propagation_type_ = PropagationType::IMU;
@@ -62,7 +61,10 @@ ImuPropagation::ImuPropagation(
       = config_["settings"]["rotation_imu2body"]
             ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
             : std::vector<double>({1, 0, 0, 0});
-  R_imu2body_ = compute_R_imu2body(quat_imu2body);
+
+  Eigen::Quaternion<double> quarternion_imu2body(
+      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
+  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
 
   // Set the noise parameters
   double gyro_std = config_["noises"]["gyroscope_std"]
@@ -117,19 +119,19 @@ bool ImuPropagation::Propagate(RobotState& state) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
-  auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+  const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  double dt = imu_measurement.get_time() - state.get_propagate_time();
-  state.set_time(imu_measurement.get_time());
-  state.set_propagate_time(imu_measurement.get_time());
+  double dt = imu_measurement->get_time() - state.get_propagate_time();
+  state.set_time(imu_measurement->get_time());
+  state.set_propagate_time(imu_measurement->get_time());
 
-  Eigen::Vector3d w = imu_measurement.get_ang_vel()
+  Eigen::Vector3d w = imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
 
   Eigen::Vector3d a
-      = imu_measurement.get_lin_acc()
+      = imu_measurement->get_lin_acc()
         - state.get_accelerometer_bias();    // Linear Acceleration
 
   // Rotate imu frame to align it with the body frame:
@@ -284,7 +286,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
                  * (wx2 * ax * wx2));
 
 
-  // TODO: Get better approximation using taylor series when theta < tol
+  /// TODO: Get better approximation using taylor series when theta < tol
   const double tol = 1e-6;
   if (theta < tol) {
     Phi25L = (1 / 2) * ax * dt2;
@@ -360,19 +362,11 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   }
 
   // Continuous noise covariance
-  Eigen::MatrixXd Qc = Eigen::MatrixXd::Zero(
-      dimP, dimP);    // Landmark noise terms will remain zero
+  Eigen::MatrixXd Qc
+      = state.get_continuous_noise_covariance();    // Landmark noise terms will
+                                                    // remain zero
   Qc.block<3, 3>(0, 0) = gyro_cov_;
   Qc.block<3, 3>(3, 3) = accel_cov_;
-
-  /// TODO: make sure contact covariance is in the euclidean space
-  // for (auto& column_id_to_aug_type : *(state.get_matrix_idx_map().get())) {
-  //   Qc.block<3, 3>(3 + 3 * (column_id_to_aug_type.first - 3),
-  //                  3 + 3 * (column_id_to_aug_type.first - 3))
-  //       = noise_params_.get_augment_cov(
-  //           column_id_to_aug_type.second);    // Augment state noise terms
-  // }
-
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
@@ -388,12 +382,11 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
 void ImuPropagation::InitImuBias() {
   if (!static_bias_initialization_) {
     bias_initialized_ = true;
-    std::cout << "Bias inialization is set to false." << std::endl;
+    std::cout << "Static bias inialization is set to false." << std::endl;
     std::cout << "Bias is initialized using prior as: \n" << bg0_ << std::endl;
     std::cout << ba0_ << std::endl;
     return;
   }
-
 
   // Initialize bias based on imu orientation and static assumption
   if (bias_init_vec_.size() < init_bias_size_) {
@@ -402,18 +395,19 @@ void ImuPropagation::InitImuBias() {
       sensor_data_buffer_mutex_ptr_.get()->unlock();
       return;
     }
-    auto imu_measurement = *(sensor_data_buffer_ptr_->front().get());
+    const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
     sensor_data_buffer_ptr_->pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-    Eigen::Vector3d w = imu_measurement.get_ang_vel();    // Angular Velocity
-    Eigen::Vector3d a = imu_measurement.get_lin_acc();    // Linear Acceleration
+    Eigen::Vector3d w = imu_measurement->get_ang_vel();    // Angular Velocity
+    Eigen::Vector3d a
+        = imu_measurement->get_lin_acc();    // Linear Acceleration
 
     // Rotate imu frame to align it with the body frame:
     w = R_imu2body_ * w;
     a = R_imu2body_ * a;
 
-    Eigen::Quaternion<double> quat = imu_measurement.get_quaternion();
+    Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
     Eigen::Matrix3d R;
     if (use_imu_ori_est_init_bias_) {
       R = quat.toRotationMatrix();
@@ -437,15 +431,6 @@ void ImuPropagation::InitImuBias() {
     ba0_ = avg.tail<3>();
     bias_initialized_ = true;
   }
-}
-
-Eigen::Matrix3d ImuPropagation::compute_R_imu2body(
-    const std::vector<double> imu2body) {
-  Eigen::Quaternion<double> quarternion_imu2body(imu2body[0], imu2body[1],
-                                                 imu2body[2], imu2body[3]);
-  Eigen::Matrix3d R_imu2body;
-  R_imu2body = quarternion_imu2body.toRotationMatrix();
-  return R_imu2body;
 }
 
 const Eigen::Vector3d ImuPropagation::get_estimate_gyro_bias() const {

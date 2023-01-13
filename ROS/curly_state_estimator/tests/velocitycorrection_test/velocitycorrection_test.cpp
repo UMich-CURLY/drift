@@ -17,7 +17,6 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
-#include "filter/noise_params.h"
 #include "measurement/imu.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
@@ -41,13 +40,6 @@ int main(int argc, char** argv) {
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
-
-  NoiseParams params;
-  params.set_gyroscope_noise(0.1);
-  params.set_accelerometer_noise(0.1);
-  params.set_gyroscope_bias_noise(0.1);
-  params.set_accelerometer_bias_noise(0.1);
-
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
   std::cout << "Before: " << std::endl;
@@ -55,18 +47,18 @@ int main(int argc, char** argv) {
 
   // Add propagation and correction methods
 
-  auto imu_data_buffer_ptr = ros_sub.add_imu_subscriber("/gx5_0/imu/data");
+  auto imu_data_buffer_ptr = ros_sub.AddIMUSubscriber("/gx5_0/imu/data");
   state_estimator.add_imu_propagation(imu_data_buffer_ptr, false);
 
 
   state_estimator::init_bias(){};
   state_estimator::init_state();
   auto velocity_data_buffer_ptr
-      = ros_sub.add_differential_drive_velocity_subscriber("/joint_states");
+      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
   state_estimator.add_velocity_correction(velocity_data_buffer_ptr);
 
 
-  ros_sub.start_subscribing_thread();
+  ros_sub.StartSubscribingThread();
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();

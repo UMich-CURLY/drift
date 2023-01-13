@@ -19,7 +19,8 @@
 #include "measurement/velocity.h"
 
 namespace inekf {
-typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
+typedef std::shared_ptr<VelocityMeasurement<double>> VelocityMeasurementPtr;
+typedef std::queue<VelocityMeasurementPtr> VelocityQueue;
 typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 
 /**
@@ -32,6 +33,7 @@ class VelocityCorrection : public Correction {
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /// @name Constructors
+  /// @{
   /**
    * @brief Constructor for the correction class
    *
@@ -40,17 +42,13 @@ class VelocityCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] yaml_filename: Name of the yaml file for the correction
-   *
-   * @return bool: successfully correct state or not (if we do not receive a
-   * new message and this method is called it'll return false.)
+   * @param[in] yaml_filepath: Name of the yaml file for the correction
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
                      const ErrorType& error_type,
-                     const std::string& yaml_filepath
-                     = "config/filter/inekf/"
-                       "correction/velocity_correction.yaml");
+                     const std::string& yaml_filepath);
+  /// @}
 
   /// @name Correction Methods
   /// @{
@@ -61,7 +59,6 @@ class VelocityCorrection : public Correction {
    * frameThis is a right-invariant measurement model.
    *
    * @param[in/out] state: the current state estimate
-   *
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
@@ -71,16 +68,22 @@ class VelocityCorrection : public Correction {
   /// @name Getters
   /// @{
   // ======================================================================
+  /**
+   * @brief Return the pointer of the sensor data buffer
+   *
+   * @return VelocityQueuePtr: pointer of the sensor data buffer
+   */
   const VelocityQueuePtr get_sensor_data_buffer_ptr() const;
+  /// @}
 
-
-  static Eigen::Matrix3d compute_R_vel2body(const std::vector<double> vel2body);
 
  private:
-  const ErrorType error_type_;
-  VelocityQueuePtr sensor_data_buffer_ptr_;
-  Eigen::Matrix3d covariance_;
-  Eigen::Matrix3d R_vel2body_;
+  const ErrorType error_type_;    // Error type for the correction.
+                                  // LeftInvariant or RightInvariant
+  VelocityQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor buffer
+  Eigen::Matrix3d covariance_;                 // Velocity covariance
+  Eigen::Matrix3d
+      R_vel2body_;    // Rotation matrix from velocity frame to body frame
 };
 
 }    // namespace inekf

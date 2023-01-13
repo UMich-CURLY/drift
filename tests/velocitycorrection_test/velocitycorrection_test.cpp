@@ -15,7 +15,6 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
-#include "filter/noise_params.h"
 #include "measurement/imu.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
@@ -49,16 +48,9 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   Eigen::Matrix3d measured_velocity_covariance;
   measured_velocity_covariance << 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-  NoiseParams params;
-  double temp_param = 0;
-  params.set_gyroscope_noise(temp_param);
-  params.set_accelerometer_noise(temp_param);
-  params.set_gyroscope_bias_noise(temp_param);
-  params.set_accelerometer_bias_noise(temp_param);
-
   inekf::ErrorType error_type = RightInvariant;
 
-  StateEstimator state_estimator(params, error_type);
+  StateEstimator state_estimator(error_type);
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
@@ -147,7 +139,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   expect_X.push_back(X);
 
   // Set initial state:
-  state_estimator.initStateFromImu();
+  state_estimator.InitStateFromImu();
   auto init_state = state_estimator.get_state().get_X();
   // Check initial state value:
   for (int j = 0; j < 5; j++) {
@@ -157,10 +149,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   }
 
 
-  for (int i = 0; i < 4; i++) {
+  for (int i = 1; i < 4; i++) {
     // Check propagation and correction:
-    if (state_estimator.enabled()) {
-      state_estimator.run_once();
+    if (state_estimator.is_enabled()) {
+      state_estimator.RunOnce();
       std::cout << "After Correction: " << std::endl;
       std::cout << state_estimator.get_state().get_X() << std::endl;
       auto est_state = state_estimator.get_state().get_X();
@@ -171,11 +163,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       }
       std::cout << "------------------------------------------" << std::endl;
     } else {
-      if (state_estimator.biasInitialized()) {
-        state_estimator.initStateFromImu();
-        state_estimator.enableFilter();
+      if (state_estimator.BiasInitialized()) {
+        state_estimator.InitStateFromImu();
+        state_estimator.EnableFilter();
       } else {
-        state_estimator.initBias();
+        state_estimator.InitBias();
       }
     }
   }

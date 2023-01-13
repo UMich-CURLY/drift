@@ -48,12 +48,16 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief
+   * @brief Construct a new State Estimator object
+   */
+  StateEstimator();
+
+  /**
+   * @brief Construct a new State Estimator object
    *
-   * @param[in] params: Noise parameters
    * @param[in] error_type: Error type of the filter
    */
-  StateEstimator(NoiseParams params, ErrorType error_type);
+  StateEstimator(ErrorType error_type);
   /// @}
 
   /// @name Setters
@@ -105,9 +109,13 @@ class StateEstimator {
    *
    * @param[in] buffer_ptr: The imu buffer queue temporarily stores the
    * message from the subscriber.
+   * @param[in] buffer_mutex_ptr: The imu buffer mutex pointer
+   * @param[in] yaml_filepath: The yaml file path for the imu propagation config
    */
-  void add_imu_propagation(IMUQueuePtr buffer_ptr,
-                           std::shared_ptr<std::mutex> buffer_mutex_ptr);
+  void add_imu_propagation(
+      IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+      const std::string& yaml_filepath
+      = "config/filter/inekf/propagation/imu_propagation.yaml");
   /// @}
 
   /// @name Correction
@@ -122,7 +130,9 @@ class StateEstimator {
    */
   void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
                                  std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                                 const std::string& aug_type);
+                                 const std::string& yaml_filepath
+                                 = "config/filter/inekf/"
+                                   "correction/kinematics_correction.yaml");
 
   // ======================================================================
   /**
@@ -131,23 +141,53 @@ class StateEstimator {
    *
    * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
    * message from the subscriber.
+   * @param[in] buffer_mutex_ptr: The velocity buffer mutex pointer
+   * @param[in] yaml_filepath: The yaml file path for the velocity correction
+   * config
    */
   void add_velocity_correction(VelocityQueuePtr buffer_ptr,
-                               std::shared_ptr<std::mutex> buffer_mutex_ptr);
+                               std::shared_ptr<std::mutex> buffer_mutex_ptr,
+                               const std::string& yaml_filepath
+                               = "config/filter/inekf/"
+                                 "correction/velocity_correction.yaml");
   /// @}
 
-  const bool enabled() const;
-
-  void enableFilter();
+  // ======================================================================
+  /**
+   * @brief Return whether or not the filter is enabled
+   *
+   * @return const bool: true for enabled, false for disabled
+   */
+  const bool is_enabled() const;
 
   // ======================================================================
-  void initBias();
+  /**
+   * @brief Enable the filter, change enabled_ to true
+   *
+   */
+  void EnableFilter();
 
   // ======================================================================
-  const bool biasInitialized() const;
+  /**
+   * @brief Initialize the IMU bias of the filter
+   *
+   */
+  void InitBias();
 
   // ======================================================================
-  void initStateFromImu();
+  /**
+   * @brief Return whether or not the IMU bias is initialized
+   *
+   * @return const bool: true for initialized, false for not initialized
+   */
+  const bool BiasInitialized() const;
+
+  // ======================================================================
+  /**
+   * @brief Initialize the state of the filter using the IMU data
+   *
+   */
+  void InitStateFromImu();
 
   // ======================================================================
   /**
@@ -158,25 +198,33 @@ class StateEstimator {
    * propagated and corrected according to the methods added.
    *
    */
-  void run_once();
+  void RunOnce();
 
 
   // ======================================================================
   /**
-   * @brief Clear the filter
+   * @brief Clear and reset the filter
    *
    */
   void clear();
 
  private:
-  RobotState state_;
-  NoiseParams params_;
-  ErrorType error_type_;
-  std::vector<std::shared_ptr<Correction>> corrections_;
-  std::vector<aug_map_t> aug_maps;
-  std::shared_ptr<Propagation> propagation_;
-  bool enabled_ = false;
-  bool new_pose_ready_ = false;
-  RobotStateQueuePtr robot_state_queue_ptr_;
-  std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr_;
-};    // class StateEstimator
+  RobotState state_;    // state of the robot
+  ErrorType error_type_
+      = inekf::RightInvariant;    // Error Type of the InEKF filter
+                                  // (LeftInvariant or RightInvariant)
+  std::vector<std::shared_ptr<Correction>>
+      corrections_;                   // List of correction methods
+  std::vector<aug_map_t> aug_maps;    // List of augmented states mapping
+  std::shared_ptr<Propagation>
+      propagation_;         // Propagation method of the filter
+  bool enabled_ = false;    // Boolean value indicating whether the filter is
+                            // enabled or not
+  bool new_pose_ready_
+      = false;    // Boolean value indicating whether a new pose is generated
+  RobotStateQueuePtr robot_state_queue_ptr_;    // Pointer to the filter
+                                                // estimated robot states queue
+  std::shared_ptr<std::mutex>
+      robot_state_queue_mutex_ptr_;    // Mutex of the robot
+                                       // state queue
+};                                     // class StateEstimator
