@@ -106,8 +106,8 @@ class ROSSubscriber {
    */
   VelocityQueuePair AddDifferentialDriveVelocitySubscriber(
       const std::string topic_name);
-  KINQueuePair add_kinematics_subscriber(const std::string contact_topic_name,
-                                         const std::string encoder_topic_name);
+  KINQueuePair AddKinematicsSubscriber(const std::string contact_topic_name,
+                                       const std::string encoder_topic_name);
 
   /**
    * @brief Start the subscribing thread
@@ -149,15 +149,16 @@ class ROSSubscriber {
   void DifferentialEncoder2VelocityCallback(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
-  void ros_spin();
+  void RosSpin();
 
   ros::NodeHandle* nh_;                             // The ROS handle
   std::vector<ros::Subscriber> subscriber_list_;    // List of subscribers
 
   // measurement queue list
-  std::vector<IMUQueuePtr> imu_queue_list_;
-  std::vector<VelocityQueuePtr> vel_queue_list_;
-  std::vector<std::shared_ptr<std::mutex>> mutex_list_;
+  std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
+  std::vector<VelocityQueuePtr>
+      vel_queue_list_;    // List of velocity queue pointers
+  std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes
 
   bool thread_started_;    // Flag of the thread started, true for started,
                            // false for not started

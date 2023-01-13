@@ -48,7 +48,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-KINQueuePair ROSSubscriber::add_kinematics_subscriber(
+KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
   // Create a new queue for data buffers
@@ -167,7 +167,7 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   vel_queue->push(vel_measurement);
 }
 
-void kin_call_back(
+void KinCallBack(
     const boost::shared_ptr<const sensor_msgs::Contact>& contact_msg,
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
