@@ -20,7 +20,7 @@
  * @class LeggedKinematics
  *
  * Derived measurement class containing information
- * about world-frame robot state
+ * about body-to-foot kinematics
  */
 class LeggedKinematics : public Measurement {
  public:
