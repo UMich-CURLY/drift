@@ -6,7 +6,7 @@ set(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
 set(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
 set(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
 set(inekf 
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
 set(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)

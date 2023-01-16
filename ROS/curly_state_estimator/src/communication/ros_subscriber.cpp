@@ -172,7 +172,8 @@ void KinCallBack(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
-  std::shared_ptr<LeggedKinematics> kin_measurement(new LeggedKinematics);
+  std::shared_ptr<LeggedKinematicsMeasurement> kin_measurement(
+      new LeggedKinematicsMeasurement);
   // Set headers and time stamps
   // TODO: Figure out how headers are set for a kinematics measurement
   kin_measurement->set_header(

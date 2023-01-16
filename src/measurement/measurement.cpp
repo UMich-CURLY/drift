@@ -41,8 +41,8 @@ ostream& operator<<(ostream& os, const Measurement& m) {
     case IMU:
       type_str = "IMU";
       break;
-    case KINEMATICS:
-      type_str = "KINEMATICS";
+    case LEGGED_KINEMATICS:
+      type_str = "LEGGED_KINEMATICS";
       break;
     case VELOCITY:
       type_str = "VELOCITY";

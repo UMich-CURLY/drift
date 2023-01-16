@@ -19,7 +19,14 @@
 
 #include <Eigen/Dense>
 
-enum MeasurementType { EMPTY, IMU, KINEMATICS, VELOCITY, JOINT_STATE, CONTACT };
+enum MeasurementType {
+  EMPTY,
+  IMU,
+  LEGGED_KINEMATICS,
+  VELOCITY,
+  JOINT_STATE,
+  CONTACT
+};
 
 /**
  * @class Measurement

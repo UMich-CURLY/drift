@@ -57,7 +57,7 @@ typedef std::shared_ptr<JointStateQueue> JointStateQueuePtr;
 typedef std::pair<JointStateQueuePtr, std::shared_ptr<std::mutex>>
     JointStateQueuePair;
 */
-typedef std::queue<std::shared_ptr<LeggedKinematics>> KINQueue;
+typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>> KINQueue;
 typedef std::shared_ptr<KINQueue> KINQueuePtr;
 typedef std::pair<KINQueuePtr, std::shared_ptr<std::mutex>> KINQueuePair;
 

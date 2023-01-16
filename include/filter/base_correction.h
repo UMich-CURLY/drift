@@ -31,7 +31,7 @@
 
 enum class CorrectionType {
   BASE,
-  KINEMATICS,
+  LEGGED_KINEMATICS,
   VELOCITY,
 };
 

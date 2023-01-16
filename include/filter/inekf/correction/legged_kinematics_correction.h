@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   kinematics_correction.h
+ *  @file   legged_kinematics_correction.h
  *  @author Tingjun Li
  *  @brief  Header file for Invariant EKF kinematic correction method
  *  @date   November 25, 2022
@@ -18,13 +18,13 @@
 #include "filter/base_correction.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
-#include "measurement/kinematics.h"
+#include "measurement/legged_kinematics.h"
 
 namespace inekf {
-typedef std::shared_ptr<KinematicsMeasurement<double>> KinematicsMeasurementPtr;
-typedef std::queue<std::shared_ptr<KinematicsMeasurement<double>>>
+typedef std::shared_ptr<LeggedKinematicsMeasurement> KinematicsMeasurementPtr;
+typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
     KinematicsQueue;
-typedef std::shared_ptr<KinematicsQueue> KinematicsQueuePtr;
+typedef std::shared_ptr<KinematicsQueue> LeggedKinematicsQueuePtr;
 
 struct ContactInfo {
   int id;
@@ -33,11 +33,11 @@ struct ContactInfo {
 };
 
 /**
- * @class KinematicsCorrection
+ * @class LeggedKinematicsCorrection
  *
  * A class for state correction using foot kinematics and contact events.
  **/
-class KinematicsCorrection : public Correction {
+class LeggedKinematicsCorrection : public Correction {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -57,10 +57,10 @@ class KinematicsCorrection : public Correction {
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
-  KinematicsCorrection(KinematicsQueuePtr sensor_data_buffer_ptr,
-                       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                       const ErrorType& error_type,
-                       const std::string& yaml_filepath);
+  LeggedKinematicsCorrection(
+      LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
+      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+      const ErrorType& error_type, const std::string& yaml_filepath);
 
   /// @name Correction Methods
   /// @{
@@ -86,9 +86,9 @@ class KinematicsCorrection : public Correction {
   /**
    * @brief Return the pointer of the sensor data buffer
    *
-   * @return KinematicsQueuePtr: pointer of the sensor data buffer
+   * @return LeggedKinematicsQueuePtr: pointer of the sensor data buffer
    */
-  const KinematicsQueuePtr get_sensor_data_buffer_ptr() const;
+  const LeggedKinematicsQueuePtr get_sensor_data_buffer_ptr() const;
   /// @}
 
  private:
@@ -98,11 +98,11 @@ class KinematicsCorrection : public Correction {
   // key: augmented state id
   // value: augmented state in the robot state X
   std::unordered_map<int, int> aug_id_to_column_id_;
-  KinematicsQueuePtr sensor_data_buffer_ptr_;
+  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;
   double encoder_cov_val_;
   double kinematics_additive_cov_val_;
   Eigen::Matrix3d contact_noise_cov_;
-};    // class KinematicsCorrection
+};    // class LeggedKinematicsCorrection
 }    // namespace inekf
 
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

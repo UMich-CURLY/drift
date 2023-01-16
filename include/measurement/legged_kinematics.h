@@ -17,23 +17,24 @@
 #include "measurement.h"
 
 /**
- * @class LeggedKinematics
+ * @class LeggedKinematicsMeasurement
  *
  * Derived measurement class containing information
  * about body-to-foot kinematics
  */
-class LeggedKinematics : public Measurement {
+class LeggedKinematicsMeasurement : public Measurement {
  public:
   /**
    * @brief Default constructor.
    */
-  LeggedKinematics();
+  LeggedKinematicsMeasurement();
 
   /**
    * @brief Overload constructor.
    */
-  LeggedKinematics(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
-                   const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
+  LeggedKinematicsMeasurement(
+      const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+      const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   /**
    * @brief Computes and stores foot position and Jacobian matricies based on

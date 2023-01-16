@@ -27,7 +27,7 @@
 
 enum Leg { FR, FL, HR, HL };
 
-class MiniCheetahKinematics : public LeggedKinematics {
+class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
  public:
   MiniCheetahKinematics();
   MiniCheetahKinematics(

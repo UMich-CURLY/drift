@@ -20,11 +20,11 @@
 
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
-#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/legged_kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "measurement/imu.h"
-#include "measurement/kinematics.h"
+#include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
 
@@ -128,11 +128,12 @@ class StateEstimator {
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
    */
-  void add_kinematics_correction(KinematicsQueuePtr buffer_ptr,
-                                 std::shared_ptr<std::mutex> buffer_mutex_ptr,
-                                 const std::string& yaml_filepath
-                                 = "config/filter/inekf/"
-                                   "correction/kinematics_correction.yaml");
+  void add_kinematics_correction(
+      LeggedKinematicsQueuePtr buffer_ptr,
+      std::shared_ptr<std::mutex> buffer_mutex_ptr,
+      const std::string& yaml_filepath
+      = "config/filter/inekf/"
+        "correction/legged_kinematics_correction.yaml");
 
   // ======================================================================
   /**

@@ -1,18 +1,19 @@
-#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/legged_kinematics_correction.h"
 
 namespace inekf {
 using namespace std;
 using namespace lie_group;
 
-KinematicsCorrection::KinematicsCorrection(
-    KinematicsQueuePtr sensor_data_buffer_ptr,
+LeggedKinematicsCorrection::LeggedKinematicsCorrection(
+    LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const std::string& yaml_filepath)
     : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
-  correction_type_ = CorrectionType::KINEMATICS;
-  cout << "Loading kinematics correction config from " << yaml_filepath << endl;
+  correction_type_ = CorrectionType::LEGGED_KINEMATICS;
+  cout << "Loading legged kinematics correction config from " << yaml_filepath
+       << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
   encoder_cov_val_ = config_["noises"]["encoder_std"]
                          ? config_["noises"]["encoder_std"].as<double>()
@@ -30,13 +31,13 @@ KinematicsCorrection::KinematicsCorrection(
                        * Eigen::Matrix<double, 3, 3>::Identity();
 }
 
-const KinematicsQueuePtr KinematicsCorrection::get_sensor_data_buffer_ptr()
-    const {
+const LeggedKinematicsQueuePtr
+LeggedKinematicsCorrection::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
 }
 
 // Correct state using kinematics measured between body frame and contact point
-bool KinematicsCorrection::Correct(RobotState& state) {
+bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
@@ -46,7 +47,7 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   vector<ContactInfo> new_contacts;    // new contacts to be added
 
   //---------------------------------------------------------------
-  /// TODO: add get_contact in the KinematicsMeasurement() class
+  /// TODO: add get_contact in the LeggedKinematicsMeasurement() class
   /// TODO: Be sure to also change and check the whole function
   /// TOASK: Should we use map<int, bool> or just Matrix<int, CONTACT_DIM,1> for
   /// contact measurements?
@@ -59,12 +60,12 @@ bool KinematicsCorrection::Correct(RobotState& state) {
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
   int num_legs = kinematics_measurement->get_num_legs();
-  kinematics_measurement->compute_kinematics();
+  kinematics_measurement->ComputeKinematics();
 
   for (int id = 0; id < num_legs; id++) {
     bool has_contact = kinematics_measurement->get_contact(id);
-    Eigen::Vector3d pose = kinematics_measurement->get_pose(id);
-    Eigen::Matrix3d J = kinematics_measurement->get_jacobian(id);
+    Eigen::Vector3d pose = kinematics_measurement->get_kin_pos(id);
+    Eigen::Matrix3d J = kinematics_measurement->get_J(id);
     Eigen::Matrix3d cov
         = J * encoder_cov_val_ * J.transpose()
           + kinematics_additive_cov_val_ * Eigen::Matrix3d::Identity();

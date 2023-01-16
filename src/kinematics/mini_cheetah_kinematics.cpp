@@ -19,7 +19,7 @@ MiniCheetahKinematics::MiniCheetahKinematics() {
 MiniCheetahKinematics::MiniCheetahKinematics(
     const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
-    : LeggedKinematics(encoders, contacts) {
+    : LeggedKinematicsMeasurement(encoders, contacts) {
   position_.setConstant(3, NLEG, 0);
   jacobian_.setConstant(3, NLEG * NAPL, 0);
 }

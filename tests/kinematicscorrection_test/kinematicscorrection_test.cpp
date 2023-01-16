@@ -13,7 +13,7 @@
 #include <string>
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
-#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/legged_kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "measurement/imu.h"
@@ -33,7 +33,7 @@
 #include <gtest/gtest.h>
 
 
-TEST(KinematicsCorrection, ImuPropVelCorr) {
+TEST(LeggedKinematicsCorrection, ImuPropVelCorr) {
   // Initialize a state matrix m
   Eigen::Matrix<double, 5, 5> m;
   m << 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
@@ -50,7 +50,7 @@ TEST(KinematicsCorrection, ImuPropVelCorr) {
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
   KinematicsQueue kinematics_data_buffer;
-  KinematicsQueuePtr kinematics_data_buffer_ptr
+  LeggedKinematicsQueuePtr kinematics_data_buffer_ptr
       = std::make_shared<KinematicsQueue>(kinematics_data_buffer);
 
   imu_measurement_0.set_ang_vel(0, 0, 0);

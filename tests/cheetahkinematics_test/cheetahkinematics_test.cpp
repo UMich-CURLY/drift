@@ -7,7 +7,7 @@
 TEST(cheetahkinematicstest, DefaultCtor) {
   MiniCheetahKinematics kin_data;
   EXPECT_EQ(kin_data.get_type(), 2);
-  EXPECT_EQ(kin_data.get_type(), KINEMATICS);
+  EXPECT_EQ(kin_data.get_type(), LEGGED_KINEMATICS);
 
   for (size_t i = 0; i < 3; i++) {
     EXPECT_EQ(kin_data.get_kin_pos(1)(i), 0);
