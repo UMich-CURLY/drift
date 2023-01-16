@@ -27,7 +27,7 @@
 #include "boost/bind.hpp"
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
-#include "sensor_msgs/Contact.h"
+// #include "sensor_msgs/Contact.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 

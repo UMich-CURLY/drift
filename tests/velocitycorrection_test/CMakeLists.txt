@@ -10,7 +10,8 @@ set(inekf
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
-set(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
+set(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp)
 
 # Create the test binary
 add_executable(${test_prefix}_velocitycorrection_test velocitycorrection_test.cpp ${lie_group} ${state_estimator} ${base_propagation} ${base_correction} ${inekf} ${measurement} ${robot_state} ${se_k_3}
