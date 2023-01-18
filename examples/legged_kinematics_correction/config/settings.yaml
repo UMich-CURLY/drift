@@ -1,0 +1,39 @@
+settings:
+  # initialize_state_from_first_observation: false
+  # enable_kinematics: true
+  # flat_ground: false
+
+  # LCM handler
+  mode: "normal" # normal is 500 Hz
+  run_synced: true # change to true if you have a set of synced message channel which contains contact estimation results 
+
+  lcm_leg_channel: "leg_control_data" # contains q, qd, p, v, tau data
+  lcm_imu_channel: "microstrain"  # contains acceleration, omega, rpy, quaternion data
+  lcm_contact_est_channel: "wbc_lcm_data" # channel for contact events
+  lcm_synced_channel: "synced_proprioceptive_data" # contains all the data from above channels
+  lcm_reinitialize_channel: "reinitialize_command" # receive whether the program should be reinitialized
+
+  leg_q_dimension: 12
+  leg_qd_dimension: 12
+  leg_p_dimension: 12
+  leg_v_dimension: 12
+  leg_tau_dimension: 12
+
+  imu_acc_dimension: 3
+  imu_omega_dimension: 3
+  imu_rpy_dimension: 3
+  imu_quat_dimension: 4
+
+  num_legs: 4
+  
+  # Body Estimator
+  estimator_publish_lcm: true
+  estimator_enable_debug: false                                                                     # enable debug print
+  estimator_lcm_pose_channel: "CHEETAH_POSE_CHANNEL"                                                # LCM output pose channel
+  estimator_static_bias_initialization: false
+
+  # Cheetah System
+  system_enable_pose_log_txt: false                                                                 # log the pose as txt file 
+  system_pose_record_step_size: 1                                                                          # number of pose to skip while logging. Ex. 5 means record every 5 poses.
+  system_inekf_kitti_pose_filename: "/Users/tingjun/code/curly_state_estimator/cheetah_inekf_pose_kitti.txt"    # path to logged trajectory in Kitti format
+  system_inekf_tum_pose_filename: "/Users/tingjun/code/curly_state_estimator/cheetah_inekf_pose_tum.txt"  # path to logged trajectory in TUM format

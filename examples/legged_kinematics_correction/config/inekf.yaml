@@ -1,0 +1,4 @@
+inekf:
+  encoder_std: 0.0174533
+  kinematic_prior_orientation_std: 0.03
+  kinematic_prior_position_std: 0.03
