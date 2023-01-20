@@ -70,7 +70,8 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
         = J * encoder_cov_val_ * J.transpose()
           + kinematics_additive_cov_val_ * Eigen::Matrix3d::Identity();
 
-    bool found = aug_id_to_column_id_.count(id);
+    // bool found = aug_id_to_column_id_.count(id);
+    bool found = aug_id_to_column_id_ptr_.count(id);
 
     if (!has_contact && found) {
       // If contact is not indicated and leg id is found in previous existing
@@ -98,11 +99,13 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       H.block(startIndex, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
       if (state.get_state_type() == StateType::WorldCentric) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
-        H.block(startIndex, 3 * aug_id_to_column_id_[id] - dimTheta, 3, 3)
+        H.block(startIndex, 3 * *(aug_id_to_column_id_ptr_[id]) - dimTheta, 3,
+                3)
             = Eigen::Matrix3d::Identity();    // I
       } else {
         H.block(startIndex, 6, 3, 3) = Eigen::Matrix3d::Identity();    // I
-        H.block(startIndex, 3 * aug_id_to_column_id_[id] - dimTheta, 3, 3)
+        H.block(startIndex, 3 * *(aug_id_to_column_id_ptr_[id]) - dimTheta, 3,
+                3)
             = -Eigen::Matrix3d::Identity();    // -I
       }
 
@@ -123,7 +126,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       Eigen::Matrix3d R = state.get_rotation();
       Eigen::Vector3d p = state.get_position();
       /// TODO: change this with the new get aug method
-      Eigen::Vector3d d = state.get_aug_state(aug_id_to_column_id_[id]);
+      Eigen::Vector3d d = state.get_aug_state(*(aug_id_to_column_id_ptr_[id]));
       if (state.get_state_type() == StateType::WorldCentric) {
         Z.segment(startIndex, 3) = R * pose - (d - p);
       } else {
@@ -151,8 +154,8 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
     Eigen::MatrixXd X_rem = state.get_X();
     Eigen::MatrixXd P_rem = state.get_P();
     for (int id : remove_contacts) {
-      state.del_aug_state(aug_id_to_column_id_[id]);
-      aug_id_to_column_id_.erase(id);
+      state.del_aug_state(*(aug_id_to_column_id_ptr_[id]));
+      aug_id_to_column_id_ptr_.erase(id);
     }
   }
 
@@ -204,13 +207,18 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
                   .eval();
 
       // Send the new contact aug state and aug covariance to robot state
+
+
+      aug_id_to_column_id_ptr_[new_contact.id]
+          = std::make_shared<int>(state.dimX());
       int aug_idx = state.add_aug_state(
           aug_state, P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3),
-          contact_noise_cov_);
+          contact_noise_cov_, aug_id_to_column_id_ptr_[new_contact.id]);
 
       // Add the aug state matrix index to the augment state information
       // mapping
-      aug_id_to_column_id_[new_contact.id] = aug_idx;
+      // aug_id_to_column_id_ptr_[new_contact.id] =
+      // std::make_shared<int>(aug_idx);
     }
   }
 

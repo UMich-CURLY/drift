@@ -210,16 +210,15 @@ class RobotState {
   const double get_propagate_time() const;
 
   /**
-   * @brief Add the augmented state to the last of the certain(idx_map-th)
-   * mapping in the idx_maps_ vector.
+   * @brief Add the augmented state 
    *
-   * @param[in] idx_map: the index of the mapping in the mapping vector
-   * idx_maps_.
    * @param[in] aug: Augmented state to be added to the index mapping.
    * @param[in] cov: Covariance of the augmented state.
+   * @param[in] noise_cov: Covariance of noise.
+   * @param[in] col_id_ptr: the column id passed by correction mapping.
    */
   int add_aug_state(const Eigen::Vector3d& aug, const Eigen::Matrix3d& cov,
-                    const Eigen::Matrix3d& noise_cov);
+                    const Eigen::Matrix3d& noise_cov, std::shared_ptr<int> col_id_ptr);
 
   /**
    * @brief Set the augmented to the certain position(matrix_idx-th) in the
@@ -425,11 +424,10 @@ class RobotState {
   /**
    * @brief add the Gyroscope Bias vector baug to the end of the mapping.
    *
-   * @param[in] matrix_idx: the idx in the state matrix where the aug state is
-   * located
-   * * @return const Eigen::Vector3d: gyroscope bias vector bg.
+   * @param[in] baug: 3x1 gyroscope bias vector baug.
+   * @return const Eigen::Vector3d: gyroscope bias vector bg.
    */
-  void add_aug_bias(int matrix_idx, const Eigen::Vector3d& baug);
+  void add_aug_bias(const Eigen::Vector3d& baug);
 
   /**
    * @brief delete the Gyroscope Bias vector baug according to matrix_idx.
@@ -548,6 +546,8 @@ class RobotState {
   Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
   Eigen::MatrixXd P_;        // Matrix of covariance respect to X.
   std::vector<std::map<int, int>> idx_maps_;
+  std::vector<std::shared_ptr<int>> column_id_to_corr_map_;
+
   double t_;         // The latest time when the state X_ is updated
   double t_prop_;    // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;

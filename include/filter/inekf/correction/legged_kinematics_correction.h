@@ -97,7 +97,9 @@ class LeggedKinematicsCorrection : public Correction {
   // aug_id_to_column_id map:
   // key: augmented state id
   // value: augmented state in the robot state X
-  std::unordered_map<int, int> aug_id_to_column_id_;
+  // std::unordered_map<int, int> aug_id_to_column_id_;
+  std::unordered_map<int, std::shared_ptr<int>> aug_id_to_column_id_ptr_;
+
   LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;
   double encoder_cov_val_;
   double kinematics_additive_cov_val_;
