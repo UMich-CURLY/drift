@@ -25,6 +25,7 @@ ROSSubscriber::~ROSSubscriber() {
     subscribing_thread_.join();
   }
   subscriber_list_.clear();
+  mfilter_subscriber_list_.clear();
   imu_queue_list_.clear();
 }
 
@@ -58,17 +59,19 @@ KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
-      topic_name, 1000,
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
+      encoder_topic_name, 1000,
       boost::bind(&ROSSubscriber::kin_call_back, this, _1, mutex_list_.back(),
-                  imu_queue_ptr)));
+                  kin_queue_ptr)));
 
-  message_filters::Subscriber<sensor_msgs::Contact> contact_sub(
-      nh, contact_topic_name, 1);
-  message_filters::Subscriber<sensor_msgs::JoinState> encoder_sub(
-      nh, encoder_topic_name, 1);
+  mfilter_subscriber_list_.push_back(
+      message_filters::Subscriber<custom_sensor_msgs::Contact> contact_sub(
+          nh_, contact_topic_name, 1));
+  mfilter_subscriber_list_.push_back(
+      message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
+          nh_, encoder_topic_name, 1));
 
-  typedef sync_policies::ApproximateTime<sensor_msgs::Contact,
+  typedef sync_policies::ApproximateTime<custom_sensor_msgs::Contact,
                                          sensor_msgs::JoinState>
       MySyncPolicy;
 
@@ -171,14 +174,29 @@ void KinCallBack(
     const boost::shared_ptr<const sensor_msgs::Contact>& contact_msg,
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
-  // Create a legged kinematics measurement object
-  std::shared_ptr<LeggedKinematics> kin_measurement(new LeggedKinematics);
+// Create a legged kinematics measurement object
+#include "communication/kinematics_impl.cpp"
   // Set headers and time stamps
   // TODO: Figure out how headers are set for a kinematics measurement
   kin_measurement->set_header(
       msg->header.seq,
       msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0,
       msg->header.frame_id);
+
+  Eigen::Matrix<bool, Dynamic, 1> ctmsg;
+  ctmsg << contact_msg->indicator[0], contact_msg->indicator[1],
+      contact_msg->indicator[2], contact_msg->indicator[3];
+  kin_measurement->set_contact(ctmsg);
+  Eigen::Matrix<double, Dynamic, 1> jsmsg;
+  jsmsg << encoder_msg->position[0], encoder_msg->position[1],
+      encoder_msg->position[2], encoder_msg->position[3],
+      encoder_msg->position[4], encoder_msg->position[5],
+      encoder_msg->position[6], encoder_msg->position[7],
+      encoder_msg->position[8], encoder_msg->position[9],
+      encoder_msg->position[10], encoder_msg->position[11];
+  kin_measurement->set_joint_state(jsmsg);
+
+  kin_queue->push(kin_measurement);
 }
 
 void ROSSubscriber::RosSpin() {

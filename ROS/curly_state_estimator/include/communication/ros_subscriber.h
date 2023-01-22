@@ -22,15 +22,17 @@
 #include <vector>
 
 #include <message_filters/subscriber.h>
+#include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/synchronizer.h>
 
 #include "boost/bind.hpp"
+#include "custom_sensor_msgs/Contact.h"
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
-#include "sensor_msgs/Contact.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 
+#include "kinematics/mini_cheetah_kinematics.h"
 #include "measurement/contact.h"
 #include "measurement/imu.h"
 #include "measurement/joint_state.h"
@@ -153,6 +155,8 @@ class ROSSubscriber {
 
   ros::NodeHandle* nh_;                             // The ROS handle
   std::vector<ros::Subscriber> subscriber_list_;    // List of subscribers
+  std::vector<message_filters::Subscriber>
+      mfilter_subscriber_list_;    // List of message_filter subscribers
 
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
