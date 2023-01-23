@@ -207,8 +207,6 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
                   .eval();
 
       // Send the new contact aug state and aug covariance to robot state
-
-
       aug_id_to_column_id_ptr_[new_contact.id]
           = std::make_shared<int>(state.dimX());
       int aug_idx = state.add_aug_state(
@@ -217,8 +215,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
 
       // Add the aug state matrix index to the augment state information
       // mapping
-      // aug_id_to_column_id_ptr_[new_contact.id] =
-      // std::make_shared<int>(aug_idx);
+      *aug_id_to_column_id_ptr_[new_contact.id] = aug_idx;
     }
   }
 

@@ -210,7 +210,7 @@ class RobotState {
   const double get_propagate_time() const;
 
   /**
-   * @brief Add the augmented state 
+   * @brief Add the augmented state
    *
    * @param[in] aug: Augmented state to be added to the index mapping.
    * @param[in] cov: Covariance of the augmented state.
@@ -218,7 +218,8 @@ class RobotState {
    * @param[in] col_id_ptr: the column id passed by correction mapping.
    */
   int add_aug_state(const Eigen::Vector3d& aug, const Eigen::Matrix3d& cov,
-                    const Eigen::Matrix3d& noise_cov, std::shared_ptr<int> col_id_ptr);
+                    const Eigen::Matrix3d& noise_cov,
+                    std::shared_ptr<int> col_id_ptr);
 
   /**
    * @brief Set the augmented to the certain position(matrix_idx-th) in the
@@ -545,7 +546,6 @@ class RobotState {
       X_;    // Matrix of SE or SEk group represents for robot state.
   Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
   Eigen::MatrixXd P_;        // Matrix of covariance respect to X.
-  std::vector<std::map<int, int>> idx_maps_;
   std::vector<std::shared_ptr<int>> column_id_to_corr_map_;
 
   double t_;         // The latest time when the state X_ is updated

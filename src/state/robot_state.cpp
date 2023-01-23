@@ -20,7 +20,8 @@ RobotState::RobotState()
     : X_(Eigen::MatrixXd::Identity(5, 5)),
       Theta_(Eigen::MatrixXd::Zero(6, 1)),
       P_(Eigen::MatrixXd::Identity(15, 15)),
-      Qc_(Eigen::MatrixXd::Identity(15, 15)) {}
+      Qc_(Eigen::MatrixXd::Identity(15, 15)),
+      column_id_to_corr_map_(std::vector<std::shared_ptr<int>>(5, nullptr)) {}
 
 // Initialize with X
 RobotState::RobotState(const Eigen::MatrixXd& X)
@@ -28,6 +29,8 @@ RobotState::RobotState(const Eigen::MatrixXd& X)
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // Initialize with X and Theta
@@ -36,6 +39,8 @@ RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta)
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // Initialize with X, Theta and P
@@ -43,6 +48,8 @@ RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
     : X_(X), Theta_(Theta), P_(P) {
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // Initialize with SEK3
@@ -51,6 +58,8 @@ RobotState::RobotState(SEK3& X)
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // Initialize with SEK3 and Theta
@@ -59,6 +68,8 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta)
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // Initialize with SEK3, Theta and P
@@ -66,6 +77,8 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
     : X_(X.get_X()), Theta_(Theta), P_(P) {
   Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
 
 // getters
@@ -273,7 +286,7 @@ void RobotState::add_aug_bias(const Eigen::Vector3d& baug) {
 
 void RobotState::del_aug_bias(int matrix_idx) {
   int start = matrix_idx * 3 - 12;
-  Theta_.block(start, 0,  Theta_.rows() - start - 3, 1)
+  Theta_.block(start, 0, Theta_.rows() - start - 3, 1)
       = Theta_.block(start + 3, 0, Theta_.rows() - start - 3, 1);
 }
 
