@@ -18,7 +18,7 @@
 #include "filter/base_correction.h"
 #include "filter/inekf/inekf.h"
 #include "math/lie_group.h"
-#include "measurement/kinematics.h"
+#include "measurement/legged_kinematics.h"
 
 namespace inekf {
 typedef std::shared_ptr<KinematicsMeasurement<double>> KinematicsMeasurementPtr;
