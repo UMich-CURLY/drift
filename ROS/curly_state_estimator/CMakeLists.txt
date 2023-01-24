@@ -39,12 +39,14 @@ ${EIGEN3_INCLUDE_DIR}
 ${YAML_CPP_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 )
+
 generate_messages(
 DEPENDENCIES
 std_msgs
 geometry_msgs
 trajectory_msgs
 )
+
 set(LIBS 
 ${EIGEN3_LIBS}
 )
