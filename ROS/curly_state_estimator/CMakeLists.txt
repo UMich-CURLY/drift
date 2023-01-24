@@ -16,6 +16,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(catkin REQUIRED COMPONENTS
+rospy
+std_msgs
+geometry_msgs
+trajectory_msgs
+message_generation
+)
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -32,7 +39,12 @@ ${EIGEN3_INCLUDE_DIR}
 ${YAML_CPP_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
 )
-
+generate_messages(
+DEPENDENCIES
+std_msgs
+geometry_msgs
+trajectory_msgs
+)
 set(LIBS 
 ${EIGEN3_LIBS}
 )

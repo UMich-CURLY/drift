@@ -59,10 +59,11 @@ KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
-      encoder_topic_name, 1000,
-      boost::bind(&ROSSubscriber::kin_call_back, this, _1, mutex_list_.back(),
-                  kin_queue_ptr)));
+  // subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
+  //     encoder_topic_name, 1000,
+  //     boost::bind(&ROSSubscriber::kin_call_back, this, _1,
+  //     mutex_list_.back(),
+  //                 kin_queue_ptr)));
 
   mfilter_subscriber_list_.push_back(
       message_filters::Subscriber<custom_sensor_msgs::Contact> contact_sub(
@@ -78,7 +79,8 @@ KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
   // ApproximateTime takes a queue size as its constructor argument, hence
   // MySyncPolicy(10)
   Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), contact_sub, encoder_sub);
-  sync.registerCallback(boost::bind(&ROSSubscriber::kin_call_back, _1, _2));
+  sync.registerCallback(boost::bind(&ROSSubscriber::kin_call_back, this, _1, _2,
+                                    mutex_list_.back(), kin_queue_ptr));
 
   // Keep the ownership of the data queue in this class
   kin_queue_list_.push_back(kin_queue_ptr);
