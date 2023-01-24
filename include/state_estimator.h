@@ -24,7 +24,7 @@
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "measurement/imu.h"
-#include "measurement/kinematics.h"
+#include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
 
