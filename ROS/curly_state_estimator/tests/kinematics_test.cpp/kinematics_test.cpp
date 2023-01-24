@@ -37,4 +37,9 @@ int main(int argc, char** argv) {
   ros::NodeHandle nh;
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
+
+  auto kin_data_buffer_ptr
+      = ros_sub.AddKinematicsSubscriber("contact", "/joint_states");
+
+  ros_sub.StartSubscribingThread();
 }
