@@ -6,19 +6,15 @@
 # Useage: ./gencpp.sh [namespace]
 echo "Building custom_sensor_msgs"
 
-for file in ./ROS/curly_state_estimator/srv/*
-do
-	if [[ -a $file ]]
-	then
-		rosrun gencpp gen_cpp.py -p custom_sensor_msgs -o ./include/srv/ -e /opt/ros/noetic/share/gencpp "$file"
-	fi
-done
+MSG_NAMESPACE=custom_sensor_msgs
+MSG_PATH=./ROS/curly_state_estimator/msg
+MSG_HEADER_OUTPUT_PATH=./ROS/curly_state_estimator/include/$MSG_NAMESPACE/
 
-for file in ./ROS/curly_state_estimator/msg/*
+for file in $MSG_PATH/*
 do
 	if [[ -a $file ]]
 	then
-		rosrun gencpp gen_cpp.py -p custom_sensor_msgs -o ./include/custom_sensor_msgs/ -e /opt/ros/noetic/share/gencpp "$file" -I std_msgs:/opt/ros/noetic/share/std_msgs/msg -I custom_sensor_msgs:./msg
+		rosrun gencpp gen_cpp.py -p $MSG_NAMESPACE -o $MSG_HEADER_OUTPUT_PATH -e /opt/ros/noetic/share/gencpp "$file" -I std_msgs:/opt/ros/noetic/share/std_msgs/msg -I $MSG_NAMESPACE:$MSG_PATH
 	fi
 done
 

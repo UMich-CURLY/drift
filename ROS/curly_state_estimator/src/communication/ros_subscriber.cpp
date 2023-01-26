@@ -49,11 +49,11 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
+LegKinQueuePair ROSSubscriber::AddKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
   // Create a new queue for data buffers
-  KINQueuePtr kin_queue_ptr(new KINQueue);
+  LegKinQueuePtr kin_queue_ptr(new LegKinQueue);
 
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
@@ -65,21 +65,23 @@ KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
   //     mutex_list_.back(),
   //                 kin_queue_ptr)));
 
-  mfilter_subscriber_list_.push_back(
-      message_filters::Subscriber<custom_sensor_msgs::Contact> contact_sub(
-          nh_, contact_topic_name, 1));
-  mfilter_subscriber_list_.push_back(
-      message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
-          nh_, encoder_topic_name, 1));
+  message_filters::Subscriber<custom_sensor_msgs::ContactArray> contact_sub(
+      *nh_, contact_topic_name, 1);
+  message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
+      *nh_, encoder_topic_name, 1);
 
-  typedef sync_policies::ApproximateTime<custom_sensor_msgs::Contact,
-                                         sensor_msgs::JoinState>
+  mfilter_subscriber_list_.push_back(contact_sub);
+  mfilter_subscriber_list_.push_back(encoder_sub);
+
+  typedef message_filters::sync_policies::ApproximateTime<
+      custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
       MySyncPolicy;
 
   // ApproximateTime takes a queue size as its constructor argument, hence
   // MySyncPolicy(10)
-  Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), contact_sub, encoder_sub);
-  sync.registerCallback(boost::bind(&ROSSubscriber::kin_call_back, this, _1, _2,
+  message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10),
+                                                   contact_sub, encoder_sub);
+  sync.registerCallback(boost::bind(&ROSSubscriber::KinCallBack, this, _1, _2,
                                     mutex_list_.back(), kin_queue_ptr));
 
   // Keep the ownership of the data queue in this class
@@ -172,24 +174,28 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   vel_queue->push(vel_measurement);
 }
 
-void KinCallBack(
-    const boost::shared_ptr<const sensor_msgs::Contact>& contact_msg,
+void ROSSubscriber::KinCallBack(
+    const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
+        contact_msg,
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-    const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
+    const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
   // #include "communication/kinematics_impl.cpp"
   // Set headers and time stamps
   // TODO: Figure out how headers are set for a kinematics measurement
+  std::shared_ptr<LeggedKinematics> kin_measurement(new LeggedKinematics);
   kin_measurement->set_header(
-      msg->header.seq,
-      msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0,
-      msg->header.frame_id);
+      contact_msg->header.seq,
+      contact_msg->header.stamp.sec
+          + contact_msg->header.stamp.nsec / 1000000000.0,
+      contact_msg->header.frame_id);
 
-  Eigen::Matrix<bool, Dynamic, 1> ctmsg;
-  ctmsg << contact_msg->indicator[0], contact_msg->indicator[1],
-      contact_msg->indicator[2], contact_msg->indicator[3];
+  Eigen::Matrix<bool, Eigen::Dynamic, 1> ctmsg;
+  ctmsg << contact_msg->contacts[0].indicator,
+      contact_msg->contacts[1].indicator, contact_msg->contacts[2].indicator,
+      contact_msg->contacts[3].indicator;
   kin_measurement->set_contact(ctmsg);
-  Eigen::Matrix<double, Dynamic, 1> jsmsg;
+  Eigen::Matrix<double, Eigen::Dynamic, 1> jsmsg;
   jsmsg << encoder_msg->position[0], encoder_msg->position[1],
       encoder_msg->position[2], encoder_msg->position[3],
       encoder_msg->position[4], encoder_msg->position[5],
