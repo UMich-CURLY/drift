@@ -63,6 +63,16 @@ typedef std::pair<JointStateQueuePtr, std::shared_ptr<std::mutex>>
 typedef std::queue<std::shared_ptr<LeggedKinematics>> LegKinQueue;
 typedef std::shared_ptr<LegKinQueue> LegKinQueuePtr;
 typedef std::pair<LegKinQueuePtr, std::shared_ptr<std::mutex>> LegKinQueuePair;
+typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
+    ContactMsgFilterT;
+typedef message_filters::Subscriber<sensor_msgs::JointState>
+    JointStateMsgFilterT;
+typedef std::shared_ptr<
+    message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
+    ContactMsgFilterTPtr;
+typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
+    JointStateMsgFilterTPtr;
+
 
 namespace ros_wrapper {
 class ROSSubscriber {
@@ -154,14 +164,14 @@ class ROSSubscriber {
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**
-   * @brief Differential encoder to velocity callback function
+   * @brief Mini cheetah kinematics callback function
    *
    * @param contact_msg: Contact message
    * @param encoder_msg: encoder message
    * @param mutex: mutex for the buffer queue
    * @param vel_queue: pointer to the buffer queue
    */
-  void KinCallBack(
+  void MiniCheetahKinCallBack(
       const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
           contact_msg,
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
@@ -171,8 +181,10 @@ class ROSSubscriber {
 
   ros::NodeHandle* nh_;                             // The ROS handle
   std::vector<ros::Subscriber> subscriber_list_;    // List of subscribers
-  std::vector<message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
-      mfilter_subscriber_list_;    // List of message_filter subscribers
+
+  std::vector<ContactMsgFilterTPtr> contact_subscriber_list_;
+  std::vector<JointStateMsgFilterTPtr> joint_state_subscriber_list_;
+
 
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers

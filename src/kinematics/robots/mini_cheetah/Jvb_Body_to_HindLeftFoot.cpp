@@ -2,16 +2,16 @@
  * Automatically Generated from Mathematica.
  * Fri 13 Nov 2020 16:04:59 GMT-05:00
  */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#include "Jvb_Body_to_HindLeftFoot.h"
+#include "kinematics/robots/mini_cheetah/Jvb_Body_to_HindLeftFoot.h"
 
 #ifdef _MSC_VER
-  #define INLINE __forceinline /* use __forceinline (VC++ specific) */
+#define INLINE __forceinline /* use __forceinline (VC++ specific) */
 #else
-  #define INLINE static inline        /* use standard inline */
+#define INLINE static inline /* use standard inline */
 #endif
 
 /**
@@ -30,15 +30,15 @@ INLINE double Sin(double x) { return sin(x); }
 INLINE double Cos(double x) { return cos(x); }
 INLINE double Tan(double x) { return tan(x); }
 
-INLINE double Csc(double x) { return 1.0/sin(x); }
-INLINE double Sec(double x) { return 1.0/cos(x); }
+INLINE double Csc(double x) { return 1.0 / sin(x); }
+INLINE double Sec(double x) { return 1.0 / cos(x); }
 
 INLINE double ArcSin(double x) { return asin(x); }
 INLINE double ArcCos(double x) { return acos(x); }
 
 
 /* update ArcTan function to use atan2 instead. */
-INLINE double ArcTan(double x, double y) { return atan2(y,x); }
+INLINE double ArcTan(double x, double y) { return atan2(y, x); }
 
 INLINE double Sinh(double x) { return sinh(x); }
 INLINE double Cosh(double x) { return cosh(x); }
@@ -51,8 +51,8 @@ INLINE double Tanh(double x) { return tanh(x); }
 /*
  * Sub functions
  */
-static void output1(Eigen::Matrix<double,3,12> &p_output1, const Eigen::Matrix<double,12,1> &var1)
-{
+static void output1(Eigen::Matrix<double, 3, 12>& p_output1,
+                    const Eigen::Matrix<double, 12, 1>& var1) {
   double t2171;
   double t2173;
   double t2178;
@@ -89,85 +89,84 @@ static void output1(Eigen::Matrix<double,3,12> &p_output1, const Eigen::Matrix<d
   t2173 = Sin(var1[10]);
   t2178 = Cos(var1[10]);
   t2180 = Sin(var1[11]);
-  t2176 = -1.*t2171*t2173;
-  t2181 = -1.*t2178*t2180;
+  t2176 = -1. * t2171 * t2173;
+  t2181 = -1. * t2178 * t2180;
   t2184 = 0. + t2176 + t2181;
-  t2192 = -1.*t2171;
+  t2192 = -1. * t2171;
   t2193 = 1. + t2192;
-  t2187 = t2171*t2173;
-  t2188 = t2178*t2180;
+  t2187 = t2171 * t2173;
+  t2188 = t2178 * t2180;
   t2189 = 0. + t2187 + t2188;
-  t2195 = -0.209*t2193;
-  t2198 = -0.4165*t2171;
+  t2195 = -0.209 * t2193;
+  t2198 = -0.4165 * t2171;
   t2200 = 0. + t2195 + t2198;
-  t2206 = -0.19*t2193;
-  t2207 = -0.19*t2171;
-  t2208 = 0.2075*t2180;
+  t2206 = -0.19 * t2193;
+  t2207 = -0.19 * t2171;
+  t2208 = 0.2075 * t2180;
   t2209 = 0. + t2206 + t2207 + t2208;
-  t2219 = t2178*t2171;
-  t2220 = -1.*t2173*t2180;
+  t2219 = t2178 * t2171;
+  t2220 = -1. * t2173 * t2180;
   t2221 = 0. + t2219 + t2220;
-  t2213 = -1.*t2178;
+  t2213 = -1. * t2178;
   t2214 = 1. + t2213;
-  t2215 = -0.19*t2214;
-  t2216 = -1.*t2200*t2173;
-  t2217 = t2178*t2209;
+  t2215 = -0.19 * t2214;
+  t2216 = -1. * t2200 * t2173;
+  t2217 = t2178 * t2209;
   t2218 = 0. + t2215 + t2216 + t2217;
-  t2202 = t2178*t2200;
-  t2205 = 0.19*t2173;
-  t2210 = t2173*t2209;
+  t2202 = t2178 * t2200;
+  t2205 = 0.19 * t2173;
+  t2210 = t2173 * t2209;
   t2211 = 0. + t2202 + t2205 + t2210;
 
-  p_output1(0)=0;
-  p_output1(1)=0.;
-  p_output1(2)=0;
-  p_output1(3)=0;
-  p_output1(4)=0.;
-  p_output1(5)=0;
-  p_output1(6)=0;
-  p_output1(7)=0.;
-  p_output1(8)=0;
-  p_output1(9)=0;
-  p_output1(10)=0.;
-  p_output1(11)=0;
-  p_output1(12)=0;
-  p_output1(13)=0.;
-  p_output1(14)=0;
-  p_output1(15)=0;
-  p_output1(16)=0.;
-  p_output1(17)=0;
-  p_output1(18)=0;
-  p_output1(19)=0.;
-  p_output1(20)=0;
-  p_output1(21)=0;
-  p_output1(22)=0.;
-  p_output1(23)=0;
-  p_output1(24)=0;
-  p_output1(25)=0.;
-  p_output1(26)=0;
-  p_output1(27)=0. - 0.111*t2184 - 0.049*t2189;
-  p_output1(28)=0. + t2221*(0. - 1.*t2184*t2218 - 1.*t2211*t2221) + t2184*(0. + t2189*t2211 + t2218*t2221);
-  p_output1(29)=0. + 0.062*t2221;
-  p_output1(30)=0. + 0.19*t2180 - 1.*t2171*t2200 + t2180*t2209;
-  p_output1(31)=0.;
-  p_output1(32)=0. + 0.19*t2171 + t2180*t2200 + t2171*t2209;
-  p_output1(33)=0.2075;
-  p_output1(34)=0.;
-  p_output1(35)=0.;
+  p_output1(0) = 0;
+  p_output1(1) = 0.;
+  p_output1(2) = 0;
+  p_output1(3) = 0;
+  p_output1(4) = 0.;
+  p_output1(5) = 0;
+  p_output1(6) = 0;
+  p_output1(7) = 0.;
+  p_output1(8) = 0;
+  p_output1(9) = 0;
+  p_output1(10) = 0.;
+  p_output1(11) = 0;
+  p_output1(12) = 0;
+  p_output1(13) = 0.;
+  p_output1(14) = 0;
+  p_output1(15) = 0;
+  p_output1(16) = 0.;
+  p_output1(17) = 0;
+  p_output1(18) = 0;
+  p_output1(19) = 0.;
+  p_output1(20) = 0;
+  p_output1(21) = 0;
+  p_output1(22) = 0.;
+  p_output1(23) = 0;
+  p_output1(24) = 0;
+  p_output1(25) = 0.;
+  p_output1(26) = 0;
+  p_output1(27) = 0. - 0.111 * t2184 - 0.049 * t2189;
+  p_output1(28) = 0. + t2221 * (0. - 1. * t2184 * t2218 - 1. * t2211 * t2221)
+                  + t2184 * (0. + t2189 * t2211 + t2218 * t2221);
+  p_output1(29) = 0. + 0.062 * t2221;
+  p_output1(30) = 0. + 0.19 * t2180 - 1. * t2171 * t2200 + t2180 * t2209;
+  p_output1(31) = 0.;
+  p_output1(32) = 0. + 0.19 * t2171 + t2180 * t2200 + t2171 * t2209;
+  p_output1(33) = 0.2075;
+  p_output1(34) = 0.;
+  p_output1(35) = 0.;
 }
 
 
-       
-Eigen::Matrix<double,3,12> Jvb_Body_to_HindLeftFoot(const Eigen::Matrix<double,12,1> &var1)
-//void Jvb_Body_to_HindLeftFoot(Eigen::Matrix<double,3,12> &p_output1, const Eigen::Matrix<double,12,1> &var1)
+Eigen::Matrix<double, 3, 12> Jvb_Body_to_HindLeftFoot(
+    const Eigen::Matrix<double, 12, 1>& var1)
+// void Jvb_Body_to_HindLeftFoot(Eigen::Matrix<double,3,12> &p_output1, const
+// Eigen::Matrix<double,12,1> &var1)
 {
   /* Call Subroutines */
-  Eigen::Matrix<double,3,12>  p_output1;
-  
+  Eigen::Matrix<double, 3, 12> p_output1;
+
   output1(p_output1, var1);
 
   return p_output1;
 }
-
-
-

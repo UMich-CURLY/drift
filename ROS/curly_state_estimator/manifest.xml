@@ -1,9 +1,15 @@
 <package format="2">
+  <name>curly_state_estimator</name>
+  <version>1.0.0</version>
   <description>CURLY State Estimator ROS1 Wrapper</description>
-  <author>Justin Yu, Justin Lin</author>
+  <author>Justin Yu, Justin Lin, Tingjun Li</author>
   <license>GPLv3</license>
   <depend package="roscpp"/>
   <depend package="std_msgs"/>
+  <depend package="message_filters"/>
+  <depend package="geometry_msgs"/>
+  <depend package="message_generation"/>
+  <depend package="trajectory_msgs"/>
   <depend package="tf"/>
   <buildtool_depend>catkin</buildtool_depend>
 

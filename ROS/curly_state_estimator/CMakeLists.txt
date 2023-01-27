@@ -17,12 +17,19 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(catkin REQUIRED COMPONENTS
-rospy
+roscpp
 std_msgs
 geometry_msgs
 trajectory_msgs
 message_generation
+message_filters
 )
+
+# catkin_package(
+#   INCLUDE_DIRS include
+#   CATKIN_DEPENDS roscpp std_msgs geometry_msgs trajectory_msgs message_generation message_filters
+# )
+
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -30,7 +37,7 @@ find_package(yaml-cpp REQUIRED)
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 message("Boost include dir: ${Boost_INCLUDE_DIRS}")
 message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
-
+message("catkin include dir: ${catkin_INCLUDE_DIRS}")
 
 include_directories(
 ${PROJECT_SOURCE_DIR}/../../include
@@ -38,31 +45,35 @@ ${PROJECT_SOURCE_DIR}/include
 ${EIGEN3_INCLUDE_DIR}
 ${YAML_CPP_INCLUDE_DIR}
 ${Boost_INCLUDE_DIRS}
-)
-
-generate_messages(
-DEPENDENCIES
-std_msgs
-geometry_msgs
-trajectory_msgs
+${catkin_INCLUDE_DIRS}
 )
 
 set(LIBS 
 ${EIGEN3_LIBS}
+${catkin_LIBRARIES}
 )
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/../../src/kinematics/robots/mini_cheetah/*.cpp)
+
+rosbuild_add_library(mini_cheetah_kin_lib
+${MINI_CHEETAH_KIN_SRC_FILES}
+${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
+)
 
 # temporary test for subscriber
 rosbuild_add_executable(subscriber_test
 ${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
 
-add_library(subscriber_test_lib
+rosbuild_add_library(subscriber_test_lib
 ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
-${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp)
+${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+)
 
 target_link_libraries(subscriber_test
 ${LIBS}
 subscriber_test_lib
+mini_cheetah_kin_lib
 )
 
 # # temporary test for ros communicator: subscriber + publisher

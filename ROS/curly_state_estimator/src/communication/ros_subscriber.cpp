@@ -25,7 +25,8 @@ ROSSubscriber::~ROSSubscriber() {
     subscribing_thread_.join();
   }
   subscriber_list_.clear();
-  mfilter_subscriber_list_.clear();
+  contact_subscriber_list_.clear();
+  joint_state_subscriber_list_.clear();
   imu_queue_list_.clear();
 }
 
@@ -58,20 +59,15 @@ LegKinQueuePair ROSSubscriber::AddKinematicsSubscriber(
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
 
-  // Create the subscriber
-  // subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
-  //     encoder_topic_name, 1000,
-  //     boost::bind(&ROSSubscriber::kin_call_back, this, _1,
-  //     mutex_list_.back(),
-  //                 kin_queue_ptr)));
+  // message_filters::Subscriber<custom_sensor_msgs::ContactArray> contact_sub(
+  //     *nh_, contact_topic_name, 1);
+  // message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
+  //     *nh_, encoder_topic_name, 1);
 
-  message_filters::Subscriber<custom_sensor_msgs::ContactArray> contact_sub(
-      *nh_, contact_topic_name, 1);
-  message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
-      *nh_, encoder_topic_name, 1);
-
-  mfilter_subscriber_list_.push_back(contact_sub);
-  mfilter_subscriber_list_.push_back(encoder_sub);
+  contact_subscriber_list_.push_back(
+      std::make_shared<ContactMsgFilterT>(*nh_, contact_topic_name, 1));
+  joint_state_subscriber_list_.push_back(
+      std::make_shared<JointStateMsgFilterT>(*nh_, contact_topic_name, 1));
 
   typedef message_filters::sync_policies::ApproximateTime<
       custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
@@ -79,10 +75,12 @@ LegKinQueuePair ROSSubscriber::AddKinematicsSubscriber(
 
   // ApproximateTime takes a queue size as its constructor argument, hence
   // MySyncPolicy(10)
-  message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10),
-                                                   contact_sub, encoder_sub);
-  sync.registerCallback(boost::bind(&ROSSubscriber::KinCallBack, this, _1, _2,
-                                    mutex_list_.back(), kin_queue_ptr));
+  message_filters::Synchronizer<MySyncPolicy> sync(
+      MySyncPolicy(10), *contact_subscriber_list_.back(),
+      *joint_state_subscriber_list_.back());
+  sync.registerCallback(boost::bind(&ROSSubscriber::MiniCheetahKinCallBack,
+                                    this, _1, _2, mutex_list_.back(),
+                                    kin_queue_ptr));
 
   // Keep the ownership of the data queue in this class
   kin_queue_list_.push_back(kin_queue_ptr);
@@ -174,7 +172,7 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   vel_queue->push(vel_measurement);
 }
 
-void ROSSubscriber::KinCallBack(
+void ROSSubscriber::MiniCheetahKinCallBack(
     const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
         contact_msg,
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
@@ -183,7 +181,8 @@ void ROSSubscriber::KinCallBack(
   // #include "communication/kinematics_impl.cpp"
   // Set headers and time stamps
   // TODO: Figure out how headers are set for a kinematics measurement
-  std::shared_ptr<LeggedKinematics> kin_measurement(new LeggedKinematics);
+  std::shared_ptr<MiniCheetahKinematics> kin_measurement(
+      new MiniCheetahKinematics);
   kin_measurement->set_header(
       contact_msg->header.seq,
       contact_msg->header.stamp.sec
