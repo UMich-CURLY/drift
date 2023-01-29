@@ -183,6 +183,8 @@ void ROSSubscriber::MiniCheetahKinCallBack(
   // TODO: Figure out how headers are set for a kinematics measurement
   std::shared_ptr<MiniCheetahKinematics> kin_measurement(
       new MiniCheetahKinematics);
+  /// TODO: Idealy, use the timestamp used by Approximate time synchronizer,
+  //  or use the one with lower frequency
   kin_measurement->set_header(
       contact_msg->header.seq,
       contact_msg->header.stamp.sec
