@@ -72,6 +72,11 @@ typedef std::shared_ptr<
     ContactMsgFilterTPtr;
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
     JointStateMsgFilterTPtr;
+typedef message_filters::sync_policies::ApproximateTime<
+    custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
+    LegKinSyncPolicy;
+typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
+    LegKinSyncPtr;
 
 
 namespace ros_wrapper {
@@ -119,8 +124,17 @@ class ROSSubscriber {
    */
   VelocityQueuePair AddDifferentialDriveVelocitySubscriber(
       const std::string topic_name);
-  LegKinQueuePair AddKinematicsSubscriber(const std::string contact_topic_name,
-                                          const std::string encoder_topic_name);
+
+  /**
+   * @brief Add differential drive velocity subscriber
+   *
+   * @param[in] contact_topic_name differential drive velocity topic name
+   * @param[in] encoder_topic_name encoder topic name
+   * @return VelocityQueuePair velocity queue pair
+   */
+  LegKinQueuePair AddMiniCheetahKinematicsSubscriber(
+      const std::string contact_topic_name,
+      const std::string encoder_topic_name);
 
   /**
    * @brief Start the subscribing thread
@@ -192,6 +206,7 @@ class ROSSubscriber {
       vel_queue_list_;    // List of velocity queue pointers
   std::vector<LegKinQueuePtr>
       kin_queue_list_;    // List of kinematics queue pointers
+  std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes
 
   bool thread_started_;    // Flag of the thread started, true for started,

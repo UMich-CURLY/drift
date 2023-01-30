@@ -50,7 +50,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-LegKinQueuePair ROSSubscriber::AddKinematicsSubscriber(
+LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
   // Create a new queue for data buffers
@@ -59,28 +59,22 @@ LegKinQueuePair ROSSubscriber::AddKinematicsSubscriber(
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
 
-  // message_filters::Subscriber<custom_sensor_msgs::ContactArray> contact_sub(
-  //     *nh_, contact_topic_name, 1);
-  // message_filters::Subscriber<sensor_msgs::JointState> encoder_sub(
-  //     *nh_, encoder_topic_name, 1);
-
   contact_subscriber_list_.push_back(
       std::make_shared<ContactMsgFilterT>(*nh_, contact_topic_name, 1));
   joint_state_subscriber_list_.push_back(
-      std::make_shared<JointStateMsgFilterT>(*nh_, contact_topic_name, 1));
+      std::make_shared<JointStateMsgFilterT>(*nh_, encoder_topic_name, 1));
 
-  typedef message_filters::sync_policies::ApproximateTime<
-      custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
-      MySyncPolicy;
 
   // ApproximateTime takes a queue size as its constructor argument, hence
-  // MySyncPolicy(10)
-  message_filters::Synchronizer<MySyncPolicy> sync(
-      MySyncPolicy(10), *contact_subscriber_list_.back(),
-      *joint_state_subscriber_list_.back());
-  sync.registerCallback(boost::bind(&ROSSubscriber::MiniCheetahKinCallBack,
-                                    this, _1, _2, mutex_list_.back(),
-                                    kin_queue_ptr));
+  // LegKinSyncPolicy(10)
+  leg_kin_sync_list_.push_back(
+      std::make_shared<message_filters::Synchronizer<LegKinSyncPolicy>>(
+          LegKinSyncPolicy(10), *contact_subscriber_list_.back(),
+          *joint_state_subscriber_list_.back()));
+
+  leg_kin_sync_list_.back()->registerCallback(
+      boost::bind(&ROSSubscriber::MiniCheetahKinCallBack, this, _1, _2,
+                  mutex_list_.back(), kin_queue_ptr));
 
   // Keep the ownership of the data queue in this class
   kin_queue_list_.push_back(kin_queue_ptr);
@@ -191,12 +185,13 @@ void ROSSubscriber::MiniCheetahKinCallBack(
           + contact_msg->header.stamp.nsec / 1000000000.0,
       contact_msg->header.frame_id);
 
-  Eigen::Matrix<bool, Eigen::Dynamic, 1> ctmsg;
+  Eigen::Matrix<bool, 4, 1> ctmsg;
   ctmsg << contact_msg->contacts[0].indicator,
       contact_msg->contacts[1].indicator, contact_msg->contacts[2].indicator,
       contact_msg->contacts[3].indicator;
   kin_measurement->set_contact(ctmsg);
-  Eigen::Matrix<double, Eigen::Dynamic, 1> jsmsg;
+
+  Eigen::Matrix<double, 12, 1> jsmsg;
   jsmsg << encoder_msg->position[0], encoder_msg->position[1],
       encoder_msg->position[2], encoder_msg->position[3],
       encoder_msg->position[4], encoder_msg->position[5],

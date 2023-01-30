@@ -76,6 +76,22 @@ subscriber_test_lib
 mini_cheetah_kin_lib
 )
 
+# example for legged robot kinemtaics correction:
+rosbuild_add_executable(leg_kin_comm_test
+${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
+
+rosbuild_add_library(leg_kin_comm_test_lib
+${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
+${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+)
+
+target_link_libraries(leg_kin_comm_test
+${LIBS}
+leg_kin_comm_test_lib
+mini_cheetah_kin_lib
+)
+
 # # temporary test for ros communicator: subscriber + publisher
 # rosbuild_add_executable(ros_comm_test
 # ${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
