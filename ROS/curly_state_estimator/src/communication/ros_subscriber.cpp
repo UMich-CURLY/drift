@@ -6,7 +6,7 @@
 
 /**
  *  @file   ros_subsriber.cpp
- *  @author Tzu-Yuan Lin
+ *  @author Tzu-Yuan Lin, Tingjun Li, Justin Yu
  *  @brief  Source file for ROS subscriber class
  *  @date   December 6, 2022
  **/
@@ -25,6 +25,8 @@ ROSSubscriber::~ROSSubscriber() {
     subscribing_thread_.join();
   }
   subscriber_list_.clear();
+  contact_subscriber_list_.clear();
+  joint_state_subscriber_list_.clear();
   imu_queue_list_.clear();
 }
 
@@ -48,42 +50,37 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-// KINQueuePair ROSSubscriber::AddKinematicsSubscriber(
-//     const std::string contact_topic_name,
-//     const std::string encoder_topic_name) {
-//   // Create a new queue for data buffers
-//   KINQueuePtr kin_queue_ptr(new KINQueue);
+LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
+    const std::string contact_topic_name,
+    const std::string encoder_topic_name) {
+  // Create a new queue for data buffers
+  LegKinQueuePtr kin_queue_ptr(new LegKinQueue);
 
-//   // Initialize a new mutex for this subscriber
-//   mutex_list_.emplace_back(new std::mutex);
+  //   // Initialize a new mutex for this subscriber
+  //   mutex_list_.emplace_back(new std::mutex);
 
-//   // Create the subscriber
-//   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
-//       topic_name, 1000,
-//       boost::bind(&ROSSubscriber::kin_call_back, this, _1,
-//       mutex_list_.back(),
-//                   imu_queue_ptr)));
+  contact_subscriber_list_.push_back(
+      std::make_shared<ContactMsgFilterT>(*nh_, contact_topic_name, 1));
+  joint_state_subscriber_list_.push_back(
+      std::make_shared<JointStateMsgFilterT>(*nh_, encoder_topic_name, 1));
 
-//   message_filters::Subscriber<sensor_msgs::Contact> contact_sub(
-//       nh, contact_topic_name, 1);
-//   message_filters::Subscriber<sensor_msgs::JoinState> encoder_sub(
-//       nh, encoder_topic_name, 1);
 
-//   typedef sync_policies::ApproximateTime<sensor_msgs::Contact,
-//                                          sensor_msgs::JoinState>
-//       MySyncPolicy;
+  // ApproximateTime takes a queue size as its constructor argument, hence
+  // LegKinSyncPolicy(10)
+  leg_kin_sync_list_.push_back(
+      std::make_shared<message_filters::Synchronizer<LegKinSyncPolicy>>(
+          LegKinSyncPolicy(10), *contact_subscriber_list_.back(),
+          *joint_state_subscriber_list_.back()));
 
-//   // ApproximateTime takes a queue size as its constructor argument, hence
-//   // MySyncPolicy(10)
-//   Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), contact_sub,
-//   encoder_sub);
-//   sync.registerCallback(boost::bind(&ROSSubscriber::kin_call_back, _1, _2));
+  leg_kin_sync_list_.back()->registerCallback(
+      boost::bind(&ROSSubscriber::MiniCheetahKinCallBack, this, _1, _2,
+                  mutex_list_.back(), kin_queue_ptr));
 
-//   // Keep the ownership of the data queue in this class
-//   kin_queue_list_.push_back(kin_queue_ptr);
+  // Keep the ownership of the data queue in this class
+  kin_queue_list_.push_back(kin_queue_ptr);
 
-//   return {kin_queue_ptr, mutex_list_.back()};
-// }
+  return {kin_queue_ptr, mutex_list_.back()};
+}
 
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
     const std::string topic_name) {
@@ -169,20 +166,42 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   vel_queue->push(vel_measurement);
 }
 
-// void KinCallBack(
-//     const boost::shared_ptr<const sensor_msgs::Contact>& contact_msg,
-//     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-//     const std::shared_ptr<std::mutex>& mutex, KINQueuePtr& kin_queue) {
-//   // Create a legged kinematics measurement object
-//   std::shared_ptr<LeggedKinematicsMeasurement> kin_measurement(
-//       new LeggedKinematicsMeasurement);
-//   // Set headers and time stamps
-//   // TODO: Figure out how headers are set for a kinematics measurement
-//   kin_measurement->set_header(
-//       msg->header.seq,
-//       msg->header.stamp.sec + msg->header.stamp.nsec / 1000000000.0,
-//       msg->header.frame_id);
-// }
+void ROSSubscriber::MiniCheetahKinCallBack(
+    const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
+        contact_msg,
+    const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+    const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
+  // Create a legged kinematics measurement object
+  // #include "communication/kinematics_impl.cpp"
+  // Set headers and time stamps
+  // TODO: Figure out how headers are set for a kinematics measurement
+  std::shared_ptr<MiniCheetahKinematics> kin_measurement(
+      new MiniCheetahKinematics);
+  /// TODO: Idealy, use the timestamp used by Approximate time synchronizer,
+  //  or use the one with lower frequency
+  kin_measurement->set_header(
+      contact_msg->header.seq,
+      contact_msg->header.stamp.sec
+          + contact_msg->header.stamp.nsec / 1000000000.0,
+      contact_msg->header.frame_id);
+
+  Eigen::Matrix<bool, 4, 1> ctmsg;
+  ctmsg << contact_msg->contacts[0].indicator,
+      contact_msg->contacts[1].indicator, contact_msg->contacts[2].indicator,
+      contact_msg->contacts[3].indicator;
+  kin_measurement->set_contact(ctmsg);
+
+  Eigen::Matrix<double, 12, 1> jsmsg;
+  jsmsg << encoder_msg->position[0], encoder_msg->position[1],
+      encoder_msg->position[2], encoder_msg->position[3],
+      encoder_msg->position[4], encoder_msg->position[5],
+      encoder_msg->position[6], encoder_msg->position[7],
+      encoder_msg->position[8], encoder_msg->position[9],
+      encoder_msg->position[10], encoder_msg->position[11];
+  kin_measurement->set_joint_state(jsmsg);
+
+  kin_queue->push(kin_measurement);
+}
 
 void ROSSubscriber::RosSpin() {
   while (ros::ok()) {
