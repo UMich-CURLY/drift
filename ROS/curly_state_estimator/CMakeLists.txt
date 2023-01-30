@@ -49,16 +49,49 @@ ${catkin_INCLUDE_DIRS}
 )
 
 set(LIBS 
-${EIGEN3_LIBS}
-${catkin_LIBRARIES}
+  ${EIGEN3_LIBS}
+  ${catkin_LIBRARIES}
 )
+
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/../../src/kinematics/robots/mini_cheetah/*.cpp)
 
 rosbuild_add_library(mini_cheetah_kin_lib
-${MINI_CHEETAH_KIN_SRC_FILES}
-${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
+  ${MINI_CHEETAH_KIN_SRC_FILES}
+  ${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
 )
+
+rosbuild_add_library(filter_lib
+  # State Estimator
+  ${PROJECT_SOURCE_DIR}/../../src/state_estimator.cpp
+  # Filter
+  ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
+  # State
+  ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/state/se_k_3.cpp
+  # Math
+  ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
+  
+)
+
+rosbuild_add_library(measurement_lib
+  ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+)
+
+set(ros_subscriber ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp)
+set(ros_publisher ${PROJECT_SOURCE_DIR}/src/communication/ros_publisher.cpp)
+
+rosbuild_add_library(ros_communication_lib
+  ${ros_subscriber}
+  ${ros_publisher}
+)
+
 
 # temporary test for subscriber
 rosbuild_add_executable(subscriber_test
@@ -93,30 +126,15 @@ mini_cheetah_kin_lib
 )
 
 # # temporary test for ros communicator: subscriber + publisher
-# rosbuild_add_executable(ros_comm_test
-# ${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
-
-# set(robot_state ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp)
-# set(se_k_3 ${PROJECT_SOURCE_DIR}/../../src/state/se_k_3.cpp)
-# set(state_estimator ${PROJECT_SOURCE_DIR}/../../src/state_estimator.cpp)
-# set(lie_group ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp)
-# set(base_propagation ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp)
-# set(base_correction ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp)
-# set(inekf 
-#   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
-#   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
-#   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp)
-# set(measurement ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp)
-
-# add_library(ros_comm_test_lib
-# ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
-# ${PROJECT_SOURCE_DIR}/src/communication/ros_publisher.cpp
-# ${lie_group}  ${state_estimator} ${base_propagation} ${base_correction} ${inekf} ${measurement} ${robot_state} ${se_k_3}
-#   ${lie_group}  ${state_estimator} ${base_propagation} ${base_correction} ${inekf} ${measurement} ${robot_state} ${se_k_3})
+rosbuild_add_executable(ros_comm_test
+${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
 
 
-# target_link_libraries(ros_comm_test
-# ${LIBS}
-# ros_comm_test_lib
-# yaml-cpp
-# )
+target_link_libraries(ros_comm_test
+${LIBS}
+ros_communication_lib
+measurement_lib
+filter_lib
+mini_cheetah_kin_lib
+yaml-cpp
+)
