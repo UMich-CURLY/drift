@@ -141,14 +141,17 @@ int RobotState::add_aug_state(const Eigen::Vector3d& aug,
                               const Eigen::Matrix3d& cov,
                               const Eigen::Matrix3d& noise_cov,
                               std::shared_ptr<int> col_id_ptr) {
-  X_.conservativeResize(this->dimX() + 1, this->dimX() + 1);
-  X_.block(0, this->dimX(), 3, 1) = aug;
+  int dimX = this->dimX();
+  X_.conservativeResize(dimX + 1, dimX + 1);
+  X_.block(0, dimX, 3, 1) = aug;
 
-  P_.conservativeResize(this->dimP() + 3, this->dimP() + 3);
-  P_.block<3, 3>(this->dimP() - 3, this->dimP() - 3) = cov;
+  int dimP = this->dimP();
+  P_.conservativeResize(dimP + 3, dimP + 3);
+  P_.block<3, 3>(dimP, dimP) = cov;
 
-  Qc_.conservativeResize(this->dimQc() + 3, this->dimQc() + 3);
-  Qc_.block<3, 3>(this->dimQc() - 3, this->dimQc() - 3) = noise_cov;
+  int dimQc = this->dimQc();
+  Qc_.conservativeResize(dimQc + 3, dimQc + 3);
+  Qc_.block<3, 3>(dimQc, dimQc) = noise_cov;
 
   column_id_to_corr_map_.push_back(col_id_ptr);
   return this->dimX() - 1;
@@ -160,17 +163,19 @@ void RobotState::set_aug_state(int matrix_idx, const Eigen::Vector3d& aug) {
 
 void RobotState::del_aug_state(int matrix_idx) {
   // update state vector(col_id_ptr)
-  for (int i = matrix_idx; i < this->dimX(); i++) {
+
+  int dimX = this->dimX();
+  for (int i = matrix_idx; i < dimX - 1; i++) {
     column_id_to_corr_map_[i] = column_id_to_corr_map_[i + 1];
     *(column_id_to_corr_map_[i]) -= 1;
   }
   column_id_to_corr_map_.pop_back();
 
-  X_.block(matrix_idx, matrix_idx, this->dimX() - matrix_idx - 1,
-           this->dimX() - matrix_idx - 1)
-      = X_.block(matrix_idx + 1, matrix_idx + 1, this->dimX() - matrix_idx - 1,
-                 this->dimX() - matrix_idx - 1);
-  X_.conservativeResize(this->dimX() - 1, this->dimX() - 1);
+  X_.block(matrix_idx, matrix_idx, dimX - matrix_idx - 1, dimX - matrix_idx - 1)
+      = X_.block(matrix_idx + 1, matrix_idx + 1, dimX - matrix_idx - 1,
+                 dimX - matrix_idx - 1);
+  X_.conservativeResize(dimX - 1, dimX - 1);
+
 
   this->del_aug_cov(matrix_idx);
   this->del_aug_bias(matrix_idx);
@@ -279,8 +284,9 @@ void RobotState::set_accelerometer_bias(const Eigen::Vector3d& ba) {
 
 
 void RobotState::add_aug_bias(const Eigen::Vector3d& baug) {
-  Theta_.conservativeResize(Theta_.rows() + 3);
-  Theta_.block<3, 1>(Theta_.rows() - 3, 0) = baug;
+  int dimTheta = Theta_.rows();
+  Theta_.conservativeResize(dimTheta + 3);
+  Theta_.block<3, 1>(dimTheta, 0) = baug;
 }
 
 

@@ -56,8 +56,8 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
   // Create a new queue for data buffers
   LegKinQueuePtr kin_queue_ptr(new LegKinQueue);
 
-  //   // Initialize a new mutex for this subscriber
-  //   mutex_list_.emplace_back(new std::mutex);
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
 
   contact_subscriber_list_.push_back(
       std::make_shared<ContactMsgFilterT>(*nh_, contact_topic_name, 1));
@@ -163,7 +163,9 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   double vx = (vr + vl) / 2.0;
 
   vel_measurement->set_velocity(vx, 0, 0);
+  mutex.get()->lock();
   vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
 }
 
 void ROSSubscriber::MiniCheetahKinCallBack(
@@ -172,9 +174,7 @@ void ROSSubscriber::MiniCheetahKinCallBack(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
-  // #include "communication/kinematics_impl.cpp"
   // Set headers and time stamps
-  // TODO: Figure out how headers are set for a kinematics measurement
   std::shared_ptr<MiniCheetahKinematics> kin_measurement(
       new MiniCheetahKinematics);
   /// TODO: Idealy, use the timestamp used by Approximate time synchronizer,
@@ -200,7 +200,9 @@ void ROSSubscriber::MiniCheetahKinCallBack(
       encoder_msg->position[10], encoder_msg->position[11];
   kin_measurement->set_joint_state(jsmsg);
 
+  mutex.get()->lock();
   kin_queue->push(kin_measurement);
+  mutex.get()->unlock();
 }
 
 void ROSSubscriber::RosSpin() {

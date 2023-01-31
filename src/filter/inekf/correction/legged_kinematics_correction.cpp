@@ -29,6 +29,12 @@ LeggedKinematicsCorrection::LeggedKinematicsCorrection(
             : 0.1;
   contact_noise_cov_ = contact_noise_std * contact_noise_std
                        * Eigen::Matrix<double, 3, 3>::Identity();
+
+  // Set thresholds:
+  t_diff_thres_
+      = config_["settings"]["velocity_time_threshold"]
+            ? config_["settings"]["velocity_time_threshold"].as<double>()
+            : 0.3;
 }
 
 const LeggedKinematicsQueuePtr
@@ -53,11 +59,46 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   /// contact measurements?
   // --------------------------------------------------------------
 
+  // Get measurement from sensor data buffer
   sensor_data_buffer_mutex_ptr_.get()->lock();
+  if (sensor_data_buffer_ptr_->empty()) {
+    sensor_data_buffer_mutex_ptr_->unlock();
+    return false;
+  }
   KinematicsMeasurementPtr kinematics_measurement
       = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  // Check if measurement is too old or too new for correction update
+  double t_diff
+      = kinematics_measurement->get_time() - state.get_propagate_time();
+  if (t_diff < -t_diff_thres_) {
+    while (t_diff < -t_diff_thres_) {
+      sensor_data_buffer_mutex_ptr_->lock();
+      if (sensor_data_buffer_ptr_->empty()) {
+        sensor_data_buffer_mutex_ptr_->unlock();
+        return false;
+      }
+      kinematics_measurement = sensor_data_buffer_ptr_->front();
+      sensor_data_buffer_ptr_->pop();
+      sensor_data_buffer_mutex_ptr_->unlock();
+
+      t_diff = kinematics_measurement->get_time() - state.get_propagate_time();
+    }
+  } else if (t_diff > t_diff_thres_) {
+    std::cerr
+        << std::setprecision(20)
+        << "Measurement received in the velocity correction is way faster than "
+           "the last propagation time. Skipping this correction. Last "
+           "propagation time: "
+        << state.get_propagate_time()
+        << ", this measurement time: " << kinematics_measurement->get_time()
+        << ", time diff: " << t_diff << ", set threshold: " << t_diff_thres_
+        << std::endl;
+  }
+
+  state.set_time(kinematics_measurement->get_time());
 
   int num_legs = kinematics_measurement->get_num_legs();
   kinematics_measurement->ComputeKinematics();
@@ -78,8 +119,8 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       // contact map, then remove state
       remove_contacts.push_back(id);    // Add id to remove list
     } else if (has_contact && !found) {
-      //  If contact is indicated and leg id is not found in previous exisiting
-      //  contact map, then augment state
+      //  If contact is indicated and leg id is not found in previous
+      //  exisiting contact map, then augment state
       ContactInfo new_contact;
       new_contact.id = id;
       new_contact.pose = pose;
@@ -150,18 +191,13 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   }
 
   // Remove contacts from state
-  if (remove_contacts.size() > 0) {
-    Eigen::MatrixXd X_rem = state.get_X();
-    Eigen::MatrixXd P_rem = state.get_P();
-    for (int id : remove_contacts) {
-      state.del_aug_state(*(aug_id_to_column_id_ptr_[id]));
-      aug_id_to_column_id_ptr_.erase(id);
-    }
+  for (int id : remove_contacts) {
+    state.del_aug_state(*(aug_id_to_column_id_ptr_[id]));
+    aug_id_to_column_id_ptr_.erase(id);
   }
 
   // Augment state with newly detected contacts
   if (new_contacts.size() > 0) {
-    Eigen::MatrixXd X_aug = state.get_X();
     Eigen::MatrixXd P_aug = state.get_P();
     for (auto& new_contact : new_contacts) {
       // Initialize new contact position mean
@@ -209,13 +245,14 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       // Send the new contact aug state and aug covariance to robot state
       aug_id_to_column_id_ptr_[new_contact.id]
           = std::make_shared<int>(state.dimX());
+      // int aug_idx = state.dimX();
       int aug_idx = state.add_aug_state(
           aug_state, P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3),
           contact_noise_cov_, aug_id_to_column_id_ptr_[new_contact.id]);
 
       // Add the aug state matrix index to the augment state information
       // mapping
-      *aug_id_to_column_id_ptr_[new_contact.id] = aug_idx;
+      *(aug_id_to_column_id_ptr_[new_contact.id]) = aug_idx;
     }
   }
 

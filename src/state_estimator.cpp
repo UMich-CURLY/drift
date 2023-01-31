@@ -61,7 +61,7 @@ void StateEstimator::add_imu_propagation(
                                                   error_type_, yaml_filepath);
 }
 
-void StateEstimator::add_kinematics_correction(
+void StateEstimator::add_legged_kinematics_correction(
     LeggedKinematicsQueuePtr buffer_ptr,
     std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {

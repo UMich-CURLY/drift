@@ -82,6 +82,10 @@ bool VelocityCorrection::Correct(RobotState& state) {
   if (t_diff < -t_diff_thres_) {
     while (t_diff < -t_diff_thres_) {
       sensor_data_buffer_mutex_ptr_->lock();
+      if (sensor_data_buffer_ptr_->empty()) {
+        sensor_data_buffer_mutex_ptr_->unlock();
+        return false;
+      }
       measured_velocity = sensor_data_buffer_ptr_->front();
       sensor_data_buffer_ptr_->pop();
       sensor_data_buffer_mutex_ptr_->unlock();

@@ -122,13 +122,13 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Declare a correction method, which uses kinematic data to correct
-   * the state of the robot
+   * @brief Declare a correction method, which uses leg kinematic data to
+   * correct the state of the robot
    *
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
    */
-  void add_kinematics_correction(
+  void add_legged_kinematics_correction(
       LeggedKinematicsQueuePtr buffer_ptr,
       std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
