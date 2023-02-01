@@ -133,7 +133,7 @@ class StateEstimator {
       std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
       = "config/filter/inekf/"
-        "correction/legged_kinematics_correction.yaml");
+        "correction/mini_cheetah_legged_kinematics_correction.yaml");
 
   // ======================================================================
   /**

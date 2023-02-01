@@ -37,8 +37,8 @@ VelocityCorrection::VelocityCorrection(
 
   // Set thresholds:
   t_diff_thres_
-      = config_["settings"]["velocity_time_threshold"]
-            ? config_["settings"]["velocity_time_threshold"].as<double>()
+      = config_["settings"]["correction_time_threshold"]
+            ? config_["settings"]["correction_time_threshold"].as<double>()
             : 0.3;
 
   // Set rotation matrix from velocity to body frame:

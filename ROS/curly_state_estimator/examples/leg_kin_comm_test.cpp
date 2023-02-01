@@ -39,7 +39,10 @@ int main(int argc, char** argv) {
   state_estimator.add_imu_propagation(
       qimu, qimu_mutex,
       "config/filter/inekf/propagation/mini_cheetah_imu_propagation.yaml");
-  state_estimator.add_legged_kinematics_correction(qkin, qkin_mutex);
+  state_estimator.add_legged_kinematics_correction(
+      qkin, qkin_mutex,
+      "config/filter/inekf/correction/"
+      "mini_cheetah_legged_kinematics_correction.yaml");
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
 

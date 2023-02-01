@@ -25,6 +25,8 @@ StateEstimator::StateEstimator(ErrorType error_type)
 void StateEstimator::RunOnce() {
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
+  // std::cout << "Propagated state: \n"
+  //           << state_.get_position().transpose() << std::endl;
 
   // Correct
   for (auto& correction : corrections_) {

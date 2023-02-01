@@ -32,8 +32,8 @@ LeggedKinematicsCorrection::LeggedKinematicsCorrection(
 
   // Set thresholds:
   t_diff_thres_
-      = config_["settings"]["velocity_time_threshold"]
-            ? config_["settings"]["velocity_time_threshold"].as<double>()
+      = config_["settings"]["correction_time_threshold"]
+            ? config_["settings"]["correction_time_threshold"].as<double>()
             : 0.3;
 }
 
@@ -53,10 +53,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   vector<ContactInfo> new_contacts;    // new contacts to be added
 
   //---------------------------------------------------------------
-  /// TODO: add get_contact in the LeggedKinematicsMeasurement() class
   /// TODO: Be sure to also change and check the whole function
-  /// TOASK: Should we use map<int, bool> or just Matrix<int, CONTACT_DIM,1> for
-  /// contact measurements?
   // --------------------------------------------------------------
 
   // Get measurement from sensor data buffer
@@ -166,7 +163,6 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       Z.conservativeResize(startIndex + 3, Eigen::NoChange);
       Eigen::Matrix3d R = state.get_rotation();
       Eigen::Vector3d p = state.get_position();
-      /// TODO: change this with the new get aug method
       Eigen::Vector3d d = state.get_aug_state(*(aug_id_to_column_id_ptr_[id]));
       if (state.get_state_type() == StateType::WorldCentric) {
         Z.segment(startIndex, 3) = R * pose - (d - p);
@@ -245,7 +241,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       // Send the new contact aug state and aug covariance to robot state
       aug_id_to_column_id_ptr_[new_contact.id]
           = std::make_shared<int>(state.dimX());
-      // int aug_idx = state.dimX();
+
       int aug_idx = state.add_aug_state(
           aug_state, P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3),
           contact_noise_cov_, aug_id_to_column_id_ptr_[new_contact.id]);
