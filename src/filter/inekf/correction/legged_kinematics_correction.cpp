@@ -142,7 +142,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
             = Eigen::Matrix3d::Identity();    // I
       } else {
         H.block(startIndex, 6, 3, 3) = Eigen::Matrix3d::Identity();    // I
-        H.block(startIndex, 3 * *(aug_id_to_column_id_ptr_[id]) - dimTheta, 3,
+        H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,
                 3)
             = -Eigen::Matrix3d::Identity();    // -I
       }

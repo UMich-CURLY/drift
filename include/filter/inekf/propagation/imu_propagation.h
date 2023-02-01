@@ -150,8 +150,7 @@ class ImuPropagation : public Propagation {
    */
   Eigen::MatrixXd StateTransitionMatrix(const Eigen::Vector3d& w,
                                         const Eigen::Vector3d& a,
-                                        const double dt,
-                                        const RobotState& state);
+                                        const double dt, RobotState& state);
 
   // ======================================================================
   /**
@@ -166,7 +165,7 @@ class ImuPropagation : public Propagation {
    * @return Eigen::MatrixXd: The discretized noise matrix
    */
   Eigen::MatrixXd DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
-                                      const double dt, const RobotState& state);
+                                      const double dt, RobotState& state);
   /// @} // End of helper functions
 
 

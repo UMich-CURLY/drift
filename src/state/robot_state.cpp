@@ -86,7 +86,7 @@ const Eigen::MatrixXd RobotState::get_X() const { return X_; }
 const Eigen::VectorXd RobotState::get_theta() const { return Theta_; }
 const Eigen::MatrixXd RobotState::get_P() const { return P_; }
 
-Eigen::MatrixXd RobotState::get_continuous_noise_covariance() const {
+const Eigen::MatrixXd RobotState::get_continuous_noise_covariance() const {
   return Qc_;
 }
 const Eigen::Matrix3d RobotState::get_rotation() const {
@@ -142,15 +142,15 @@ int RobotState::add_aug_state(const Eigen::Vector3d& aug,
                               const Eigen::Matrix3d& noise_cov,
                               std::shared_ptr<int> col_id_ptr) {
   int dimX = this->dimX();
-  X_.conservativeResize(dimX + 1, dimX + 1);
+  X_.conservativeResizeLike(Eigen::MatrixXd::Identity(dimX + 1, dimX + 1));
   X_.block(0, dimX, 3, 1) = aug;
 
   int dimP = this->dimP();
-  P_.conservativeResize(dimP + 3, dimP + 3);
+  P_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimP + 3, dimP + 3));
   P_.block<3, 3>(dimP, dimP) = cov;
 
   int dimQc = this->dimQc();
-  Qc_.conservativeResize(dimQc + 3, dimQc + 3);
+  Qc_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimQc + 3, dimQc + 3));
   Qc_.block<3, 3>(dimQc, dimQc) = noise_cov;
 
   column_id_to_corr_map_.push_back(col_id_ptr);
@@ -170,15 +170,13 @@ void RobotState::del_aug_state(int matrix_idx) {
     *(column_id_to_corr_map_[i]) -= 1;
   }
   column_id_to_corr_map_.pop_back();
-
-  X_.block(matrix_idx, matrix_idx, dimX - matrix_idx - 1, dimX - matrix_idx - 1)
-      = X_.block(matrix_idx + 1, matrix_idx + 1, dimX - matrix_idx - 1,
-                 dimX - matrix_idx - 1);
-  X_.conservativeResize(dimX - 1, dimX - 1);
-
-
+  RemoveRowAndColumn(X_, matrix_idx, 1);
   this->del_aug_cov(matrix_idx);
-  this->del_aug_bias(matrix_idx);
+
+  // std::cout << "Prev Theta_: \n" << Theta_ << std::endl;
+  // this->del_aug_bias(matrix_idx);
+  // std::cout << "After Theta_: \n" << Theta_ << std::endl;
+
   this->del_aug_noise_cov(matrix_idx);
 }
 
@@ -291,9 +289,10 @@ void RobotState::add_aug_bias(const Eigen::Vector3d& baug) {
 
 
 void RobotState::del_aug_bias(int matrix_idx) {
-  int start = matrix_idx * 3 - 12;
+  int start = matrix_idx - 5 + 6;
   Theta_.block(start, 0, Theta_.rows() - start - 3, 1)
       = Theta_.block(start + 3, 0, Theta_.rows() - start - 3, 1);
+  Theta_.conservativeResize(Theta_.rows() - 3);
 }
 
 
@@ -322,28 +321,24 @@ void RobotState::set_propagate_time(const double t) { t_prop_ = t; }
 
 void RobotState::add_aug_cov(const Eigen::Matrix3d& cov) {
   int dim = this->dimP();
-  P_.conservativeResize(dim + 3, dim + 3);
+  P_.conservativeResizeLike(Eigen::MatrixXd::Zero(dim + 3, dim + 3));
   P_.block<3, 3>(dim, dim) = cov;
 }
 
 void RobotState::del_aug_cov(int matrix_idx) {
   int dim = this->dimP();
-  int idx_cov = matrix_idx * 3 - 12;
-  P_.block(idx_cov, idx_cov, dim - idx_cov - 3, dim - idx_cov - 3) = P_.block(
-      idx_cov + 3, idx_cov + 3, dim - idx_cov - 3, dim - idx_cov - 3);
-  P_.conservativeResize(dim - 3, dim - 3);
+  int idx_cov = 3 + 3 * (matrix_idx - 3);
+  RemoveRowAndColumn(P_, idx_cov, 3);
 }
 
 void RobotState::del_aug_noise_cov(int matrix_idx) {
   int dim = this->dimQc();
-  int idx_cov = matrix_idx * 3 - 12;
-  Qc_.block(idx_cov, idx_cov, dim - idx_cov - 3, dim - idx_cov - 3) = Qc_.block(
-      idx_cov + 3, idx_cov + 3, dim - idx_cov - 3, dim - idx_cov - 3);
-  Qc_.conservativeResize(dim - 3, dim - 3);
+  int idx_cov = 3 + 3 * (matrix_idx - 3);
+  RemoveRowAndColumn(Qc_, idx_cov, 3);
 }
 
 const Eigen::Matrix3d RobotState::get_aug_cov(int matrix_idx) {
-  int idx_cov = matrix_idx * 3 - 12;
+  int idx_cov = 3 + 3 * (matrix_idx - 3);
   return P_.block<3, 3>(idx_cov, idx_cov);
 }
 
@@ -395,4 +390,15 @@ ostream& operator<<(ostream& os, const RobotState& s) {
   // os << "P:\n" << s.P_ << endl;
   os << "-----------------------------------";
   return os;
+}
+
+void RobotState::RemoveRowAndColumn(Eigen::MatrixXd& M, int index,
+                                    int move_dim) {
+  unsigned int dimX = M.cols();
+  // cout << "Removing index: " << index<< endl;
+  M.block(index, 0, dimX - index - move_dim, dimX)
+      = M.bottomRows(dimX - index - move_dim).eval();
+  M.block(0, index, dimX, dimX - index - move_dim)
+      = M.rightCols(dimX - index - move_dim).eval();
+  M.conservativeResize(dimX - move_dim, dimX - move_dim);
 }

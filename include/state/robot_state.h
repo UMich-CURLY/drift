@@ -350,7 +350,7 @@ class RobotState {
    *
    * @return Eigen::MatrixXd: Continuous noise covariance matrix
    */
-  Eigen::MatrixXd get_continuous_noise_covariance() const;
+  const Eigen::MatrixXd get_continuous_noise_covariance() const;
 
   /**
    * @brief Set the RobotState whole matrix.
@@ -541,6 +541,9 @@ class RobotState {
   friend std::ostream& operator<<(std::ostream& os, const RobotState& s);
 
  private:
+  // Util function:
+  void RemoveRowAndColumn(Eigen::MatrixXd& M, int index, int move_dim);
+
   StateType state_type_ = StateType::WorldCentric;
   Eigen::MatrixXd
       X_;    // Matrix of SE or SEk group represents for robot state.

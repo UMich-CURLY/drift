@@ -131,7 +131,7 @@ void StateEstimator::InitStateFromImu() {
   // VectorNav estimate
   Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
 
-  Eigen::Vector3d v0_body;
+  Eigen::Vector3d v0_body = Eigen::Vector3d::Zero();
   for (auto& correction : corrections_) {
     /// TODO: How to deal with multiple velocity measurements?
     if (correction.get()->get_correction_type() == CorrectionType::VELOCITY) {
