@@ -13,8 +13,8 @@ settings:
                                                   # Setting this to false the filter will assume
                                                   # the robot to be horizontally static (gravity pointing
                                                   # downwards) to initialize the filter.   
-  enable_bias_update: false # Enable imu bias update or not.
-  use_imu_ori_est_init_bias: true # Use the orientation estimated from the imu to initialize bias.
+  enable_bias_update: true # Enable imu bias update or not.
+  use_imu_ori_est_init_bias: false # Use the orientation estimated from the imu to initialize bias.
 
   ########################
   # Orientation Settings #
@@ -26,15 +26,15 @@ settings:
 
 # IMU bias prior:
 priors:
-  # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
-  # accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
+  gyroscope_bias: [-0.009514, 0.01402, 0.01869] 
+  accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
 
-  gyroscope_bias: [0, 0, 0] 
-  accelerometer_bias: [0, 0, 0]
+  # gyroscope_bias: [0, 0, 0] 
+  # accelerometer_bias: [0, 0, 0]
 
 # IMU noise parameters:
 noises:
-  gyroscope_std: 0.1  # 0.000061087, 0.1, 0.04
-  accelerometer_std: 0.1 # 0.0013734, 0.1, 0.65
+  gyroscope_std: 0.002  # 0.000061087, 0.1, 0.04
+  accelerometer_std: 0.55 # 0.0013734, 0.1, 0.65
   gyroscope_bias_std: 0.1 # 0.1, 0.04
   accelerometer_bias_std: 0.1 # 0.1, 0.65

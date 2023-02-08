@@ -126,7 +126,7 @@ void StateEstimator::InitStateFromImu() {
   imu_queue_ptr->pop();
   imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
 
-  Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
+  // Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
   // VectorNav estimate
   Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();

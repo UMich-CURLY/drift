@@ -141,3 +141,17 @@ filter_lib
 mini_cheetah_kin_lib
 yaml-cpp
 )
+
+# # temporary test for fetch
+rosbuild_add_executable(fetch_test
+${PROJECT_SOURCE_DIR}/examples/fetch_test.cpp)
+
+
+target_link_libraries(fetch_test
+${LIBS}
+ros_communication_lib
+measurement_lib
+filter_lib
+mini_cheetah_kin_lib
+yaml-cpp
+)
