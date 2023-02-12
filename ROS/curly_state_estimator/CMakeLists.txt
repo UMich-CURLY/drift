@@ -1,35 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Codespaces
-Marketplace
-Explore
- 
-@uynitsuj 
-UMich-CURLY
-/
-curly_state_estimator
-Private
-Cannot fork because forking is disabled.
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-curly_state_estimator/ROS/curly_state_estimator/CMakeLists.txt
-@Tingjun-Li
-Tingjun-Li Currently, DifferentialEncoder2VelocityCallback is running as Fetch v…
-…
-Latest commit 9056067 4 days ago
- History
- 3 contributors
-@uynitsuj@Tingjun-Li@tzuyuan
-157 lines (126 sloc)  4.17 KB
-
 cmake_minimum_required(VERSION 3.14)
 include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
@@ -187,18 +155,3 @@ filter_lib
 mini_cheetah_kin_lib
 yaml-cpp
 )
-Footer
-© 2023 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-curly_state_estimator/CMakeLists.txt at dev_inekf_kin · UMich-CURLY/curly_state_estimator
