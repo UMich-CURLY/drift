@@ -48,6 +48,12 @@ typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
 typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair;
+
+typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> GPSVelQueue;
+typedef std::shared_ptr<GPSVelQueue> GPSVelQueuePtr;
+typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
+    GPSVelQueuePair;
+
 /*
 typedef std::queue<std::shared_ptr<ContactMeasurement>> ContactQueue;
 typedef std::shared_ptr<ContactQueue> ContactQueuePtr;
@@ -117,6 +123,14 @@ class ROSSubscriber {
   VelocityQueuePair AddVelocitySubscriber(const std::string topic_name);
 
   /**
+   * @brief Add GPS velocity subscriber
+   *
+   * @param[in] topic_name GPS velocity topic name
+   * @return GPSVelQueuePair velocity queue pair
+   */
+  GPSVelQueuePair AddGPSVelocitySubscriber(const std::string topic_name);
+
+  /**
    * @brief Add differential drive velocity subscriber
    *
    * @param[in] topic_name differential drive velocity topic name
@@ -167,6 +181,18 @@ class ROSSubscriber {
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**
+   * @brief GPS velocity callback function
+   *
+   * @param[in] gps_vel_msg: velocity message
+   * @param[in] mutex: mutex for the buffer queue
+   * @param[in] gps_vel_queue: pointer to the buffer queue
+   */
+  void GPSVelCallback(
+      const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
+      const std::shared_ptr<std::mutex>& mutex,
+      VelocityQueuePtr& gps_vel_queue);
+
+  /**
    * @brief Differential encoder to velocity callback function
    *
    * @param encoder_msg: encoder message
@@ -204,6 +230,8 @@ class ROSSubscriber {
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
       vel_queue_list_;    // List of velocity queue pointers
+  std::vector<GPSVelQueuePtr>
+      gps_vel_queue_list_;    // List of gps velocity queue pointers
   std::vector<LegKinQueuePtr>
       kin_queue_list_;    // List of kinematics queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
