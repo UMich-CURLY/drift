@@ -148,6 +148,7 @@ void ROSSubscriber::IMUCallback(
   imu_measurement->set_lin_acc(imu_msg->linear_acceleration.x,
                                imu_msg->linear_acceleration.y,
                                imu_msg->linear_acceleration.z);
+  // Set orientation estimate
   // Check if IMU has quaternion data:
   if (Eigen::Vector4d({imu_msg->orientation.w, imu_msg->orientation.x,
                        imu_msg->orientation.y, imu_msg->orientation.z})
@@ -157,6 +158,7 @@ void ROSSubscriber::IMUCallback(
         imu_msg->orientation.w, imu_msg->orientation.x, imu_msg->orientation.y,
         imu_msg->orientation.z);
   }
+
 
   // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
