@@ -6,7 +6,7 @@
 
 /**
  *  @file   ros_subsriber.cpp
- *  @author Tzu-Yuan Lin
+ *  @author Tzu-Yuan Lin, Tingjun Li, Justin Yu
  *  @brief  Source file for ROS subscriber class
  *  @date   December 6, 2022
  **/
@@ -148,10 +148,15 @@ void ROSSubscriber::IMUCallback(
   imu_measurement->set_lin_acc(imu_msg->linear_acceleration.x,
                                imu_msg->linear_acceleration.y,
                                imu_msg->linear_acceleration.z);
-  // Set orientation estimate
-  imu_measurement->set_quaternion(
-      imu_msg->orientation.w, imu_msg->orientation.x, imu_msg->orientation.y,
-      imu_msg->orientation.z);
+  // Check if IMU has quaternion data:
+  if (Eigen::Vector4d({imu_msg->orientation.w, imu_msg->orientation.x,
+                       imu_msg->orientation.y, imu_msg->orientation.z})
+          .norm()
+      != 0) {
+    imu_measurement->set_quaternion(
+        imu_msg->orientation.w, imu_msg->orientation.x, imu_msg->orientation.y,
+        imu_msg->orientation.z);
+  }
 
   // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
@@ -205,16 +210,31 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
           + encoder_msg->header.stamp.nsec / 1000000000.0,
       encoder_msg->header.frame_id);
 
-  double wheel_radius = 0.1651;
+  /// TODO: Find a way to get the wheel radius and wheel model from the robot
+  // Husky
+  // double wheel_radius = 0.1651;
 
-  double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
-              * wheel_radius;
-  double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
-              * wheel_radius;
+  // double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
+  //             * wheel_radius;
+  // double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
+  //             * wheel_radius;
+  // double vx = (vr + vl) / 2.0;
+
+  // Fetch
+  if (encoder_msg->velocity.size() <= 2) {
+    // velocity message from wheel encoder is in an array of size greater than 2
+    return;
+  }
+  double wheel_radius = 0.063;
+
+  double vr = encoder_msg->velocity[1] * wheel_radius;
+  double vl = encoder_msg->velocity[0] * wheel_radius;
   double vx = (vr + vl) / 2.0;
 
   vel_measurement->set_velocity(vx, 0, 0);
+  mutex.get()->lock();
   vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
 }
 
 void ROSSubscriber::MiniCheetahKinCallBack(
@@ -223,9 +243,7 @@ void ROSSubscriber::MiniCheetahKinCallBack(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
     const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
-  // #include "communication/kinematics_impl.cpp"
   // Set headers and time stamps
-  // TODO: Figure out how headers are set for a kinematics measurement
   std::shared_ptr<MiniCheetahKinematics> kin_measurement(
       new MiniCheetahKinematics);
   /// TODO: Idealy, use the timestamp used by Approximate time synchronizer,
@@ -251,7 +269,9 @@ void ROSSubscriber::MiniCheetahKinCallBack(
       encoder_msg->position[10], encoder_msg->position[11];
   kin_measurement->set_joint_state(jsmsg);
 
+  mutex.get()->lock();
   kin_queue->push(kin_measurement);
+  mutex.get()->unlock();
 }
 
 void ROSSubscriber::RosSpin() {

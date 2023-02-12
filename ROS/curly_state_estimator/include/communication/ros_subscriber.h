@@ -49,6 +49,7 @@ typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair;
 
+typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>> LegKinQueue;
 typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> GPSVelQueue;
 typedef std::shared_ptr<GPSVelQueue> GPSVelQueuePtr;
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
