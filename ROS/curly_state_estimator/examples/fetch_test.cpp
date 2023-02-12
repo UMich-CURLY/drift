@@ -17,32 +17,30 @@ int main(int argc, char** argv) {
 
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
-  std::cout << "Subscribing to imu channel..." << std::endl;
-  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/Imu");
+
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/imu");
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 
-  std::cout << "Subscribing to joint_states and contact channel..."
-            << std::endl;
-  auto qkin_and_mutex
-      = ros_sub.AddMiniCheetahKinematicsSubscriber("/Contacts", "/JointState");
-  auto qkin = qkin_and_mutex.first;
-  auto qkin_mutex = qkin_and_mutex.second;
+  auto qv_and_mutex
+      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
+  auto qv = qv_and_mutex.first;
+  auto qv_mutex = qv_and_mutex.second;
 
   ros_sub.StartSubscribingThread();
+  // TODO: Create robot state system -- initialize all system threads
 
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(error_type);
 
   // Publisher:
-  // Mini Cheetah's setting:
   state_estimator.add_imu_propagation(
       qimu, qimu_mutex,
-      "config/filter/inekf/propagation/mini_cheetah_imu_propagation.yaml");
-  state_estimator.add_legged_kinematics_correction(
-      qkin, qkin_mutex,
-      "config/filter/inekf/correction/"
-      "mini_cheetah_legged_kinematics_correction.yaml");
+      "config/filter/inekf/propagation/"
+      "fetch_imu_propagation.yaml");    // Husky's setting
+  state_estimator.add_velocity_correction(qv, qv_mutex,
+                                          "config/filter/inekf/correction/"
+                                          "fetch_velocity_correction.yaml");
   RobotStateQueuePtr robot_state_queue_ptr
       = state_estimator.get_robot_state_queue_ptr();
 
@@ -66,5 +64,6 @@ int main(int argc, char** argv) {
     }
     ros::spinOnce();
   }
+
   return 0;
 }
