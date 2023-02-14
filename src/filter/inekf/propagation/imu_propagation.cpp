@@ -345,7 +345,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
 // Compute Discrete noise matrix
 Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
                                                     const double dt,
-                                                    RobotState& state) {
+                                                    const RobotState& state) {
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -371,7 +371,7 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
 
-  state.set_continuous_noise_covariance(Qc);
+  // state.set_continuous_noise_covariance(Qc);
 
   // Noise Covariance Discretization
   Eigen::MatrixXd PhiG = Phi * G;
