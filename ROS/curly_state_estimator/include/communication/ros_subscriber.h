@@ -115,6 +115,25 @@ class ROSSubscriber {
       const std::string topic_name);
 
   /**
+   * @brief Add differential drive velocity subscriber for Husky (4 driving
+   * wheels)
+   *
+   * @param[in] topic_name differential drive velocity topic name
+   * @return VelocityQueuePair velocity queue pair
+   */
+  VelocityQueuePair AddDifferentialDriveVelocitySubscriber_Husky(
+      const std::string topic_name);
+
+  /**
+   * @brief Add differential drive velocity subscriber (2 driving wheels)
+   *
+   * @param[in] topic_name differential drive velocity topic name
+   * @return VelocityQueuePair velocity queue pair
+   */
+  VelocityQueuePair AddDifferentialDriveVelocitySubscriber_Fetch(
+      const std::string topic_name);
+
+  /**
    * @brief Add differential drive velocity subscriber
    *
    * @param[in] contact_topic_name differential drive velocity topic name
@@ -163,6 +182,30 @@ class ROSSubscriber {
    * @param vel_queue: pointer to the buffer queue
    */
   void DifferentialEncoder2VelocityCallback(
+      const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+
+  /**
+   * @brief Differential encoder to velocity callback function (Husky version, 4
+   * driving wheels)
+   *
+   * @param encoder_msg: encoder message
+   * @param mutex: mutex for the buffer queue
+   * @param vel_queue: pointer to the buffer queue
+   */
+  void DifferentialEncoder2VelocityCallback_Husky(
+      const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+
+  /**
+   * @brief Differential encoder to velocity callback function (Fetch version, 2
+   * driving wheels)
+   *
+   * @param encoder_msg: encoder message
+   * @param mutex: mutex for the buffer queue
+   * @param vel_queue: pointer to the buffer queue
+   */
+  void DifferentialEncoder2VelocityCallback_Fetch(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 

@@ -102,6 +102,46 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
   return {vel_queue_ptr, mutex_list_.back()};
 };
 
+VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Husky(
+    const std::string topic_name) {
+  // Create a new queue for data buffers
+  VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback_Husky,
+                  this, _1, mutex_list_.back(), vel_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  vel_queue_list_.push_back(vel_queue_ptr);
+
+  return {vel_queue_ptr, mutex_list_.back()};
+};
+
+VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Fetch(
+    const std::string topic_name) {
+  // Create a new queue for data buffers
+  VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch,
+                  this, _1, mutex_list_.back(), vel_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  vel_queue_list_.push_back(vel_queue_ptr);
+
+  return {vel_queue_ptr, mutex_list_.back()};
+};
+
 
 void ROSSubscriber::StartSubscribingThread() {
   subscribing_thread_ = std::thread([this] { this->RosSpin(); });
@@ -163,20 +203,70 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
 
   /// TODO: Find a way to get the wheel radius and wheel model from the robot
   // Husky
-  // double wheel_radius = 0.1651;
+  double wheel_radius = 0.1651;
 
-  // double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
-  //             * wheel_radius;
-  // double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
-  //             * wheel_radius;
-  // double vx = (vr + vl) / 2.0;
+  double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
+              * wheel_radius;
+  double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
+              * wheel_radius;
+  double vx = (vr + vl) / 2.0;
+
+  vel_measurement->set_velocity(vx, 0, 0);
+  mutex.get()->lock();
+  vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
+}
+
+void ROSSubscriber::DifferentialEncoder2VelocityCallback_Husky(
+    const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+  // Create an velocity measurement object
+  std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  vel_measurement->set_header(
+      encoder_msg->header.seq,
+      encoder_msg->header.stamp.sec
+          + encoder_msg->header.stamp.nsec / 1000000000.0,
+      encoder_msg->header.frame_id);
+
+  /// TODO: Find a way to get the wheel radius and wheel model from the robot
+  // Husky
+  double wheel_radius = 0.1651;
+
+  double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
+              * wheel_radius;
+  double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
+              * wheel_radius;
+  double vx = (vr + vl) / 2.0;
+
+  vel_measurement->set_velocity(vx, 0, 0);
+  mutex.get()->lock();
+  vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
+}
+
+void ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch(
+    const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+  // Create an velocity measurement object
+  std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  vel_measurement->set_header(
+      encoder_msg->header.seq,
+      encoder_msg->header.stamp.sec
+          + encoder_msg->header.stamp.nsec / 1000000000.0,
+      encoder_msg->header.frame_id);
 
   // Fetch
   if (encoder_msg->velocity.size() <= 2) {
     // velocity message from wheel encoder is in an array of size greater than 2
     return;
   }
-  double wheel_radius = 0.063;
+  double wheel_radius = 0.06033;
 
   double vr = encoder_msg->velocity[1] * wheel_radius;
   double vl = encoder_msg->velocity[0] * wheel_radius;

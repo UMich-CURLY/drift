@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   auto qimu_mutex = qimu_and_mutex.second;
 
   auto qv_and_mutex
-      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
+      = ros_sub.AddDifferentialDriveVelocitySubscriber_Fetch("/joint_states");
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 
