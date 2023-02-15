@@ -120,7 +120,7 @@ class ImuPropagation : public Propagation {
   // ======================================================================
   /**
    * @brief Initialize IMU bias using the static assumption. This assumes the
-   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.81
+   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.8
    * m/s^2/f$ is pointing downward.)
    *
    * The function takes the first n data points, average their value, and
