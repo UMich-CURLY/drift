@@ -126,17 +126,13 @@ bool ImuPropagation::Propagate(RobotState& state) {
   double dt = imu_measurement->get_time() - state.get_propagate_time();
   state.set_time(imu_measurement->get_time());
   state.set_propagate_time(imu_measurement->get_time());
-
-  Eigen::Vector3d w = imu_measurement->get_ang_vel()
+  // Rotate imu frame to align it with the body frame and remove bias:
+  Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
 
   Eigen::Vector3d a
-      = imu_measurement->get_lin_acc()
+      = R_imu2body_ * imu_measurement->get_lin_acc()
         - state.get_accelerometer_bias();    // Linear Acceleration
-
-  // Rotate imu frame to align it with the body frame:
-  w = R_imu2body_ * w;
-  a = R_imu2body_ * a;
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -158,7 +154,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
     P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
         = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
     P_pred.block(dimP - dimTheta, dimP - dimTheta, dimTheta, dimTheta)
-        = Eigen::MatrixXd::Identity(dimTheta, dimTheta);
+        = 0.0001 * Eigen::MatrixXd::Identity(dimTheta, dimTheta);
   }
 
   //  ------------ Propagate Mean --------------- //
@@ -412,7 +408,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Matrix3d R;
     if (use_imu_ori_est_init_bias_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
-      R = quat.toRotationMatrix();
+      R = R_imu2body_ * quat.toRotationMatrix();
     } else {
       R = Eigen::Matrix3d::Identity();
     }

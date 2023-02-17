@@ -68,7 +68,7 @@ class StateEstimator {
    *
    * @param[in] state: Initial state of the robot
    */
-  void set_state(RobotState& state);
+  void set_state(const RobotState& state);
   /// @}
 
   /// @name Getters

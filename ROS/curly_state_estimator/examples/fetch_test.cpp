@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
-  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/imu");
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/imu1/imu");
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 

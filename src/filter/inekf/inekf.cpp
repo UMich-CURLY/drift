@@ -36,15 +36,6 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
 
-  // Remove bias
-  Theta = Eigen::Matrix<double, 6, 1>::Zero();
-  P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
-      = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
-  P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
-      = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
-  P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
-      = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
-
   // Map from left invariant to right invariant error temporarily
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd Adj = Eigen::MatrixXd::Identity(dimP, dimP);
@@ -64,6 +55,8 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Update state
   Eigen::MatrixXd X_new = dX * X;    // Right-Invariant Update
+  /// REMARK: set yaw bias derivative estimation to 0
+  dTheta(2) = 0;
   Eigen::VectorXd Theta_new = Theta + dTheta;
 
   // Set new state
@@ -75,6 +68,10 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   Eigen::MatrixXd P_new = IKH * P * IKH.transpose()
                           + K * N * K.transpose();    // Joseph update form
 
+  // Don't update yaw covariance
+  P_new.row(dimP - dimTheta + 2).setZero();
+  P_new.col(dimP - dimTheta + 2).setZero();
+  P_new(dimP - dimTheta + 2, dimP - dimTheta + 2) = 0.0001 * 1;
   // Map from right invariant back to left invariant error
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);

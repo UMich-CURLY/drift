@@ -52,7 +52,7 @@ std::shared_ptr<std::mutex> StateEstimator::get_robot_state_queue_mutex_ptr() {
   return robot_state_queue_mutex_ptr_;
 }
 
-void StateEstimator::set_state(RobotState& state) { state_ = state; }
+void StateEstimator::set_state(const RobotState& state) { state_ = state; }
 
 const RobotState StateEstimator::get_state() const { return state_; }
 
@@ -162,24 +162,40 @@ void StateEstimator::InitStateFromImu() {
   Eigen::Vector3d p0
       = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame
 
-  R0 = Eigen::Matrix3d::Identity();
-  RobotState initial_state;
+  // RobotState initial_state;
+  // Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
+  // Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();
+  // initial_state.set_rotation(R0);
+  // initial_state.set_velocity(v0);
+  // initial_state.set_position(p0);
+  // initial_state.set_gyroscope_bias(bg0);
+  // initial_state.set_accelerometer_bias(ba0);
+  // // Initialize state covariance
+  // initial_state.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
+  // initial_state.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
+  // initial_state.set_position_covariance(0.00001 *
+  // Eigen::Matrix3d::Identity());
+  // initial_state.set_gyroscope_bias_covariance(0.0001
+  //                                             * Eigen::Matrix3d::Identity());
+  // initial_state.set_accelerometer_bias_covariance(
+  //     0.0025 * Eigen::Matrix3d::Identity());
+  // this->set_state(initial_state);
+
   Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
   Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();
-  initial_state.set_rotation(R0);
-  initial_state.set_velocity(v0);
-  initial_state.set_position(p0);
-  initial_state.set_gyroscope_bias(bg0);
-  initial_state.set_accelerometer_bias(ba0);
+  state_.set_rotation(R0);
+  state_.set_velocity(v0);
+  state_.set_position(p0);
+  state_.set_gyroscope_bias(bg0);
+  state_.set_accelerometer_bias(ba0);
   // Initialize state covariance
-  initial_state.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
-  initial_state.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
-  initial_state.set_position_covariance(0.00001 * Eigen::Matrix3d::Identity());
-  initial_state.set_gyroscope_bias_covariance(0.0001
-                                              * Eigen::Matrix3d::Identity());
-  initial_state.set_accelerometer_bias_covariance(
-      0.0025 * Eigen::Matrix3d::Identity());
-  this->set_state(initial_state);
+  state_.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
+  state_.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
+  state_.set_position_covariance(0.00001 * Eigen::Matrix3d::Identity());
+  state_.set_gyroscope_bias_covariance(0.0001 * Eigen::Matrix3d::Identity());
+  state_.set_accelerometer_bias_covariance(0.0025
+                                           * Eigen::Matrix3d::Identity());
+
   std::cout << "Robot's state mean is initialized to: \n";
   std::cout << this->get_state().get_X() << std::endl;
   std::cout << "Robot's state covariance is initialized to: \n";

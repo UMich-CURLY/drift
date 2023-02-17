@@ -137,7 +137,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       H.block(startIndex, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
       if (state.get_state_type() == StateType::WorldCentric) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
-        H.block(startIndex, 3 * *(aug_id_to_column_id_ptr_[id]) - dimTheta, 3,
+        H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,
                 3)
             = Eigen::Matrix3d::Identity();    // I
       } else {
