@@ -18,7 +18,9 @@ int main(int argc, char** argv) {
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
-  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/imu1/imu");
+  // auto qimu_and_mutex
+  //     = ros_sub.AddFetchIMUSubscriber("/imu1/imu", "/imu1/gyro_offset");
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/vectornav/IMU");
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 

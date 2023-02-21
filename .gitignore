@@ -33,6 +33,7 @@
 robot_state_est
 subscriber_test
 ros_comm_test
+fetch_test
 
 build/
 lib/

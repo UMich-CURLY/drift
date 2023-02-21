@@ -54,28 +54,28 @@ TEST(LeggedKinematicsCorrection, ImuPropVelCorr) {
       = std::make_shared<KinematicsQueue>(kinematics_data_buffer);
 
   imu_measurement_0.set_ang_vel(0, 0, 0);
-  imu_measurement_0.set_lin_acc(0, 0, 9.8);
+  imu_measurement_0.set_lin_acc(0, 0, 9.81);
   imu_measurement_0.set_time(0);
   imu_data_buffer_ptr.get()->push(
       std::make_shared<ImuMeasurement<double>>(imu_measurement_0));
 
   ImuMeasurement<double> imu_measurement_1;
   imu_measurement_1.set_ang_vel(0, 0, 0);
-  imu_measurement_1.set_lin_acc(-1, 0, 9.8);
+  imu_measurement_1.set_lin_acc(-1, 0, 9.81);
   imu_measurement_1.set_time(dt);
   imu_data_buffer_ptr.get()->push(
       std::make_shared<ImuMeasurement<double>>(imu_measurement_1));
 
   ImuMeasurement<double> imu_measurement_2;
   imu_measurement_2.set_ang_vel(0, 0, 90.0 / 180.0 * M_PI);
-  imu_measurement_2.set_lin_acc(0, 0, 9.8);
+  imu_measurement_2.set_lin_acc(0, 0, 9.81);
   imu_measurement_2.set_time(dt * 2);
   imu_data_buffer_ptr.get()->push(
       std::make_shared<ImuMeasurement<double>>(imu_measurement_2));
 
   ImuMeasurement<double> imu_measurement_3;
   imu_measurement_3.set_ang_vel(0, 0, 0);
-  imu_measurement_3.set_lin_acc(1, 0, 9.8);
+  imu_measurement_3.set_lin_acc(1, 0, 9.81);
   imu_measurement_3.set_time(dt * 3);
   imu_data_buffer_ptr.get()->push(
       std::make_shared<ImuMeasurement<double>>(imu_measurement_3));

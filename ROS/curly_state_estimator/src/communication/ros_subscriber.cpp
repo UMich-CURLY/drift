@@ -50,6 +50,37 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
+IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
+    const std::string imu_topic_name, const std::string offset_topic_name) {
+  // Create a new queue for data buffers
+  IMUQueuePtr imu_queue_ptr(new IMUQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  imu_subscriber_list_.push_back(
+      std::make_shared<IMUMsgFilterT>(*nh_, imu_topic_name, 1));
+  imu_offset_subscriber_list_.push_back(
+      std::make_shared<IMUOffsetMsgFilterT>(*nh_, offset_topic_name, 1));
+
+
+  // ApproximateTime takes a queue size as its constructor argument, hence
+  // IMUSyncPolicy(10)
+  imu_sync_list_.push_back(
+      std::make_shared<message_filters::Synchronizer<IMUSyncPolicy>>(
+          IMUSyncPolicy(10), *imu_subscriber_list_.back(),
+          *imu_offset_subscriber_list_.back()));
+
+  imu_sync_list_.back()->registerCallback(
+      boost::bind(&ROSSubscriber::FetchIMUCallBack, this, _1, _2,
+                  mutex_list_.back(), imu_queue_ptr));
+
+  // Keep the ownership of the data queue in this class
+  imu_queue_list_.push_back(imu_queue_ptr);
+
+  return {imu_queue_ptr, mutex_list_.back()};
+}
+
 LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
@@ -314,6 +345,47 @@ void ROSSubscriber::MiniCheetahKinCallBack(
   kin_queue->push(kin_measurement);
   mutex.get()->unlock();
 }
+
+void ROSSubscriber::FetchIMUCallBack(
+    const boost::shared_ptr<const sensor_msgs::Imu>& imu_msg,
+    const boost::shared_ptr<const geometry_msgs::Vector3Stamped>&
+        imu_offset_msg,
+    const std::shared_ptr<std::mutex>& mutex, IMUQueuePtr& imu_queue) {
+  // Set headers and time stamps
+  std::shared_ptr<ImuMeasurement<double>> imu_measurement(
+      new ImuMeasurement<double>);
+
+  // Set headers and time stamps
+  imu_measurement->set_header(
+      imu_msg->header.seq,
+      imu_msg->header.stamp.sec + imu_msg->header.stamp.nsec / 1000000000.0,
+      imu_msg->header.frame_id);
+  // Set angular velocity
+  imu_measurement->set_ang_vel(
+      imu_msg->angular_velocity.x + imu_offset_msg->vector.x,
+      imu_msg->angular_velocity.y + imu_offset_msg->vector.y,
+      imu_msg->angular_velocity.z + imu_offset_msg->vector.z);
+  // Set linear acceleration
+  imu_measurement->set_lin_acc(imu_msg->linear_acceleration.x,
+                               imu_msg->linear_acceleration.y,
+                               imu_msg->linear_acceleration.z);
+  // Set orientation estimate
+  // Check if IMU has quaternion data:
+  if (Eigen::Vector4d({imu_msg->orientation.w, imu_msg->orientation.x,
+                       imu_msg->orientation.y, imu_msg->orientation.z})
+          .norm()
+      != 0) {
+    imu_measurement->set_quaternion(
+        imu_msg->orientation.w, imu_msg->orientation.x, imu_msg->orientation.y,
+        imu_msg->orientation.z);
+  }
+
+  // std::lock_guard<std::mutex> lock(*mutex);
+  mutex.get()->lock();
+  imu_queue->push(imu_measurement);
+  mutex.get()->unlock();
+}
+
 
 void ROSSubscriber::RosSpin() {
   while (ros::ok()) {
