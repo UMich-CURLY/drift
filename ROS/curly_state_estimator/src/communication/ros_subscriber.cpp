@@ -182,14 +182,14 @@ void ROSSubscriber::GPSVelCallback(
       gps_vel_msg->header.frame_id);
 
   // Set linear velocity
-  gps_vel_measurement->set_velocity(gps_vel_msg->linear_velocity.x,
-                                    gps_vel_msg->linear_velocity.y,
-                                    gps_vel_msg->linear_velocity.z);
+  gps_vel_measurement->set_velocity(gps_vel_msg->twist.linear.x,
+                                    gps_vel_msg->twist.linear.y,
+                                    gps_vel_msg->twist.linear.z);
 
   // Set angular velocity
-  gps_vel_measurement->set_ang_velocity(gps_vel_msg->angular_velocity.x,
-                                        gps_vel_msg->angular_velocity.y,
-                                        gps_vel_msg->angular_velocity.z);
+  gps_vel_measurement->set_ang_velocity(gps_vel_msg->twist.angular.x,
+                                        gps_vel_msg->twist.angular.y,
+                                        gps_vel_msg->twist.angular.z);
 
   // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
