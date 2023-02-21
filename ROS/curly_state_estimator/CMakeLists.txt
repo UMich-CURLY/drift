@@ -142,9 +142,9 @@ mini_cheetah_kin_lib
 yaml-cpp
 )
 
-# # temporary test for fetch
-rosbuild_add_executable(fetch_test
-${PROJECT_SOURCE_DIR}/examples/fetch_test.cpp)
+# # temporary test for gps vel
+rosbuild_add_executable(gps_vel
+${PROJECT_SOURCE_DIR}/examples/gps_vel_test.cpp)
 
 
 target_link_libraries(fetch_test
