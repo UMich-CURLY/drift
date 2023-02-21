@@ -147,11 +147,11 @@ rosbuild_add_executable(gps_vel
 ${PROJECT_SOURCE_DIR}/examples/gps_vel_test.cpp)
 
 
-target_link_libraries(fetch_test
-${LIBS}
-ros_communication_lib
-measurement_lib
-filter_lib
-mini_cheetah_kin_lib
-yaml-cpp
-)
+# target_link_libraries(fetch_test
+# ${LIBS}
+# ros_communication_lib
+# measurement_lib
+# filter_lib
+# mini_cheetah_kin_lib
+# yaml-cpp
+# )
