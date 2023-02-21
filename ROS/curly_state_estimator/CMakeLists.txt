@@ -67,7 +67,7 @@ rosbuild_add_library(filter_lib
   # Filter
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
-  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
+  #${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
@@ -100,18 +100,18 @@ ${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
 rosbuild_add_library(subscriber_test_lib
 ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
 ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
-${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+#${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
 )
 
-target_link_libraries(subscriber_test
-${LIBS}
-subscriber_test_lib
-mini_cheetah_kin_lib
-)
+# target_link_libraries(subscriber_test
+# ${LIBS}
+# subscriber_test_lib
+# mini_cheetah_kin_lib
+# )
 
 # example for legged robot kinemtaics correction:
-rosbuild_add_executable(leg_kin_comm_test
-${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
+# rosbuild_add_executable(leg_kin_comm_test
+# ${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
 
 # rosbuild_add_library(leg_kin_comm_test_lib
 # ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
@@ -119,14 +119,14 @@ ${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
 # ${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
 # )
 
-target_link_libraries(leg_kin_comm_test
-${LIBS}
-ros_communication_lib
-measurement_lib
-filter_lib
-mini_cheetah_kin_lib
-yaml-cpp
-)
+# target_link_libraries(leg_kin_comm_test
+# ${LIBS}
+# ros_communication_lib
+# measurement_lib
+# filter_lib
+# mini_cheetah_kin_lib
+# yaml-cpp
+# )
 
 # # temporary test for ros communicator: subscriber + publisher
 rosbuild_add_executable(ros_comm_test
