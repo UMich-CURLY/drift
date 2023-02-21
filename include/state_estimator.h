@@ -20,7 +20,7 @@
 
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
-#include "filter/inekf/correction/kinematics_correction.h"
+#include "filter/inekf/correction/legged_kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
 #include "filter/inekf/propagation/imu_propagation.h"
 #include "measurement/imu.h"
