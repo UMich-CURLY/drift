@@ -90,7 +90,7 @@ GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
+  subscriber_list_.push_back(nh_->subscribe<geometry_msgs::TwistStamped>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::GPSVelCallback, this, _1, mutex_list_.back(),
                   gps_vel_queue_ptr)));
