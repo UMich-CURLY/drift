@@ -94,20 +94,20 @@ rosbuild_add_library(ros_communication_lib
 
 
 # temporary test for subscriber
-rosbuild_add_executable(subscriber_test
-${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
+# rosbuild_add_executable(subscriber_test
+# ${PROJECT_SOURCE_DIR}/examples/subscriber_test.cpp)
 
-rosbuild_add_library(subscriber_test_lib
-${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
-${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
-${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
-)
+# rosbuild_add_library(subscriber_test_lib
+# ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
+# ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
+# ${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+# )
 
-target_link_libraries(subscriber_test
-${LIBS}
-subscriber_test_lib
-mini_cheetah_kin_lib
-)
+# target_link_libraries(subscriber_test
+# ${LIBS}
+# subscriber_test_lib
+# mini_cheetah_kin_lib
+# )
 
 # example for legged robot kinemtaics correction:
 rosbuild_add_executable(leg_kin_comm_test
