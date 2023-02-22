@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <iostream>
 
+#include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
 
 using namespace std;
