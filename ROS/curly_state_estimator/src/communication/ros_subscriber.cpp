@@ -84,7 +84,7 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
 GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
     const std::string topic_name) {
   // Create a new queue for data buffers
-  GPSVelQueuePtr gps_vel_queue_ptr(new GPSQueue);
+  GPSVelQueuePtr gps_vel_queue_ptr(new GPSVelQueue);
 
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
