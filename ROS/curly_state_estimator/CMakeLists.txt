@@ -165,4 +165,5 @@ target_link_libraries(gps_vel_test
 ${LIBS}
 ros_communication_lib
 measurement_lib
+yaml-cpp
 )
