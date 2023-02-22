@@ -13,12 +13,11 @@ ImuMeasurement<T>::ImuMeasurement()
 
 template<typename T>
 void ImuMeasurement<T>::set_quaternion(T w, T x, T y, T z) {
-  validate_quat(w, x, y, z);
-
   quaternion_.w() = w;
   quaternion_.x() = x;
   quaternion_.y() = y;
   quaternion_.z() = z;
+  validate_quat(w, x, y, z);
 }
 
 template<typename T>
@@ -62,6 +61,10 @@ void ImuMeasurement<T>::validate_quat(T w, T x, T y, T z) {
   double tol = 1e-5;
   T q_mag = w * w + x * x + y * y + z * z;
   if (std::abs(q_mag - 1) >= tol) {
-    throw std::invalid_argument("Quaternion arguments must be normalized");
+    // throw std::invalid_argument("Quaternion set to identity");
+    quaternion_.w() = 1;
+    quaternion_.x() = 0;
+    quaternion_.y() = 0;
+    quaternion_.z() = 0;
   }
 }

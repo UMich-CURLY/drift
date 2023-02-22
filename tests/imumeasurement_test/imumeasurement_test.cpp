@@ -77,15 +77,42 @@ TEST(ImuMeasurementTest, QuaternionToRotMat3) {
 TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
   ImuMeasurement<double> imu_data;
 
-  EXPECT_THROW(imu_data.set_quaternion(0.123, 0.456, 0.789, 0.012),
-               std::invalid_argument);
-  EXPECT_THROW(imu_data.set_quaternion(1, 2, 3, 4), std::invalid_argument);
-  EXPECT_THROW(imu_data.set_quaternion(0.2, 0.2, 0.2, 0.2),
-               std::invalid_argument);
-  Eigen::Quaterniond q
-      = rotaxis2quat<double>(M_PI / 6, M_PI / 4, M_PI / 2, M_PI / 4);
+  // EXPECT_THROW(imu_data.set_quaternion(0.123, 0.456, 0.789, 0.012),
+  //              std::invalid_argument);
+  // EXPECT_THROW(imu_data.set_quaternion(1, 2, 3, 4), std::invalid_argument);
+  // EXPECT_THROW(imu_data.set_quaternion(0.2, 0.2, 0.2, 0.2),
+  //              std::invalid_argument);
+  imu_data.set_quaternion(0.123, 0.456, 0.789, 0.012);
+  EXPECT_NEAR(imu_data.get_quaternion().x(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().y(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().z(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().w(), 1, tol1);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(),
+                          Eigen::MatrixXd::Identity(3, 3));
 
-  EXPECT_NO_THROW(imu_data.set_quaternion(q.w(), q.x(), q.y(), q.z()));
+  imu_data.set_quaternion(1, 2, 3, 4);
+  EXPECT_NEAR(imu_data.get_quaternion().x(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().y(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().z(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().w(), 1, tol1);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(),
+                          Eigen::MatrixXd::Identity(3, 3));
+
+  imu_data.set_quaternion(0.2, 0.2, 0.2, 0.2);
+  EXPECT_NEAR(imu_data.get_quaternion().x(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().y(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().z(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().w(), 1, tol1);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(),
+                          Eigen::MatrixXd::Identity(3, 3));
+
+  imu_data.set_quaternion(0, 0, 0, 0);
+  EXPECT_NEAR(imu_data.get_quaternion().x(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().y(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().z(), 0, tol1);
+  EXPECT_NEAR(imu_data.get_quaternion().w(), 1, tol1);
+  compare_rot_mat<double>(imu_data.get_rotation_matrix(),
+                          Eigen::MatrixXd::Identity(3, 3));
 }
 
 TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
