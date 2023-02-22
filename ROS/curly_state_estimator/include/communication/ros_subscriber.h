@@ -305,6 +305,8 @@ class ROSSubscriber {
       vel_queue_list_;    // List of velocity queue pointers
   std::vector<LegKinQueuePtr>
       kin_queue_list_;    // List of kinematics queue pointers
+  std::vector<GPSVelQueuePtr>
+      gps_vel_queue_list_;    // List of gps velocity queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes
