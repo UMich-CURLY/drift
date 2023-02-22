@@ -14,6 +14,8 @@ void VelocityMeasurement<T>::set_velocity(T vx, T vy, T vz) {
   vel_(1) = vy;
   vel_(2) = vz;
 }
+
+template<typename T>
 void VelocityMeasurement<T>::set_angular_velocity(T vx, T vy, T vz) {
   ang_vel_(0) = vx;
   ang_vel_(1) = vy;
@@ -25,6 +27,7 @@ Eigen::Matrix<T, 3, 1> VelocityMeasurement<T>::get_velocity() const {
   return vel_;
 }
 
+template<typename T>
 Eigen::Matrix<T, 3, 1> VelocityMeasurement<T>::get_angular_velocity() const {
   return ang_vel_;
 }
