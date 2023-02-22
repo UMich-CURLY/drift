@@ -155,3 +155,14 @@ filter_lib
 mini_cheetah_kin_lib
 yaml-cpp
 )
+
+# # test for gps vel
+rosbuild_add_executable(gps_vel_test
+${PROJECT_SOURCE_DIR}/examples/gps_vel_test.cpp)
+
+
+target_link_libraries(gps_vel_test
+${LIBS}
+ros_communication_lib
+measurement_lib
+)

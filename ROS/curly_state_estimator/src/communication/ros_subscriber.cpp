@@ -81,6 +81,26 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
+GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
+    const std::string topic_name) {
+  // Create a new queue for data buffers
+  GPSVelQueuePtr gps_vel_queue_ptr(new GPSQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::GPSVelCallback, this, _1, mutex_list_.back(),
+                  gps_vel_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  gps_vel_queue_list_.push_back(gps_vel_queue_ptr);
+
+  return {gps_vel_queue_ptr, mutex_list_.back()};
+}
+
 LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
@@ -214,6 +234,37 @@ void ROSSubscriber::IMUCallback(
   // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
   imu_queue->push(imu_measurement);
+  mutex.get()->unlock();
+  // std::cout << "mutex id: " << mutex.get() << std::endl;
+}
+
+void ROSSubscriber::GPSVelCallback(
+    const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& gps_vel_queue) {
+  // Create an imu measurement object
+  std::shared_ptr<VelocityMeasurement<double>> gps_vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  gps_vel_measurement->set_header(
+      gps_vel_msg->header.seq,
+      gps_vel_msg->header.stamp.sec
+          + gps_vel_msg->header.stamp.nsec / 1000000000.0,
+      gps_vel_msg->header.frame_id);
+
+  // Set linear velocity
+  gps_vel_measurement->set_velocity(gps_vel_msg->twist.linear.x,
+                                    gps_vel_msg->twist.linear.y,
+                                    gps_vel_msg->twist.linear.z);
+
+  // Set angular velocity
+  gps_vel_measurement->set_ang_velocity(gps_vel_msg->twist.angular.x,
+                                        gps_vel_msg->twist.angular.y,
+                                        gps_vel_msg->twist.angular.z);
+
+  // std::lock_guard<std::mutex> lock(*mutex);
+  mutex.get()->lock();
+  gps_vel_queue->push(gps_vel_measurement);
   mutex.get()->unlock();
   // std::cout << "mutex id: " << mutex.get() << std::endl;
 }

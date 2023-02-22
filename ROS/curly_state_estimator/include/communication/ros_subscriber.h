@@ -29,6 +29,7 @@
 #include "custom_sensor_msgs/Contact.h"
 #include "custom_sensor_msgs/ContactArray.h"
 #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
@@ -81,6 +82,12 @@ typedef message_filters::sync_policies::ApproximateTime<
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
     IMUSyncPtr;
 
+// GPS
+typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> GPSVelQueue;
+typedef std::shared_ptr<GPSVelQueue> GPSVelQueuePtr;
+typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
+    GPSVelQueuePair;
+
 namespace ros_wrapper {
 class ROSSubscriber {
  public:
@@ -127,6 +134,14 @@ class ROSSubscriber {
    * @return VelocityQueuePair velocity queue pair
    */
   VelocityQueuePair AddVelocitySubscriber(const std::string topic_name);
+
+  /**
+   * @brief Add GPS velocity subscriber
+   *
+   * @param[in] topic_name GPS velocity topic name
+   * @return GPSVelQueuePair velocity queue pair
+   */
+  GPSVelQueuePair AddGPSVelocitySubscriber(const std::string topic_name);
 
   /**
    * @brief Add differential drive velocity subscriber
@@ -196,6 +211,18 @@ class ROSSubscriber {
   void VelocityCallback(
       const boost::shared_ptr<const geometry_msgs::Twist>& vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+
+  /**
+   * @brief GPS velocity callback function
+   *
+   * @param[in] gps_vel_msg: velocity message
+   * @param[in] mutex: mutex for the buffer queue
+   * @param[in] gps_vel_queue: pointer to the buffer queue
+   */
+  void GPSVelCallback(
+      const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
+      const std::shared_ptr<std::mutex>& mutex,
+      VelocityQueuePtr& gps_vel_queue);
 
   /**
    * @brief Differential encoder to velocity callback function
