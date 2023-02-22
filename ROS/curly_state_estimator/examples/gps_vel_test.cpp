@@ -33,9 +33,11 @@ int main(int argc, char** argv) {
     auto q1_first = q1->front()->get_velocity();
     auto q1_ang = q1->front()->get_angular_velocity();
     auto q1_t = q1->front()->get_time();
-    std::cout << std::setprecision(16) << q1_t << ", " << q1_first[0] << ", "
-              << q1_first[1] << ", " << q1_first[2] << ", " << q1_ang[0] << ", "
-              << q1_ang[1] << ", " << q1_ang[2] << std::endl;
+    std::cout << std::setprecision(16) << "timestamp: " << q1_t << std::endl
+              << "linear velocity: " << q1_first[0] << ", " << q1_first[1]
+              << ", " << q1_first[2] << std::endl
+              << "angular velocity: " << q1_ang[0] << ", " << q1_ang[1] << ", "
+              << q1_ang[2] << std::endl;
     q1->pop();
   }
 
