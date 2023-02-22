@@ -40,11 +40,27 @@ class VelocityMeasurement : public Measurement {
   void set_velocity(T vx, T vy, T vz);
 
   /**
+   * @brief Set the angular velocity measurement coefficients (rad/s).
+   *
+   * @param[in] vx: angular velocity coefficient about x axis.
+   * @param[in] vy: angular velocity coefficient about y axis.
+   * @param[in] vz: angular velocity coefficient about z axis.
+   */
+  void set_angular_velocity(T vx, T vy, T vz);
+
+  /**
    * @brief Get the velocity measurement coefficients.
    *
    * @return 3-vector cotaining the robot-frame velocity (m/s).
    */
   Eigen::Matrix<T, 3, 1> get_velocity() const;
+
+  /**
+   * @brief Get the angular velocity measurement coefficients.
+   *
+   * @return 3-vector cotaining the robot-frame angular velocity (rad/s).
+   */
+  Eigen::Matrix<T, 3, 1> get_angular_velocity() const;
 
   /**
    * @brief Get the velocity vector magnitude.
@@ -62,6 +78,7 @@ class VelocityMeasurement : public Measurement {
 
  private:
   Eigen::Matrix<T, 3, 1> vel_;
+  Eigen::Matrix<T, 3, 1> ang_vel_;
 };
 #include "measurement/impl/velocity_impl.cpp"
 #endif

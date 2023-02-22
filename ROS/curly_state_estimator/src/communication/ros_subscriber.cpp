@@ -258,9 +258,9 @@ void ROSSubscriber::GPSVelCallback(
                                     gps_vel_msg->twist.linear.z);
 
   // Set angular velocity
-  gps_vel_measurement->set_ang_velocity(gps_vel_msg->twist.angular.x,
-                                        gps_vel_msg->twist.angular.y,
-                                        gps_vel_msg->twist.angular.z);
+  gps_vel_measurement->set_angular_velocity(gps_vel_msg->twist.angular.x,
+                                            gps_vel_msg->twist.angular.y,
+                                            gps_vel_msg->twist.angular.z);
 
   // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
