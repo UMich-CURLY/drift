@@ -165,5 +165,7 @@ target_link_libraries(gps_vel_test
 ${LIBS}
 ros_communication_lib
 measurement_lib
+filter_lib
+mini_cheetah_kin_lib
 yaml-cpp
 )
