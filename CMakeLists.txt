@@ -36,7 +36,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # #################################################
 # Create Library                 #
 # #################################################
-#add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
+add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 #add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp)
 #add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
