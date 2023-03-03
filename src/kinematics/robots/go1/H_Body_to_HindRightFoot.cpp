@@ -2,16 +2,16 @@
  * Automatically Generated from Mathematica.
  * Fri 10 Feb 2023 15:56:54 GMT-05:00
  */
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-#include "H_Body_to_HindRightFoot.h"
+#include "kinematics/robots/go1/H_Body_to_HindRightFoot.h"
 
 #ifdef _MSC_VER
-  #define INLINE __forceinline /* use __forceinline (VC++ specific) */
+#define INLINE __forceinline /* use __forceinline (VC++ specific) */
 #else
-  #define INLINE static inline        /* use standard inline */
+#define INLINE static inline /* use standard inline */
 #endif
 
 /**
@@ -30,15 +30,15 @@ INLINE double Sin(double x) { return sin(x); }
 INLINE double Cos(double x) { return cos(x); }
 INLINE double Tan(double x) { return tan(x); }
 
-INLINE double Csc(double x) { return 1.0/sin(x); }
-INLINE double Sec(double x) { return 1.0/cos(x); }
+INLINE double Csc(double x) { return 1.0 / sin(x); }
+INLINE double Sec(double x) { return 1.0 / cos(x); }
 
 INLINE double ArcSin(double x) { return asin(x); }
 INLINE double ArcCos(double x) { return acos(x); }
 
 
 /* update ArcTan function to use atan2 instead. */
-INLINE double ArcTan(double x, double y) { return atan2(y,x); }
+INLINE double ArcTan(double x, double y) { return atan2(y, x); }
 
 INLINE double Sinh(double x) { return sinh(x); }
 INLINE double Cosh(double x) { return cosh(x); }
@@ -51,8 +51,8 @@ INLINE double Tanh(double x) { return tanh(x); }
 /*
  * Sub functions
  */
-static void output1(Eigen::Matrix<double,4,4> &p_output1, const Eigen::Matrix<double,12,1> &var1)
-{
+static void output1(Eigen::Matrix<double, 4, 4>& p_output1,
+                    const Eigen::Matrix<double, 12, 1>& var1) {
   double t5245;
   double t5251;
   double t2996;
@@ -91,63 +91,67 @@ static void output1(Eigen::Matrix<double,4,4> &p_output1, const Eigen::Matrix<do
   t5260 = Sin(var1[6]);
   t5253 = Sin(var1[8]);
   t5265 = Cos(var1[6]);
-  t5300 = -1.*t5245;
+  t5300 = -1. * t5245;
   t5301 = 1. + t5300;
-  t5272 = t5245*t5251;
-  t5276 = t2996*t5253;
+  t5272 = t5245 * t5251;
+  t5276 = t2996 * t5253;
   t5277 = t5272 + t5276;
-  t5250 = t2996*t5245;
-  t5257 = -1.*t5251*t5253;
+  t5250 = t2996 * t5245;
+  t5257 = -1. * t5251 * t5253;
   t5259 = t5250 + t5257;
-  t5304 = -0.213*t5301;
-  t5306 = -0.1881*t5253;
+  t5304 = -0.213 * t5301;
+  t5306 = -0.1881 * t5253;
   t5308 = t5304 + t5306;
-  t5310 = -0.1881*t5301;
-  t5311 = 0.213*t5253;
+  t5310 = -0.1881 * t5301;
+  t5311 = 0.213 * t5253;
   t5314 = t5310 + t5311;
-  t5261 = t5245*t5260*t5251;
-  t5263 = t2996*t5260*t5253;
+  t5261 = t5245 * t5260 * t5251;
+  t5263 = t2996 * t5260 * t5253;
   t5264 = t5261 + t5263;
-  t5279 = -1.*t2996*t5245*t5260;
-  t5280 = t5260*t5251*t5253;
+  t5279 = -1. * t2996 * t5245 * t5260;
+  t5280 = t5260 * t5251 * t5253;
   t5281 = t5279 + t5280;
-  t5267 = -1.*t5265*t5245*t5251;
-  t5268 = -1.*t5265*t2996*t5253;
+  t5267 = -1. * t5265 * t5245 * t5251;
+  t5268 = -1. * t5265 * t2996 * t5253;
   t5269 = t5267 + t5268;
-  t5288 = t5265*t2996*t5245;
-  t5289 = -1.*t5265*t5251*t5253;
+  t5288 = t5265 * t2996 * t5245;
+  t5289 = -1. * t5265 * t5251 * t5253;
   t5293 = t5288 + t5289;
 
-  p_output1(0)=t5259;
-  p_output1(1)=t5264;
-  p_output1(2)=t5269;
-  p_output1(3)=0;
-  p_output1(4)=0;
-  p_output1(5)=t5265;
-  p_output1(6)=t5260;
-  p_output1(7)=0;
-  p_output1(8)=t5277;
-  p_output1(9)=t5281;
-  p_output1(10)=t5293;
-  p_output1(11)=0;
-  p_output1(12)=0. - 0.1881*(1. - 1.*t2996) - 0.1881*t5259 - 0.4205*t5277 + t5251*t5308 + t2996*t5314;
-  p_output1(13)=0. + 0.1881*t5251*t5260 - 0.1881*t5264 - 0.04675*(1. - 1.*t5265) - 0.12675*t5265 - 0.4205*t5281 - 1.*t2996*t5260*t5308 + t5251*t5260*t5314;
-  p_output1(14)=0. - 0.08*t5260 - 0.1881*t5251*t5265 - 0.1881*t5269 - 0.4205*t5293 + t2996*t5265*t5308 - 1.*t5251*t5265*t5314;
-  p_output1(15)=1.;
+  p_output1(0) = t5259;
+  p_output1(1) = t5264;
+  p_output1(2) = t5269;
+  p_output1(3) = 0;
+  p_output1(4) = 0;
+  p_output1(5) = t5265;
+  p_output1(6) = t5260;
+  p_output1(7) = 0;
+  p_output1(8) = t5277;
+  p_output1(9) = t5281;
+  p_output1(10) = t5293;
+  p_output1(11) = 0;
+  p_output1(12) = 0. - 0.1881 * (1. - 1. * t2996) - 0.1881 * t5259
+                  - 0.4205 * t5277 + t5251 * t5308 + t2996 * t5314;
+  p_output1(13) = 0. + 0.1881 * t5251 * t5260 - 0.1881 * t5264
+                  - 0.04675 * (1. - 1. * t5265) - 0.12675 * t5265
+                  - 0.4205 * t5281 - 1. * t2996 * t5260 * t5308
+                  + t5251 * t5260 * t5314;
+  p_output1(14) = 0. - 0.08 * t5260 - 0.1881 * t5251 * t5265 - 0.1881 * t5269
+                  - 0.4205 * t5293 + t2996 * t5265 * t5308
+                  - 1. * t5251 * t5265 * t5314;
+  p_output1(15) = 1.;
 }
 
 
-       
-Eigen::Matrix<double,4,4> H_Body_to_HindRightFoot(const Eigen::Matrix<double,12,1> &var1)
-//void H_Body_to_HindRightFoot(Eigen::Matrix<double,4,4> &p_output1, const Eigen::Matrix<double,12,1> &var1)
+Eigen::Matrix<double, 4, 4> H_Body_to_HindRightFoot(
+    const Eigen::Matrix<double, 12, 1>& var1)
+// void H_Body_to_HindRightFoot(Eigen::Matrix<double,4,4> &p_output1, const
+// Eigen::Matrix<double,12,1> &var1)
 {
   /* Call Subroutines */
-  Eigen::Matrix<double,4,4>  p_output1;
-  
+  Eigen::Matrix<double, 4, 4> p_output1;
+
   output1(p_output1, var1);
 
   return p_output1;
 }
-
-
-

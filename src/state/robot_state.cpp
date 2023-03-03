@@ -146,11 +146,18 @@ int RobotState::add_aug_state(const Eigen::Vector3d& aug,
   X_.block(0, dimX, 3, 1) = aug;
 
   int dimP = this->dimP();
+  int dimTheta = this->dimTheta();
   P_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimP + 3, dimP + 3));
-  P_.block<3, 3>(dimP, dimP) = cov;
+  int new_dimP = this->dimP();
+  P_.block<6, 6>(new_dimP - dimTheta, new_dimP - dimTheta)
+      = P_.block<6, 6>(dimP - dimTheta, dimP - dimTheta);
+  P_.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = cov;
 
   int dimQc = this->dimQc();
   Qc_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimQc + 3, dimQc + 3));
+  int new_dimQc = this->dimQc();
+  Qc_.block<6, 6>(new_dimQc - dimTheta, new_dimQc - dimTheta)
+      = Qc_.block<6, 6>(dimQc - dimTheta, dimQc - dimTheta);
   Qc_.block<3, 3>(dimQc, dimQc) = noise_cov;
 
   column_id_to_corr_map_.push_back(col_id_ptr);

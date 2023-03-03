@@ -25,7 +25,11 @@
 #include "kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
 #include "measurement/legged_kinematics.h"
 
+namespace mini_cheetah_kinematics {
 enum Leg { FR, FL, HR, HL };
+}
+
+using namespace mini_cheetah_kinematics;
 
 class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
  public:

@@ -9,6 +9,8 @@
 #define NLEG 4    // number of legs
 #define NAPL 3    // number of actuators per leg
 
+using namespace mini_cheetah_kinematics;
+
 MiniCheetahKinematics::MiniCheetahKinematics() {
   position_.setConstant(3, NLEG, 0);
   jacobian_.setConstant(3, NLEG * NAPL, 0);

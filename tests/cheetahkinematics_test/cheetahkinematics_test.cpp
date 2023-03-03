@@ -4,6 +4,8 @@
 
 #define tol3 1e-9
 
+using namespace mini_cheetah_kinematics;
+
 TEST(cheetahkinematicstest, DefaultCtor) {
   MiniCheetahKinematics kin_data;
   EXPECT_EQ(kin_data.get_type(), 2);

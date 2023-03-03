@@ -25,14 +25,17 @@
 #include "kinematics/robots/go1/p_Body_to_HindRightFoot.h"
 #include "measurement/legged_kinematics.h"
 
+namespace go1_kinematics {
 enum Leg { FR, FL, HR, HL };
+}
+
+using namespace go1_kinematics;
 
 class GO1Kinematics : public LeggedKinematicsMeasurement {
  public:
   GO1Kinematics();
-  GO1Kinematics(
-      const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
-      const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
+  GO1Kinematics(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+                const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   void ComputeKinematics() override;
   int get_num_legs() override;

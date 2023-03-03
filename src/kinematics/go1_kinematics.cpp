@@ -9,6 +9,8 @@
 #define NLEG 4    // number of legs
 #define NAPL 3    // number of actuators per leg
 
+using namespace go1_kinematics;
+
 GO1Kinematics::GO1Kinematics() {
   position_.setConstant(3, NLEG, 0);
   jacobian_.setConstant(3, NLEG * NAPL, 0);

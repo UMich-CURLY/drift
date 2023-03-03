@@ -243,7 +243,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
           = std::make_shared<int>(state.dimX());
 
       int aug_idx = state.add_aug_state(
-          aug_state, P_aug.block(state.dimP() - 3, state.dimP() - 3, 3, 3),
+          aug_state,
+          P_aug.block(state.dimP() - state.dimTheta() - 3,
+                      state.dimP() - state.dimTheta() - 3, 3, 3),
           contact_noise_cov_, aug_id_to_column_id_ptr_[new_contact.id]);
 
       // Add the aug state matrix index to the augment state information
