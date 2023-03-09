@@ -20,7 +20,7 @@ RobotState::RobotState()
     : X_(Eigen::MatrixXd::Identity(5, 5)),
       Theta_(Eigen::MatrixXd::Zero(6, 1)),
       P_(Eigen::MatrixXd::Identity(15, 15)),
-      Qc_(Eigen::MatrixXd::Identity(15, 15)),
+      Qc_(Eigen::MatrixXd::Zero(15, 15)),
       column_id_to_corr_map_(std::vector<std::shared_ptr<int>>(5, nullptr)) {}
 
 // Initialize with X
@@ -28,7 +28,7 @@ RobotState::RobotState(const Eigen::MatrixXd& X)
     : X_(X), Theta_(Eigen::MatrixXd::Zero(6, 1)) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -38,7 +38,7 @@ RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta)
     : X_(X), Theta_(Theta) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -47,7 +47,7 @@ RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta)
 RobotState::RobotState(const Eigen::MatrixXd& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
     : X_(X), Theta_(Theta), P_(P) {
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -57,7 +57,7 @@ RobotState::RobotState(SEK3& X)
     : X_(X.get_X()), Theta_(Eigen::MatrixXd::Zero(3 * (this->dimX() - 3), 1)) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -67,7 +67,7 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta)
     : X_(X.get_X()), Theta_(Theta) {
   P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
                                  3 * this->dimX() + this->dimTheta() - 6);
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -76,7 +76,7 @@ RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta)
 RobotState::RobotState(SEK3& X, const Eigen::VectorXd& Theta,
                        const Eigen::MatrixXd& P)
     : X_(X.get_X()), Theta_(Theta), P_(P) {
-  Qc_ = Eigen::MatrixXd::Identity(this->dimP(), this->dimP());
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
 }
@@ -138,27 +138,26 @@ const double RobotState::get_time() const { return t_; }
 const double RobotState::get_propagate_time() const { return t_prop_; }
 
 int RobotState::add_aug_state(const Eigen::Vector3d& aug,
-                              const Eigen::Matrix3d& cov,
+                              const Eigen::MatrixXd& P_aug,
                               const Eigen::Matrix3d& noise_cov,
                               std::shared_ptr<int> col_id_ptr) {
   int dimX = this->dimX();
   X_.conservativeResizeLike(Eigen::MatrixXd::Identity(dimX + 1, dimX + 1));
   X_.block(0, dimX, 3, 1) = aug;
 
-  int dimP = this->dimP();
-  int dimTheta = this->dimTheta();
-  P_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimP + 3, dimP + 3));
-  int new_dimP = this->dimP();
-  P_.block<6, 6>(new_dimP - dimTheta, new_dimP - dimTheta)
-      = P_.block<6, 6>(dimP - dimTheta, dimP - dimTheta);
-  P_.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = cov;
+  this->set_P(P_aug);
 
   int dimQc = this->dimQc();
+  int dimTheta = this->dimTheta();
   Qc_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimQc + 3, dimQc + 3));
   int new_dimQc = this->dimQc();
   Qc_.block<6, 6>(new_dimQc - dimTheta, new_dimQc - dimTheta)
       = Qc_.block<6, 6>(dimQc - dimTheta, dimQc - dimTheta);
-  Qc_.block<3, 3>(dimQc, dimQc) = noise_cov;
+  Qc_.block<3, 3>(dimQc - dimTheta, dimQc - dimTheta) = noise_cov;
+  Qc_.block<3, 3>(new_dimQc - dimTheta, dimQc - dimTheta)
+      = Eigen::Matrix3d::Zero();
+  Qc_.block<3, 3>(dimQc - dimTheta, new_dimQc - dimTheta)
+      = Eigen::Matrix3d::Zero();
 
   column_id_to_corr_map_.push_back(col_id_ptr);
   return this->dimX() - 1;
@@ -179,11 +178,6 @@ void RobotState::del_aug_state(int matrix_idx) {
   column_id_to_corr_map_.pop_back();
   RemoveRowAndColumn(X_, matrix_idx, 1);
   this->del_aug_cov(matrix_idx);
-
-  // std::cout << "Prev Theta_: \n" << Theta_ << std::endl;
-  // this->del_aug_bias(matrix_idx);
-  // std::cout << "After Theta_: \n" << Theta_ << std::endl;
-
   this->del_aug_noise_cov(matrix_idx);
 }
 

@@ -15,10 +15,10 @@ LeggedKinematicsCorrection::LeggedKinematicsCorrection(
   cout << "Loading legged kinematics correction config from " << yaml_filepath
        << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
-  encoder_cov_val_ = config_["noises"]["encoder_std"]
+  encoder_std_val_ = config_["noises"]["encoder_std"]
                          ? config_["noises"]["encoder_std"].as<double>()
                          : 0.01;
-  kinematics_additive_cov_val_
+  kinematics_additive_std_val_
       = config_["noises"]["kinematics_additive_std"]
             ? config_["noises"]["kinematics_additive_std"].as<double>()
             : 0.05;
@@ -105,8 +105,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
     Eigen::Vector3d pose = kinematics_measurement->get_kin_pos(id);
     Eigen::Matrix3d J = kinematics_measurement->get_J(id);
     Eigen::Matrix3d cov
-        = J * encoder_cov_val_ * J.transpose()
-          + kinematics_additive_cov_val_ * Eigen::Matrix3d::Identity();
+        = J * (encoder_std_val_ * encoder_std_val_) * J.transpose()
+          + kinematics_additive_std_val_ * kinematics_additive_std_val_
+                * Eigen::Matrix3d::Identity();
 
     // bool found = aug_id_to_column_id_.count(id);
     bool found = aug_id_to_column_id_ptr_.count(id);
@@ -169,6 +170,14 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       } else {
         Z.segment(startIndex, 3) = R.transpose() * (pose - (p - d));
       }
+
+      // std::cout << "pose: \n" << pose << std::endl;
+      // std::cout << "R: \n" << R << std::endl;
+      // std::cout << "p: \n" << p << std::endl;
+      // std::cout << "d: \n" << d << std::endl;
+      // std::cout << "Z: \n" << Z << std::endl;
+      // std::cout << "contact id: " << id << std::endl;
+      // exit(1);
 
     } else {
       //  If contact is not indicated and id is found in estimated_contacts_,
@@ -242,11 +251,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
       aug_id_to_column_id_ptr_[new_contact.id]
           = std::make_shared<int>(state.dimX());
 
-      int aug_idx = state.add_aug_state(
-          aug_state,
-          P_aug.block(state.dimP() - state.dimTheta() - 3,
-                      state.dimP() - state.dimTheta() - 3, 3, 3),
-          contact_noise_cov_, aug_id_to_column_id_ptr_[new_contact.id]);
+      int aug_idx
+          = state.add_aug_state(aug_state, P_aug, contact_noise_cov_,
+                                aug_id_to_column_id_ptr_[new_contact.id]);
 
       // Add the aug state matrix index to the augment state information
       // mapping

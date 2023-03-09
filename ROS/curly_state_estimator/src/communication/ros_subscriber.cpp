@@ -64,7 +64,7 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
       std::make_shared<IMUOffsetMsgFilterT>(*nh_, offset_topic_name, 1));
 
 
-  // ApproximateTime takes a queue size as its constructor argument, hence
+  // ExactTime takes a queue size as its constructor argument, hence
   // IMUSyncPolicy(10)
   imu_sync_list_.push_back(
       std::make_shared<message_filters::Synchronizer<IMUSyncPolicy>>(
@@ -96,7 +96,7 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
       std::make_shared<JointStateMsgFilterT>(*nh_, encoder_topic_name, 1));
 
 
-  // ApproximateTime takes a queue size as its constructor argument, hence
+  // ExactTime takes a queue size as its constructor argument, hence
   // LegKinSyncPolicy(10)
   leg_kin_sync_list_.push_back(
       std::make_shared<message_filters::Synchronizer<LegKinSyncPolicy>>(

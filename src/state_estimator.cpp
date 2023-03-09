@@ -25,8 +25,6 @@ StateEstimator::StateEstimator(ErrorType error_type)
 void StateEstimator::RunOnce() {
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
-  // std::cout << "Propagated state: \n"
-  //           << state_.get_position().transpose() << std::endl;
 
   // Correct
   for (auto& correction : corrections_) {
@@ -126,6 +124,18 @@ void StateEstimator::InitStateFromImu() {
   imu_queue_ptr->pop();
   imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
 
+  /// TODO: Delete this pop:
+  std::shared_ptr<LeggedKinematicsCorrection> legged_kinematics_ptr
+      = std::dynamic_pointer_cast<LeggedKinematicsCorrection>(corrections_[0]);
+  legged_kinematics_ptr.get()->get_mutex_ptr()->lock();
+  if (!legged_kinematics_ptr.get()
+           ->get_sensor_data_buffer_ptr()
+           .get()
+           ->empty()) {
+    legged_kinematics_ptr.get()->get_sensor_data_buffer_ptr().get()->pop();
+  }
+  legged_kinematics_ptr.get()->get_mutex_ptr()->unlock();
+
   // Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
   // VectorNav estimate
@@ -158,6 +168,9 @@ void StateEstimator::InitStateFromImu() {
   }
 
   Eigen::Vector3d v0 = R0 * v0_body;    // initial velocity
+  /// TODO: Delete this:
+  v0 << 0.0508157, -0.0845068, 0.0754008;
+  v0 << 0.426231, -0.0510205, 0.191841;
 
   Eigen::Vector3d p0
       = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame

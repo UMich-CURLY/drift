@@ -101,8 +101,8 @@ class LeggedKinematicsCorrection : public Correction {
   std::unordered_map<int, std::shared_ptr<int>> aug_id_to_column_id_ptr_;
 
   LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;
-  double encoder_cov_val_;
-  double kinematics_additive_cov_val_;
+  double encoder_std_val_;
+  double kinematics_additive_std_val_;
   Eigen::Matrix3d contact_noise_cov_;
 };    // class LeggedKinematicsCorrection
 }    // namespace inekf

@@ -23,6 +23,7 @@
 
 #include <message_filters/subscriber.h>
 #include <message_filters/sync_policies/approximate_time.h>
+#include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/synchronizer.h>
 
 #include "boost/bind.hpp"
@@ -64,7 +65,7 @@ typedef std::shared_ptr<
     ContactMsgFilterTPtr;
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
     JointStateMsgFilterTPtr;
-typedef message_filters::sync_policies::ApproximateTime<
+typedef message_filters::sync_policies::ExactTime<
     custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
     LegKinSyncPolicy;
 typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
@@ -76,8 +77,8 @@ typedef message_filters::Subscriber<geometry_msgs::Vector3Stamped>
     IMUOffsetMsgFilterT;
 typedef std::shared_ptr<IMUMsgFilterT> IMUMsgFilterTPtr;
 typedef std::shared_ptr<IMUOffsetMsgFilterT> IMUOffsetMsgFilterTPtr;
-typedef message_filters::sync_policies::ApproximateTime<
-    sensor_msgs::Imu, geometry_msgs::Vector3Stamped>
+typedef message_filters::sync_policies::ExactTime<sensor_msgs::Imu,
+                                                  geometry_msgs::Vector3Stamped>
     IMUSyncPolicy;
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
     IMUSyncPtr;

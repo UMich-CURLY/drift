@@ -129,7 +129,6 @@ bool ImuPropagation::Propagate(RobotState& state) {
   // Rotate imu frame to align it with the body frame and remove bias:
   Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
-
   Eigen::Vector3d a
       = R_imu2body_ * imu_measurement->get_lin_acc()
         - state.get_accelerometer_bias();    // Linear Acceleration
@@ -154,7 +153,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
     P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
         = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
     P_pred.block(dimP - dimTheta, dimP - dimTheta, dimTheta, dimTheta)
-        = 0.0001 * Eigen::MatrixXd::Identity(dimTheta, dimTheta);
+        = Eigen::MatrixXd::Identity(dimTheta, dimTheta);
   }
 
   //  ------------ Propagate Mean --------------- //
@@ -366,8 +365,9 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
-
   // state.set_continuous_noise_covariance(Qc);
+
+  // std::cout << "Qc: \n" << Qc << std::endl;
 
   // Noise Covariance Discretization
   Eigen::MatrixXd PhiG = Phi * G;
@@ -418,6 +418,15 @@ void ImuPropagation::InitImuBias() {
     v << w(0), w(1), w(2), a(0), a(1), a(2);
     bias_init_vec_.push_back(v);    // Store imu data with gravity removed
   } else {
+    /// TODO: delete the following pop and unlock
+    sensor_data_buffer_mutex_ptr_.get()->lock();
+    if (sensor_data_buffer_ptr_->empty()) {
+      sensor_data_buffer_mutex_ptr_.get()->unlock();
+      return;
+    }
+    const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
+    sensor_data_buffer_ptr_->pop();
+    sensor_data_buffer_mutex_ptr_.get()->unlock();
     // Compute average bias of stored data
     Eigen::Matrix<double, 6, 1> avg = Eigen::Matrix<double, 6, 1>::Zero();
     for (int i = 0; i < bias_init_vec_.size(); ++i) {

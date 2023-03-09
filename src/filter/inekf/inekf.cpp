@@ -36,6 +36,16 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
 
+  /// TODO: Remove this:
+  // Remove bias
+  Theta = Eigen::Matrix<double, 6, 1>::Zero();
+  P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
+      = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
+  P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
+      = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
+  P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
+      = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
+
   // Map from left invariant to right invariant error temporarily
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd Adj = Eigen::MatrixXd::Identity(dimP, dimP);

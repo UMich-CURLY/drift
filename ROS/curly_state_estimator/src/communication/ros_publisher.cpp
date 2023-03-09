@@ -144,7 +144,8 @@ void ROSPublisher::PathPublish() {
   }
   nav_msgs::Path path_msg;
   path_msg.header.seq = path_seq_;
-  path_msg.header.stamp = poses_.back().header.stamp;
+  // path_msg.header.stamp = poses_.back().header.stamp;
+  path_msg.header.stamp = ros::Time::now();
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
   // std::cout << "publishing current path: "

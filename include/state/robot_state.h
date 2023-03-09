@@ -217,7 +217,7 @@ class RobotState {
    * @param[in] noise_cov: Covariance of noise.
    * @param[in] col_id_ptr: the column id passed by correction mapping.
    */
-  int add_aug_state(const Eigen::Vector3d& aug, const Eigen::Matrix3d& cov,
+  int add_aug_state(const Eigen::Vector3d& aug, const Eigen::MatrixXd& P_aug,
                     const Eigen::Matrix3d& noise_cov,
                     std::shared_ptr<int> col_id_ptr);
 
