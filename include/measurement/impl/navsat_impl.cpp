@@ -41,8 +41,7 @@ Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0, T alt0) {
 }
 template<typename T>
 Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::geodetic2ecef(
-    T lat, T lon, T alt,
-    NavSatMeasurement<T>::Ellipsoid ell = {6378137.0, 6356752.314245}) {
+    T lat, T lon, T alt, NavSatMeasurement<T>::Ellipsoid ell) {
   if (deg_) {
     lat = lat * M_PI / 180.0;
     lon = lon * M_PI / 180.0;
