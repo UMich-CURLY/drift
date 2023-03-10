@@ -19,6 +19,12 @@ void NavSatMeasurement<T>::set_geodetic(T lat, T lon, T alt) {
 }
 
 template<typename T>
+Eigen::Matrix<T, 3, 1> get_geodetic(T lat, T lon, T alt) {
+  return geodetic_;
+}
+
+
+template<typename T>
 Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0, T alt0) {
   Eigen::Matrix<T, 3, 1> ecef;
   ecef = geodetic2ecef(geodetic_(0), geodetic_(1), geodetic_(2));

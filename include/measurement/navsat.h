@@ -37,6 +37,8 @@ class NavSatMeasurement : public Measurement {
 
   void set_geodetic(T lat, T lon, T alt);
 
+  Eigen::Matrix<T, 3, 1> get_geodetic();
+
   Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0);
 
  private:

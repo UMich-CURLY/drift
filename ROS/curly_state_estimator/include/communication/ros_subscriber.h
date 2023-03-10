@@ -85,8 +85,11 @@ typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
 // GPS
 typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> GPSVelQueue;
 typedef std::shared_ptr<GPSVelQueue> GPSVelQueuePtr;
-typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
-    GPSVelQueuePair;
+typedef std::pair<GPSVelQueuePtr, std::shared_ptr<std::mutex>> GPSVelQueuePair;
+typedef std::queue<std::shared_ptr<NavSatMeasurement<double>>> GPSNavSatQueue;
+typedef std::shared_ptr<GPSNavSatQueue> GPSNavSatQueuePtr;
+typedef std::pair<GPSNavSatQueuePtr, std::shared_ptr<std::mutex>>
+    GPSNavSatQueuePair;
 
 namespace ros_wrapper {
 class ROSSubscriber {
@@ -229,8 +232,7 @@ class ROSSubscriber {
    */
   void GPSVelCallback(
       const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
-      const std::shared_ptr<std::mutex>& mutex,
-      VelocityQueuePtr& gps_vel_queue);
+      const std::shared_ptr<std::mutex>& mutex, GPSVelQueuePtr& gps_vel_queue);
 
   /**
    * @brief GPS navsat callback function
@@ -239,10 +241,10 @@ class ROSSubscriber {
    * @param[in] mutex: mutex for the buffer queue
    * @param[in] gps_navsat_queue: pointer to the buffer queue
    */
-  void GPSNavSatCallback(const boost::shared_ptr<
-                             const geometry_msgs::TwistStamped>& gps_navsat_msg,
-                         const std::shared_ptr<std::mutex>& mutex,
-                         VelocityQueuePtr& gps_navsat_queue);
+  void GPSNavSatCallback(
+      const boost::shared_ptr<const sensor_msgs::NavSatFix>& gps_navsat_msg,
+      const std::shared_ptr<std::mutex>& mutex,
+      GPSNavSatQueuePtr& gps_navsat_queue);
 
   /**
    * @brief Differential encoder to velocity callback function
@@ -327,6 +329,8 @@ class ROSSubscriber {
       kin_queue_list_;    // List of kinematics queue pointers
   std::vector<GPSVelQueuePtr>
       gps_vel_queue_list_;    // List of gps velocity queue pointers
+  std::vector<GPSNavSatQueuePtr>
+      gps_navsat_queue_list_;    // List of gps velocity queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes

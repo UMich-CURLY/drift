@@ -102,8 +102,8 @@ GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
 }
 
 GPSNavSatQueuePair ROSSubscriber::AddGPSNavSatSubscriber(
-    const std::string
-        topic_name) {    // Initialize a new mutex for this subscriber
+    const std::string topic_name) {
+  // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
@@ -258,8 +258,8 @@ void ROSSubscriber::IMUCallback(
 
 void ROSSubscriber::GPSVelCallback(
     const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
-    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& gps_vel_queue) {
-  // Create an imu measurement object
+    const std::shared_ptr<std::mutex>& mutex, GPSVelQueuePtr& gps_vel_queue) {
+  // Create a velocity measurement object
   std::shared_ptr<VelocityMeasurement<double>> gps_vel_measurement(
       new VelocityMeasurement<double>);
 
@@ -288,9 +288,29 @@ void ROSSubscriber::GPSVelCallback(
 }
 
 void ROSSubscriber::GPSNavSatCallback(
-    const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_navsat_msg,
+    const boost::shared_ptr<const sensor_msgs::NavSatFix>& gps_navsat_msg,
     const std::shared_ptr<std::mutex>& mutex,
-    VelocityQueuePtr& gps_navsat_queue) {}
+    GPSNavSatQueuePtr& gps_navsat_queue) {
+  // Create a navsat measurement object
+  std::shared_ptr<NavSatMeasurement<double>> gps_satnav_measurement(
+      new NavSatMeasurement<double>);
+
+  // Set headers and time stamps
+  gps_satnav_measurement->set_header(
+      gps_navsat_msg->header.seq,
+      gps_navsat_msg->header.stamp.sec
+          + gps_navsat_msg->header.stamp.nsec / 1000000000.0,
+      gps_navsat_msg->header.frame_id);
+
+  // Set geodetic
+  gps_satnav_measurement->set_geodetic(gps_navsat_msg->latitude,
+                                       gps_navsat_msg->longitude,
+                                       gps_navsat_msg->altitude);
+
+  mutex.get()->lock();
+  gps_vel_queue->push(gps_vel_measurement);
+  mutex.get()->unlock();
+}
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
