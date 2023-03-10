@@ -34,6 +34,7 @@
 #include "ros/ros.h"
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
+#include "sensor_msgs/NavSatFix.h"
 
 #include "kinematics/mini_cheetah_kinematics.h"
 #include "measurement/contact.h"
