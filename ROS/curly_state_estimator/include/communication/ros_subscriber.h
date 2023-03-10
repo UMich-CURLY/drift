@@ -40,6 +40,7 @@
 #include "measurement/imu.h"
 #include "measurement/joint_state.h"
 #include "measurement/legged_kinematics.h"
+#include "measurement/navsat.h"
 #include "measurement/velocity.h"
 
 typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
