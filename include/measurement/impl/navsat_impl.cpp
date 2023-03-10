@@ -19,7 +19,7 @@ void NavSatMeasurement<T>::set_geodetic(T lat, T lon, T alt) {
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_geodetic(T lat, T lon, T alt) {
+Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_geodetic() {
   return geodetic_;
 }
 
