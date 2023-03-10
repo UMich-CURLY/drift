@@ -101,6 +101,24 @@ GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
   return {gps_vel_queue_ptr, mutex_list_.back()};
 }
 
+GPSNavSatQueuePair ROSSubscriber::AddGPSNavSatSubscriber(
+    const std::string
+        topic_name) {    // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::NavSatFix>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::GPSNavSatCallback, this, _1,
+                  mutex_list_.back(), gps_navsat_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  gps_navsat_queue_list_.push_back(gps_navsat_queue_ptr);
+
+  return {gps_navsat_queue_ptr, mutex_list_.back()};
+}
+
+
 LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
@@ -268,6 +286,11 @@ void ROSSubscriber::GPSVelCallback(
   mutex.get()->unlock();
   // std::cout << "mutex id: " << mutex.get() << std::endl;
 }
+
+void ROSSubscriber::GPSNavSatCallback(
+    const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_navsat_msg,
+    const std::shared_ptr<std::mutex>& mutex,
+    VelocityQueuePtr& gps_navsat_queue) {}
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,

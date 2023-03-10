@@ -25,7 +25,8 @@ enum MeasurementType {
   LEGGED_KINEMATICS,
   VELOCITY,
   JOINT_STATE,
-  CONTACT
+  CONTACT,
+  NAVSAT
 };
 
 /**

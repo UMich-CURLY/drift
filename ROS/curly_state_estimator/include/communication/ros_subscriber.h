@@ -144,6 +144,14 @@ class ROSSubscriber {
   GPSVelQueuePair AddGPSVelocitySubscriber(const std::string topic_name);
 
   /**
+   * @brief Add GPS NavSat subscriber
+   *
+   * @param[in] topic_name GPS navsat topic name
+   * @return GPSNavSatQueuePair navsat queue pair
+   */
+  GPSNavSatQueuePair AddGPSNavSatSubscriber(const std::string topic_name);
+
+  /**
    * @brief Add differential drive velocity subscriber
    *
    * @param[in] topic_name differential drive velocity topic name
@@ -223,6 +231,18 @@ class ROSSubscriber {
       const boost::shared_ptr<const geometry_msgs::TwistStamped>& gps_vel_msg,
       const std::shared_ptr<std::mutex>& mutex,
       VelocityQueuePtr& gps_vel_queue);
+
+  /**
+   * @brief GPS navsat callback function
+   *
+   * @param[in] gps_navsat_msg: velocity message
+   * @param[in] mutex: mutex for the buffer queue
+   * @param[in] gps_navsat_queue: pointer to the buffer queue
+   */
+  void GPSNavSatCallback(const boost::shared_ptr<
+                             const geometry_msgs::TwistStamped>& gps_navsat_msg,
+                         const std::shared_ptr<std::mutex>& mutex,
+                         VelocityQueuePtr& gps_navsat_queue);
 
   /**
    * @brief Differential encoder to velocity callback function
