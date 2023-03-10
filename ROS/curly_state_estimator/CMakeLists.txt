@@ -157,8 +157,8 @@ yaml-cpp
 # )
 
 # # test for gps vel
-rosbuild_add_executable(gps_vel_test
-${PROJECT_SOURCE_DIR}/examples/gps_vel_test.cpp)
+rosbuild_add_executable(gps_test
+${PROJECT_SOURCE_DIR}/examples/gps_test.cpp)
 
 
 target_link_libraries(gps_test
