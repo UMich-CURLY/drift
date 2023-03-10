@@ -47,7 +47,7 @@ class NavSatMeasurement : public Measurement {
   Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0);
 
  private:
-  Eigen::Matrix<T, 3, 1> geodetic2ecef(T lat, T lon, T alt);
+  Eigen::Matrix<T, 3, 1> geodetic2ecef(T lat, T lon, T alt, , Ellipsoid ell);
   Eigen::Matrix<T, 3, 1> uvw2enu(T u, T v, T w, T lat0, T lon0);
   Eigen::Matrix<T, 3, 1> geodetic_;
   bool deg_;
