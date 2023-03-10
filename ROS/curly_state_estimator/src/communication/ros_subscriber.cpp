@@ -103,6 +103,8 @@ GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
 
 GPSNavSatQueuePair ROSSubscriber::AddGPSNavSatSubscriber(
     const std::string topic_name) {
+  // Create a new queue for data buffers
+  GPSNavSatQueuePtr gps_navsat_queue_ptr(new GPSNavSatQueue);
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
 
