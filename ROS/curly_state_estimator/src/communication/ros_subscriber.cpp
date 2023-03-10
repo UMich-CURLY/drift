@@ -310,7 +310,7 @@ void ROSSubscriber::GPSNavSatCallback(
                                        gps_navsat_msg->altitude);
 
   mutex.get()->lock();
-  gps_vel_queue->push(gps_vel_measurement);
+  gps_navsat_queue->push(gps_satnav_measurement);
   mutex.get()->unlock();
 }
 
