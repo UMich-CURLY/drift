@@ -40,16 +40,25 @@ Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0, T alt0) {
   return uvw2enu(x1 - x2, y1 - y2, z1 - z2, lat0, lon0);
 }
 template<typename T>
-Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::geodetic2ecef(T lat, T lon,
-                                                           T alt) {
+Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::geodetic2ecef(
+    T lat, T lon, T alt, Ellipsoid ell = {6378137.0, 6356752.314245}) {
   if (deg_) {
     lat = lat * M_PI / 180.0;
     lon = lon * M_PI / 180.0;
   }
+  double N
+      = ell.semimajor_axis * ell.semimajor_axis
+        / sqrt(ell.semimajor_axis * ell.semimajor_axis * cos(lat) * cos(lat)
+               + ell.semiminor_axis * ell.semiminor_axis * sin(lat) * sin(lat));
+  // Compute cartesian (geocentric) coordinates given (curvilinear) geodetic
+  // coordinates.
+  T x = (N + alt) * cos(lat) * cos(lon);
+  T y = (N + alt) * cos(lat) * sin(lon);
+  T z = (N * ell.semiminor_axis * ell.semiminor_axis
+             / (ell.semimajor_axis * ell.semimajor_axis)
+         + alt)
+        * sin(lat);
 
-  T x = (alt) *cos(lat) * cos(lon);
-  T y = (alt) *cos(lat) * sin(lon);
-  T z = (alt) *sin(lat);
 
   Eigen::Matrix<T, 3, 1> ecef;
   ecef << x, y, z;

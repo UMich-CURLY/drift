@@ -24,6 +24,11 @@
  */
 template<typename T>
 class NavSatMeasurement : public Measurement {
+  struct Ellipsoid {
+    double semimajor_axis;
+    double semiminor_axis;
+  };
+
  public:
   /**
    * @brief Default constructor.
