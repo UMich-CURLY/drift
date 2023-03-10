@@ -44,13 +44,16 @@ int main(int argc, char** argv) {
   }
 
   auto q2_geo0 = q2->front()->get_geodetic();
+  std::cout << std::setprecision(16)
+            << "initial geodetic (deg, deg, m): " << q2_geo0[0] << q2_geo0[1]
+            << q2_geo0[2];
   for (int i = 0; i < 10; ++i) {
     auto q2_fix = q2->front()->get_geodetic();
     auto q2_enu = q2->front()->get_enu(q2_geo0[0], q2_geo0[1], q2_geo0[2]);
     auto q2_t = q1->front()->get_time();
     std::cout << std::setprecision(16) << "timestamp: " << q2_t << std::endl
-              << "lat, lon, alt (deg): " << q2_fix[0] << ", " << q2_fix[1]
-              << ", " << q2_fix[2] << std::endl
+              << "lat, lon, alt (deg, deg, m): " << q2_fix[0] << ", "
+              << q2_fix[1] << ", " << q2_fix[2] << std::endl
               << "east north up (meters): " << q2_enu[0] << ", " << q2_enu[1]
               << ", " << q2_enu[2] << std::endl;
     q1->pop();
