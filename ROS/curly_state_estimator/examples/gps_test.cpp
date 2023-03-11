@@ -45,8 +45,8 @@ int main(int argc, char** argv) {
 
   auto q2_geo0 = q2->front()->get_geodetic();
   std::cout << std::setprecision(16)
-            << "initial geodetic (deg, deg, m): " << q2_geo0[0] << q2_geo0[1]
-            << q2_geo0[2];
+            << "initial geodetic (deg, deg, m): " << q2_geo0[0] << ", "
+            << q2_geo0[1] << ", " << q2_geo0[2] << std::endl;
 
   for (int i = 0; i < 10; ++i) {
     auto q2_fix = q2->front()->get_geodetic();
