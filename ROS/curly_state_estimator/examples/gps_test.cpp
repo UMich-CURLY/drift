@@ -55,8 +55,8 @@ int main(int argc, char** argv) {
     std::cout << std::setprecision(16) << "timestamp: " << q2_t << std::endl
               << "lat, lon, alt (deg, deg, m): " << q2_fix[0] << ", "
               << q2_fix[1] << ", " << q2_fix[2] << std::endl
-              << "east, north, up (meters): " << q2_enu[0] << ", " << q2_enu[1]
-              << ", " << q2_enu[2] << std::endl;
+              << "  east, north, up (meters): " << q2_enu[0] << ", "
+              << q2_enu[1] << ", " << q2_enu[2] << std::endl;
     q2->pop();
   }
 
