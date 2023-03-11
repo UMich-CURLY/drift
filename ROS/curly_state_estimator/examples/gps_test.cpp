@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
             << "initial geodetic (deg, deg, m): " << q2_geo0[0] << ", "
             << q2_geo0[1] << ", " << q2_geo0[2] << std::endl;
 
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 200; ++i) {
     auto q2_fix = q2->front()->get_geodetic();
     auto q2_enu = q2->front()->get_enu(q2_geo0[0], q2_geo0[1], q2_geo0[2]);
     auto q2_t = q1->front()->get_time();
