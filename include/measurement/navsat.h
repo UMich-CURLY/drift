@@ -65,7 +65,7 @@ meridian; negative is west.
   Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0);
 
  private:
-  Ellipsoid WGS84_ = {6378137.0, 6356752.314245};
+  constexpr static Ellipsoid WGS84_ = {6378137.0, 6356752.314245};
   Eigen::Matrix<T, 3, 1> geodetic2ecef(T lat, T lon, T alt,
                                        Ellipsoid ell
                                        = WGS84_);    // uses WGS 84 definition
