@@ -49,7 +49,7 @@ class NavSatMeasurement : public Measurement {
  private:
   Eigen::Matrix<T, 3, 1> geodetic2ecef(T lat, T lon, T alt,
                                        Ellipsoid ell
-                                       = {6378137.0, 6356752.314245});
+                                       = {6378137.0, 6356752.314245}); // WGS 84 definition 
   Eigen::Matrix<T, 3, 1> uvw2enu(T u, T v, T w, T lat0, T lon0);
   Eigen::Matrix<T, 3, 1> geodetic_;
   bool deg_;
