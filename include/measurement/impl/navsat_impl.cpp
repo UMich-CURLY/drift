@@ -5,11 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 template<typename T>
-NavSatMeasurement<T>::NavSatMeasurement() : Measurement(NAVSAT), deg_{true} {}
-
-template<typename T>
-NavSatMeasurement<T>::NavSatMeasurement(bool deg)
-    : Measurement(NAVSAT), deg_{deg} {}
+NavSatMeasurement<T>::NavSatMeasurement() : Measurement(NAVSAT) {}
 
 template<typename T>
 void NavSatMeasurement<T>::set_navsatfix(T lat, T lon, T alt) {
