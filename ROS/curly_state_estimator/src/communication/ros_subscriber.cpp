@@ -305,9 +305,9 @@ void ROSSubscriber::GPSNavSatCallback(
       gps_navsat_msg->header.frame_id);
 
   // Set geodetic
-  gps_satnav_measurement->set_geodetic(gps_navsat_msg->latitude,
-                                       gps_navsat_msg->longitude,
-                                       gps_navsat_msg->altitude);
+  gps_satnav_measurement->set_navsatfix(gps_navsat_msg->latitude,
+                                        gps_navsat_msg->longitude,
+                                        gps_navsat_msg->altitude);
 
   mutex.get()->lock();
   gps_navsat_queue->push(gps_satnav_measurement);

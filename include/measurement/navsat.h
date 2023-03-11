@@ -35,24 +35,42 @@ class NavSatMeasurement : public Measurement {
    */
   NavSatMeasurement();
 
+
   /**
-   * @brief Overload constructor.
+   * @brief Set the geodetic measurement coefficients.
+   * @param[in] lat: latitude (degrees). Positive is north of equator; negative
+is south.
+   * @param[in] lon: longitude (degrees). Positive is east of prime
+meridian; negative is west.
+   * @param[in] alt: altitude (m). Positive is above the ellipsoid definition.
    */
-  NavSatMeasurement(bool deg_);
+  void set_navsatfix(T lat, T lon, T alt);
 
-  void set_geodetic(T lat, T lon, T alt);
+  /**
+   * @brief Get the geodetic measurement coefficients.
+   *
+   * @return the latitude, longitude, altitude (deg, deg, m)
+   */
+  Eigen::Matrix<T, 3, 1> get_navsatfix();
 
-  Eigen::Matrix<T, 3, 1> get_geodetic();
-
+  /**
+   * @brief Get the ENU (East, North, Up) measurement coefficients.
+   *
+   * @param[in] lat0: initial latitude (degrees).
+   * @param[in] lon0: initial longitude (degrees).
+   * @param[in] alt0: initial altidude (degrees).
+   * @return the east, north, up (m, m, m) displacement relative to initial
+   * state.
+   */
   Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0);
 
  private:
+  Ellipsoid WGS84_ = {6378137.0, 6356752.314245};
   Eigen::Matrix<T, 3, 1> geodetic2ecef(T lat, T lon, T alt,
                                        Ellipsoid ell
-                                       = {6378137.0, 6356752.314245}); // WGS 84 definition 
+                                       = WGS84_);    // uses WGS 84 definition
   Eigen::Matrix<T, 3, 1> uvw2enu(T u, T v, T w, T lat0, T lon0);
-  Eigen::Matrix<T, 3, 1> geodetic_;
-  bool deg_;
+  Eigen::Matrix<T, 3, 1> navsatfix_;
 };
 #include "measurement/impl/navsat_impl.cpp"
 
