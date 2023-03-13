@@ -17,10 +17,9 @@
 #include <math.h>
 #include "measurement.h"
 /**
- * @class GeoSpaceMeasurement
+ * @class NavSatMeasurement
  *
- * Derived measurement class containing NavSat information (longitude, latitude,
- * altitude)
+ * Derived measurement class containing NavSatFix and ENU information transform.
  */
 template<typename T>
 class NavSatMeasurement : public Measurement {
@@ -39,9 +38,9 @@ class NavSatMeasurement : public Measurement {
   /**
    * @brief Set the geodetic measurement coefficients.
    * @param[in] lat: latitude (degrees). Positive is north of equator; negative
-is south.
+   * is south.
    * @param[in] lon: longitude (degrees). Positive is east of prime
-meridian; negative is west.
+   * meridian; negative is west.
    * @param[in] alt: altitude (m). Positive is above the ellipsoid definition.
    */
   void set_navsatfix(T lat, T lon, T alt);
