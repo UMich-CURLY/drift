@@ -50,7 +50,7 @@ class NavSatMeasurement : public Measurement {
    *
    * @return the latitude, longitude, altitude (deg, deg, m)
    */
-  Eigen::Matrix<T, 3, 1> get_navsatfix();
+  Eigen::Matrix<T, 3, 1> get_navsatfix() const;
 
   /**
    * @brief Get the ENU (East, North, Up) measurement coefficients.
@@ -61,7 +61,7 @@ class NavSatMeasurement : public Measurement {
    * @return the east, north, up (m, m, m) displacement relative to initial
    * state.
    */
-  Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0);
+  Eigen::Matrix<T, 3, 1> get_enu(T lat0, T lon0, T alt0) const;
 
  private:
   constexpr static Ellipsoid WGS84_ = {6378137.0, 6356752.314245};
