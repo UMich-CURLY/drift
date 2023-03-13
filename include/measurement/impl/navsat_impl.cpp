@@ -15,12 +15,13 @@ void NavSatMeasurement<T>::set_navsatfix(T lat, T lon, T alt) {
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_navsatfix() {
+Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_navsatfix() const {
   return navsatfix_;
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0, T alt0) {
+Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0,
+                                                     T alt0) const {
   Eigen::Matrix<T, 3, 1> ecef;
   ecef = geodetic2ecef(navsatfix_(0), navsatfix_(1), navsatfix_(2));
   T x1 = ecef(0);
@@ -37,7 +38,7 @@ Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::get_enu(T lat0, T lon0, T alt0) {
 
 template<typename T>
 Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::geodetic2ecef(
-    T lat, T lon, T alt, NavSatMeasurement<T>::Ellipsoid ell) {
+    T lat, T lon, T alt, NavSatMeasurement<T>::Ellipsoid ell) const {
   lat = lat * M_PI / 180.0;
   lon = lon * M_PI / 180.0;
 
@@ -61,7 +62,7 @@ Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::geodetic2ecef(
 
 template<typename T>
 Eigen::Matrix<T, 3, 1> NavSatMeasurement<T>::uvw2enu(T u, T v, T w, T lat0,
-                                                     T lon0) {
+                                                     T lon0) const {
   lat0 = lat0 * M_PI / 180.0;
   lon0 = lon0 * M_PI / 180.0;
 
