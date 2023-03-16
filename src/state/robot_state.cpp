@@ -396,7 +396,6 @@ ostream& operator<<(ostream& os, const RobotState& s) {
 void RobotState::RemoveRowAndColumn(Eigen::MatrixXd& M, int index,
                                     int move_dim) {
   unsigned int dimX = M.cols();
-  // cout << "Removing index: " << index<< endl;
   M.block(index, 0, dimX - index - move_dim, dimX)
       = M.bottomRows(dimX - index - move_dim).eval();
   M.block(0, index, dimX, dimX - index - move_dim)

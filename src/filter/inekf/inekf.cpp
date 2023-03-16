@@ -27,7 +27,7 @@ using namespace lie_group;
 // Correct Input State: Right-Invariant Observation
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                            const Eigen::MatrixXd& N, RobotState& state,
-                           bool update_imu_bias, ErrorType error_type) {
+                           bool enable_imu_bias_update, ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -38,7 +38,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Remove bias
   // Theta = Eigen::Matrix<double, 6, 1>::Zero();
-  if (!update_imu_bias) {
+  if (!enable_imu_bias_update) {
     P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
         = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
     P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
@@ -99,7 +99,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 // Correct Input State: Left-Invariant Observation
 void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
-                          bool update_imu_bias, ErrorType error_type) {
+                          bool enable_imu_bias_update, ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -109,7 +109,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimP = state.dimP();
 
   // Remove bias
-  if (!update_imu_bias) {
+  if (!enable_imu_bias_update) {
     P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
         = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
     P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)

@@ -50,9 +50,8 @@ class LeggedKinematicsCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] aug_map_type: Type of the augmented states in this correction
-   * method. For example, one can use "contact" to indicate the augment state in
-   * this correction method are contact positions
+   * @param[in] enable_imu_bias_update: True if the filter should update imu
+   * bias
    * @param[in] yaml_filepath: Path of the yaml file for the correction
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
@@ -60,7 +59,8 @@ class LeggedKinematicsCorrection : public Correction {
   LeggedKinematicsCorrection(
       LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-      const ErrorType& error_type, const std::string& yaml_filepath);
+      const ErrorType& error_type, bool enable_imu_bias_update,
+      const std::string& yaml_filepath);
 
   /// @name Correction Methods
   /// @{
@@ -108,11 +108,12 @@ class LeggedKinematicsCorrection : public Correction {
   // state X
   std::unordered_map<int, std::shared_ptr<int>> aug_id_to_column_id_ptr_;
 
-  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;
-  double encoder_std_val_;
-  double kinematics_additive_std_val_;
-  Eigen::Matrix3d contact_noise_cov_;
-};    // class LeggedKinematicsCorrection
+  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor
+                                                       // data buffer
+  double encoder_std_val_;                // Encoder noise standard deviation
+  double kinematics_additive_std_val_;    // Additive noise for kinematics
+  Eigen::Matrix3d contact_noise_cov_;     // Contact noise covariance
+};                                        // class LeggedKinematicsCorrection
 }    // namespace inekf
 
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

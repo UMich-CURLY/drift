@@ -81,10 +81,7 @@ void ROSPublisher::PosePublish() {
   geometry_msgs::PoseWithCovarianceStamped pose_msg;
   // Header msg
   pose_msg.header.seq = pose_seq_;
-  int sec = int(state.get_time());
-  int nsec = (state.get_time() - sec) * 1e9;
-  pose_msg.header.stamp.sec = sec;
-  pose_msg.header.stamp.nsec = nsec;
+  pose_msg.header.stamp = ros::Time().fromSec(state.get_time());
   pose_msg.header.frame_id = pose_frame_;
 
   // Pose msg
@@ -148,10 +145,6 @@ void ROSPublisher::PathPublish() {
   path_msg.header.stamp = ros::Time::now();
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
-  // std::cout << "publishing current path: "
-  //           << path_msg.poses.back().pose.position.x << ","
-  //           << path_msg.poses.back().pose.position.y << ","
-  //           << path_msg.poses.back().pose.position.z << std::endl;
 
   path_pub_.publish(path_msg);
   path_seq_++;

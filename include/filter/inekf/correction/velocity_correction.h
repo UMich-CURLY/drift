@@ -42,11 +42,13 @@ class VelocityCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
+   * @param[in] enable_imu_bias_update: True if the filter should update imu
+   * bias
    * @param[in] yaml_filepath: Name of the yaml file for the correction
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                     const ErrorType& error_type,
+                     const ErrorType& error_type, bool enable_imu_bias_update,
                      const std::string& yaml_filepath);
   /// @}
 

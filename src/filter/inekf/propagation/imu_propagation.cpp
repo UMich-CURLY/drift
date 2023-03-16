@@ -29,10 +29,12 @@ using namespace lie_group;
 ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, const std::string& yaml_filepath)
+    const ErrorType& error_type, bool enable_imu_bias_update,
+    const std::string& yaml_filepath)
     : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      error_type_(error_type) {
+      error_type_(error_type),
+      enable_imu_bias_update_(enable_imu_bias_update) {
   propagation_type_ = PropagationType::IMU;
 
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
@@ -43,10 +45,6 @@ ImuPropagation::ImuPropagation(
       = config_["settings"]["static_bias_initialization"]
             ? config_["settings"]["static_bias_initialization"].as<bool>()
             : true;
-
-  update_imu_bias_ = config_["settings"]["enable_bias_update"]
-                         ? config_["settings"]["enable_bias_update"].as<bool>()
-                         : true;
 
   init_bias_size_ = config_["settings"]["init_bias_size"]
                         ? config_["settings"]["init_bias_size"].as<int>()
@@ -146,7 +144,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
   Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;
 
   // If we don't want to estimate bias, remove correlation
-  if (!update_imu_bias_) {
+  if (!enable_imu_bias_update_) {
     P_pred.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
         = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
     P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
@@ -366,8 +364,6 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
 
   // state.set_continuous_noise_covariance(Qc);
-
-  // std::cout << "Qc: \n" << Qc << std::endl;
 
   // Noise Covariance Discretization
   Eigen::MatrixXd PhiG = Phi * G;

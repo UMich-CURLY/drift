@@ -20,8 +20,10 @@ using namespace lie_group;
 VelocityCorrection::VelocityCorrection(
     VelocityQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, const string& yaml_filepath)
-    : Correction::Correction(sensor_data_buffer_mutex_ptr),
+    const ErrorType& error_type, bool enable_imu_bias_update,
+    const string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr,
+                             enable_imu_bias_update),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   correction_type_ = CorrectionType::VELOCITY;
@@ -126,7 +128,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
-    CorrectRightInvariant(Z, H, N, state, update_imu_bias_, error_type_);
+    CorrectRightInvariant(Z, H, N, state, enable_imu_bias_update_, error_type_);
   }
 
   return true;

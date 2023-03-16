@@ -1,5 +1,5 @@
 settings:
-  correction_time_threshold: 0.01    # Threshold for time difference between the received velocity message
+  correction_time_threshold: 0.05    # Threshold for time difference between the received velocity message
                                     # and current time. (sec) 
 
 noises:

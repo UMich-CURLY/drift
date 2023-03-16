@@ -7,8 +7,10 @@ using namespace lie_group;
 LeggedKinematicsCorrection::LeggedKinematicsCorrection(
     LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, const std::string& yaml_filepath)
-    : Correction::Correction(sensor_data_buffer_mutex_ptr),
+    const ErrorType& error_type, bool enable_imu_bias_update,
+    const std::string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr,
+                             enable_imu_bias_update),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   correction_type_ = CorrectionType::LEGGED_KINEMATICS;
@@ -51,10 +53,6 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   // after correction
   vector<int> remove_contacts;         // leg id of contacts to be removed
   vector<ContactInfo> new_contacts;    // new contacts to be added
-
-  //---------------------------------------------------------------
-  /// TODO: Be sure to also change and check the whole function
-  // --------------------------------------------------------------
 
   // Get measurement from sensor data buffer
   sensor_data_buffer_mutex_ptr_.get()->lock();
@@ -181,9 +179,11 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     if (state.get_state_type() == StateType::WorldCentric) {
-      CorrectRightInvariant(Z, H, N, state, update_imu_bias_, error_type_);
+      CorrectRightInvariant(Z, H, N, state, enable_imu_bias_update_,
+                            error_type_);
     } else {
-      CorrectLeftInvariant(Z, H, N, state, update_imu_bias_, error_type_);
+      CorrectLeftInvariant(Z, H, N, state, enable_imu_bias_update_,
+                           error_type_);
     }
   }
 

@@ -34,14 +34,42 @@ using namespace mini_cheetah_kinematics;
 
 class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
  public:
+  /// @name Constructor
+  /// @{
+  /**
+   * @brief Default constructor
+   */
   MiniCheetahKinematics();
+
+  /**
+   * @brief Constructor with encoder and contact information
+   * @param[in] encoders Joint encoder values
+   * @param[in] d_encoders Joint encoder velocity values
+   * @param[in] contacts Contact information
+   */
   MiniCheetahKinematics(
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
       const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
+  /// @}
+
+  /**
+   * @brief Compute kinematics
+   */
   void ComputeKinematics() override;
+
+  /**
+   * @brief Get number of legs
+   * @return Number of legs
+   */
   int get_num_legs() override;
+
+  /**
+   * @brief Get initial velocity
+   * @param[in] w Angular velocity
+   * @return Initial velocity
+   */
   const Eigen::Vector3d get_init_velocity(const Eigen::Vector3d& w) override;
 };
 

@@ -17,12 +17,15 @@ StateEstimator::StateEstimator()
     : robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-// StateEstimator::StateEstimator(std::string config_file_path)
-//     : robot_state_queue_ptr_(new RobotStateQueue),
-//       robot_state_queue_mutex_ptr_(new std::mutex) {}
+StateEstimator::StateEstimator(bool enable_imu_bias_update)
+    : enable_imu_bias_update_(enable_imu_bias_update),
+      robot_state_queue_ptr_(new RobotStateQueue),
+      robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-StateEstimator::StateEstimator(ErrorType error_type)
+StateEstimator::StateEstimator(ErrorType error_type,
+                               bool enable_imu_bias_update)
     : error_type_(error_type),
+      enable_imu_bias_update_(enable_imu_bias_update),
       robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
@@ -61,8 +64,9 @@ const RobotState StateEstimator::get_state() const { return state_; }
 void StateEstimator::add_imu_propagation(
     IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
-  propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr,
-                                                  error_type_, yaml_filepath);
+  propagation_ = std::make_shared<ImuPropagation>(
+      buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
+      yaml_filepath);
 }
 
 void StateEstimator::add_legged_kinematics_correction(
@@ -71,7 +75,8 @@ void StateEstimator::add_legged_kinematics_correction(
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction
       = std::make_shared<LeggedKinematicsCorrection>(
-          buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+          buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
+          yaml_filepath);
   corrections_.push_back(correction);
 }
 
@@ -79,7 +84,8 @@ void StateEstimator::add_velocity_correction(
     VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
-      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+      buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
+      yaml_filepath);
   corrections_.push_back(correction);
 }
 
@@ -106,7 +112,7 @@ void StateEstimator::InitBias() {
   imu_propagation_ptr.get()->InitImuBias();
 }
 
-void StateEstimator::InitStateFromImu() {
+void StateEstimator::InitState() {
   /// TODO: Implement clear filter
   // Clear filter
   this->clear();

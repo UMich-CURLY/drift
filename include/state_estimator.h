@@ -56,16 +56,19 @@ class StateEstimator {
   /**
    * @brief Construct a new State Estimator object
    *
-   * @param[in] config_file_path: The path to the config file
+   * @param[in] enable_imu_bias_update: True if the filter should update imu
+   * bias
    */
-  // StateEstimator(std::string config_file_path);
+  StateEstimator(bool enable_imu_bias_update = false);
 
   /**
    * @brief Construct a new State Estimator object
    *
    * @param[in] error_type: Error type of the filter
+   * @param[in] enable_imu_bias_update: True if the filter should update imu
+   * bias
    */
-  StateEstimator(ErrorType error_type);
+  StateEstimator(ErrorType error_type, bool enable_imu_bias_update = false);
   /// @}
 
   /// @name Setters
@@ -196,7 +199,7 @@ class StateEstimator {
    * @brief Initialize the state of the filter using the IMU data
    *
    */
-  void InitStateFromImu();
+  void InitState();
 
   // ======================================================================
   /**
@@ -229,6 +232,8 @@ class StateEstimator {
       propagation_;         // Propagation method of the filter
   bool enabled_ = false;    // Boolean value indicating whether the filter is
                             // enabled or not
+  bool enable_imu_bias_update_ = false;    // Boolean value indicating whether
+                                           // the filter should update imu bias
   bool new_pose_ready_
       = false;    // Boolean value indicating whether a new pose is generated
   RobotStateQueuePtr robot_state_queue_ptr_;    // Pointer to the filter

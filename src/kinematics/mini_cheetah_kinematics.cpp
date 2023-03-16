@@ -45,8 +45,6 @@ void MiniCheetahKinematics::ComputeKinematics() {
 const Eigen::Vector3d MiniCheetahKinematics::get_init_velocity(
     const Eigen::Vector3d& w) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
-  std::cout << this->get_contact(FR) << this->get_contact(FL)
-            << this->get_contact(HR) << this->get_contact(HL) << std::endl;
 
   if (this->get_contact(FR) == 1) {
     Eigen::Vector3d pRF = p_Body_to_FrontRightFoot(encoders_);    // {I}_p_{IRF}

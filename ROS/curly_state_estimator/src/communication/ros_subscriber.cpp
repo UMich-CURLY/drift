@@ -210,12 +210,9 @@ void ROSSubscriber::IMUCallback(
         imu_msg->orientation.z);
   }
 
-
-  // std::lock_guard<std::mutex> lock(*mutex);
   mutex.get()->lock();
   imu_queue->push(imu_measurement);
   mutex.get()->unlock();
-  // std::cout << "mutex id: " << mutex.get() << std::endl;
 }
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback(
@@ -318,8 +315,6 @@ void ROSSubscriber::MiniCheetahKinCallBack(
   // Set headers and time stamps
   std::shared_ptr<MiniCheetahKinematics> kin_measurement(
       new MiniCheetahKinematics);
-  /// TODO: Idealy, use the timestamp used by Approximate time synchronizer,
-  //  or use the one with lower frequency
   kin_measurement->set_header(
       contact_msg->header.seq,
       contact_msg->header.stamp.sec

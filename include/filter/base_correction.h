@@ -54,8 +54,10 @@ class Correction {
    *
    * @param[in] sensor_data_buffer_mutex_ptr: a pointer to the mutex of the
    * sensor data buffer
+   * @param[in] enable_imu_bias_update: whether to update the IMU bias
    */
-  Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr);
+  Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+             bool enable_imu_bias_update = false);
   /// @}
 
   /// @name Correction
@@ -103,7 +105,8 @@ class Correction {
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
   CorrectionType correction_type_;
-  bool update_imu_bias_ = true;    // Whether to update the IMU bias
+  bool enable_imu_bias_update_;    // Whether or not to update the IMU bias,
+                                   // true for update
   double t_diff_thres_;            // Threshold for time difference between two
                                    // measurements
   std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;    // Mutex for the

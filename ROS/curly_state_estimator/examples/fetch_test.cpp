@@ -32,7 +32,12 @@ int main(int argc, char** argv) {
   ros_sub.StartSubscribingThread();
 
   inekf::ErrorType error_type = LeftInvariant;
-  StateEstimator state_estimator(error_type);
+  YAML::Node config_ = YAML::LoadFile(
+      "config/filter/inekf/propagation/"
+      "fetch_imu_propagation.yaml");
+  bool enable_imu_bias_update
+      = config_["settings"]["enable_imu_bias_update"].as<bool>();
+  StateEstimator state_estimator(error_type, enable_imu_bias_update);
 
   // Publisher:
   state_estimator.add_imu_propagation(
@@ -58,7 +63,7 @@ int main(int argc, char** argv) {
       state_estimator.RunOnce();
     } else {
       if (state_estimator.BiasInitialized()) {
-        state_estimator.InitStateFromImu();
+        state_estimator.InitState();
       } else {
         state_estimator.InitBias();
       }
