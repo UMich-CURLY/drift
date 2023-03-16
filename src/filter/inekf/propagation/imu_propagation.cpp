@@ -416,7 +416,6 @@ void ImuPropagation::InitImuBias() {
     a = (R.transpose() * (R * a + g_)).eval();
     Eigen::Matrix<double, 6, 1> v;
     v << w(0), w(1), w(2), a(0), a(1), a(2);
-    std::cout << "v: " << v.transpose() << std::endl;
     bias_init_vec_.push_back(v);    // Store imu data with gravity removed
   } else {
     // Compute average bias of stored data
