@@ -40,7 +40,7 @@ int main(int argc, char** argv) {
 
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
-  inekf::ErrorType error_type = RightInvariant;
+  inekf::ErrorType error_type = LeftInvariant;
   StateEstimator state_estimator(params, error_type);
   std::cout << "Before: " << std::endl;
   std::cout << state_estimator.get_state().get_X() << std::endl;

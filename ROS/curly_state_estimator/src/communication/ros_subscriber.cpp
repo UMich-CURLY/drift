@@ -64,7 +64,7 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
       std::make_shared<IMUOffsetMsgFilterT>(*nh_, offset_topic_name, 1));
 
 
-  // ExactTime takes a queue size as its constructor argument, hence
+  // ApproximateTime takes a queue size as its constructor argument, hence
   // IMUSyncPolicy(10)
   imu_sync_list_.push_back(
       std::make_shared<message_filters::Synchronizer<IMUSyncPolicy>>(
@@ -96,7 +96,7 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
       std::make_shared<JointStateMsgFilterT>(*nh_, encoder_topic_name, 1));
 
 
-  // ExactTime takes a queue size as its constructor argument, hence
+  // ApproximateTime takes a queue size as its constructor argument, hence
   // LegKinSyncPolicy(10)
   leg_kin_sync_list_.push_back(
       std::make_shared<message_filters::Synchronizer<LegKinSyncPolicy>>(
@@ -326,20 +326,29 @@ void ROSSubscriber::MiniCheetahKinCallBack(
           + contact_msg->header.stamp.nsec / 1000000000.0,
       contact_msg->header.frame_id);
 
-  Eigen::Matrix<bool, 4, 1> ctmsg;
-  ctmsg << contact_msg->contacts[0].indicator,
+  Eigen::Matrix<bool, 4, 1> ct_msg;
+  ct_msg << contact_msg->contacts[0].indicator,
       contact_msg->contacts[1].indicator, contact_msg->contacts[2].indicator,
       contact_msg->contacts[3].indicator;
-  kin_measurement->set_contact(ctmsg);
+  kin_measurement->set_contact(ct_msg);
 
-  Eigen::Matrix<double, 12, 1> jsmsg;
-  jsmsg << encoder_msg->position[0], encoder_msg->position[1],
+  Eigen::Matrix<double, 12, 1> js_msg;
+  js_msg << encoder_msg->position[0], encoder_msg->position[1],
       encoder_msg->position[2], encoder_msg->position[3],
       encoder_msg->position[4], encoder_msg->position[5],
       encoder_msg->position[6], encoder_msg->position[7],
       encoder_msg->position[8], encoder_msg->position[9],
       encoder_msg->position[10], encoder_msg->position[11];
-  kin_measurement->set_joint_state(jsmsg);
+  kin_measurement->set_joint_state(js_msg);
+
+  Eigen::Matrix<double, 12, 1> jsvel_msg;
+  jsvel_msg << encoder_msg->velocity[0], encoder_msg->velocity[1],
+      encoder_msg->velocity[2], encoder_msg->velocity[3],
+      encoder_msg->velocity[4], encoder_msg->velocity[5],
+      encoder_msg->velocity[6], encoder_msg->velocity[7],
+      encoder_msg->velocity[8], encoder_msg->velocity[9],
+      encoder_msg->velocity[10], encoder_msg->velocity[11];
+  kin_measurement->set_joint_state_velocity(jsvel_msg);
 
   mutex.get()->lock();
   kin_queue->push(kin_measurement);

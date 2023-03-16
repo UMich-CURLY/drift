@@ -27,7 +27,7 @@ using namespace lie_group;
 // Correct Input State: Right-Invariant Observation
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                            const Eigen::MatrixXd& N, RobotState& state,
-                           ErrorType error_type) {
+                           bool update_imu_bias, ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -36,15 +36,16 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
 
-  /// TODO: Remove this:
   // Remove bias
-  Theta = Eigen::Matrix<double, 6, 1>::Zero();
-  P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
-      = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
-  P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
-      = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
-  P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
-      = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
+  // Theta = Eigen::Matrix<double, 6, 1>::Zero();
+  if (!update_imu_bias) {
+    P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
+        = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
+    P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
+        = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
+    P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
+        = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
+  }
 
   // Map from left invariant to right invariant error temporarily
   if (error_type == ErrorType::LeftInvariant) {
@@ -98,7 +99,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 // Correct Input State: Left-Invariant Observation
 void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
-                          ErrorType error_type) {
+                          bool update_imu_bias, ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -107,8 +108,18 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
 
+  // Remove bias
+  if (!update_imu_bias) {
+    P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
+        = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
+    P.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
+        = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
+    P.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
+        = Eigen::MatrixXd::Zero(dimTheta, dimP - dimTheta);
+  }
+
   // Map from right invariant to left invariant error temporarily
-  if (error_type == ErrorType::RightInvariant) {
+  if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
         = Adjoint_SEK3(state.Xinv());

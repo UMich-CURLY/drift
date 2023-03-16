@@ -3,7 +3,7 @@ settings:
   ###################
   # Filter Settings #
   ###################
-  static_bias_initialization: false  # Enable this the filter will use the first N data points
+  static_bias_initialization: true  # Enable this the filter will use the first N data points
                                     # to initialize bias with the assumption of robot being static.
                                     # If you set this to false, remember to also change the bias
                                     # prior in config/prior.yaml.

@@ -34,6 +34,7 @@ class LeggedKinematicsMeasurement : public Measurement {
    */
   LeggedKinematicsMeasurement(
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+      const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
       const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   /**
@@ -46,6 +47,11 @@ class LeggedKinematicsMeasurement : public Measurement {
    * @brief Returns the number of actuated robot legs
    */
   virtual int get_num_legs() = 0;
+
+  /**
+   * @brief Returns the initial velocity of the robot
+   */
+  virtual const Eigen::Vector3d get_init_velocity(const Eigen::Vector3d& w);
 
   /**
    * @brief Set the ground contact state vector.
@@ -61,6 +67,14 @@ class LeggedKinematicsMeasurement : public Measurement {
    */
   void set_joint_state(
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders);
+
+  /**
+   * @brief Set the encoder position state vector.
+   *
+   * @param[in] encoders Vector of encoder position coefficients (rad)
+   */
+  void set_joint_state_velocity(
+      const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders);
 
   /**
    * @brief Get the Jacobian matrix.
@@ -119,6 +133,7 @@ class LeggedKinematicsMeasurement : public Measurement {
   Eigen::Matrix<double, 3, Eigen::Dynamic> jacobian_;
   Eigen::Matrix<bool, Eigen::Dynamic, 1> contacts_;
   Eigen::Matrix<double, Eigen::Dynamic, 1> encoders_;
+  Eigen::Matrix<double, Eigen::Dynamic, 1> d_encoders_;
 };
 
 

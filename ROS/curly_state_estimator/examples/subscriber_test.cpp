@@ -23,7 +23,6 @@ int main(int argc, char** argv) {
       = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
   auto qv = qv_and_mutex.first;
   ros_sub.StartSubscribingThread();
-  // TODO: Create robot state system -- initialize all system threads
 
   // block until we stop the ros to print out the value
   while (ros::ok()) {

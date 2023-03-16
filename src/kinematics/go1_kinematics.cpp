@@ -20,8 +20,9 @@ GO1Kinematics::GO1Kinematics() {
 
 GO1Kinematics::GO1Kinematics(
     const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+    const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
-    : LeggedKinematicsMeasurement(encoders, contacts) {
+    : LeggedKinematicsMeasurement(encoders, d_encoders, contacts) {
   position_.setConstant(3, NLEG, 0);
   jacobian_.setConstant(3, NLEG * NAPL, 0);
 }

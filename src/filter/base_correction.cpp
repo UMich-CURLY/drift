@@ -28,6 +28,11 @@ Correction::Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr)
       magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()),
       sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr) {
   correction_type_ = CorrectionType::BASE;
+  // YAML::Node config_ = YAML::LoadFile(yaml_filepath);
+  // update_imu_bias_ = config_["settings"]["enable_bias_update"]
+  //                        ?
+  //                        config_["settings"]["enable_bias_update"].as<bool>()
+  //                        : true;
 }
 
 

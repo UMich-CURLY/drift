@@ -43,7 +43,7 @@ TEST(LeggedKinematicsCorrection, ImuPropVelCorr) {
   double dt = 1.0;
   double T = 3 * dt;
 
-  inekf::ErrorType error_type = RightInvariant;
+  inekf::ErrorType error_type = LeftInvariant;
 
   StateEstimator state_estimator(error_type);
 

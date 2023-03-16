@@ -48,7 +48,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   Eigen::Matrix3d measured_velocity_covariance;
   measured_velocity_covariance << 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
-  inekf::ErrorType error_type = RightInvariant;
+  inekf::ErrorType error_type = LeftInvariant;
 
   StateEstimator state_estimator(error_type);
 

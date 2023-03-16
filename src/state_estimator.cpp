@@ -17,6 +17,10 @@ StateEstimator::StateEstimator()
     : robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
+// StateEstimator::StateEstimator(std::string config_file_path)
+//     : robot_state_queue_ptr_(new RobotStateQueue),
+//       robot_state_queue_mutex_ptr_(new std::mutex) {}
+
 StateEstimator::StateEstimator(ErrorType error_type)
     : error_type_(error_type),
       robot_state_queue_ptr_(new RobotStateQueue),
@@ -113,33 +117,22 @@ void StateEstimator::InitStateFromImu() {
   const IMUQueuePtr imu_queue_ptr
       = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();
 
-  imu_propagation_ptr.get()->get_mutex_ptr()->lock();
-
   // Don't initialize if IMU queue is empty
+  imu_propagation_ptr.get()->get_mutex_ptr()->lock();
   if (imu_queue_ptr.get()->empty()) {
     imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
     return;
   }
+
   const ImuMeasurementPtr imu_packet_in = imu_queue_ptr->front();
   imu_queue_ptr->pop();
   imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
-
-  /// TODO: Delete this pop:
-  std::shared_ptr<LeggedKinematicsCorrection> legged_kinematics_ptr
-      = std::dynamic_pointer_cast<LeggedKinematicsCorrection>(corrections_[0]);
-  legged_kinematics_ptr.get()->get_mutex_ptr()->lock();
-  if (!legged_kinematics_ptr.get()
-           ->get_sensor_data_buffer_ptr()
-           .get()
-           ->empty()) {
-    legged_kinematics_ptr.get()->get_sensor_data_buffer_ptr().get()->pop();
-  }
-  legged_kinematics_ptr.get()->get_mutex_ptr()->unlock();
 
   // Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
   // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
   // VectorNav estimate
   Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
+  Eigen::Vector3d w0 = imu_packet_in->get_ang_vel();
 
   Eigen::Vector3d v0_body = Eigen::Vector3d::Zero();
   for (auto& correction : corrections_) {
@@ -147,52 +140,21 @@ void StateEstimator::InitStateFromImu() {
     if (correction.get()->get_correction_type() == CorrectionType::VELOCITY) {
       std::shared_ptr<VelocityCorrection> velocity_correction_ptr
           = std::dynamic_pointer_cast<VelocityCorrection>(correction);
-      const VelocityQueuePtr velocity_queue_ptr
-          = velocity_correction_ptr.get()->get_sensor_data_buffer_ptr();
-
-      velocity_correction_ptr.get()->get_mutex_ptr()->lock();
-      if (velocity_queue_ptr.get()->empty()) {
-        // std::cout << "Velocity queue is empty, cannot initialize state"
-        velocity_correction_ptr.get()->get_mutex_ptr()->unlock();
-        // << std::endl;
-        return;
-      }
-      const VelocityMeasurementPtr velocity_packet_in
-          = velocity_queue_ptr->front();
-      velocity_queue_ptr->pop();
-      velocity_correction_ptr.get()->get_mutex_ptr()->unlock();
-
-      v0_body = velocity_packet_in->get_velocity();
+      v0_body = velocity_correction_ptr.get()->get_initial_velocity(w0);
+      break;
+    } else if (correction.get()->get_correction_type()
+               == CorrectionType::LEGGED_KINEMATICS) {
+      std::shared_ptr<LeggedKinematicsCorrection> legged_correction_ptr
+          = std::dynamic_pointer_cast<LeggedKinematicsCorrection>(correction);
+      v0_body = legged_correction_ptr.get()->get_initial_velocity(w0);
       break;
     }
   }
 
   Eigen::Vector3d v0 = R0 * v0_body;    // initial velocity
-  /// TODO: Delete this:
-  v0 << 0.0508157, -0.0845068, 0.0754008;
-  v0 << 0.426231, -0.0510205, 0.191841;
 
   Eigen::Vector3d p0
       = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame
-
-  // RobotState initial_state;
-  // Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
-  // Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();
-  // initial_state.set_rotation(R0);
-  // initial_state.set_velocity(v0);
-  // initial_state.set_position(p0);
-  // initial_state.set_gyroscope_bias(bg0);
-  // initial_state.set_accelerometer_bias(ba0);
-  // // Initialize state covariance
-  // initial_state.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
-  // initial_state.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
-  // initial_state.set_position_covariance(0.00001 *
-  // Eigen::Matrix3d::Identity());
-  // initial_state.set_gyroscope_bias_covariance(0.0001
-  //                                             * Eigen::Matrix3d::Identity());
-  // initial_state.set_accelerometer_bias_covariance(
-  //     0.0025 * Eigen::Matrix3d::Identity());
-  // this->set_state(initial_state);
 
   Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
   Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();

@@ -23,6 +23,7 @@
 #include "kinematics/robots/go1/p_Body_to_FrontRightFoot.h"
 #include "kinematics/robots/go1/p_Body_to_HindLeftFoot.h"
 #include "kinematics/robots/go1/p_Body_to_HindRightFoot.h"
+#include "math/lie_group.h"
 #include "measurement/legged_kinematics.h"
 
 namespace go1_kinematics {
@@ -35,6 +36,7 @@ class GO1Kinematics : public LeggedKinematicsMeasurement {
  public:
   GO1Kinematics();
   GO1Kinematics(const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+                const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
                 const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   void ComputeKinematics() override;

@@ -74,6 +74,14 @@ class VelocityCorrection : public Correction {
    * @return VelocityQueuePtr: pointer of the sensor data buffer
    */
   const VelocityQueuePtr get_sensor_data_buffer_ptr() const;
+
+  /**
+   * @brief Get the initial velocity of the robot
+   *
+   * @param[in] w: initial angular velocity of the robot
+   * @return const Eigen::Vector3d
+   */
+  const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
   /// @}
 
 

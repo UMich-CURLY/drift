@@ -44,9 +44,9 @@ ImuPropagation::ImuPropagation(
             ? config_["settings"]["static_bias_initialization"].as<bool>()
             : true;
 
-  estimate_bias_ = config_["settings"]["enable_bias_update"]
-                       ? config_["settings"]["enable_bias_update"].as<bool>()
-                       : true;
+  update_imu_bias_ = config_["settings"]["enable_bias_update"]
+                         ? config_["settings"]["enable_bias_update"].as<bool>()
+                         : true;
 
   init_bias_size_ = config_["settings"]["init_bias_size"]
                         ? config_["settings"]["init_bias_size"].as<int>()
@@ -113,7 +113,6 @@ const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
 bool ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
-  /// TODO: double check :
   sensor_data_buffer_mutex_ptr_.get()->lock();
   if (sensor_data_buffer_ptr_->empty()) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
@@ -147,7 +146,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
   Eigen::MatrixXd P_pred = Phi * P * Phi.transpose() + Qd;
 
   // If we don't want to estimate bias, remove correlation
-  if (!estimate_bias_) {
+  if (!update_imu_bias_) {
     P_pred.block(0, dimP - dimTheta, dimP - dimTheta, dimTheta)
         = Eigen::MatrixXd::Zero(dimP - dimTheta, dimTheta);
     P_pred.block(dimP - dimTheta, 0, dimTheta, dimP - dimTheta)
@@ -365,6 +364,7 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
 
   Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
   Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
+
   // state.set_continuous_noise_covariance(Qc);
 
   // std::cout << "Qc: \n" << Qc << std::endl;
@@ -416,17 +416,9 @@ void ImuPropagation::InitImuBias() {
     a = (R.transpose() * (R * a + g_)).eval();
     Eigen::Matrix<double, 6, 1> v;
     v << w(0), w(1), w(2), a(0), a(1), a(2);
+    std::cout << "v: " << v.transpose() << std::endl;
     bias_init_vec_.push_back(v);    // Store imu data with gravity removed
   } else {
-    /// TODO: delete the following pop and unlock
-    sensor_data_buffer_mutex_ptr_.get()->lock();
-    if (sensor_data_buffer_ptr_->empty()) {
-      sensor_data_buffer_mutex_ptr_.get()->unlock();
-      return;
-    }
-    const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
-    sensor_data_buffer_ptr_->pop();
-    sensor_data_buffer_mutex_ptr_.get()->unlock();
     // Compute average bias of stored data
     Eigen::Matrix<double, 6, 1> avg = Eigen::Matrix<double, 6, 1>::Zero();
     for (int i = 0; i < bias_init_vec_.size(); ++i) {

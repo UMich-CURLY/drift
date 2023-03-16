@@ -23,6 +23,7 @@
 #include "kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
 #include "kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
 #include "kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
+#include "math/lie_group.h"
 #include "measurement/legged_kinematics.h"
 
 namespace mini_cheetah_kinematics {
@@ -36,10 +37,12 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
   MiniCheetahKinematics();
   MiniCheetahKinematics(
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+      const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
       const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
 
   void ComputeKinematics() override;
   int get_num_legs() override;
+  const Eigen::Vector3d get_init_velocity(const Eigen::Vector3d& w) override;
 };
 
 #endif    // MC_KIN_H

@@ -114,6 +114,9 @@ ${LIBS}
 subscriber_test_lib
 mini_cheetah_kin_lib
 go1_kin_lib
+measurement_lib
+filter_lib
+yaml-cpp
 )
 
 # example for legged robot kinemtaics correction:
@@ -129,10 +132,10 @@ ${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
 target_link_libraries(leg_kin_comm_test
 ${LIBS}
 ros_communication_lib
-measurement_lib
-filter_lib
 mini_cheetah_kin_lib
 go1_kin_lib
+measurement_lib
+filter_lib
 yaml-cpp
 )
 
@@ -144,10 +147,10 @@ ${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
 target_link_libraries(ros_comm_test
 ${LIBS}
 ros_communication_lib
-measurement_lib
-filter_lib
 mini_cheetah_kin_lib
 go1_kin_lib
+measurement_lib
+filter_lib
 yaml-cpp
 )
 
@@ -159,9 +162,9 @@ ${PROJECT_SOURCE_DIR}/examples/fetch_test.cpp)
 target_link_libraries(fetch_test
 ${LIBS}
 ros_communication_lib
-measurement_lib
-filter_lib
 mini_cheetah_kin_lib
 go1_kin_lib
+measurement_lib
+filter_lib
 yaml-cpp
 )

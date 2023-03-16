@@ -11,16 +11,23 @@ LeggedKinematicsMeasurement::LeggedKinematicsMeasurement()
 
 LeggedKinematicsMeasurement::LeggedKinematicsMeasurement(
     const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders,
+    const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
-    : encoders_(encoders), contacts_(contacts) {}
+    : encoders_(encoders), d_encoders_(d_encoders), contacts_(contacts) {}
 
 void LeggedKinematicsMeasurement::set_contact(
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts) {
   contacts_ = contacts;
 }
+
 void LeggedKinematicsMeasurement::set_joint_state(
     const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders) {
   encoders_ = encoders;
+}
+
+void LeggedKinematicsMeasurement::set_joint_state_velocity(
+    const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders) {
+  d_encoders_ = d_encoders;
 }
 
 Eigen::Matrix<double, 3, Eigen::Dynamic> LeggedKinematicsMeasurement::get_J(
@@ -40,6 +47,11 @@ double LeggedKinematicsMeasurement::get_joint_state(int encoder) const {
 Eigen::Matrix<double, 3, 1> LeggedKinematicsMeasurement::get_kin_pos(
     int leg) const {
   return position_.col(leg);
+}
+
+const Eigen::Vector3d LeggedKinematicsMeasurement::get_init_velocity(
+    const Eigen::Vector3d& w) {
+  return Eigen::Vector3d::Zero();
 }
 
 // Eigen::Matrix<double, 3, 1> LeggedKinematicsMeasurement::get_kin_vel(int leg)

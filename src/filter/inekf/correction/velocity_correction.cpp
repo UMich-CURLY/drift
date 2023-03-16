@@ -107,17 +107,6 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   state.set_time(measured_velocity->get_time());
 
-  // Fill out Y
-  // Y.conservativeResize(dimX, Eigen::NoChange);
-  // Y.segment(0,dimX) = Eigen::VectorXd::Zero(dimX);
-  // Y.segment<3>(0) = measured_velocity;
-  // Y(3) = -1;
-
-  // // Fill out b
-  // b.conservativeResize(dimX, Eigen::NoChange);
-  // b.segment(0,dimX) = Eigen::VectorXd::Zero(dimX);
-  // b(3) = -1;
-
   // Fill out H
   H.conservativeResize(3, dimP);
   H.block(0, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
@@ -127,16 +116,8 @@ bool VelocityCorrection::Correct(RobotState& state) {
   N.conservativeResize(3, 3);
   N = covariance_;
 
-  // Fill out PI
-  // PI.conservativeResize(3, dimX);
-  // PI.block(0,0,3,dimX) = Eigen::MatrixXd::Zero(3,dimX);
-  // PI.block(0,0,3,3) = Eigen::Matrix3d::Identity();
-
-  // Fill out Z
-  // Z = X*Y-b = PI*X*Y
   Eigen::Matrix3d R = state.get_rotation();
   Eigen::Vector3d v = state.get_velocity();
-
 
   int startIndex = Z.rows();
   Z.conservativeResize(startIndex + 3, Eigen::NoChange);
@@ -145,9 +126,32 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
-    CorrectRightInvariant(Z, H, N, state, error_type_);
+    CorrectRightInvariant(Z, H, N, state, update_imu_bias_, error_type_);
   }
 
   return true;
+}
+
+const Eigen::Vector3d VelocityCorrection::get_initial_velocity(
+    const Eigen::Vector3d& w) const {
+  Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
+  // Eigen::Vector3d w = this->getAngularVelocity();
+
+  // Get measurement from sensor data buffer
+  while (sensor_data_buffer_ptr_->empty()) {
+    std::cout << "Waiting for sensor data..." << std::endl;
+  }
+
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  // Get the latest measurement
+  while (sensor_data_buffer_ptr_->size() > 1) {
+    std::cout << "Discarding old sensor data..." << std::endl;
+    sensor_data_buffer_ptr_->pop();
+  }
+  VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
+  sensor_data_buffer_ptr_->pop();
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  return measured_velocity->get_velocity();
 }
 }    // namespace inekf

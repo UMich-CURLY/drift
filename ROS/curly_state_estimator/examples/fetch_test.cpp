@@ -30,9 +30,8 @@ int main(int argc, char** argv) {
   auto qv_mutex = qv_and_mutex.second;
 
   ros_sub.StartSubscribingThread();
-  // TODO: Create robot state system -- initialize all system threads
 
-  inekf::ErrorType error_type = RightInvariant;
+  inekf::ErrorType error_type = LeftInvariant;
   StateEstimator state_estimator(error_type);
 
   // Publisher:

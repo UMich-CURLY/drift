@@ -185,9 +185,9 @@ class ImuPropagation : public Propagation {
   Eigen::Matrix3d gyro_bias_cov_;     // Gyroscope bias covariance.
   Eigen::Matrix3d accel_bias_cov_;    // Accelerometer bias covariance.
 
-  bool estimate_bias_;    // Boolean value that allows IMU bias update during
-                          // propagation (true for enabling bias update, false
-                          // for disabling).
+  bool update_imu_bias_;    // Boolean value that allows IMU bias update during
+                            // propagation (true for enabling bias update, false
+                            // for disabling).
   bool static_bias_initialization_;    // Flag for static bias initialization
   bool use_imu_ori_est_init_bias_;     // Flag for using orientation estimated
                                        // from the imu to perform static bias

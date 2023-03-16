@@ -171,14 +171,6 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
         Z.segment(startIndex, 3) = R.transpose() * (pose - (p - d));
       }
 
-      // std::cout << "pose: \n" << pose << std::endl;
-      // std::cout << "R: \n" << R << std::endl;
-      // std::cout << "p: \n" << p << std::endl;
-      // std::cout << "d: \n" << d << std::endl;
-      // std::cout << "Z: \n" << Z << std::endl;
-      // std::cout << "contact id: " << id << std::endl;
-      // exit(1);
-
     } else {
       //  If contact is not indicated and id is found in estimated_contacts_,
       //  then skip
@@ -189,9 +181,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     if (state.get_state_type() == StateType::WorldCentric) {
-      CorrectRightInvariant(Z, H, N, state, error_type_);
+      CorrectRightInvariant(Z, H, N, state, update_imu_bias_, error_type_);
     } else {
-      CorrectLeftInvariant(Z, H, N, state, error_type_);
+      CorrectLeftInvariant(Z, H, N, state, update_imu_bias_, error_type_);
     }
   }
 
@@ -262,5 +254,28 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   }
 
   return true;
+}
+
+const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
+    const Eigen::Vector3d& w) const {
+  Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
+  // Eigen::Vector3d w = this->getAngularVelocity();
+
+  // Get measurement from sensor data buffer
+  while (sensor_data_buffer_ptr_->empty()) {
+    std::cout << "Waiting for sensor data..." << std::endl;
+  }
+
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  // Get the lates measurement
+  while (sensor_data_buffer_ptr_->size() > 1) {
+    sensor_data_buffer_ptr_->pop();
+  }
+  KinematicsMeasurementPtr kinematics_measurement
+      = sensor_data_buffer_ptr_->front();
+  sensor_data_buffer_ptr_->pop();
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  return kinematics_measurement->get_init_velocity(w);
 }
 }    // namespace inekf

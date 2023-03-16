@@ -103,8 +103,9 @@ class Correction {
   Eigen::Vector3d
       magnetic_field_;    // Magnetic field vector in world frame (z-up)
   CorrectionType correction_type_;
-  double t_diff_thres_;    // Threshold for time difference between two
-                           // measurements
+  bool update_imu_bias_ = true;    // Whether to update the IMU bias
+  double t_diff_thres_;            // Threshold for time difference between two
+                                   // measurements
   std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;    // Mutex for the
                                                                 // sensor data
                                                                 // buffer

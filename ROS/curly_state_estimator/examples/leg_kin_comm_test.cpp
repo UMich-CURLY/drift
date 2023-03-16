@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 
   ros_sub.StartSubscribingThread();
 
-  inekf::ErrorType error_type = RightInvariant;
+  inekf::ErrorType error_type = LeftInvariant;
   StateEstimator state_estimator(error_type);
 
   // Publisher:

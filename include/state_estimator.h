@@ -52,6 +52,14 @@ class StateEstimator {
    */
   StateEstimator();
 
+  // ======================================================================
+  /**
+   * @brief Construct a new State Estimator object
+   *
+   * @param[in] config_file_path: The path to the config file
+   */
+  // StateEstimator(std::string config_file_path);
+
   /**
    * @brief Construct a new State Estimator object
    *
@@ -212,8 +220,8 @@ class StateEstimator {
  private:
   RobotState state_;    // state of the robot
   ErrorType error_type_
-      = inekf::RightInvariant;    // Error Type of the InEKF filter
-                                  // (LeftInvariant or RightInvariant)
+      = inekf::LeftInvariant;    // Error Type of the InEKF filter
+                                 // (LeftInvariant or RightInvariant)
   std::vector<std::shared_ptr<Correction>>
       corrections_;                   // List of correction methods
   std::vector<aug_map_t> aug_maps;    // List of augmented states mapping

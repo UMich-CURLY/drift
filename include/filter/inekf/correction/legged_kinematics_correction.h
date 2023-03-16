@@ -89,6 +89,14 @@ class LeggedKinematicsCorrection : public Correction {
    * @return LeggedKinematicsQueuePtr: pointer of the sensor data buffer
    */
   const LeggedKinematicsQueuePtr get_sensor_data_buffer_ptr() const;
+
+  /**
+   * @brief Get the initial velocity of the robot
+   *
+   * @param[in] w: initial angular velocity of the robot
+   * @return const Eigen::Vector3d
+   */
+  const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
   /// @}
 
  private:
