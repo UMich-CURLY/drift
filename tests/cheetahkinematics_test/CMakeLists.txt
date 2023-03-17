@@ -1,5 +1,7 @@
 
-set(kin ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp)
+set(kin ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
+        ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
+        )
 set(minicheetah ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.cpp
 ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.cpp
 ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.cpp

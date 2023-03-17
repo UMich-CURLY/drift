@@ -54,11 +54,13 @@ TEST(cheetahkinematicstest, ContactsSetGet) {
 
 TEST(cheetahkinematicstest, OverloadCtor) {
   Eigen::Matrix<double, 12, 1> js;
+  Eigen::Matrix<double, 12, 1> js_vel;
   Eigen::Matrix<bool, 4, 1> ct;
   js << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
       1.234, 1.345;
+  js_vel << 0, 0, 0, 0, 0, 0., 0, 0, 0, 0, 0, 0;
   ct << 1, 0, 0, 1;
-  MiniCheetahKinematics kin_data(js, ct);
+  MiniCheetahKinematics kin_data(js, js_vel, ct);
   EXPECT_EQ(kin_data.get_contact(FR), true);
   EXPECT_EQ(kin_data.get_contact(FL), false);
   EXPECT_EQ(kin_data.get_contact(HR), false);
@@ -79,11 +81,13 @@ TEST(cheetahkinematicstest, OverloadCtor) {
 
 TEST(cheetahkinematicstest, Position) {
   Eigen::Matrix<double, 12, 1> js;
+  Eigen::Matrix<double, 12, 1> js_vel;
   Eigen::Matrix<bool, 4, 1> ct;
   js << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
       1.234, 1.345;
+  js_vel << 0, 0, 0, 0, 0, 0., 0, 0, 0, 0, 0, 0;
   ct << 0, 1, 0, 1;
-  MiniCheetahKinematics kin_data(js, ct);
+  MiniCheetahKinematics kin_data(js, js_vel, ct);
   EXPECT_EQ(kin_data.get_contact(FR), false);
   EXPECT_EQ(kin_data.get_contact(FL), true);
   EXPECT_EQ(kin_data.get_contact(HR), false);
