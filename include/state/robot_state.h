@@ -137,9 +137,9 @@ class RobotState {
   const Eigen::Vector3d get_position() const;
 
   /**
-   * @brief Get the gyroscope bias matrix b.
+   * @brief Get the gyroscope bias vector b.
    *
-   * @return const Eigen::Vector3d b: represents for gyroscope bias matrix.
+   * @return const Eigen::Vector3d b: represents for gyroscope bias vector.
    */
   const Eigen::Vector3d get_gyroscope_bias() const;
 
@@ -159,38 +159,38 @@ class RobotState {
   const Eigen::Vector3d get_accelerometer_bias() const;
 
   /**
-   * @brief Get the rotation covariance matrix P.
+   * @brief Get the rotation covariance matrix.
    *
-   * @return const Eigen::Matrix3d P: represents for rotation covariance matrix.
+   * @return const Eigen::Matrix3d: represents for rotation covariance matrix.
    */
   const Eigen::Matrix3d get_rotation_covariance() const;
 
   /**
-   * @brief Get the velocity covariance matrix P.
+   * @brief Get the velocity covariance matrix.
    *
-   * @return const Eigen::Matrix3d P: represents for velocity covariance matrix.
+   * @return const Eigen::Matrix3d: represents for velocity covariance matrix.
    */
   const Eigen::Matrix3d get_velocity_covariance() const;
 
   /**
-   * @brief Get the position covariance matrix P.
+   * @brief Get the position covariance matrix.
    *
-   * @return const Eigen::Matrix3d P: represents for position covariance matrix.
+   * @return const Eigen::Matrix3d: represents for position covariance matrix.
    */
   const Eigen::Matrix3d get_position_covariance() const;
 
   /**
-   * @brief Get the gyroscope bias covariance matrix P.
+   * @brief Get the gyroscope bias covariance matrix.
    *
-   * @return const Eigen::Matrix3d P: represents for gyroscope bias covariance
+   * @return const Eigen::Matrix3d: represents for gyroscope bias covariance
    * matrix.
    */
   const Eigen::Matrix3d get_gyroscope_bias_covariance() const;
 
   /**
-   * @brief Get the accelerometer bias covariance matrix P.
+   * @brief Get the accelerometer bias covariance matrix.
    *
-   * @return const Eigen::Matrix3d P: represents for accelerometer bias
+   * @return const Eigen::Matrix3d: represents for accelerometer bias
    * covariance matrix.
    */
   const Eigen::Matrix3d get_accelerometer_bias_covariance() const;
@@ -213,7 +213,7 @@ class RobotState {
    * @brief Add the augmented state
    *
    * @param[in] aug: Augmented state to be added to the index mapping.
-   * @param[in] cov: Covariance of the augmented state.
+   * @param[in] P_aug: Covariance of the state that is augmented.
    * @param[in] noise_cov: Covariance of noise.
    * @param[in] col_id_ptr: the column id passed by correction mapping.
    */
@@ -542,6 +542,13 @@ class RobotState {
 
  private:
   // Util function:
+  /**
+   * @brief Remove the row and column of the matrix M at the given index.
+   *
+   * @param[in] M: matrix to be modified.
+   * @param[in] index: index of the row and column to be removed.
+   * @param[in] move_dim: dimension of the matrix to be decreased.
+   */
   void RemoveRowAndColumn(Eigen::MatrixXd& M, int index, int move_dim);
 
   StateType state_type_ = StateType::WorldCentric;
@@ -549,11 +556,15 @@ class RobotState {
       X_;    // Matrix of SE or SEk group represents for robot state.
   Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
   Eigen::MatrixXd P_;        // Matrix of covariance respect to X.
-  std::vector<std::shared_ptr<int>> column_id_to_corr_map_;
+  std::vector<std::shared_ptr<int>>
+      column_id_to_corr_map_;    // Mapping from
+                                 // column index to
+                                 // corresponding
+                                 // correction map's value
 
-  double t_;         // The latest time when the state X_ is updated
-  double t_prop_;    // The latest time when the state X_ is propagated
-  Eigen::MatrixXd Qc_;
+  double t_;              // The latest time when the state X_ is updated
+  double t_prop_;         // The latest time when the state X_ is propagated
+  Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
 };
 
 #endif

@@ -138,6 +138,8 @@ class StateEstimator {
    *
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
+   * @param[in] buffer_mutex_ptr: The kinematic buffer mutex pointer
+   * @param[in] yaml_filepath: The yaml file path for the kinematic correction
    */
   void add_legged_kinematics_correction(
       LeggedKinematicsQueuePtr buffer_ptr,
