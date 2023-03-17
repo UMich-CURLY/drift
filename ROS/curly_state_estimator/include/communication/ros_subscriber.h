@@ -35,7 +35,6 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 
-#include "kinematics/go1_kinematics.h"
 #include "kinematics/mini_cheetah_kinematics.h"
 #include "measurement/contact.h"
 #include "measurement/imu.h"

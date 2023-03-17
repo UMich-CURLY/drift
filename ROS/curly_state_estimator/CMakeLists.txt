@@ -55,16 +55,10 @@ set(LIBS
 
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/../../src/kinematics/robots/mini_cheetah/*.cpp)
-file(GLOB GO1_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/../../src/kinematics/robots/go1/*.cpp)
 
 rosbuild_add_library(mini_cheetah_kin_lib
   ${MINI_CHEETAH_KIN_SRC_FILES}
   ${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
-)
-
-rosbuild_add_library(go1_kin_lib
-  ${GO1_KIN_SRC_FILES}
-  ${PROJECT_SOURCE_DIR}/../../src/kinematics/go1_kinematics.cpp
 )
 
 rosbuild_add_library(filter_lib
@@ -113,7 +107,6 @@ target_link_libraries(subscriber_test
 ${LIBS}
 subscriber_test_lib
 mini_cheetah_kin_lib
-go1_kin_lib
 measurement_lib
 filter_lib
 yaml-cpp
@@ -133,7 +126,6 @@ target_link_libraries(leg_kin_comm_test
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib
-go1_kin_lib
 measurement_lib
 filter_lib
 yaml-cpp
@@ -148,7 +140,6 @@ target_link_libraries(ros_comm_test
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib
-go1_kin_lib
 measurement_lib
 filter_lib
 yaml-cpp
@@ -163,7 +154,6 @@ target_link_libraries(fetch_test
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib
-go1_kin_lib
 measurement_lib
 filter_lib
 yaml-cpp
