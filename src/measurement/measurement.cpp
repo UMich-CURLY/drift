@@ -53,6 +53,8 @@ ostream& operator<<(ostream& os, const Measurement& m) {
     case CONTACT:
       type_str = "CONTACT";
       break;
+    case NAVSAT:
+      type_str = "NAVSAT";
     default:
       type_str = "UNKNOWN";
   }
