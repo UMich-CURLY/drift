@@ -110,26 +110,8 @@ class LeggedKinematicsMeasurement : public Measurement {
    */
   Eigen::Matrix<double, 3, 1> get_kin_pos(int leg) const;
 
-  /**
-   * @brief Get the world-frame velocity in Euclidean space.
-   *
-   * @param[in] leg
-   *
-   * @return 3-vector of body-to-foot frame velocity (m/s)
-   */
-  // Eigen::Matrix<double, 3, 1> get_kin_vel(int leg) const;
-
-  /**
-   * @brief Get the world-frame effort (force) in Euclidean space.
-   *
-   * @return 3-vector of Kinematics effort (Newtons).
-   */
-  // Eigen::Matrix<double, 3, 1> get_kin_effort() const;
-
  protected:
   Eigen::Matrix<double, 3, Eigen::Dynamic> position_;
-  // Eigen::Matrix<double, 3, Eigen::Dynamic> velocity_;
-  // Eigen::Matrix<T, 3, Eigen::Dynamic> effort_;
   Eigen::Matrix<double, 3, Eigen::Dynamic> jacobian_;
   Eigen::Matrix<bool, Eigen::Dynamic, 1> contacts_;
   Eigen::Matrix<double, Eigen::Dynamic, 1> encoders_;

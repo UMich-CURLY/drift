@@ -48,7 +48,7 @@ ImuPropagation::ImuPropagation(
 
   init_bias_size_ = config_["settings"]["init_bias_size"]
                         ? config_["settings"]["init_bias_size"].as<int>()
-                        : 250;
+                        : 0;
   use_imu_ori_est_init_bias_
       = config_["settings"]["use_imu_ori_est_init_bias"]
             ? config_["settings"]["use_imu_ori_est_init_bias"].as<bool>()
@@ -132,7 +132,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
-  Eigen::MatrixXd Xinv = state.Xinv();
+  Eigen::MatrixXd Xinv = state.get_Xinv();
   Eigen::MatrixXd P = state.get_P();
   int dimX = state.dimX();
   int dimP = state.dimP();

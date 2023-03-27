@@ -53,11 +53,3 @@ const Eigen::Vector3d LeggedKinematicsMeasurement::get_init_velocity(
     const Eigen::Vector3d& w) {
   return Eigen::Vector3d::Zero();
 }
-
-// Eigen::Matrix<double, 3, 1> LeggedKinematicsMeasurement::get_kin_vel(int leg)
-// const {
-//   return velocity_.col(leg);
-// }
-
-// Eigen::Matrix<T, 3, 1> LeggedKinematicsMeasurement::get_kin_effort() const {
-// return effort_; }

@@ -4,6 +4,13 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
+/**
+ *  @file   joint_state_impl.cpp
+ *  @author Justin Yu
+ *  @brief  Implementation for joint_state measurement
+ *  @date   Nov 16, 2022
+ **/
+
 template<typename T>
 JointStateMeasurement<T>::JointStateMeasurement() : Measurement(JOINT_STATE) {}
 

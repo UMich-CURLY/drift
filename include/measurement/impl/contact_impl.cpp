@@ -4,6 +4,12 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
+/**
+ *  @file   contact_impl.cpp
+ *  @author Justin Yu
+ *  @brief  Implementation for contact measurement
+ *  @date   Nov 16, 2022
+ **/
 
 ContactMeasurement::ContactMeasurement() : Measurement(CONTACT) {}
 

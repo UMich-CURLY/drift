@@ -87,7 +87,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
-        = Adjoint_SEK3(state.Xinv());
+        = Adjoint_SEK3(state.get_Xinv());
     P_new = (AdjInv * P_new * AdjInv.transpose()).eval();
   }
 
@@ -122,7 +122,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
-        = Adjoint_SEK3(state.Xinv());
+        = Adjoint_SEK3(state.get_Xinv());
     P = (AdjInv * P * AdjInv.transpose()).eval();
   }
 

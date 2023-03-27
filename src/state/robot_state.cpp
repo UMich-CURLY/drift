@@ -196,7 +196,7 @@ const Eigen::MatrixXd RobotState::get_world_X() const {
   if (state_type_ == StateType::WorldCentric) {
     return this->get_X();
   } else {
-    return this->Xinv();
+    return this->get_Xinv();
   }
 }
 
@@ -228,7 +228,7 @@ const Eigen::MatrixXd RobotState::get_body_X() const {
   if (state_type_ == StateType::BodyCentric) {
     return this->get_X();
   } else {
-    return this->Xinv();
+    return this->get_Xinv();
   }
 }
 
@@ -359,7 +359,7 @@ void RobotState::copy_diag_X(int n, Eigen::MatrixXd& BigX) const {
 
 void RobotState::copy_diag_Xinv(int n, Eigen::MatrixXd& BigXinv) const {
   int dimX = this->dimX();
-  Eigen::MatrixXd Xinv = this->Xinv();
+  Eigen::MatrixXd Xinv = this->get_Xinv();
   for (int i = 0; i < n; ++i) {
     int startIndex = BigXinv.rows();
     BigXinv.conservativeResize(startIndex + dimX, startIndex + dimX);
@@ -372,7 +372,7 @@ void RobotState::copy_diag_Xinv(int n, Eigen::MatrixXd& BigXinv) const {
   return;
 }
 
-const Eigen::MatrixXd RobotState::Xinv() const {
+const Eigen::MatrixXd RobotState::get_Xinv() const {
   int dimX = this->dimX();
   Eigen::MatrixXd Xinv = Eigen::MatrixXd::Identity(dimX, dimX);
   Eigen::Matrix3d RT = X_.block<3, 3>(0, 0).transpose();

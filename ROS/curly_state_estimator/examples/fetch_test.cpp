@@ -1,3 +1,16 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   fetch_test.cpp
+ *  @author Tingjun Li
+ *  @brief  Test file for Fetch robot (IMU Propagation + Velocity Correction)
+ *  @date   March 20, 2023
+ **/
+
 #include <ros/ros.h>
 #include <iostream>
 
@@ -18,6 +31,8 @@ int main(int argc, char** argv) {
   // Subscriber:
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
+  /// REMARK: To use Fetch's IMU data, please use the following line
+  /// ("AddFetchIMUSubscriber") instead of the "AddIMUSubscriber"
   // auto qimu_and_mutex
   //     = ros_sub.AddFetchIMUSubscriber("/imu1/imu", "/imu1/gyro_offset");
   auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/vectornav/IMU");
@@ -43,7 +58,7 @@ int main(int argc, char** argv) {
   state_estimator.add_imu_propagation(
       qimu, qimu_mutex,
       "config/filter/inekf/propagation/"
-      "fetch_imu_propagation.yaml");    // Husky's setting
+      "fetch_imu_propagation.yaml");    // Fetch's setting
   state_estimator.add_velocity_correction(qv, qv_mutex,
                                           "config/filter/inekf/correction/"
                                           "fetch_velocity_correction.yaml");

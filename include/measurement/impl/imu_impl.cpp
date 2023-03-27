@@ -4,6 +4,13 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
+/**
+ *  @file   imu_impl.cpp
+ *  @author Justin Yu
+ *  @brief  Implementation for imu measurement
+ *  @date   Nov 16, 2022
+ **/
+
 template<typename T>
 ImuMeasurement<T>::ImuMeasurement()
     : Measurement(IMU),

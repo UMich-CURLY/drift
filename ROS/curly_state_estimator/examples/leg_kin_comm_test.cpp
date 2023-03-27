@@ -1,3 +1,17 @@
+/* ----------------------------------------------------------------------------
+ * Copyright 2022, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   leg_kin_comm_test.cpp
+ *  @author Tingjun Li
+ *  @brief  Test file for Mini-Cheetah robot (IMU propagation + Legged
+ *Kinematics Correction)
+ *  @date   March 20, 2023
+ **/
+
 #include <ros/ros.h>
 #include <iostream>
 

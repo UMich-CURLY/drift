@@ -162,9 +162,6 @@ class SEK3 {
    * @return SEK3: Inverse of the SEK3 object
    */
   SEK3 inverse();
-  // SEK3 log();
-  // SEK3 exp();
-  // SEK3 Adjoint();
 
  private:
   int K_ = 5;

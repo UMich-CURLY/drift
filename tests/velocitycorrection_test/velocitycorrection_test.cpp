@@ -114,10 +114,12 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
 
   // Add propagation and correction methods
-  state_estimator.add_imu_propagation(imu_data_buffer_ptr,
-                                      imu_buffer_mutex_ptr);
-  state_estimator.add_velocity_correction(velocity_data_buffer_ptr,
-                                          velocity_buffer_mutex_ptr);
+  state_estimator.add_imu_propagation(
+      imu_data_buffer_ptr, imu_buffer_mutex_ptr,
+      "../config/filter/inekf/propagation/velocitycorrection_test.yaml");
+  state_estimator.add_velocity_correction(
+      velocity_data_buffer_ptr, velocity_buffer_mutex_ptr,
+      "../config/filter/inekf/correction/velocitycorrection_test.yaml");
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();
@@ -147,7 +149,6 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       EXPECT_NEAR(init_state(j, k), expect_X[0](j, k), 1e-6);
     }
   }
-
 
   for (int i = 1; i < 4; i++) {
     // Check propagation and correction:

@@ -536,7 +536,7 @@ class RobotState {
    *
    * @return const Eigen::MatrixXd: inverse of the state matrix X_.
    */
-  const Eigen::MatrixXd Xinv() const;
+  const Eigen::MatrixXd get_Xinv() const;
 
   friend std::ostream& operator<<(std::ostream& os, const RobotState& s);
 

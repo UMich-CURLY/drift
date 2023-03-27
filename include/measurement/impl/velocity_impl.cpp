@@ -4,6 +4,13 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
+/**
+ *  @file   velocity_impl.cpp
+ *  @author Justin Yu
+ *  @brief  Implementation for velocity measurement
+ *  @date   Nov 16, 2022
+ **/
+
 template<typename T>
 VelocityMeasurement<T>::VelocityMeasurement()
     : Measurement(VELOCITY), vel_{0, 0, 0} {}
