@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(curly_state_estimator VERSION 0.1 DESCRIPTION "An InEKF based state estimator")
+project(drift_proj VERSION 0.1 DESCRIPTION "An InEKF based state estimator")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3")
@@ -14,17 +14,17 @@ option(BUILD_DOC "Build Doxygen documents" ON)
 # #################################################
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
-#find_package(yaml-cpp REQUIRED)
+find_package(yaml-cpp REQUIRED)
 
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 message("Boost include dir: ${Boost_INCLUDE_DIRS}")
-#message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
+message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 # #################################################
 # Include Packages                #
 # #################################################
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
-#include_directories(${YAML_CPP_INCLUDE_DIR})
+include_directories(${YAML_CPP_INCLUDE_DIR})
 include(FetchContent)
 
 # #################################################
@@ -40,14 +40,17 @@ add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
 add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp)
 add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
 add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
-#add_library(noise_params ${PROJECT_SOURCE_DIR}/src/filter/noise_params.cpp)
-#add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
-#add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
-#add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/kinematics_correction.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-#  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
-#add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp)
+add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
+add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
+add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
+ ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+ ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
+ ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+                        ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp)
+file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
+add_library(robot_kinematics ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics
+                              ${MINI_CHEETAH_KIN_SRC_FILES})
 
 # #################################################
 # Build Examples                 #
@@ -94,5 +97,41 @@ if(BUILD_DOC)
 endif(BUILD_DOC)
 
 # #################################################
-# Add Executables                #
+# Add Library                #
 # #################################################
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+
+# declaire a c++ library
+add_library(drift_proj SHARED
+  ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
+  ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp
+  ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp
+  ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
+  ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+  ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
+  ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics
+  ${MINI_CHEETAH_KIN_SRC_FILES}
+)
+set_target_properties(drift_proj PROPERTIES LIBRARY_OUTPUT_NAME drift_proj)
+
+export(PACKAGE drift_proj)
+set_target_properties(drift_proj PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+get_property(drift_include_dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+get_property(drift_library_dirs TARGET drift_proj PROPERTY LIBRARY_OUTPUT_DIRECTORY)
+get_property(drift_libraries TARGET drift_proj PROPERTY LIBRARY_OUTPUT_NAME)
+
+message("drift_include_dirs: " ${drift_include_dirs})
+message("drift_library_dirs: " ${drift_library_dirs})
+message("drift_libraries: " ${drift_libraries})
+
+# Configure config file for local build tree
+configure_file(driftConfig.cmake.in
+  "${PROJECT_BINARY_DIR}/driftConfig.cmake" @ONLY)
+
+message("PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR})
