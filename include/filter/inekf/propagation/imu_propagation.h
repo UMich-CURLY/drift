@@ -72,7 +72,7 @@ class ImuPropagation : public Propagation {
    * The propagation model currently assumes that the covariance is for the
    * right invariant error.
    *
-   * @param[in/out] state: state of the robot.
+   * @param[in,out] state: state of the robot.
    * @return bool: successfully propagate state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
@@ -147,7 +147,7 @@ class ImuPropagation : public Propagation {
    * @param[in] w: The unbiased angular velocity measured from an imu (rad/s)
    * @param[in] a: The unbiased linear acceleration measured from an imu (m/s)
    * @param[in] dt: Time step
-   * @param[in/out] state: the current state estimate
+   * @param[in,out] state: the current state estimate
    *
    * @return Eigen::MatrixXd: the discretized state transition matrix
    */
@@ -163,7 +163,7 @@ class ImuPropagation : public Propagation {
    *
    * @param[in] Phi: The state transition matrix.
    * @param[in] dt: Time step.
-   * @param[in/out] state: The robot state.
+   * @param[in,out] state: The robot state.
    *
    * @return Eigen::MatrixXd: The discretized noise matrix
    */

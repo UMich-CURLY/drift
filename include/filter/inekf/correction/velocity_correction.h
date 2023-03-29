@@ -60,7 +60,7 @@ class VelocityCorrection : public Correction {
    * measured and covarinace of the velocity. Measurements are taken in body
    * frameThis is a right-invariant measurement model.
    *
-   * @param[in/out] state: the current state estimate
+   * @param[in,out] state: the current state estimate
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */

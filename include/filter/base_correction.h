@@ -67,7 +67,7 @@ class Correction {
    * @brief This is a skeleton for the correction method. It should be
    * implemented in the child class.
    *
-   * @param[in/out] state: The current state of the robot
+   * @param[in,out] state: The current state of the robot
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
