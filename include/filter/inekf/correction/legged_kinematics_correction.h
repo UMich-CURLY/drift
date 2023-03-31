@@ -47,6 +47,8 @@ struct ContactInfo {
 /**
  * @class LeggedKinematicsCorrection
  *
+ * @brief A class for state correction using foot kinematics and contact events.
+ *
  * A class for state correction using foot kinematics and contact events. This
  * class handles the correction of the state estimate using the measured forward
  * kinematics between the body frame and a set of contact frames. If contact is

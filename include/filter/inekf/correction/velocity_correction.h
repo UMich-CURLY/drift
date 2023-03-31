@@ -29,6 +29,7 @@ typedef std::shared_ptr<VelocityQueue>
 
 /**
  * @class VelocityCorrection
+ * @brief A class for state correction using velocity measurement data.
  *
  * A class for state correction using velocity measurement data. This class
  * handles the correction of the state estimate using the measured velocity

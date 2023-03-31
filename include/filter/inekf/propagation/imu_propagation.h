@@ -37,6 +37,7 @@ typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Shared pointer to a
 
 /**
  * @class ImuPropagation
+ * @brief A class for state propagation using imu measurement data.
  *
  * A class for state propagation using imu measurement data. This propagation
  * class holds methods for propagating the state forward by one step using one

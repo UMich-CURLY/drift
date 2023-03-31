@@ -29,7 +29,7 @@ enum StateType { WorldCentric, BodyCentric };
 /**
  * @class RobotState
  *
- * Robot state class containing its pose and augmented states,
+ * @brief state class containing its pose and augmented states,
  * biases, and covariances.
  */
 class RobotState {

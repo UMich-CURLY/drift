@@ -40,6 +40,10 @@ typedef std::queue<std::shared_ptr<Measurement>>
 typedef std::shared_ptr<MeasurementQueue>
     MeasurementQueuePtr; /**< Pointer to the queue for storing sensor data. */
 
+/**
+ * @class Correction
+ * @brief Base class for correction method
+ */
 class Correction {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

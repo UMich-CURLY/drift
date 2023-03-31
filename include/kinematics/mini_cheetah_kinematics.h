@@ -32,6 +32,13 @@ enum Leg { FR, FL, HR, HL };
 
 using namespace mini_cheetah_kinematics;
 
+/**
+ * @class MiniCheetahKinematics
+ * @brief Mini Cheetah specific kinematics solver and measurement container
+ *
+ * Derived measurement class containing Mini Cheetah specific kinematics
+ * information.
+ */
 class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
  public:
   /// @name Constructor

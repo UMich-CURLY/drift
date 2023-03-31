@@ -19,7 +19,7 @@
 /**
  * @class LeggedKinematicsMeasurement
  *
- * Derived measurement class containing information
+ * @brief Derived measurement class containing information
  * about body-to-foot kinematics
  */
 class LeggedKinematicsMeasurement : public Measurement {

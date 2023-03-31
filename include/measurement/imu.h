@@ -19,7 +19,7 @@
 /**
  * @class ImuMeasurement
  *
- * Derived measurement class containing intertial
+ * @brief measurement class containing intertial
  * measurement unit estimated parameters.
  */
 template<typename T>

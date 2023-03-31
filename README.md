@@ -8,13 +8,15 @@ CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMi
 # 2. Dependencies
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
-> ### C++11 Compiler
-We use the threading functionalities of C++11.
+> ### C++17 Compiler
+We use the threading functionalities of C++17.
 
 
 > ### Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
+> ### Yaml-cpp
+Required by header files. Download and install instructions can be found at: https://github.com/jbeder/yaml-cpp.
 
 > ### ROS1 or ROS2 (optional)
 Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/main#4-ros).
@@ -47,9 +49,27 @@ Then
   source ~/.bashrc
   ```
   
-2. Execute `build_ros.sh` script:
+2. Execute `build_ros.sh` script in the repository root directory:
 
   ```
+  cd <PATH>/<TO>/curly_state_estimator
   chmod +x build_ros.sh
   ./build_ros.sh
   ```
+
+### Run examples:
+Clearpath Husky robot:
+`rosrun curly_state_estimator ros_comm_test`
+
+Fetch robot:
+`rosrun curly_state_estimator fetch_test`
+
+MIT mini-cheetah robot:
+`rosrun curly_state_estimator leg_kin_test`
+
+### Run the repo with your own settings:
+Users can add configs inside `config/filter/inekf/` directory. Configs in `propagation/` stores settings related to propagation methods, e.g., `mini_cheetah_imu_propagation.yaml` includes all the settings we need to perform imu propagation in the filter. Configs
+in `correction` stores settings related to correction methods. For example, velocity correction method settings can refer to `fetch_velocity_correction.yaml` or `velocity_correction.yaml`, while legged kinematics correction method settings can refer to 
+`mini_cheetah_legged_kinematics_correction.yaml`. 
+
+After editting the config files, one can easily follow tutorial comments in examples in `ROS/examples` to create new cases!

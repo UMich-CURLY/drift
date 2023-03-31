@@ -19,7 +19,7 @@
 /**
  * @class ContactMeasurement
  *
- * Derived measurement class containing robot-ground
+ * @brief measurement class containing robot-ground
  * contact state.
  */
 

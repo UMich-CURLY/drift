@@ -25,6 +25,7 @@
 
 
 /**
+ * @class SEK3
  * @brief SEk(3) group class
  *
  * SEk(3) is a group of SE(3) with k additional states

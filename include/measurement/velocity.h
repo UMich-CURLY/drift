@@ -19,7 +19,7 @@
 /**
  * @class VelocityMeasurement
  *
- * Derived measurement class containing robot-frame
+ * @brief measurement class containing robot-frame
  * velocity information.
  */
 template<typename T>

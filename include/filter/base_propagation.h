@@ -26,14 +26,19 @@
 #include "measurement/measurement.h"
 #include "state/robot_state.h"
 
+
 enum class PropagationType {
   BASE, /**< Base propagation method. */
   IMU,  /**< IMU propagation method. */
 };
 
-typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue; 
+typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
 typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
 
+/**
+ * @class Propagation
+ * @brief Base class for propagation method
+ */
 class Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW

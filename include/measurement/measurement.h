@@ -31,7 +31,7 @@ enum MeasurementType {
 /**
  * @class Measurement
  *
- * Base class for robot-state instantaneous measurement.
+ * @brief class for robot-state instantaneous measurement.
  * contact state.
  */
 class Measurement {

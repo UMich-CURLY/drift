@@ -39,8 +39,8 @@ typedef std::shared_ptr<RobotStateQueue>
 /**
  * @class StateEstimator
  *
- * A class for state estimation. This class will be used to estimate the state
- * of the robot using user chosen filter methods.
+ * @brief class for state estimation. This class will be used to estimate the
+ * state of the robot using user chosen filter methods.
  **/
 class StateEstimator {
  public:

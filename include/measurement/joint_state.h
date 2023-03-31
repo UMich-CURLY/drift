@@ -19,7 +19,7 @@
 /**
  * @class JointStateMeasurement
  *
- * Derived measurement class containing joint
+ * @brief measurement class containing joint
  * actuator measurements (encoder position, actuator angular velocity, acutator
  * torque).
  */
