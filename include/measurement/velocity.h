@@ -25,11 +25,16 @@
 template<typename T>
 class VelocityMeasurement : public Measurement {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
   VelocityMeasurement();
+  /// @}
 
+  /// @name Setter
+  /// @{
   /**
    * @brief Set the velocity measurement coefficients (m/s).
    *
@@ -38,7 +43,10 @@ class VelocityMeasurement : public Measurement {
    * @param[in] vz: z velocity coefficient.
    */
   void set_velocity(T vx, T vy, T vz);
+  /// @}
 
+  /// @name Getter
+  /// @{
   /**
    * @brief Get the velocity measurement coefficients.
    *
@@ -59,6 +67,7 @@ class VelocityMeasurement : public Measurement {
    * @return 3-vector containing normalized robot-frame velocity.
    */
   Eigen::Matrix<T, 3, 1> get_vel_unit_vec() const;
+  /// @}
 
  private:
   Eigen::Matrix<T, 3, 1> vel_;

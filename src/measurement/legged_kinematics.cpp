@@ -33,7 +33,7 @@ void LeggedKinematicsMeasurement::set_joint_state_velocity(
 Eigen::Matrix<double, 3, Eigen::Dynamic> LeggedKinematicsMeasurement::get_J(
     int leg) const {
   int dim = encoders_.rows() / contacts_.rows();
-  return jacobian_.block(0, leg * dim, 3, dim);
+  return jacobians_.block(0, leg * dim, 3, dim);
 }
 
 bool LeggedKinematicsMeasurement::get_contact(int leg) const {
@@ -46,7 +46,7 @@ double LeggedKinematicsMeasurement::get_joint_state(int encoder) const {
 
 Eigen::Matrix<double, 3, 1> LeggedKinematicsMeasurement::get_kin_pos(
     int leg) const {
-  return position_.col(leg);
+  return positions_.col(leg);
 }
 
 const Eigen::Vector3d LeggedKinematicsMeasurement::get_init_velocity(

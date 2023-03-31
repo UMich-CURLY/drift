@@ -29,8 +29,10 @@
 
 #include "state/robot_state.h"
 
-typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue;
-typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
+typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue; /**< Queue for
+storing robot states. */
+typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr; /**< Pointer to the
+RobotStateQueue. */
 
 namespace ros_wrapper {
 class ROSPublisher {

@@ -25,24 +25,33 @@
 
 class ContactMeasurement : public Measurement {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
   ContactMeasurement();
+  /// @}
 
+  /// @name Setter
+  /// @{
   /**
    * @brief Set the contact state vector for this measurement.
    *
    * @param[in] contacts: vector of booleans containing contact state.
    */
   void set_contact(const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts);
+  /// @}
 
+  /// @name Getter
+  /// @{
   /**
    * @brief Get the contact state vector for this measurement.
    *
    * @return vector of booleans containing contact state.
    */
   Eigen::Matrix<bool, Eigen::Dynamic, 1> get_contact() const;
+  /// @}
 
  private:
   Eigen::Matrix<bool, Eigen::Dynamic, 1>

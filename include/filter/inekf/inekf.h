@@ -31,8 +31,6 @@ namespace inekf {
 
 enum ErrorType { LeftInvariant, RightInvariant };
 
-using ContactState = std::pair<int, bool>;
-
 
 /// @}
 // ======================================================================

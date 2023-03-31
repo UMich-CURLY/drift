@@ -31,8 +31,10 @@
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
 using namespace inekf;
 
-typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue;
-typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr;
+typedef std::queue<std::shared_ptr<RobotState>>
+    RobotStateQueue; /**< Queue of pointers to robot state */
+typedef std::shared_ptr<RobotStateQueue>
+    RobotStateQueuePtr; /**< Pointer to the robot state queue */
 
 /**
  * @class StateEstimator
@@ -54,7 +56,7 @@ class StateEstimator {
 
   // ======================================================================
   /**
-   * @brief Construct a new State Estimator object
+   * @brief Construct a new State Estimator object.
    *
    * @param[in] enable_imu_bias_update: True if the filter should update imu
    * bias
@@ -62,7 +64,7 @@ class StateEstimator {
   StateEstimator(bool enable_imu_bias_update = false);
 
   /**
-   * @brief Construct a new State Estimator object
+   * @brief Construct a new State Estimator object according to given settings.
    *
    * @param[in] error_type: Error type of the filter
    * @param[in] enable_imu_bias_update: True if the filter should update imu
@@ -111,12 +113,13 @@ class StateEstimator {
   /// @}
 
 
-  /// @name Propagation
+  /// @name Propagation adders
   /// @{
   // ======================================================================
   /**
-   * @brief Declare a propagation method, which uses imu data to propagate
-   * the state of the robot
+   * @brief Add a propagation method to StateEstimator object, which uses imu
+   * data to propagate the state of the robot. This propagation method will be
+   * called in the when the filter is running.
    *
    * @param[in] buffer_ptr: The imu buffer queue temporarily stores the
    * message from the subscriber.
@@ -129,12 +132,13 @@ class StateEstimator {
       = "config/filter/inekf/propagation/imu_propagation.yaml");
   /// @}
 
-  /// @name Correction
+  /// @name Correction adders
   /// @{
   // ======================================================================
   /**
-   * @brief Declare a correction method, which uses leg kinematic data to
-   * correct the state of the robot
+   * @brief Add a legged kinematics correction method to the StateEstimator
+   * object, which uses leg kinematic data to correct the state of the robot.
+   * This correction method will be called in the when the filter is running.
    *
    * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
    * message from the subscriber.
@@ -150,8 +154,9 @@ class StateEstimator {
 
   // ======================================================================
   /**
-   * @brief Declare a correction method, which uses velocity data to correct
-   * the state of the robot
+   * @brief Add a velocity correction method to the StateEstimator object, which
+   * uses velocity data to correct the state of the robot. This correction
+   * method will be called in the when the filter is running.
    *
    * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
    * message from the subscriber.
@@ -166,6 +171,8 @@ class StateEstimator {
                                  "correction/velocity_correction.yaml");
   /// @}
 
+  /// @name Utility functions
+  /// @{
   // ======================================================================
   /**
    * @brief Return whether or not the filter is enabled
@@ -202,22 +209,25 @@ class StateEstimator {
    *
    */
   void InitState();
+  /// @}
 
+  /// @name Activate filter
+  /// @{
   // ======================================================================
   /**
-   * @brief Run the filter once.
-   *
-   * Users should first add propagation and correction methods, then call this
-   * method. This method will run in a loop, in which the robot state would be
-   * propagated and corrected according to the methods added.
-   *
+   * @brief Run the filter once. In the main function, users should first add
+   * propagation and correction methods, then call this method. This method
+   * will run the filter once, in which the robot state would be propagated and
+   * corrected if new data are received. Users should call this method in a
+   * loop. See ROS/example/*.cpp for examples.
    */
   void RunOnce();
+  /// @}
 
 
   // ======================================================================
   /**
-   * @brief Clear and reset the filter
+   * @brief Clear and reset the filter. Will be implemented in the future.
    *
    */
   void clear();

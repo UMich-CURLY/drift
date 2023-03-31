@@ -28,15 +28,21 @@
 #include "measurement/imu.h"
 
 namespace inekf {
-typedef std::shared_ptr<ImuMeasurement<double>> ImuMeasurementPtr;
-typedef std::queue<ImuMeasurementPtr> IMUQueue;
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
+typedef std::shared_ptr<ImuMeasurement<double>>
+    ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
+typedef std::queue<ImuMeasurementPtr>
+    IMUQueue; /**< Queue of ImuMeasurementPtr objects. */
+typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Shared pointer to a
+                                                  IMUQueue object. */
 
 /**
  * @class ImuPropagation
  *
- * A class for state propagation using imu measurement data.
- **/
+ * A class for state propagation using imu measurement data. This propagation
+ * class holds methods for propagating the state forward by one step using one
+ * IMU data. The model is based on the paper:
+ * https://journals.sagepub.com/doi/full/10.1177/0278364919894385
+ */
 class ImuPropagation : public Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -68,7 +74,7 @@ class ImuPropagation : public Propagation {
   /**
    * @brief Propagates the estimated state mean and covariance forward using
    * inertial measurements. All landmarks positions are assumed to be static.
-   * All contacts velocities are assumed to be zero + Gaussian noise.
+   * All contacts' velocities are assumed to be zero + Gaussian noise.
    * The propagation model currently assumes that the covariance is for the
    * right invariant error.
    *
@@ -85,7 +91,7 @@ class ImuPropagation : public Propagation {
   /**
    * @brief Get the estimate gyro bias.
    *
-   * @return const Eigen::Vector3d: Estimated gyro bias. \f$(rad/s)\f$
+   * @return const Eigen::Vector3d: Estimated gyro bias. (rad/s)
    */
   const Eigen::Vector3d get_estimate_gyro_bias() const;
 
@@ -93,7 +99,7 @@ class ImuPropagation : public Propagation {
   /**
    * @brief Get the estimate accel bias.
    *
-   * @return const Eigen::Vector3d:Estimated acceleration bias. \f$(m/s^2)\f$
+   * @return const Eigen::Vector3d:Estimated acceleration bias. (m/s^2)
    */
   const Eigen::Vector3d get_estimate_accel_bias() const;
 
@@ -118,7 +124,7 @@ class ImuPropagation : public Propagation {
   const IMUQueuePtr get_sensor_data_buffer_ptr() const;
   /// @} End of Getters
 
-  /// @name InitImuBias
+  /// @name Initialze IMU bias
   //{
   // ======================================================================
   /**
@@ -128,11 +134,9 @@ class ImuPropagation : public Propagation {
    *
    * The function takes the first n data points, average their value, and
    * subtract the gravity to get the initial bias.
-   *
-   *
    */
   void InitImuBias();
-  ///@} End of InitImuBias
+  ///@} End of Initialize IMU bias
 
 
  private:

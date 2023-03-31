@@ -42,45 +42,55 @@
 #include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
 
-typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue;
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr;
-typedef std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> IMUQueuePair;
+typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue; /**< Queue
+for storing IMU measurements. */
+typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Pointer to the IMUQueue. */
+typedef std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> IMUQueuePair; /**<
+Pair of IMUQueuePtr and IMUQueue mutex. */
 
-typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>> VelocityQueue;
-typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
+typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>>
+    VelocityQueue; /**< Queue for storing velocity measurements. */
+typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr; /**< Pointer to the
+VelocityQueue. */
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
-    VelocityQueuePair;
+    VelocityQueuePair; /**< Pair of VelocityQueuePtr and VelocityQueue mutex. */
 
 // Legged kinematics sync
-typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>> LegKinQueue;
-typedef std::shared_ptr<LegKinQueue> LegKinQueuePtr;
-typedef std::pair<LegKinQueuePtr, std::shared_ptr<std::mutex>> LegKinQueuePair;
+typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
+    LegKinQueue; /**< Queue for storing legged kinematics measurements. */
+typedef std::shared_ptr<LegKinQueue>
+    LegKinQueuePtr; /**< Pointer to the LegKinQueue. */
+typedef std::pair<LegKinQueuePtr, std::shared_ptr<std::mutex>>
+    LegKinQueuePair; /**< Pair of LegKinQueuePtr and LegKinQueue mutex. */
 typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
-    ContactMsgFilterT;
+    ContactMsgFilterT; /**< Message filter for contact messages. */
 typedef message_filters::Subscriber<sensor_msgs::JointState>
-    JointStateMsgFilterT;
+    JointStateMsgFilterT; /**< Message filter for joint state messages. */
 typedef std::shared_ptr<
     message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
-    ContactMsgFilterTPtr;
+    ContactMsgFilterTPtr; /**< Pointer to the ContactMsgFilterT. */
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
-    JointStateMsgFilterTPtr;
+    JointStateMsgFilterTPtr; /**< Pointer to the JointStateMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
-    LegKinSyncPolicy;
+    LegKinSyncPolicy; /**< Sync policy for legged kinematics. */
 typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
-    LegKinSyncPtr;
+    LegKinSyncPtr; /**< Pointer to the LegKinSyncPolicy. */
 
 // IMU sync
-typedef message_filters::Subscriber<sensor_msgs::Imu> IMUMsgFilterT;
+typedef message_filters::Subscriber<sensor_msgs::Imu>
+    IMUMsgFilterT; /**< Message filter for IMU messages. */
 typedef message_filters::Subscriber<geometry_msgs::Vector3Stamped>
-    IMUOffsetMsgFilterT;
-typedef std::shared_ptr<IMUMsgFilterT> IMUMsgFilterTPtr;
-typedef std::shared_ptr<IMUOffsetMsgFilterT> IMUOffsetMsgFilterTPtr;
+    IMUOffsetMsgFilterT; /**< Message filter for IMU offset messages. */
+typedef std::shared_ptr<IMUMsgFilterT>
+    IMUMsgFilterTPtr; /**< Pointer to the IMUMsgFilterT. */
+typedef std::shared_ptr<IMUOffsetMsgFilterT>
+    IMUOffsetMsgFilterTPtr; /**< Pointer to the IMUOffsetMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     sensor_msgs::Imu, geometry_msgs::Vector3Stamped>
-    IMUSyncPolicy;
+    IMUSyncPolicy; /**< Sync policy for IMU. */
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
-    IMUSyncPtr;
+    IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
 
 namespace ros_wrapper {
 class ROSSubscriber {
@@ -103,8 +113,12 @@ class ROSSubscriber {
   ~ROSSubscriber();
   /// @}
 
+  /// @name ROS subscriber adders
   /**
-   * @brief Add IMU subscriber
+   * @brief Add an IMU subscriber to the given topic and return a queue pair.
+   * The queue pair contains the queue and the mutex for the queue. The queue
+   * stores the IMU measurements and the mutex is used to protect the queue.
+   *
    *
    * @param[in] topic_name IMU topic name
    * @return IMUQueuePair IMU queue pair
@@ -112,7 +126,10 @@ class ROSSubscriber {
   IMUQueuePair AddIMUSubscriber(const std::string topic_name);
 
   /**
-   * @brief Add IMU subscriber for Fetch
+   * @brief Add an IMU subscriber for Fetch to the given topci and return a
+   * queue pair. The queue pair contains the queue and the mutex for the queue.
+   * The queue stores the IMU measurements and the mutex is used to protect the
+   * queue.
    *
    * @param[in] imu_topic_name IMU topic name
    * @param[in] offset_topic_name imu offset topic name
@@ -122,7 +139,10 @@ class ROSSubscriber {
                                      const std::string offset_topic_name);
 
   /**
-   * @brief Add velocity subscriber
+   * @brief Add velocity subscriber to the given topic and return a queue
+   * pair.The queue pair contains the queue and the mutex for the queue. The
+   * queue stores the velocity measurements and the mutex is used to protect the
+   * queue.
    *
    * @param[in] topic_name velocity topic name
    * @return VelocityQueuePair velocity queue pair
@@ -139,8 +159,10 @@ class ROSSubscriber {
       const std::string topic_name);
 
   /**
-   * @brief Add differential drive velocity subscriber for Husky (4 driving
-   * wheels)
+   * @brief Add a differential drive velocity subscriber for Husky (4 driving
+   * wheels) to the given topic and return a queue pair. The queue pair contains
+   * the queue and the mutex for the queue. The queue stores the velocity
+   * measurements and the mutex is used to protect the queue.
    *
    * @param[in] topic_name differential drive velocity topic name
    * @return VelocityQueuePair velocity queue pair
@@ -149,7 +171,10 @@ class ROSSubscriber {
       const std::string topic_name);
 
   /**
-   * @brief Add differential drive velocity subscriber (2 driving wheels)
+   * @brief Add differential drive velocity subscriber (2 driving wheels) for
+   * Fetch to the given topic and return a queue pair. The queue pair contains
+   * the queue and the mutex for the queue. The queue stores the velocity
+   * measurements and the mutex is used to protect the queue.
    *
    * @param[in] topic_name differential drive velocity topic name
    * @return VelocityQueuePair velocity queue pair
@@ -158,7 +183,10 @@ class ROSSubscriber {
       const std::string topic_name);
 
   /**
-   * @brief Add differential drive velocity subscriber
+   * @brief Add differential drive velocity subscriber for Mini Cheetah to the
+   * given topic and return a queue pair. The queue pair contains the queue and
+   * the mutex for the queue. The queue stores the velocity measurements and the
+   * mutex is used to protect the queue.
    *
    * @param[in] contact_topic_name differential drive velocity topic name
    * @param[in] encoder_topic_name encoder topic name
@@ -167,6 +195,7 @@ class ROSSubscriber {
   LegKinQueuePair AddMiniCheetahKinematicsSubscriber(
       const std::string contact_topic_name,
       const std::string encoder_topic_name);
+  /// @}
 
   /**
    * @brief Start the subscribing thread

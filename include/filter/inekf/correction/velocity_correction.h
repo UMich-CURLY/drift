@@ -19,14 +19,22 @@
 #include "measurement/velocity.h"
 
 namespace inekf {
-typedef std::shared_ptr<VelocityMeasurement<double>> VelocityMeasurementPtr;
-typedef std::queue<VelocityMeasurementPtr> VelocityQueue;
-typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr;
+typedef std::shared_ptr<VelocityMeasurement<double>>
+    VelocityMeasurementPtr; /**< Type: Shared pointer to a VelocityMeasurement
+                               object. */
+typedef std::queue<VelocityMeasurementPtr>
+    VelocityQueue; /**< Type: Queue of VelocityMeasurementPtr objects. */
+typedef std::shared_ptr<VelocityQueue>
+    VelocityQueuePtr; /**< Type: Shared pointer to a VelocityQueue object. */
 
 /**
  * @class VelocityCorrection
  *
- * A class for state correction using velocity measurement data.
+ * A class for state correction using velocity measurement data. This class
+ * handles the correction of the state estimate using the measured velocity
+ * between the body frame and the world frame. Default is a right-invariant
+ * measurement model.
+ *
  **/
 class VelocityCorrection : public Correction {
  public:
@@ -35,7 +43,7 @@ class VelocityCorrection : public Correction {
   /// @name Constructors
   /// @{
   /**
-   * @brief Constructor for the correction class
+   * @brief Constructor for velocity correction class.
    *
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
@@ -58,7 +66,7 @@ class VelocityCorrection : public Correction {
   /**
    * @brief Corrects the state estimate using measured velocity [m/s] that is
    * measured and covarinace of the velocity. Measurements are taken in body
-   * frameThis is a right-invariant measurement model.
+   * frame. This is a right-invariant measurement model.
    *
    * @param[in,out] state: the current state estimate
    * @return bool: successfully correct state or not (if we do not receive a
@@ -81,19 +89,21 @@ class VelocityCorrection : public Correction {
    * @brief Get the initial velocity of the robot
    *
    * @param[in] w: initial angular velocity of the robot
-   * @return const Eigen::Vector3d
+   * @return const Eigen::Vector3d: initial velocity of the robot
    */
   const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
   /// @}
 
 
  private:
-  const ErrorType error_type_;    // Error type for the correction.
-                                  // LeftInvariant or RightInvariant
-  VelocityQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor buffer
-  Eigen::Matrix3d covariance_;                 // Velocity covariance
-  Eigen::Matrix3d
-      R_vel2body_;    // Rotation matrix from velocity frame to body frame
+  const ErrorType error_type_; /**> Error type for the correction,
+                               LeftInvariant or RightInvariant. */
+  VelocityQueuePtr
+      sensor_data_buffer_ptr_; /**> Pointer to the sensor buffer. */
+  Eigen::Matrix3d covariance_; /**> Velocity covariance. */
+  Eigen::Matrix3d R_vel2body_; /**> Rotation matrix from velocity frame to body
+                                  frame. It stores the value from config file
+                                  when the class object is created.*/
 };
 
 }    // namespace inekf

@@ -36,6 +36,7 @@ class RobotState {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   /// @name Constructors
+  /// @{
   /**
    * @brief Default RobotState constructor.
    */
@@ -93,7 +94,10 @@ class RobotState {
    * @param[in] P: matrix of covariance respect to X.
    */
   RobotState(SEK3& X, const Eigen::VectorXd& Theta, const Eigen::MatrixXd& P);
+  /// @}
 
+  /// @name Getters
+  /// @{
   /**
    * @brief Get state matrix X.
    *
@@ -210,48 +214,11 @@ class RobotState {
   const double get_propagate_time() const;
 
   /**
-   * @brief Add the augmented state
-   *
-   * @param[in] aug: Augmented state to be added to the index mapping.
-   * @param[in] P_aug: Covariance of the state that is augmented.
-   * @param[in] noise_cov: Covariance of noise.
-   * @param[in] col_id_ptr: the column id passed by correction mapping.
-   */
-  int add_aug_state(const Eigen::Vector3d& aug, const Eigen::MatrixXd& P_aug,
-                    const Eigen::Matrix3d& noise_cov,
-                    std::shared_ptr<int> col_id_ptr);
-
-  /**
-   * @brief Set the augmented to the certain position(matrix_idx-th) in the
-   * state vector.
-   *
-   * @param[in] matrix_idx: index of the augmented state in the state.
-   * @param[in] aug: augmented state to be set.
-   */
-  void set_aug_state(int matrix_idx, const Eigen::Vector3d& aug);
-
-  /**
-   * @brief Delete certain augmented state(matrix_idx-th) from the state
-   * matrix.
-   *
-   * @param[in] matrix_idx: index of the augmented state in the state.
-   */
-  void del_aug_state(int matrix_idx);
-
-  /**
-   * @brief Delete certain augmented state(matrix_idx-th) from the augmented
-   * noise covariance matrix.
-   *
-   * @param[in] matrix_idx: index of the augmented state in the state.
-   */
-  void del_aug_noise_cov(int matrix_idx);
-
-  /**
    * @brief Get the augmented state vector giving matrix_idx in the state.
    *
    * @param[in] matrix_idx: index of the augmented state in the state.
 
-   */
+  */
   const Eigen::Vector3d get_aug_state(int matrix_idx);
 
   /**
@@ -353,6 +320,71 @@ class RobotState {
   const Eigen::MatrixXd get_continuous_noise_covariance() const;
 
   /**
+   * @brief Get the Gyroscope Bias vector baug according to matrix_idx.
+   *
+   * @param[in] matrix_idx: the idx in the state matrix where the aug state is
+   * located
+   * @return const Eigen::Vector3d: gyroscope bias vector baug.
+   */
+  const Eigen::Vector3d get_aug_bias(int matrix_idx);
+
+  /**
+   * @brief Get the aug cov matrix from the
+   *
+   * @param[in] matrix_idx: the idx in the state matrix where the aug state is
+   * located
+   * @return const Eigen::Matrix3d: augmented covariance matrix.
+   */
+  const Eigen::Matrix3d get_aug_cov(int matrix_idx);
+
+  /**
+   * @brief compute the inverse of the state matrix X_.
+   *
+   * @return const Eigen::MatrixXd: inverse of the state matrix X_.
+   */
+  const Eigen::MatrixXd get_Xinv() const;
+  /// @} End of Getters
+
+  /// @name Setters
+  /// @{
+  /**
+   * @brief Add the augmented state
+   *
+   * @param[in] aug: Augmented state to be added to the index mapping.
+   * @param[in] P_aug: Covariance of the state that is augmented.
+   * @param[in] noise_cov: Covariance of noise.
+   * @param[in] col_id_ptr: the column id passed by correction mapping.
+   */
+  int add_aug_state(const Eigen::Vector3d& aug, const Eigen::MatrixXd& P_aug,
+                    const Eigen::Matrix3d& noise_cov,
+                    std::shared_ptr<int> col_id_ptr);
+
+  /**
+   * @brief Set the augmented to the certain position(matrix_idx-th) in the
+   * state vector.
+   *
+   * @param[in] matrix_idx: index of the augmented state in the state.
+   * @param[in] aug: augmented state to be set.
+   */
+  void set_aug_state(int matrix_idx, const Eigen::Vector3d& aug);
+
+  /**
+   * @brief Delete certain augmented state(matrix_idx-th) from the state
+   * matrix.
+   *
+   * @param[in] matrix_idx: index of the augmented state in the state.
+   */
+  void del_aug_state(int matrix_idx);
+
+  /**
+   * @brief Delete certain augmented state(matrix_idx-th) from the augmented
+   * noise covariance matrix.
+   *
+   * @param[in] matrix_idx: index of the augmented state in the state.
+   */
+  void del_aug_noise_cov(int matrix_idx);
+
+  /**
    * @brief Set the RobotState whole matrix.
    *
    * @param[in]: X: state matrix X.
@@ -439,15 +471,6 @@ class RobotState {
   void del_aug_bias(int matrix_idx);
 
   /**
-   * @brief Get the Gyroscope Bias vector baug according to matrix_idx.
-   *
-   * @param[in] matrix_idx: the idx in the state matrix where the aug state is
-   * located
-   * @return const Eigen::Vector3d: gyroscope bias vector baug.
-   */
-  const Eigen::Vector3d get_aug_bias(int matrix_idx);
-
-  /**
    * @brief Set the Rotation Covariance cov to private member P_.
    *
    * @param[in] cov: covariance matrix for the rotation.
@@ -489,7 +512,6 @@ class RobotState {
    */
   void set_continuous_noise_covariance(const Eigen::MatrixXd& cov);
 
-
   /// augment state covariance
   /**
    * @brief add augmented covariance matrix to the end of the mapping.
@@ -505,16 +527,10 @@ class RobotState {
    * located
    */
   void del_aug_cov(int matrix_idx);
+  /// @} End of Setters
 
-  /**
-   * @brief Get the aug cov matrix from the
-   *
-   * @param[in] matrix_idx: the idx in the state matrix where the aug state is
-   * located
-   * @return const Eigen::Matrix3d: augmented covariance matrix.
-   */
-  const Eigen::Matrix3d get_aug_cov(int matrix_idx);
-
+  /// @name Utility functions
+  /// @{
   /**
    * @brief copy X_ n times to right-lower side of the larger matrix BigX.
    *
@@ -531,17 +547,22 @@ class RobotState {
    */
   void copy_diag_Xinv(int n, Eigen::MatrixXd& BigXinv) const;
 
-  /**
-   * @brief compute the inverse of the state matrix X_.
-   *
-   * @return const Eigen::MatrixXd: inverse of the state matrix X_.
-   */
-  const Eigen::MatrixXd get_Xinv() const;
+  /// @} End of Utility functions
 
+  /// @name Overloaded operators
+  /// @{
+  /**
+   * @brief Overloaded operator<< for printing the state.
+   *
+   * @param[in] os: output stream.
+   * @param[in] s: RobotState to be printed.
+   * @return std::ostream&: output stream.
+   */
   friend std::ostream& operator<<(std::ostream& os, const RobotState& s);
+  /// @} End of Overloaded operators
 
  private:
-  // Util function:
+  // Utility function:
   /**
    * @brief Remove the row and column of the matrix M at the given index.
    *

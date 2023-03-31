@@ -21,21 +21,39 @@
 #include "measurement/legged_kinematics.h"
 
 namespace inekf {
-typedef std::shared_ptr<LeggedKinematicsMeasurement> KinematicsMeasurementPtr;
+typedef std::shared_ptr<LeggedKinematicsMeasurement>
+    KinematicsMeasurementPtr; /**< Type: Shared pointer to a
+                                 LeggedKinematicsMeasurement object. */
 typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
-    KinematicsQueue;
-typedef std::shared_ptr<KinematicsQueue> LeggedKinematicsQueuePtr;
+    KinematicsQueue; /**< Type: Queue of LeggedKinematicsMeasurementPtr objects.
+                      */
+typedef std::shared_ptr<KinematicsQueue>
+    LeggedKinematicsQueuePtr; /**< Type: Shared pointer
+                                 to a KinematicsQueue object. */
 
+/**
+ * @brief A struct for contact information
+ *
+ * @param[in] id: Contact foot(leg)'s id
+ * @param[in] pose: Contact foot(leg)'s pose
+ * @param[in] cov: Contact foot(leg)'s pose covariance
+ */
 struct ContactInfo {
-  int id;
-  Eigen::Vector3d pose;
-  Eigen::Matrix3d cov;
+  int id;               /**< ID of the contact foot(leg). */
+  Eigen::Vector3d pose; /**< Pose of the contact foot(leg). */
+  Eigen::Matrix3d cov;  /**< Covariance of the contact foot(leg). */
 };
 
 /**
  * @class LeggedKinematicsCorrection
  *
- * A class for state correction using foot kinematics and contact events.
+ * A class for state correction using foot kinematics and contact events. This
+ * class handles the correction of the state estimate using the measured forward
+ * kinematics between the body frame and a set of contact frames. If contact is
+ * indicated but not included in the state, the state is augmented to include
+ * include the estimated contact foot position. If contact is not indicated but
+ * is included in the robot state, the contact position is marginalized out of
+ * the state. Default is a right-invariant measurement model.
  **/
 class LeggedKinematicsCorrection : public Correction {
  public:
@@ -43,7 +61,7 @@ class LeggedKinematicsCorrection : public Correction {
 
   /// @name Constructors
   /**
-   * @brief Constructor for the correction class
+   * @brief Constructor for the legged kinematics correction class.
    *
    * @param[in] sensor_data_buffer_ptr: Pointer to the buffer of sensor data
    * @param[in] sensor_data_buffer_mutex_ptr: Pointer to the mutex for the
@@ -70,7 +88,7 @@ class LeggedKinematicsCorrection : public Correction {
    * between the IMU and a set of contact frames. If contact is indicated but
    * not included in the state, the state is augmented to include the estimated
    * contact position. If contact is not indicated but is included in the state,
-   * the contact position is marginalized out of the state. This is a
+   * the contact position is marginalized out of the state. Default is a
    * right-invariant measurement model.
    *
    * @param[in,out] state: the current state estimate
@@ -100,20 +118,28 @@ class LeggedKinematicsCorrection : public Correction {
   /// @}
 
  private:
-  const ErrorType error_type_;
+  const ErrorType error_type_; /**> Error type for the correction. LeftInvariant
+                                  or RightInvariant */
 
-  // aug_id_to_column_id map:
-  // key: augmented state id
-  // value: pointer to the column idx of augmented state's position in the robot
-  // state X
+  /**>
+   * @var map:
+   * key: augmented state id
+   * value: pointer to the column idx of augmented state's position in the robot
+   * state X
+   */
   std::unordered_map<int, std::shared_ptr<int>> aug_id_to_column_id_ptr_;
 
-  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor
-                                                       // data buffer
-  double encoder_std_val_;                // Encoder noise standard deviation
-  double kinematics_additive_std_val_;    // Additive noise for kinematics
-  Eigen::Matrix3d contact_noise_cov_;     // Contact noise covariance
-};                                        // class LeggedKinematicsCorrection
+  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_; /**> Pointer to the sensor
+                                                     data buffer. */
+  double encoder_std_val_; /**> Encoder noise standard deviation value. It
+                              stores the value from config file when the class
+                              object is created. */
+  double kinematics_additive_std_val_; /**> Additive noise standard deviation
+                                          valuefor kinematics. It stores the
+                                          value from config file when the class
+                                          object is created. */
+  Eigen::Matrix3d contact_noise_cov_;  /**> Contact noise covariance. */
+};                                     // class LeggedKinematicsCorrection
 }    // namespace inekf
 
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

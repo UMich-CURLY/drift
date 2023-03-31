@@ -27,11 +27,11 @@
 #include "state/robot_state.h"
 
 enum class PropagationType {
-  BASE,
-  IMU,
+  BASE, /**< Base propagation method. */
+  IMU,  /**< IMU propagation method. */
 };
 
-typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
+typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue; 
 typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
 
 class Propagation {
@@ -96,14 +96,14 @@ class Propagation {
   /// @}   // End of getters
 
  protected:
-  const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
+  const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
+                               Default is 9.81m/s^2 */
   Eigen::Vector3d
-      magnetic_field_;    // Magnetic field vector in world frame (z-up)
-  PropagationType propagation_type_;    // The type of the propagation method
+      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
+  PropagationType propagation_type_; /**< The type of the propagation method. */
   std::shared_ptr<std::mutex>
-      sensor_data_buffer_mutex_ptr_;    // The mutex of the sensor data buffer
-};                                      // End of class Propagation
+      sensor_data_buffer_mutex_ptr_; /**< The mutex of the sensor data buffer.
+                                      */
+};                                   // End of class Propagation
 
-
-// #include "../src/filter/base_propagation.cpp"
 #endif    // FILTER_BASE_PROPAGATION_H

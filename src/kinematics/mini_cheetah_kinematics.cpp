@@ -12,8 +12,8 @@
 using namespace mini_cheetah_kinematics;
 
 MiniCheetahKinematics::MiniCheetahKinematics() {
-  position_.setConstant(3, NLEG, 0);
-  jacobian_.setConstant(3, NLEG * NAPL, 0);
+  positions_.setConstant(3, NLEG, 0);
+  jacobians_.setConstant(3, NLEG * NAPL, 0);
   contacts_.setConstant(NLEG, 1, 0);
   encoders_.setConstant(NLEG * NAPL, 1, 0);
 }
@@ -23,22 +23,22 @@ MiniCheetahKinematics::MiniCheetahKinematics(
     const Eigen::Matrix<double, Eigen::Dynamic, 1>& d_encoders,
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
     : LeggedKinematicsMeasurement(encoders, d_encoders, contacts) {
-  position_.setConstant(3, NLEG, 0);
-  jacobian_.setConstant(3, NLEG * NAPL, 0);
+  positions_.setConstant(3, NLEG, 0);
+  jacobians_.setConstant(3, NLEG * NAPL, 0);
 }
 
 void MiniCheetahKinematics::ComputeKinematics() {
-  position_.col(FR) = p_Body_to_FrontRightFoot(encoders_);
-  position_.col(FL) = p_Body_to_FrontLeftFoot(encoders_);
-  position_.col(HR) = p_Body_to_HindRightFoot(encoders_);
-  position_.col(HL) = p_Body_to_HindLeftFoot(encoders_);
-  jacobian_.block(0, FR * NAPL, 3, NAPL)
+  positions_.col(FR) = p_Body_to_FrontRightFoot(encoders_);
+  positions_.col(FL) = p_Body_to_FrontLeftFoot(encoders_);
+  positions_.col(HR) = p_Body_to_HindRightFoot(encoders_);
+  positions_.col(HL) = p_Body_to_HindLeftFoot(encoders_);
+  jacobians_.block(0, FR * NAPL, 3, NAPL)
       = Jp_Body_to_FrontRightFoot(encoders_).block(0, FR * NAPL, 3, NAPL);
-  jacobian_.block(0, FL * NAPL, 3, NAPL)
+  jacobians_.block(0, FL * NAPL, 3, NAPL)
       = Jp_Body_to_FrontLeftFoot(encoders_).block(0, FL * NAPL, 3, NAPL);
-  jacobian_.block(0, HR * NAPL, 3, NAPL)
+  jacobians_.block(0, HR * NAPL, 3, NAPL)
       = Jp_Body_to_HindRightFoot(encoders_).block(0, HR * NAPL, 3, NAPL);
-  jacobian_.block(0, HL * NAPL, 3, NAPL)
+  jacobians_.block(0, HL * NAPL, 3, NAPL)
       = Jp_Body_to_HindLeftFoot(encoders_).block(0, HL * NAPL, 3, NAPL);
 }
 

@@ -32,6 +32,7 @@
 class SEK3 {
  public:
   /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
@@ -63,11 +64,18 @@ class SEK3 {
    */
   SEK3(const Eigen::MatrixXd& R, const Eigen::VectorXd& p,
        const Eigen::VectorXd& v);
+  /// @}
 
   ///@name Destructor
+  /// @{
+  /**
+   * @brief Destroy the SEK3 object
+   */
   ~SEK3() {}
+  /// @}
 
   ///@name Getters
+  /// @{
   /**
    * @brief Get the states matrix X.
    *
@@ -109,8 +117,10 @@ class SEK3 {
    * @return int: Dimension of X
    */
   const int get_dim() const;
+  /// @}
 
   ///@name Setters
+  /// @{
   /**
    * @brief Set the dimension of matrix X to private variable K_.
    *
@@ -145,8 +155,10 @@ class SEK3 {
    * @param[in] v: Velocity vector
    */
   void set_v(const Eigen::MatrixXd& v);
+  /// @}
 
-  ///@name Operators
+  ///@name Overloaded
+  /// @{
   /**
    * @brief Overload the multiplication operator.
    *
@@ -154,14 +166,17 @@ class SEK3 {
    * @return SEK3: SEk(3) object
    */
   SEK3 operator*(const SEK3& X);
+  /// @}
 
-  ///@name Methods
+  ///@name Utility functions
+  /// @{
   /**
    * @brief Compute the inverse of the SEK3 object.
    *
    * @return SEK3: Inverse of the SEK3 object
    */
   SEK3 inverse();
+  /// @}
 
  private:
   int K_ = 5;

@@ -37,7 +37,7 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
   /// @name Constructor
   /// @{
   /**
-   * @brief Default constructor
+   * @brief Default constructor. Will generate an empty measurement.
    */
   MiniCheetahKinematics();
 
@@ -55,7 +55,7 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
   /// @}
 
   /**
-   * @brief Compute kinematics
+   * @brief Compute kinematics and store in measurement
    */
   void ComputeKinematics() override;
 
@@ -66,8 +66,9 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
   int get_num_legs() override;
 
   /**
-   * @brief Get initial velocity
-   * @param[in] w Angular velocity
+   * @brief Get initial velocity of the robot based on encoder values and
+   * initial angular velocity
+   * @param[in] w Initial angular velocity of the robot (rad/s)
    * @return Initial velocity
    */
   const Eigen::Vector3d get_init_velocity(const Eigen::Vector3d& w) override;

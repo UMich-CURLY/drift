@@ -35,8 +35,10 @@ enum class CorrectionType {
   VELOCITY,
 };
 
-typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
-typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
+typedef std::queue<std::shared_ptr<Measurement>>
+    MeasurementQueue; /**< Queue for storing sensor data. */
+typedef std::shared_ptr<MeasurementQueue>
+    MeasurementQueuePtr; /**< Pointer to the queue for storing sensor data. */
 
 class Correction {
  public:
@@ -54,7 +56,8 @@ class Correction {
    *
    * @param[in] sensor_data_buffer_mutex_ptr: a pointer to the mutex of the
    * sensor data buffer
-   * @param[in] enable_imu_bias_update: whether to update the IMU bias
+   * @param[in] enable_imu_bias_update: whether to update the IMU bias. Default
+   * is false
    */
   Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
              bool enable_imu_bias_update = false);
@@ -101,17 +104,20 @@ class Correction {
   /// @} End of Getters
 
  protected:
-  const Eigen::Vector3d g_;    // Gravity vector in world frame (z-up)
+  const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
+                               Default is 9.81m/s^2 */
   Eigen::Vector3d
-      magnetic_field_;    // Magnetic field vector in world frame (z-up)
-  CorrectionType correction_type_;
-  bool enable_imu_bias_update_;    // Whether or not to update the IMU bias,
-                                   // true for update
-  double t_diff_thres_;            // Threshold for time difference between two
-                                   // measurements
-  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr_;    // Mutex for the
-                                                                // sensor data
-                                                                // buffer
-};    // class Correction
+      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
+  CorrectionType correction_type_; /**< Correction type. */
+  bool enable_imu_bias_update_;    /**< Whether or not to update the IMU bias,
+                                      true for update. It stores the value from
+                                      config file when the class object is
+                                      created.*/
+  double t_diff_thres_; /**< Threshold for time difference between two
+                           measurements. It stores the value from config file
+                           when the class object is created*/
+  std::shared_ptr<std::mutex>
+      sensor_data_buffer_mutex_ptr_; /**< Mutex for the sensor data buffer. */
+};                                   // class Correction
 
 #endif    // end FILTER_BASE_CORRECTION_H

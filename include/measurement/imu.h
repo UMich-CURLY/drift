@@ -25,11 +25,16 @@
 template<typename T>
 class ImuMeasurement : public Measurement {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
   ImuMeasurement();
+  /// @}
 
+  /// @name Setter
+  /// @{
   /**
    * @brief Set the imu measurement quaternion coefficients.
    * @warning Arguments must be normalized.
@@ -57,7 +62,10 @@ class ImuMeasurement : public Measurement {
    * @param[in] z: axis coefficient.
    */
   void set_lin_acc(T x, T y, T z);
+  /// @}
 
+  /// @name Getter
+  /// @{
   /**
    * @brief Get the orthonormal 3D rotation matrix for the imu
    * measurement.
@@ -86,6 +94,7 @@ class ImuMeasurement : public Measurement {
    * @return The linear acceleration (x, y, z).
    */
   Eigen::Matrix<T, 3, 1> get_lin_acc() const;
+  /// @}
 
  private:
   Eigen::Quaternion<T> quaternion_;

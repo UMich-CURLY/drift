@@ -43,6 +43,9 @@ class Measurement {
 
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
+  /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
@@ -52,13 +55,20 @@ class Measurement {
    * @brief Constructs an initialized Measurement with given type.
    */
   Measurement(MeasurementType type);
+  /// @}
+
+  /// @name Destructors
+  /// @{
   /**
    * @brief Default Destructor.
    */
   virtual ~Measurement() = default;
+  /// @}
 
   MeasurementHeader header;
 
+  /// @name Setters
+  /// @{
   /**
    * @brief Set the timestamp value for the measurement.
    *
@@ -82,7 +92,10 @@ class Measurement {
    */
   void set_header(const uint64_t seq_in, const double time_stamp_in,
                   const std::string frame_id_in);
+  /// @}
 
+  /// @name Getters
+  /// @{
   /**
    * @brief Get the timestamp value for the measurement.
    *
@@ -96,6 +109,7 @@ class Measurement {
    * @return Measurement type.
    */
   MeasurementType get_type() const;
+  /// @}
 
   friend std::ostream& operator<<(std::ostream& os, const Measurement& m);
 

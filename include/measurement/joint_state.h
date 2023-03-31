@@ -26,11 +26,16 @@
 template<typename T>
 class JointStateMeasurement : public Measurement {
  public:
+  /// @name Constructors
+  /// @{
   /**
    * @brief Default constructor.
    */
   JointStateMeasurement();
+  /// @}
 
+  /// @name Setter
+  /// @{
   /**
    * @brief Set the joint state coefficients.
    *
@@ -48,7 +53,10 @@ class JointStateMeasurement : public Measurement {
    * @param[in] position: vector of joint position coefficients (rad).
    */
   void set_encoders(const Eigen::Matrix<T, Eigen::Dynamic, 1>& position);
+  /// @}
 
+  /// @name Getter
+  /// @{
   /**
    * @brief Get the joint-axis position coefficients.
    *
@@ -69,7 +77,7 @@ class JointStateMeasurement : public Measurement {
    * @return Vector of joint effort coefficients (Newton-meters).
    */
   Eigen::Matrix<T, Eigen::Dynamic, 1> get_joint_effort() const;
-
+  /// @}
 
  private:
   Eigen::Matrix<T, Eigen::Dynamic, 1> joint_position_;
