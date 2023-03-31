@@ -219,7 +219,7 @@ class StateEstimator {
    * propagation and correction methods, then call this method. This method
    * will run the filter once, in which the robot state would be propagated and
    * corrected if new data are received. Users should call this method in a
-   * loop. See ROS/example/*.cpp for examples.
+   * loop. See ROS/example/<TEST>.cpp for examples.
    */
   void RunOnce();
   /// @}

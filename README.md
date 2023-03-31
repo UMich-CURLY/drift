@@ -37,14 +37,14 @@ make -j4
 ```
 
 # 4. ROS
-### Building the ROS1 robot_state_est nodes
+## Building the ROS1 robot_state_est nodes
 1. Add `/ROS/curly_state_estimator` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
   export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/TO/curly_state_estimator/ROS/curly_state_estimator
   ```
 
-Then
+  Then
   ```
   source ~/.bashrc
   ```
@@ -57,17 +57,23 @@ Then
   ./build_ros.sh
   ```
 
-### Run examples:
-Clearpath Husky robot:
-`rosrun curly_state_estimator ros_comm_test`
+## Run examples:
+**Clearpath Husky robot:**
+```
+rosrun curly_state_estimator ros_comm_test
+```
 
-Fetch robot:
-`rosrun curly_state_estimator fetch_test`
+**Fetch robot:**
+```
+rosrun curly_state_estimator fetch_test
+```
 
-MIT mini-cheetah robot:
-`rosrun curly_state_estimator leg_kin_test`
+**MIT mini-cheetah robot:**
+```
+rosrun curly_state_estimator leg_kin_test
+```
 
-### Run the repo with your own settings:
+## Run the repo with your own settings:
 Users can add configs inside `config/filter/inekf/` directory. Configs in `propagation/` stores settings related to propagation methods, e.g., `mini_cheetah_imu_propagation.yaml` includes all the settings we need to perform imu propagation in the filter. Configs
 in `correction` stores settings related to correction methods. For example, velocity correction method settings can refer to `fetch_velocity_correction.yaml` or `velocity_correction.yaml`, while legged kinematics correction method settings can refer to 
 `mini_cheetah_legged_kinematics_correction.yaml`. 
