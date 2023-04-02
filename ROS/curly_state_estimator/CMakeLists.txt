@@ -93,16 +93,10 @@ rosbuild_add_library(ros_communication_lib
 )
 
 # example for legged robot kinemtaics correction:
-rosbuild_add_executable(leg_kin_comm_test
-${PROJECT_SOURCE_DIR}/examples/leg_kin_comm_test.cpp)
+rosbuild_add_executable(mini_cheetah
+${PROJECT_SOURCE_DIR}/examples/mini_cheetah.cpp)
 
-# rosbuild_add_library(leg_kin_comm_test_lib
-# ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp
-# ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
-# ${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
-# )
-
-target_link_libraries(leg_kin_comm_test
+target_link_libraries(mini_cheetah
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib
@@ -112,11 +106,11 @@ yaml-cpp
 )
 
 # # temporary test for ros communicator: subscriber + publisher
-rosbuild_add_executable(ros_comm_test
-${PROJECT_SOURCE_DIR}/examples/ros_comm_test.cpp)
+rosbuild_add_executable(husky
+${PROJECT_SOURCE_DIR}/examples/husky.cpp)
 
 
-target_link_libraries(ros_comm_test
+target_link_libraries(husky
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib
@@ -126,11 +120,11 @@ yaml-cpp
 )
 
 # # temporary test for fetch
-rosbuild_add_executable(fetch_test
-${PROJECT_SOURCE_DIR}/examples/fetch_test.cpp)
+rosbuild_add_executable(fetch
+${PROJECT_SOURCE_DIR}/examples/fetch.cpp)
 
 
-target_link_libraries(fetch_test
+target_link_libraries(fetch
 ${LIBS}
 ros_communication_lib
 mini_cheetah_kin_lib

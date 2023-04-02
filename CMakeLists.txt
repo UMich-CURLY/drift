@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(drift_proj VERSION 0.1 DESCRIPTION "An InEKF based state estimator")
+project(drift VERSION 0.1 DESCRIPTION "An InEKF based state estimator")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -O3")
@@ -102,7 +102,7 @@ endif(BUILD_DOC)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
 # declaire a c++ library
-add_library(drift_proj SHARED
+add_library(drift SHARED
   ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
   ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp
   ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp
@@ -118,13 +118,13 @@ add_library(drift_proj SHARED
   ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics
   ${MINI_CHEETAH_KIN_SRC_FILES}
 )
-set_target_properties(drift_proj PROPERTIES LIBRARY_OUTPUT_NAME drift_proj)
+set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift)
 
-export(PACKAGE drift_proj)
-set_target_properties(drift_proj PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+export(PACKAGE drift)
+set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 get_property(drift_include_dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-get_property(drift_library_dirs TARGET drift_proj PROPERTY LIBRARY_OUTPUT_DIRECTORY)
-get_property(drift_libraries TARGET drift_proj PROPERTY LIBRARY_OUTPUT_NAME)
+get_property(drift_library_dirs TARGET drift PROPERTY LIBRARY_OUTPUT_DIRECTORY)
+get_property(drift_libraries TARGET drift PROPERTY LIBRARY_OUTPUT_NAME)
 
 message("drift_include_dirs: " ${drift_include_dirs})
 message("drift_library_dirs: " ${drift_library_dirs})

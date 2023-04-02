@@ -35,6 +35,13 @@ typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr; /**< Pointer to the
 RobotStateQueue. */
 
 namespace ros_wrapper {
+/**
+ * @class ROSPublisher
+ *
+ * @brief ROS publisher class, which publishes robot state to ROS topics
+ * including pose and path.
+ *
+ */
 class ROSPublisher {
  public:
   /// @name Constructors

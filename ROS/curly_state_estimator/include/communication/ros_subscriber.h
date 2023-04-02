@@ -93,6 +93,12 @@ typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
     IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
 
 namespace ros_wrapper {
+/**
+ * @class ROSSubscriber
+ * @brief ROS subscriber class, which subscribes to the ROS topics and stores
+ * the measurements in the queue.
+ *
+ */
 class ROSSubscriber {
  public:
   /// @name Constructors

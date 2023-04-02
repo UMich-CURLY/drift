@@ -117,10 +117,4 @@ class Measurement {
   MeasurementType type_;
 };
 
-struct MeasurementCompare {
-  bool operator()(Measurement& lhs, Measurement& rhs) const {
-    return lhs.get_time() > rhs.get_time();
-  }
-};
-
 #endif
