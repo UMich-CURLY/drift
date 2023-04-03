@@ -1,7 +1,7 @@
 <package format="2">
-  <name>curly_state_estimator</name>
+  <name>drift</name>
   <version>1.0.0</version>
-  <description>CURLY State Estimator ROS1 Wrapper</description>
+  <description>DRIFT ROS1 Wrapper</description>
   <author>Justin Yu, Justin Lin, Tingjun Li</author>
   <license>GPLv3</license>
   <depend package="roscpp"/>

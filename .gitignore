@@ -30,11 +30,9 @@
 *.exe
 *.out
 *.app
-robot_state_est
-subscriber_test
-leg_kin_comm_test
-ros_comm_test
-fetch_test
+ROS/curly_state_estimator/fetch
+ROS/curly_state_estimator/husky
+ROS/curly_state_estimator/mini_cheetah
 
 build/
 lib/
