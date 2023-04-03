@@ -9,6 +9,8 @@ void compare_rot_mat(Eigen::Matrix<T, 3, 3> imu, Eigen::Matrix<T, 3, 3> test);
 template<typename T>
 Eigen::Quaternion<T> rotaxis2quat(T a, T b_x, T b_y, T b_z);
 
+using namespace measurement;
+
 TEST(ImuMeasurementTest, Ctor) {
   ImuMeasurement<double> imu_data;
   EXPECT_EQ(imu_data.get_type(), 1);

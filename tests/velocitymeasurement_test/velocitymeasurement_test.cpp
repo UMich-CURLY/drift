@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "measurement/velocity.h"
 
+using namespace measurement;
+
 TEST(VelocityMeasurementTest, Ctor) {
   VelocityMeasurement<double> velocity_data;
   EXPECT_EQ(velocity_data.get_type(), 3);

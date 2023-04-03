@@ -10,7 +10,9 @@
 #define NAPL 3    // number of actuators per leg
 
 using namespace mini_cheetah_kinematics;
+using namespace math;
 
+namespace measurement::kinematics {
 MiniCheetahKinematics::MiniCheetahKinematics() {
   positions_.setConstant(3, NLEG, 0);
   jacobians_.setConstant(3, NLEG * NAPL, 0);
@@ -67,3 +69,4 @@ const Eigen::Vector3d MiniCheetahKinematics::get_init_velocity(
 }
 
 int MiniCheetahKinematics::get_num_legs() { return NLEG; }
+}    // namespace measurement::kinematics

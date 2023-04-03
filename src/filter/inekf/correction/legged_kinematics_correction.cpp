@@ -1,8 +1,9 @@
 #include "filter/inekf/correction/legged_kinematics_correction.h"
 
-namespace inekf {
 using namespace std;
-using namespace lie_group;
+using namespace math::lie_group;
+
+namespace filter::inekf {
 
 LeggedKinematicsCorrection::LeggedKinematicsCorrection(
     LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
@@ -278,4 +279,4 @@ const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
 
   return kinematics_measurement->get_init_velocity(w);
 }
-}    // namespace inekf
+}    // namespace filter::inekf

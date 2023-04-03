@@ -19,6 +19,7 @@
 
 #include <Eigen/Dense>
 
+namespace math {
 namespace lie_group {
 
 extern const double TOLERANCE;
@@ -62,4 +63,5 @@ Eigen::MatrixXd Exp_SEK3(const Eigen::VectorXd& v);
 Eigen::MatrixXd Adjoint_SEK3(const Eigen::MatrixXd& X);
 
 }    // namespace lie_group
+}    // namespace math
 #endif

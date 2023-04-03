@@ -27,7 +27,11 @@
 #include "math/lie_group.h"
 #include "measurement/imu.h"
 
-namespace inekf {
+using namespace math;
+using namespace state;
+using namespace measurement;
+
+namespace filter::inekf {
 typedef std::shared_ptr<ImuMeasurement<double>>
     ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
 typedef std::queue<ImuMeasurementPtr>
@@ -214,6 +218,6 @@ class ImuPropagation : public Propagation {
                          // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
 
 };    // End of class ImuPropagation
-}    // namespace inekf
+}    // namespace filter::inekf
 
 #endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H

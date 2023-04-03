@@ -15,6 +15,7 @@
 
 using namespace std;
 
+namespace state {
 // Default constructor
 RobotState::RobotState()
     : X_(Eigen::MatrixXd::Identity(5, 5)),
@@ -402,3 +403,4 @@ void RobotState::RemoveRowAndColumn(Eigen::MatrixXd& M, int index,
       = M.rightCols(dimX - index - move_dim).eval();
   M.conservativeResize(dimX - move_dim, dimX - move_dim);
 }
+}    // namespace state

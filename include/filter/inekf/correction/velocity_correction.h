@@ -18,7 +18,11 @@
 #include "math/lie_group.h"
 #include "measurement/velocity.h"
 
-namespace inekf {
+using namespace math;
+using namespace state;
+using namespace measurement;
+
+namespace filter::inekf {
 typedef std::shared_ptr<VelocityMeasurement<double>>
     VelocityMeasurementPtr; /**< Type: Shared pointer to a VelocityMeasurement
                                object. */
@@ -107,7 +111,7 @@ class VelocityCorrection : public Correction {
                                   when the class object is created.*/
 };
 
-}    // namespace inekf
+}    // namespace filter::inekf
 
 
 #endif    // end FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H

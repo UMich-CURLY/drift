@@ -11,6 +11,7 @@
  *  @date   Nov 16, 2022
  **/
 
+namespace measurement {
 template<typename T>
 VelocityMeasurement<T>::VelocityMeasurement()
     : Measurement(VELOCITY), vel_{0, 0, 0} {}
@@ -36,3 +37,4 @@ template<typename T>
 Eigen::Matrix<T, 3, 1> VelocityMeasurement<T>::get_vel_unit_vec() const {
   return vel_.normalized();
 }
+}    // namespace measurement

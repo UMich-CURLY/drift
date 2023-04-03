@@ -27,7 +27,10 @@
 #include "math/lie_group.h"
 #include "state/robot_state.h"
 
-namespace inekf {
+using namespace math;
+using namespace state;
+
+namespace filter::inekf {
 
 enum ErrorType { LeftInvariant, RightInvariant };
 
@@ -68,5 +71,5 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           bool enable_imu_bias_update, ErrorType error_type);
 
 
-}    // namespace inekf
+}    // namespace filter::inekf
 #endif    // end INEKF_INEKF_H

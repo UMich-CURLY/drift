@@ -2,6 +2,8 @@
 
 #include "math/lie_group.h"
 
+using namespace math;
+
 int main(int argc, char** argv) {
   Eigen::Vector3d v;
   v << 3, 2, 3;

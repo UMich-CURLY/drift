@@ -29,10 +29,14 @@
 
 #include "state/robot_state.h"
 
+using namespace state;
+
 typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue; /**< Queue for
 storing robot states. */
 typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr; /**< Pointer to the
 RobotStateQueue. */
+
+using namespace state;
 
 namespace ros_wrapper {
 /**

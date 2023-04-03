@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "measurement/contact.h"
 
+using namespace measurement;
+
 TEST(ContactMeasurementTest, Ctor) {
   ContactMeasurement contact_data;
   EXPECT_EQ(contact_data.get_type(), 5);

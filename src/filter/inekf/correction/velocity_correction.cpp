@@ -13,9 +13,10 @@
 
 #include "filter/inekf/correction/velocity_correction.h"
 
-namespace inekf {
 using namespace std;
-using namespace lie_group;
+using namespace math::lie_group;
+
+namespace filter::inekf {
 
 VelocityCorrection::VelocityCorrection(
     VelocityQueuePtr sensor_data_buffer_ptr,

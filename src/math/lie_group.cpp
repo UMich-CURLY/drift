@@ -13,7 +13,7 @@
 
 #include "math/lie_group.h"
 
-namespace lie_group {
+namespace math::lie_group {
 
 using namespace std;
 
@@ -143,4 +143,4 @@ Eigen::MatrixXd Adjoint_SEK3(const Eigen::MatrixXd& X) {
 }
 
 
-}    // namespace lie_group
+}    // namespace math::lie_group

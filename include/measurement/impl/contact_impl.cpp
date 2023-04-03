@@ -11,6 +11,7 @@
  *  @date   Nov 16, 2022
  **/
 
+namespace measurement {
 ContactMeasurement::ContactMeasurement() : Measurement(CONTACT) {}
 
 
@@ -23,3 +24,4 @@ void ContactMeasurement::set_contact(
 Eigen::Matrix<bool, Eigen::Dynamic, 1> ContactMeasurement::get_contact() const {
   return contacts_;
 }
+}    // namespace measurement

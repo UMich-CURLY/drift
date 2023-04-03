@@ -31,6 +31,7 @@
 // Testing
 #include <gtest/gtest.h>
 
+using namespace measurement;
 
 TEST(VelocityCorrection, ImuPropVelCorr) {
   // Initialize a state matrix m

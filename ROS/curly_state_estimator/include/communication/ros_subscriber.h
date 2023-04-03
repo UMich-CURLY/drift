@@ -42,6 +42,8 @@
 #include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
 
+using namespace measurement;
+
 typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue; /**< Queue
 for storing IMU measurements. */
 typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Pointer to the IMUQueue. */

@@ -15,6 +15,8 @@
 
 using namespace std;
 
+namespace measurement {
+
 Measurement::Measurement() : type_(EMPTY) { header.stamp = 0; }
 
 Measurement::Measurement(MeasurementType type) : type_(type) {
@@ -59,3 +61,5 @@ ostream& operator<<(ostream& os, const Measurement& m) {
   os << "Measurement type: " << type_str << endl;
   return os;
 }
+
+}    // namespace measurement

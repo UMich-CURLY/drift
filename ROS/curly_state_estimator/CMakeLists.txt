@@ -73,10 +73,9 @@ rosbuild_add_library(filter_lib
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
   # State
   ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp
-  ${PROJECT_SOURCE_DIR}/../../src/state/se_k_3.cpp
   # Math
   ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
-  
+  ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
 )
 
 rosbuild_add_library(measurement_lib

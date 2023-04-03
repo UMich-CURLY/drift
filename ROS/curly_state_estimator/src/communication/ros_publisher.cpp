@@ -13,6 +13,7 @@
 
 #include "communication/ros_publisher.h"
 
+
 namespace ros_wrapper {
 ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
                            RobotStateQueuePtr& robot_state_queue_ptr,

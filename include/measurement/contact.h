@@ -16,6 +16,7 @@
 
 #include "measurement.h"
 
+namespace measurement {
 /**
  * @class ContactMeasurement
  *
@@ -58,6 +59,7 @@ class ContactMeasurement : public Measurement {
       contacts_;    // boolean 1D matrix representing the status of contact. 1 =
                     // contact, 0 = no contact
 };
+}    // namespace measurement
 #include "measurement/impl/contact_impl.cpp"
 
 #endif    // CONTACT_H

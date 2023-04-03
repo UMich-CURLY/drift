@@ -16,6 +16,7 @@
 
 #include "measurement.h"
 
+namespace measurement {
 /**
  * @class VelocityMeasurement
  *
@@ -72,5 +73,6 @@ class VelocityMeasurement : public Measurement {
  private:
   Eigen::Matrix<T, 3, 1> vel_;
 };
+}    // namespace measurement
 #include "measurement/impl/velocity_impl.cpp"
 #endif

@@ -20,7 +20,11 @@
 #include "math/lie_group.h"
 #include "measurement/legged_kinematics.h"
 
-namespace inekf {
+using namespace math;
+using namespace state;
+using namespace measurement;
+
+namespace filter::inekf {
 typedef std::shared_ptr<LeggedKinematicsMeasurement>
     KinematicsMeasurementPtr; /**< Type: Shared pointer to a
                                  LeggedKinematicsMeasurement object. */
@@ -142,6 +146,6 @@ class LeggedKinematicsCorrection : public Correction {
                                           object is created. */
   Eigen::Matrix3d contact_noise_cov_;  /**> Contact noise covariance. */
 };                                     // class LeggedKinematicsCorrection
-}    // namespace inekf
+}    // namespace filter::inekf
 
 #endif    // end FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H

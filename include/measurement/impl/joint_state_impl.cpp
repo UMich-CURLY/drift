@@ -11,6 +11,7 @@
  *  @date   Nov 16, 2022
  **/
 
+namespace measurement {
 template<typename T>
 JointStateMeasurement<T>::JointStateMeasurement() : Measurement(JOINT_STATE) {}
 
@@ -47,3 +48,4 @@ Eigen::Matrix<T, Eigen::Dynamic, 1> JointStateMeasurement<T>::get_joint_effort()
     const {
   return joint_effort_;
 }
+}    // namespace measurement

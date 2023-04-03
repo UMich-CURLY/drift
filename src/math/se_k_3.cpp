@@ -11,14 +11,14 @@
  *  @date   October 5th, 2022
  **/
 
-#include "state/se_k_3.h"
+#include "math/se_k_3.h"
 
 #include <math.h>
 #include <vector>
 
 
 // constructors
-
+namespace math {
 SEK3::SEK3() {}
 
 SEK3::SEK3(const Eigen::MatrixXd& X) : X_(X) {}
@@ -69,3 +69,4 @@ SEK3 SEK3::inverse() {
   Y.set_K(this->get_K());
   return Y;
 }
+}    // namespace math

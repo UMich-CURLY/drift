@@ -19,9 +19,11 @@
 
 #include "filter/inekf/propagation/imu_propagation.h"
 
-namespace inekf {
+
 using namespace std;
-using namespace lie_group;
+using namespace math::lie_group;
+
+namespace filter::inekf {
 
 // IMU propagation child class
 // ==============================================================================
@@ -439,4 +441,4 @@ const bool ImuPropagation::get_bias_initialized() const {
   return bias_initialized_;
 }
 
-}    // namespace inekf
+}    // namespace filter::inekf

@@ -11,8 +11,8 @@
  *  @date   November 1, 2022
  **/
 
-#ifndef ROBOT_STATE_H
-#define ROBOT_STATE_H
+#ifndef STATE_ROBOT_STATE_H
+#define STATE_ROBOT_STATE_H
 
 #include <Eigen/Dense>
 #include <iostream>
@@ -21,11 +21,14 @@
 #include <unordered_map>
 
 #include "math/lie_group.h"
-#include "state/se_k_3.h"
+#include "math/se_k_3.h"
 
 
 enum StateType { WorldCentric, BodyCentric };
 
+using namespace math;
+
+namespace state {
 /**
  * @class RobotState
  *
@@ -587,5 +590,6 @@ class RobotState {
   double t_prop_;         // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
 };
+}    // namespace state
 
-#endif
+#endif    // STATE_ROBOT_STATE_H_

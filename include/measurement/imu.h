@@ -16,6 +16,7 @@
 
 #include "measurement.h"
 
+namespace measurement {
 /**
  * @class ImuMeasurement
  *
@@ -109,6 +110,7 @@ class ImuMeasurement : public Measurement {
    */
   void validate_quat(T w, T x, T y, T z);
 };
+}    // namespace measurement
 #include "measurement/impl/imu_impl.cpp"
 
 #endif    // IMU_H

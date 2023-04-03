@@ -6,6 +6,7 @@
 
 #include "measurement/legged_kinematics.h"
 
+namespace measurement {
 LeggedKinematicsMeasurement::LeggedKinematicsMeasurement()
     : Measurement(LEGGED_KINEMATICS) {}
 
@@ -53,3 +54,4 @@ const Eigen::Vector3d LeggedKinematicsMeasurement::get_init_velocity(
     const Eigen::Vector3d& w) {
   return Eigen::Vector3d::Zero();
 }
+}    // namespace measurement

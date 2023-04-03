@@ -17,7 +17,9 @@
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
 #include "state_estimator.h"
+
 using namespace std;
+using namespace state;
 
 
 int main(int argc, char** argv) {

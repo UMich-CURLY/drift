@@ -16,6 +16,7 @@
 
 #include "measurement.h"
 
+namespace measurement {
 /**
  * @class JointStateMeasurement
  *
@@ -84,6 +85,7 @@ class JointStateMeasurement : public Measurement {
   Eigen::Matrix<T, Eigen::Dynamic, 1> joint_velocity_;
   Eigen::Matrix<T, Eigen::Dynamic, 1> joint_effort_;
 };
+}    // namespace measurement
 #include "measurement/impl/joint_state_impl.cpp"
 
 #endif

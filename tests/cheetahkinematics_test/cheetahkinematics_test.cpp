@@ -5,9 +5,10 @@
 #define tol3 1e-9
 
 using namespace mini_cheetah_kinematics;
+using namespace measurement;
 
 TEST(cheetahkinematicstest, DefaultCtor) {
-  MiniCheetahKinematics kin_data;
+  kinematics::MiniCheetahKinematics kin_data;
   EXPECT_EQ(kin_data.get_type(), 2);
   EXPECT_EQ(kin_data.get_type(), LEGGED_KINEMATICS);
 
@@ -31,7 +32,7 @@ TEST(cheetahkinematicstest, DefaultCtor) {
 }
 
 TEST(cheetahkinematicstest, JointStateSetGet) {
-  MiniCheetahKinematics kin_data;
+  kinematics::MiniCheetahKinematics kin_data;
   Eigen::Matrix<double, 12, 1> v;
   v << 0.123, 0.234, 0.345, 0.456, 0.567, 0.678, 0.789, 0.900, 1.011, 1.123,
       1.234, 1.345;
@@ -43,7 +44,7 @@ TEST(cheetahkinematicstest, JointStateSetGet) {
 }
 
 TEST(cheetahkinematicstest, ContactsSetGet) {
-  MiniCheetahKinematics kin_data;
+  kinematics::MiniCheetahKinematics kin_data;
   Eigen::Matrix<bool, 4, 1> c;
   c << 0, 1, 1, 0;
   kin_data.set_contact(c);
@@ -60,7 +61,7 @@ TEST(cheetahkinematicstest, OverloadCtor) {
       1.234, 1.345;
   js_vel << 0, 0, 0, 0, 0, 0., 0, 0, 0, 0, 0, 0;
   ct << 1, 0, 0, 1;
-  MiniCheetahKinematics kin_data(js, js_vel, ct);
+  kinematics::MiniCheetahKinematics kin_data(js, js_vel, ct);
   EXPECT_EQ(kin_data.get_contact(FR), true);
   EXPECT_EQ(kin_data.get_contact(FL), false);
   EXPECT_EQ(kin_data.get_contact(HR), false);
@@ -87,7 +88,7 @@ TEST(cheetahkinematicstest, Position) {
       1.234, 1.345;
   js_vel << 0, 0, 0, 0, 0, 0., 0, 0, 0, 0, 0, 0;
   ct << 0, 1, 0, 1;
-  MiniCheetahKinematics kin_data(js, js_vel, ct);
+  kinematics::MiniCheetahKinematics kin_data(js, js_vel, ct);
   EXPECT_EQ(kin_data.get_contact(FR), false);
   EXPECT_EQ(kin_data.get_contact(FL), true);
   EXPECT_EQ(kin_data.get_contact(HR), false);

@@ -32,9 +32,13 @@ enum class PropagationType {
   IMU,  /**< IMU propagation method. */
 };
 
+using namespace measurement;
+using namespace state;
+
 typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
 typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
 
+namespace filter {
 /**
  * @class Propagation
  * @brief Base class for propagation method
@@ -110,5 +114,6 @@ class Propagation {
       sensor_data_buffer_mutex_ptr_; /**< The mutex of the sensor data buffer.
                                       */
 };                                   // End of class Propagation
+}    // namespace filter
 
 #endif    // FILTER_BASE_PROPAGATION_H

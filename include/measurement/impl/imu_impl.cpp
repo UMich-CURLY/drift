@@ -11,6 +11,7 @@
  *  @date   Nov 16, 2022
  **/
 
+namespace measurement {
 template<typename T>
 ImuMeasurement<T>::ImuMeasurement()
     : Measurement(IMU),
@@ -72,3 +73,4 @@ void ImuMeasurement<T>::validate_quat(T w, T x, T y, T z) {
     throw std::invalid_argument("Quaternion arguments must be normalized");
   }
 }
+}    // namespace measurement

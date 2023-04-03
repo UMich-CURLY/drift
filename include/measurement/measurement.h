@@ -28,6 +28,7 @@ enum MeasurementType {
   CONTACT
 };
 
+namespace measurement {
 /**
  * @class Measurement
  *
@@ -116,5 +117,6 @@ class Measurement {
  protected:
   MeasurementType type_;
 };
+}    // namespace measurement
 
 #endif

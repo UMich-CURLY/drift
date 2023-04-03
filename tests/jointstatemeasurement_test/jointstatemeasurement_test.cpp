@@ -3,6 +3,8 @@
 
 #define tol2 1e-9
 
+using namespace measurement;
+
 TEST(JointStateMeasurementTest, Ctor) {
   JointStateMeasurement<double> joint_data;
   EXPECT_EQ(joint_data.get_type(), 4);

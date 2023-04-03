@@ -31,7 +31,10 @@ enum Leg { FR, FL, HR, HL };
 }
 
 using namespace mini_cheetah_kinematics;
+using namespace math;
 
+
+namespace measurement::kinematics {
 /**
  * @class MiniCheetahKinematics
  * @brief Mini Cheetah specific kinematics solver and measurement container
@@ -80,5 +83,6 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
    */
   const Eigen::Vector3d get_init_velocity(const Eigen::Vector3d& w) override;
 };
+}    // namespace measurement::kinematics
 
 #endif    // MC_KIN_H

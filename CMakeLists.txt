@@ -37,9 +37,9 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Create Library                 #
 # #################################################
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
-add_library(se_k_3 ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp)
 add_library(state_estimator ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp)
-add_library(lie_group ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp)
+add_library(math ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
+            ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp)
 add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
 add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
 add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
@@ -104,7 +104,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 # declaire a c++ library
 add_library(drift SHARED
   ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
-  ${PROJECT_SOURCE_DIR}/src/state/se_k_3.cpp
+  ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp
   ${PROJECT_SOURCE_DIR}/src/state_estimator.cpp
   ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp

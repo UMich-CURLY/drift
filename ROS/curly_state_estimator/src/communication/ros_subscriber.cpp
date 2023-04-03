@@ -313,8 +313,8 @@ void ROSSubscriber::MiniCheetahKinCallBack(
     const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
   // Set headers and time stamps
-  std::shared_ptr<MiniCheetahKinematics> kin_measurement(
-      new MiniCheetahKinematics);
+  std::shared_ptr<kinematics::MiniCheetahKinematics> kin_measurement(
+      new kinematics::MiniCheetahKinematics);
   kin_measurement->set_header(
       contact_msg->header.seq,
       contact_msg->header.stamp.sec

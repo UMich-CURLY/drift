@@ -11,8 +11,8 @@
  *  @date   October 5th, 2022
  **/
 
-#ifndef SE_K_3_H
-#define SE_K_3_H
+#ifndef MATH_SE_K_3_H
+#define MATH_SE_K_3_H
 
 
 #include <cmath>
@@ -24,6 +24,7 @@
 #include <Eigen/Dense>
 
 
+namespace math {
 /**
  * @class SEK3
  * @brief SEk(3) group class
@@ -185,5 +186,7 @@ class SEK3 {
 
 };    // class SEK3
 
+}    // namespace math
 
-#endif    // SE_3_H
+
+#endif    // MATH_SE_3_H

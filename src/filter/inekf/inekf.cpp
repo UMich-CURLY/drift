@@ -18,11 +18,10 @@
 
 #include "filter/inekf/inekf.h"
 
-namespace inekf {
-
 using namespace std;
-using namespace lie_group;
+using namespace math;
 
+namespace filter::inekf {
 
 // Correct Input State: Right-Invariant Observation
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
@@ -50,7 +49,8 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   // Map from left invariant to right invariant error temporarily
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd Adj = Eigen::MatrixXd::Identity(dimP, dimP);
-    Adj.block(0, 0, dimP - dimTheta, dimP - dimTheta) = Adjoint_SEK3(X);
+    Adj.block(0, 0, dimP - dimTheta, dimP - dimTheta)
+        = lie_group::Adjoint_SEK3(X);
     P = (Adj * P * Adj.transpose()).eval();
   }
 
@@ -61,7 +61,8 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Compute state correction vector
   Eigen::VectorXd delta = K * Z;
-  Eigen::MatrixXd dX = Exp_SEK3(delta.segment(0, delta.rows() - dimTheta));
+  Eigen::MatrixXd dX
+      = lie_group::Exp_SEK3(delta.segment(0, delta.rows() - dimTheta));
   Eigen::VectorXd dTheta = delta.segment(delta.rows() - dimTheta, dimTheta);
 
   // Update state
@@ -87,7 +88,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
-        = Adjoint_SEK3(state.get_Xinv());
+        = lie_group::Adjoint_SEK3(state.get_Xinv());
     P_new = (AdjInv * P_new * AdjInv.transpose()).eval();
   }
 
@@ -122,7 +123,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   if (error_type == ErrorType::LeftInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
-        = Adjoint_SEK3(state.get_Xinv());
+        = lie_group::Adjoint_SEK3(state.get_Xinv());
     P = (AdjInv * P * AdjInv.transpose()).eval();
   }
 
@@ -133,7 +134,8 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Compute state correction vector
   Eigen::VectorXd delta = K * Z;
-  Eigen::MatrixXd dX = Exp_SEK3(delta.segment(0, delta.rows() - dimTheta));
+  Eigen::MatrixXd dX
+      = lie_group::Exp_SEK3(delta.segment(0, delta.rows() - dimTheta));
   Eigen::VectorXd dTheta = delta.segment(delta.rows() - dimTheta, dimTheta);
 
   // Update state
@@ -152,7 +154,8 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   // Map from left invariant back to right invariant error
   if (error_type == ErrorType::RightInvariant) {
     Eigen::MatrixXd Adj = Eigen::MatrixXd::Identity(dimP, dimP);
-    Adj.block(0, 0, dimP - dimTheta, dimP - dimTheta) = Adjoint_SEK3(X_new);
+    Adj.block(0, 0, dimP - dimTheta, dimP - dimTheta)
+        = lie_group::Adjoint_SEK3(X_new);
     P_new = (Adj * P_new * Adj.transpose()).eval();
   }
 
@@ -160,4 +163,4 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   state.set_P(P_new);
 }
 
-}    // namespace inekf
+}    // namespace filter::inekf

@@ -13,6 +13,7 @@
 
 #include "state_estimator.h"
 
+
 StateEstimator::StateEstimator()
     : robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}

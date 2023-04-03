@@ -16,7 +16,7 @@
 using namespace std;
 
 // Constructor with error type
-
+namespace filter {
 Correction::Correction()
     : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
       magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()) {
@@ -48,3 +48,4 @@ const CorrectionType Correction::get_correction_type() const {
 std::shared_ptr<std::mutex> Correction::get_mutex_ptr() {
   return sensor_data_buffer_mutex_ptr_;
 }
+}    // namespace filter

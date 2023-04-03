@@ -16,6 +16,7 @@
 
 #include "measurement.h"
 
+namespace measurement {
 /**
  * @class LeggedKinematicsMeasurement
  *
@@ -145,6 +146,6 @@ class LeggedKinematicsMeasurement : public Measurement {
   Eigen::Matrix<double, Eigen::Dynamic, 1> d_encoders_; /**< Encoder velocity
                                                           state vector. */
 };
-
+}    // namespace measurement
 
 #endif    // LEG_KINEMATICS_H

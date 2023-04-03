@@ -35,11 +35,16 @@ enum class CorrectionType {
   VELOCITY,
 };
 
+using namespace measurement;
+using namespace state;
+
 typedef std::queue<std::shared_ptr<Measurement>>
     MeasurementQueue; /**< Queue for storing sensor data. */
 typedef std::shared_ptr<MeasurementQueue>
     MeasurementQueuePtr; /**< Pointer to the queue for storing sensor data. */
 
+
+namespace filter {
 /**
  * @class Correction
  * @brief Base class for correction method
@@ -123,5 +128,7 @@ class Correction {
   std::shared_ptr<std::mutex>
       sensor_data_buffer_mutex_ptr_; /**< Mutex for the sensor data buffer. */
 };                                   // class Correction
+
+}    // namespace filter
 
 #endif    // end FILTER_BASE_CORRECTION_H

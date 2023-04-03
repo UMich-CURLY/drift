@@ -29,12 +29,15 @@
 #include "state/robot_state.h"
 
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
-using namespace inekf;
+using namespace filter;
+using namespace filter::inekf;
+using namespace state;
 
 typedef std::queue<std::shared_ptr<RobotState>>
     RobotStateQueue; /**< Queue of pointers to robot state */
 typedef std::shared_ptr<RobotStateQueue>
     RobotStateQueuePtr; /**< Pointer to the robot state queue */
+
 
 /**
  * @class StateEstimator
