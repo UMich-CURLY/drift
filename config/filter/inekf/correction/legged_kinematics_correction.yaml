@@ -1,0 +1,10 @@
+settings:
+  correction_time_threshold: 0.05    # Threshold for time difference between the received velocity message
+                                    # and current time. (sec) 
+
+noises:
+  # kinematics_cov = J * encoder_cov_ * J.transpose() + kinematics_prior_cov_
+  encoder_std: 0.0174533 # Standard deviation of the encoder readings, 0.0174533 = 1 deg std dev
+  kinematics_additive_std: 0.05 # 5 cm std Adds to FK covariance.
+  contact_std: 0.1
+

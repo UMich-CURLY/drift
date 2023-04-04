@@ -63,7 +63,7 @@ rosbuild_add_library(mini_cheetah_kin_lib
 
 rosbuild_add_library(filter_lib
   # State Estimator
-  ${PROJECT_SOURCE_DIR}/../../src/state_estimator.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/estimator/inekf_estimator.cpp
   # Filter
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp

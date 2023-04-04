@@ -5,32 +5,32 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   state_estimator.cpp
+ *  @file   inekf_estimator.cpp
  *  @author Tzu-Yuan Lin, Tingjun Li
  *  @brief  Source file for state estimator class
  *  @date   December 1, 2022
  **/
 
-#include "state_estimator.h"
+#include "estimator/inekf_estimator.h"
 
-
-StateEstimator::StateEstimator()
+namespace estimator {
+InekfEstimator::InekfEstimator()
     : robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-StateEstimator::StateEstimator(bool enable_imu_bias_update)
+InekfEstimator::InekfEstimator(bool enable_imu_bias_update)
     : enable_imu_bias_update_(enable_imu_bias_update),
       robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-StateEstimator::StateEstimator(ErrorType error_type,
+InekfEstimator::InekfEstimator(ErrorType error_type,
                                bool enable_imu_bias_update)
     : error_type_(error_type),
       enable_imu_bias_update_(enable_imu_bias_update),
       robot_state_queue_ptr_(new RobotStateQueue),
       robot_state_queue_mutex_ptr_(new std::mutex) {}
 
-void StateEstimator::RunOnce() {
+void InekfEstimator::RunOnce() {
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
@@ -50,19 +50,19 @@ void StateEstimator::RunOnce() {
   new_pose_ready_ = false;
 }
 
-RobotStateQueuePtr StateEstimator::get_robot_state_queue_ptr() {
+RobotStateQueuePtr InekfEstimator::get_robot_state_queue_ptr() {
   return robot_state_queue_ptr_;
 }
 
-std::shared_ptr<std::mutex> StateEstimator::get_robot_state_queue_mutex_ptr() {
+std::shared_ptr<std::mutex> InekfEstimator::get_robot_state_queue_mutex_ptr() {
   return robot_state_queue_mutex_ptr_;
 }
 
-void StateEstimator::set_state(const RobotState& state) { state_ = state; }
+void InekfEstimator::set_state(const RobotState& state) { state_ = state; }
 
-const RobotState StateEstimator::get_state() const { return state_; }
+const RobotState InekfEstimator::get_state() const { return state_; }
 
-void StateEstimator::add_imu_propagation(
+void InekfEstimator::add_imu_propagation(
     IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   propagation_ = std::make_shared<ImuPropagation>(
@@ -70,7 +70,7 @@ void StateEstimator::add_imu_propagation(
       yaml_filepath);
 }
 
-void StateEstimator::add_legged_kinematics_correction(
+void InekfEstimator::add_legged_kinematics_correction(
     LeggedKinematicsQueuePtr buffer_ptr,
     std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
@@ -81,7 +81,7 @@ void StateEstimator::add_legged_kinematics_correction(
   corrections_.push_back(correction);
 }
 
-void StateEstimator::add_velocity_correction(
+void InekfEstimator::add_velocity_correction(
     VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
@@ -90,11 +90,11 @@ void StateEstimator::add_velocity_correction(
   corrections_.push_back(correction);
 }
 
-const bool StateEstimator::is_enabled() const { return enabled_; }
+const bool InekfEstimator::is_enabled() const { return enabled_; }
 
-void StateEstimator::EnableFilter() { enabled_ = true; }
+void InekfEstimator::EnableFilter() { enabled_ = true; }
 
-const bool StateEstimator::BiasInitialized() const {
+const bool InekfEstimator::BiasInitialized() const {
   if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
     return true;
   }
@@ -104,7 +104,7 @@ const bool StateEstimator::BiasInitialized() const {
   return imu_propagation_ptr.get()->get_bias_initialized();
 }
 
-void StateEstimator::InitBias() {
+void InekfEstimator::InitBias() {
   if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
     return;
   }
@@ -113,7 +113,7 @@ void StateEstimator::InitBias() {
   imu_propagation_ptr.get()->InitImuBias();
 }
 
-void StateEstimator::InitState() {
+void InekfEstimator::InitState() {
   /// TODO: Implement clear filter
   // Clear filter
   this->clear();
@@ -189,4 +189,5 @@ void StateEstimator::InitState() {
   enabled_ = true;
 }
 
-void StateEstimator::clear() {}
+void InekfEstimator::clear() {}
+}    // namespace estimator

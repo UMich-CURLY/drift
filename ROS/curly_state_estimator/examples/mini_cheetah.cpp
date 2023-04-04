@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   leg_kin_comm_test.cpp
+ *  @file   mini_cheetah.cpp
  *  @author Tingjun Li
  *  @brief  Test file for Mini-Cheetah robot (IMU propagation + Legged
  *Kinematics Correction)
@@ -17,10 +17,11 @@
 
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
-#include "state_estimator.h"
+#include "estimator/inekf_estimator.h"
 
 using namespace std;
 using namespace state;
+using namespace estimator;
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
@@ -60,23 +61,23 @@ int main(int argc, char** argv) {
       = config_["settings"]["enable_imu_bias_update"].as<bool>();
 
   /// TUTORIAL: Create a state estimator
-  StateEstimator state_estimator(error_type, enable_imu_bias_update);
+  InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator
   // Mini Cheetah's setting:
-  state_estimator.add_imu_propagation(
+  inekf_estimator.add_imu_propagation(
       qimu, qimu_mutex,
       "config/filter/inekf/propagation/mini_cheetah_imu_propagation.yaml");
-  state_estimator.add_legged_kinematics_correction(
+  inekf_estimator.add_legged_kinematics_correction(
       qkin, qkin_mutex,
       "config/filter/inekf/correction/"
       "mini_cheetah_legged_kinematics_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr
-      = state_estimator.get_robot_state_queue_ptr();
+      = inekf_estimator.get_robot_state_queue_ptr();
   std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr
-      = state_estimator.get_robot_state_queue_mutex_ptr();
+      = inekf_estimator.get_robot_state_queue_mutex_ptr();
 
   /// TUTORIAL: Create a ROS publisher and start the publishing thread
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
@@ -90,13 +91,13 @@ int main(int argc, char** argv) {
   /// "/robot/*/path"
   while (ros::ok()) {
     // Step behavior
-    if (state_estimator.is_enabled()) {
-      state_estimator.RunOnce();
+    if (inekf_estimator.is_enabled()) {
+      inekf_estimator.RunOnce();
     } else {
-      if (state_estimator.BiasInitialized()) {
-        state_estimator.InitState();
+      if (inekf_estimator.BiasInitialized()) {
+        inekf_estimator.InitState();
       } else {
-        state_estimator.InitBias();
+        inekf_estimator.InitBias();
       }
     }
     ros::spinOnce();

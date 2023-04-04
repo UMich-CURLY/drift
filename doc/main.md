@@ -1,12 +1,12 @@
-## CURLY State Estimator
+# CURLY State Estimator
 
 **Authors: Tzu-Yuan Lin, Tingjun Li, Jonathan Tong, and Justin Yu** 
 
-# 1. License
+## 1. License
 CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMich-CURLY/curly_state_estimator/blob/main/LICENSE). 
 
 
-# 2. Dependencies
+## 2. Dependencies
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
 ### C++17 Compiler
@@ -22,7 +22,7 @@ Required by header files. Download and install instructions can be found at: htt
 ### ROS1 or ROS2 (optional)
 Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/main#4-ros).
 
-# 3. Building CURLY State Estimator library
+## 3. Building CURLY State Estimator library
 
 Clone the repository:
 ```
@@ -37,8 +37,8 @@ cmake ..
 make -j4
 ```
 
-# 4. ROS
-## Building the ROS1 robot_state_est nodes
+## 4. ROS
+### Building the ROS1 robot_state_est nodes
 1. Add `/ROS/curly_state_estimator` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
 
   ```
@@ -58,23 +58,23 @@ make -j4
   ./build_ros.sh
   ```
 
-## Run examples:
+### Run examples:
 **Clearpath Husky robot:**
 ```
-rosrun curly_state_estimator ros_comm_test
+rosrun curly_state_estimator husky
 ```
 
 **Fetch robot:**
 ```
-rosrun curly_state_estimator fetch_test
+rosrun curly_state_estimator fetch
 ```
 
 **MIT mini-cheetah robot:**
 ```
-rosrun curly_state_estimator leg_kin_test
+rosrun curly_state_estimator mini_cheetah
 ```
 
-## Run the repo with your own settings:
+### Run the repo with your own settings:
 Users can add configs inside `config/filter/inekf/` directory. Configs in `propagation/` stores settings related to propagation methods, e.g., `mini_cheetah_imu_propagation.yaml` includes all the settings we need to perform imu propagation in the filter. Configs
 in `correction` stores settings related to correction methods. For example, velocity correction method settings can refer to `fetch_velocity_correction.yaml` or `velocity_correction.yaml`, while legged kinematics correction method settings can refer to 
 `mini_cheetah_legged_kinematics_correction.yaml`. 

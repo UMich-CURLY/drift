@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   state_estimator.h
+ *  @file   inekf_estimator.h
  *  @author Tzu-Yuan Lin, Tingjun Li
  *  @brief  Header file for state estimator class
  *  @date   December 1, 2022
@@ -39,13 +39,14 @@ typedef std::shared_ptr<RobotStateQueue>
     RobotStateQueuePtr; /**< Pointer to the robot state queue */
 
 
+namespace estimator {
 /**
- * @class StateEstimator
+ * @class InekfEstimator
  *
- * @brief class for state estimation. This class will be used to estimate the
- * state of the robot using user chosen filter methods.
+ * @brief class for state estimation using InEKF. This class will be used to
+ *estimate the state of the robot using user chosen filter methods.
  **/
-class StateEstimator {
+class InekfEstimator {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -55,7 +56,7 @@ class StateEstimator {
   /**
    * @brief Construct a new State Estimator object
    */
-  StateEstimator();
+  InekfEstimator();
 
   // ======================================================================
   /**
@@ -64,7 +65,7 @@ class StateEstimator {
    * @param[in] enable_imu_bias_update: True if the filter should update imu
    * bias
    */
-  StateEstimator(bool enable_imu_bias_update = false);
+  InekfEstimator(bool enable_imu_bias_update = false);
 
   /**
    * @brief Construct a new State Estimator object according to given settings.
@@ -73,7 +74,7 @@ class StateEstimator {
    * @param[in] enable_imu_bias_update: True if the filter should update imu
    * bias
    */
-  StateEstimator(ErrorType error_type, bool enable_imu_bias_update = false);
+  InekfEstimator(ErrorType error_type, bool enable_imu_bias_update = false);
   /// @}
 
   /// @name Setters
@@ -120,7 +121,7 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Add a propagation method to StateEstimator object, which uses imu
+   * @brief Add a propagation method to InekfEstimator object, which uses imu
    * data to propagate the state of the robot. This propagation method will be
    * called in the when the filter is running.
    *
@@ -139,7 +140,7 @@ class StateEstimator {
   /// @{
   // ======================================================================
   /**
-   * @brief Add a legged kinematics correction method to the StateEstimator
+   * @brief Add a legged kinematics correction method to the InekfEstimator
    * object, which uses leg kinematic data to correct the state of the robot.
    * This correction method will be called in the when the filter is running.
    *
@@ -157,7 +158,7 @@ class StateEstimator {
 
   // ======================================================================
   /**
-   * @brief Add a velocity correction method to the StateEstimator object, which
+   * @brief Add a velocity correction method to the InekfEstimator object, which
    * uses velocity data to correct the state of the robot. This correction
    * method will be called in the when the filter is running.
    *
@@ -256,4 +257,5 @@ class StateEstimator {
   std::shared_ptr<std::mutex>
       robot_state_queue_mutex_ptr_;    // Mutex of the robot
                                        // state queue
-};                                     // class StateEstimator
+};                                     // class InekfEstimator
+}    // namespace estimator

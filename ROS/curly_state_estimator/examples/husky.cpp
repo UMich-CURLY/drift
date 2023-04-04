@@ -5,7 +5,7 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   ros_comm_test.cpp
+ *  @file   husky.cpp
  *  @author Tingjun Li
  *  @brief  Test file for Clearpath Husky robot setup (IMU Propagation +
  *  Velocity Correction)
@@ -17,10 +17,12 @@
 
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
-#include "state_estimator.h"
+#include "estimator/inekf_estimator.h"
 
 using namespace std;
 using namespace state;
+using namespace estimator;
+
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
@@ -51,25 +53,29 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Define some configurations for the state estimator
   inekf::ErrorType error_type = LeftInvariant;
-  YAML::Node config_
-      = YAML::LoadFile("config/filter/inekf/propagation/imu_propagation.yaml");
+  YAML::Node config_ = YAML::LoadFile(
+      "config/filter/inekf/propagation/husky_imu_propagation.yaml");
   bool enable_imu_bias_update
       = config_["settings"]["enable_imu_bias_update"].as<bool>();
 
   /// TUTORIAL: Create a state estimator
-  StateEstimator state_estimator(error_type, enable_imu_bias_update);
+  InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
 
   /// TUTORIAL: Add a propagation and correction(s) methods to the state
   /// estimator. Here is an example of IMU propagation and velocity correction
   /// for Husky robot
-  state_estimator.add_imu_propagation(qimu, qimu_mutex);
-  state_estimator.add_velocity_correction(qv, qv_mutex);
+  inekf_estimator.add_imu_propagation(
+      qimu, qimu_mutex,
+      "config/filter/inekf/propagation/husky_imu_propagation.yaml");
+  inekf_estimator.add_velocity_correction(qv, qv_mutex,
+                                          "config/filter/inekf/correction/"
+                                          "husky_velocity_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr
-      = state_estimator.get_robot_state_queue_ptr();
+      = inekf_estimator.get_robot_state_queue_ptr();
   std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr
-      = state_estimator.get_robot_state_queue_mutex_ptr();
+      = inekf_estimator.get_robot_state_queue_mutex_ptr();
 
   /// TUTORIAL: Create a ROS publisher and start the publishing thread
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
@@ -83,13 +89,13 @@ int main(int argc, char** argv) {
   /// "/robot/*/path"
   while (ros::ok()) {
     // Step behavior
-    if (state_estimator.is_enabled()) {
-      state_estimator.RunOnce();
+    if (inekf_estimator.is_enabled()) {
+      inekf_estimator.RunOnce();
     } else {
-      if (state_estimator.BiasInitialized()) {
-        state_estimator.InitState();
+      if (inekf_estimator.BiasInitialized()) {
+        inekf_estimator.InitState();
       } else {
-        state_estimator.InitBias();
+        inekf_estimator.InitBias();
       }
     }
     ros::spinOnce();

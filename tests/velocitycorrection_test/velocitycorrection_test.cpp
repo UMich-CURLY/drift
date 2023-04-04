@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include "estimator/inekf_estimator.h"
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/velocity_correction.h"
@@ -18,7 +19,6 @@
 #include "measurement/imu.h"
 #include "measurement/velocity.h"
 #include "state/robot_state.h"
-#include "state_estimator.h"
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -32,6 +32,7 @@
 #include <gtest/gtest.h>
 
 using namespace measurement;
+using namespace estimator;
 
 TEST(VelocityCorrection, ImuPropVelCorr) {
   // Initialize a state matrix m
@@ -51,7 +52,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   inekf::ErrorType error_type = LeftInvariant;
 
-  StateEstimator state_estimator(error_type);
+  InekfEstimator inekf_estimator(error_type);
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
@@ -115,10 +116,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
 
   // Add propagation and correction methods
-  state_estimator.add_imu_propagation(
+  inekf_estimator.add_imu_propagation(
       imu_data_buffer_ptr, imu_buffer_mutex_ptr,
       "../config/filter/inekf/propagation/velocitycorrection_test.yaml");
-  state_estimator.add_velocity_correction(
+  inekf_estimator.add_velocity_correction(
       velocity_data_buffer_ptr, velocity_buffer_mutex_ptr,
       "../config/filter/inekf/correction/velocitycorrection_test.yaml");
 
@@ -142,8 +143,8 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   expect_X.push_back(X);
 
   // Set initial state:
-  state_estimator.InitState();
-  auto init_state = state_estimator.get_state().get_X();
+  inekf_estimator.InitState();
+  auto init_state = inekf_estimator.get_state().get_X();
   // Check initial state value:
   for (int j = 0; j < 5; j++) {
     for (int k = 0; k < 5; k++) {
@@ -153,11 +154,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   for (int i = 1; i < 4; i++) {
     // Check propagation and correction:
-    if (state_estimator.is_enabled()) {
-      state_estimator.RunOnce();
+    if (inekf_estimator.is_enabled()) {
+      inekf_estimator.RunOnce();
       std::cout << "After Correction: " << std::endl;
-      std::cout << state_estimator.get_state().get_X() << std::endl;
-      auto est_state = state_estimator.get_state().get_X();
+      std::cout << inekf_estimator.get_state().get_X() << std::endl;
+      auto est_state = inekf_estimator.get_state().get_X();
       for (int j = 0; j < 5; j++) {
         for (int k = 0; k < 5; k++) {
           EXPECT_NEAR(est_state(j, k), expect_X[i](j, k), 1e-6);
@@ -165,11 +166,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       }
       std::cout << "------------------------------------------" << std::endl;
     } else {
-      if (state_estimator.BiasInitialized()) {
-        state_estimator.InitState();
-        state_estimator.EnableFilter();
+      if (inekf_estimator.BiasInitialized()) {
+        inekf_estimator.InitState();
+        inekf_estimator.EnableFilter();
       } else {
-        state_estimator.InitBias();
+        inekf_estimator.InitBias();
       }
     }
   }
