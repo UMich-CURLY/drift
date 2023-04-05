@@ -108,7 +108,8 @@ We need to include necessary libraries along with the header files of kinematic 
 ```
 
 #### 2.2 Namespace and leg enumerators
-Create custom namespace, in this example we use the mini_cheetah_kinematics namespace
+Create custom namespace, in this example we use the mini_cheetah_kinematics namespace.
+In cases with >2 legs, enumeration will make indexing matricies easier. Indexing should match the contact definitions matrix.
 ```cpp
 namespace mini_cheetah_kinematics {
 enum Leg { FR, FL, HR, HL };  // leg definitions enumerated according to some intuitive scheme i.e. FR for "front right"
