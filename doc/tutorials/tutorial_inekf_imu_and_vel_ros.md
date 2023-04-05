@@ -16,20 +16,6 @@ in using velocity message to perform correction. There is also a `legged_kinemat
 ### Step 2: Create a new case with existing propagation and correction methods
 Users can create a new case by following the comments in the `curly_state_estimator/ROS/curly_state_estimator/examples` directory. Let's take the `husky.cpp` as an example. The full file looks like:
 ```cpp
-/* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
- * All Rights Reserved
- * See LICENSE for the license information
- * -------------------------------------------------------------------------- */
-
-/**
- *  @file   husky.cpp
- *  @author Tingjun Li
- *  @brief  Test file for Clearpath Husky robot setup (IMU Propagation +
- *  Velocity Correction)
- *  @date   March 20, 2023
- **/
-
 #include <ros/ros.h>
 #include <iostream>
 
@@ -125,8 +111,8 @@ int main(int argc, char** argv) {
 
 Let's go through the code step by step.
 
-#### 2.1 Include necessary librarys
-The first thing we need to do is to include necessary librarys:
+#### 2.1 Include necessary libraries
+The first thing we need to do is to include necessary libraries:
 ```cpp
 #include <ros/ros.h> // ROS
 #include <iostream>  // std::cout
