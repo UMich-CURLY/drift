@@ -147,7 +147,7 @@ void ROSPublisher::PathPublish() {
   path_msg.header.frame_id = pose_frame_;
   path_msg.poses = poses_;
 
-  path_pub_.publish(path_msg);
+  path_pub_.publish(pa  th_msg);
   path_seq_++;
 }
 

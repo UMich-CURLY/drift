@@ -228,7 +228,12 @@ return 0; // Exit
 ```
 In the loop above, we first check if the state estimator is **enabled**. By saying **enabled**, we mean if the necessary biases and initial state are initialized so that the estimator is ready to run. If the estimator is enabled, we call the `RunOnce()` function to perform one step of propagation and correction. If it is not enabled, we would initialize the biases and initial state according to user's settings.
 
+After writing up your own case and adding it to `curly_state_estimator/ROS/curly_state_estimator/CMakeLists.txt`, you can run the state estimator by:
+```bash
+rosrun curly_state_estimator <YOUR_CASE>
+```
 
+Enjoy!
 
 
 
