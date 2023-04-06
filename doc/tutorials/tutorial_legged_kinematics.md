@@ -123,7 +123,7 @@ namespace measurement::kinematics {  // measurement::kinematics namespace will b
 ```
 
 ### 2.3 Class definition
-Next, create the class derived from LeggedKinematicsMeasurement with the following constructors and function interfaces:
+Next, create the class derived from LeggedKinematicsMeasurement with the following constructors and member functions:
 ```cpp
 /**
  * @class MiniCheetahKinematics
@@ -177,6 +177,3 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
 
 #endif    // MC_KIN_H define guard close
 ```
-
-### 2.4 Create source file
-The implementation will be robot-dependent, but you may look at the `curly_state_estimator/include/kinematics/mini_cheetah_kinematics.cpp` file for an example.

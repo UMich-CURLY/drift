@@ -1,1 +1,2 @@
-std::shared_ptr<CheetahKinematics> kin_measurement(new CheetahKinematics);
+std::shared_ptr<MiniCheetahKinematics> kin_measurement(
+    new MiniCheetahKinematics);
