@@ -153,24 +153,32 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Husky(
   return {vel_queue_ptr, mutex_list_.back()};
 };
 
-VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Fetch(
+std::tuple<VelocityQueuePtr, std::shared_ptr<std::mutex>,
+           AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
+ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Fetch(
     const std::string topic_name) {
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+  AngularVelocityQueuePtr ang_vel_queue_ptr(new AngularVelocityQueue);
 
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
+  auto vel_mutex = mutex_list_.back();
+  mutex_list_.emplace_back(new std::mutex);
+  auto ang_vel_mutex = mutex_list_.back();
 
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch,
-                  this, _1, mutex_list_.back(), vel_queue_ptr)));
+                  this, _1, vel_mutex, ang_vel_mutex, vel_queue_ptr,
+                  ang_vel_queue_ptr)));
 
   // Keep the ownership of the data queue in this class
   vel_queue_list_.push_back(vel_queue_ptr);
+  ang_vel_queue_list_.push_back(ang_vel_queue_ptr);
 
-  return {vel_queue_ptr, mutex_list_.back()};
+  return {vel_queue_ptr, vel_mutex, ang_vel_queue_ptr, ang_vel_mutex};
 };
 
 
@@ -277,13 +285,23 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback_Husky(
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+    const std::shared_ptr<std::mutex>& vel_mutex,
+    const std::shared_ptr<std::mutex>& ang_vel_mutex,
+    VelocityQueuePtr& vel_queue, AngularVelocityQueuePtr& ang_vel_queue) {
   // Create an velocity measurement object
   std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
       new VelocityMeasurement<double>);
+  std::shared_ptr<AngularVelocityMeasurement<double>> ang_vel_measurement(
+      new AngularVelocityMeasurement<double>);
 
   // Set headers and time stamps
   vel_measurement->set_header(
+      encoder_msg->header.seq,
+      encoder_msg->header.stamp.sec
+          + encoder_msg->header.stamp.nsec / 1000000000.0,
+      encoder_msg->header.frame_id);
+
+  ang_vel_measurement->set_header(
       encoder_msg->header.seq,
       encoder_msg->header.stamp.sec
           + encoder_msg->header.stamp.nsec / 1000000000.0,
@@ -299,11 +317,17 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch(
   double vr = encoder_msg->velocity[1] * wheel_radius;
   double vl = encoder_msg->velocity[0] * wheel_radius;
   double vx = (vr + vl) / 2.0;
+  double omega_z = (vr - vl) / 2.0;
 
   vel_measurement->set_velocity(vx, 0, 0);
-  mutex.get()->lock();
+  ang_vel_measurement->set_ang_velocity(0, 0, omega_z);
+  vel_mutex.get()->lock();
   vel_queue->push(vel_measurement);
-  mutex.get()->unlock();
+  vel_mutex.get()->unlock();
+
+  ang_vel_mutex.get()->lock();
+  ang_vel_queue->push(ang_vel_measurement);
+  ang_vel_mutex.get()->unlock();
 }
 
 void ROSSubscriber::MiniCheetahKinCallBack(

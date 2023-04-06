@@ -131,3 +131,17 @@ measurement_lib
 filter_lib
 yaml-cpp
 )
+
+# # temporary test for fetch
+rosbuild_add_executable(fetch_imu_filter
+${PROJECT_SOURCE_DIR}/examples/fetch_imu_filter.cpp)
+
+
+target_link_libraries(fetch_imu_filter
+${LIBS}
+ros_communication_lib
+mini_cheetah_kin_lib
+measurement_lib
+filter_lib
+yaml-cpp
+)

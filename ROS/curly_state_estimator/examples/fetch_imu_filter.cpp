@@ -49,8 +49,6 @@ int main(int argc, char** argv) {
   /// TUTORIAL: Add a subscriber for velocity data and get its queue and mutex
   auto [qv, qv_mutex, qangv, qangv_mutex]
       = ros_sub.AddDifferentialDriveVelocitySubscriber_Fetch("/joint_states");
-  // auto qv = qv_and_mutex.first;
-  // auto qv_mutex = qv_and_mutex.second;
 
   /// TUTORIAL: Start the subscriber thread
   ros_sub.StartSubscribingThread();

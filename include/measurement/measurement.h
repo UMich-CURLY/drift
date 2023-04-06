@@ -24,6 +24,7 @@ enum MeasurementType {
   IMU,
   LEGGED_KINEMATICS,
   VELOCITY,
+  ANGULAR_VELOCITY,
   JOINT_STATE,
   CONTACT
 };

@@ -19,6 +19,7 @@
 #include <queue>
 #include <string>
 #include <thread>
+#include <tuple>
 #include <vector>
 
 #include <message_filters/subscriber.h>
@@ -36,6 +37,7 @@
 #include "sensor_msgs/JointState.h"
 
 #include "kinematics/mini_cheetah_kinematics.h"
+#include "measurement/angular_velocity.h"
 #include "measurement/contact.h"
 #include "measurement/imu.h"
 #include "measurement/joint_state.h"
@@ -56,6 +58,15 @@ typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr; /**< Pointer to the
 VelocityQueue. */
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair; /**< Pair of VelocityQueuePtr and VelocityQueue mutex. */
+
+typedef std::queue<std::shared_ptr<AngularVelocityMeasurement<double>>>
+    AngularVelocityQueue; /**< Queue for storing angular velocity measurements.
+                           */
+typedef std::shared_ptr<AngularVelocityQueue> AngularVelocityQueuePtr; /**<
+Pointer to the AngularVelocityQueue. */
+typedef std::pair<AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
+    AngularVelocityQueuePair; /**< Pair of AngularVelocityQueuePtr and
+                                 VelocityQueue mutex. */
 
 // Legged kinematics sync
 typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
@@ -187,8 +198,9 @@ class ROSSubscriber {
    * @param[in] topic_name differential drive velocity topic name
    * @return VelocityQueuePair velocity queue pair
    */
-  VelocityQueuePair AddDifferentialDriveVelocitySubscriber_Fetch(
-      const std::string topic_name);
+  std::tuple<VelocityQueuePtr, std::shared_ptr<std::mutex>,
+             AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
+  AddDifferentialDriveVelocitySubscriber_Fetch(const std::string topic_name);
 
   /**
    * @brief Add differential drive velocity subscriber for Mini Cheetah to the
@@ -268,7 +280,9 @@ class ROSSubscriber {
    */
   void DifferentialEncoder2VelocityCallback_Fetch(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+      const std::shared_ptr<std::mutex>& vel_mutex,
+      const std::shared_ptr<std::mutex>& ang_velmutex,
+      VelocityQueuePtr& vel_queue, AngularVelocityQueuePtr& ang_vel_queue);
 
   /**
    * @brief Mini cheetah kinematics callback function
@@ -314,6 +328,8 @@ class ROSSubscriber {
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
       vel_queue_list_;    // List of velocity queue pointers
+  std::vector<AngularVelocityQueuePtr>
+      ang_vel_queue_list_;    // List of angular velocity queue pointers
   std::vector<LegKinQueuePtr>
       kin_queue_list_;    // List of kinematics queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
