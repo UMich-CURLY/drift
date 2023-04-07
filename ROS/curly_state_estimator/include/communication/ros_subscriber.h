@@ -164,7 +164,7 @@ class ROSSubscriber {
    * @return VelocityQueuePair velocity queue pair
    */
   VelocityQueuePair AddDifferentialDriveVelocitySubscriber(
-      const std::string topic_name);
+      const std::string topic_name, double wheel_radius, double track_width);
 
   /**
    * @brief Add a differential drive velocity subscriber for Husky (4 driving
@@ -244,7 +244,8 @@ class ROSSubscriber {
    */
   void DifferentialEncoder2VelocityCallback(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue,
+      double wheel_radius, double track_length);
 
   /**
    * @brief Differential encoder to velocity callback function (Husky version, 4

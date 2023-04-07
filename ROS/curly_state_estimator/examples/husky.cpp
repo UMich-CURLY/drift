@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
   auto qimu_mutex = qimu_and_mutex.second;
 
   /// TUTORIAL: Add a subscriber for velocity data and get its queue and mutex
-  auto qv_and_mutex
-      = ros_sub.AddDifferentialDriveVelocitySubscriber("/joint_states");
+  auto qv_and_mutex = ros_sub.AddDifferentialDriveVelocitySubscriber(
+      "/joint_states", 0.1651, 0.555);
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 

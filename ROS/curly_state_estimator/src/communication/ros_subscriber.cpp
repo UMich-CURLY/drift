@@ -114,7 +114,7 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
 }
 
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
-    const std::string topic_name) {
+    const std::string topic_name, double wheel_radius, double track_width) {
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
 
@@ -125,7 +125,8 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback, this,
-                  _1, mutex_list_.back(), vel_queue_ptr)));
+                  _1, mutex_list_.back(), vel_queue_ptr, wheel_radius,
+                  track_width)));
 
   // Keep the ownership of the data queue in this class
   vel_queue_list_.push_back(vel_queue_ptr);
@@ -217,7 +218,8 @@ void ROSSubscriber::IMUCallback(
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue,
+    double wheel_radius, double track_width) {
   // Create an velocity measurement object
   std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
       new VelocityMeasurement<double>);
@@ -228,10 +230,6 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
       encoder_msg->header.stamp.sec
           + encoder_msg->header.stamp.nsec / 1000000000.0,
       encoder_msg->header.frame_id);
-
-  /// TODO: Find a way to get the wheel radius and wheel model from the robot
-  // Husky
-  double wheel_radius = 0.1651;
 
   double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
               * wheel_radius;

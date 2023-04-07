@@ -49,7 +49,7 @@ add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinem
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
                         ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp)
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
-add_library(robot_kinematics ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics
+add_library(robot_kinematics ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
                               ${MINI_CHEETAH_KIN_SRC_FILES})
 
 # #################################################
@@ -115,23 +115,38 @@ add_library(drift SHARED
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
-  ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics
+  ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
   ${MINI_CHEETAH_KIN_SRC_FILES}
 )
-set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift)
+target_include_directories(drift PRIVATE ${PROJECT_SOURCE_DIR}/include)
+set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift VERSION ${PACKAGE_VERSION} SOVERSION ${PACKAGE_VERSION_MAJOR})
 
-export(PACKAGE drift)
-set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-get_property(drift_include_dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-get_property(drift_library_dirs TARGET drift PROPERTY LIBRARY_OUTPUT_DIRECTORY)
-get_property(drift_libraries TARGET drift PROPERTY LIBRARY_OUTPUT_NAME)
+# Add version info to the library
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+        driftConfigVersion.cmake
+        VERSION ${PACKAGE_VERSION}
+        COMPATIBILITY AnyNewerVersion
+        )
 
-message("drift_include_dirs: " ${drift_include_dirs})
-message("drift_library_dirs: " ${drift_library_dirs})
-message("drift_libraries: " ${drift_libraries})
+# Install the library
+install(TARGETS drift
+        EXPORT driftTargets
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include
+        PUBLIC_HEADER DESTINATION include
+        )
 
-# Configure config file for local build tree
-configure_file(driftConfig.cmake.in
-  "${PROJECT_BINARY_DIR}/driftConfig.cmake" @ONLY)
+install(EXPORT driftTargets
+        FILE driftTargets.cmake
+        NAMESPACE drift::
+        DESTINATION lib/cmake/drift
+        )
 
-message("PROJECT_BINARY_DIR: " ${PROJECT_BINARY_DIR})
+configure_file(driftConfig.cmake.in driftConfig.cmake @ONLY)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/driftConfigVersion.cmake"
+        DESTINATION lib/cmake/drift
+        )
