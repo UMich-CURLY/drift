@@ -7,12 +7,12 @@ refer to the [ROS tutorials](http://wiki.ros.org/ROS/Tutorials). In this tutoria
 
 ### Step 1: Edit Configs
 There are at least two configuration files that need to be edited before running the 
-state estimator. The first is the `<propagation>.yaml` file in the `curly_state_estimator/config/filter/inekf/propagation`.
+state estimator. The first is the `<propagation>.yaml` file in the `drift/config/filter/inekf/propagation`.
 This file contains the settings for the propagation method and users can copy the `imu_propagation.yaml` under that directory
-to start with a new set of settings. The second is the `<correction>.yaml` file in the `curly_state_estimator/config/filter/inekf/correction`. The `legged_kinematics_correction.yaml` file contains the settings for the legged kinematics correction method. All the example config files contains all the informations needed to run the state estimator with corresponding propagation or correction method.
+to start with a new set of settings. The second is the `<correction>.yaml` file in the `drift/config/filter/inekf/correction`. The `legged_kinematics_correction.yaml` file contains the settings for the legged kinematics correction method. All the example config files contains all the informations needed to run the state estimator with corresponding propagation or correction method.
 
 ### Step 2: Create a new case with existing propagation and correction methods
-Users can create a new case by following the comments in the `curly_state_estimator/ROS/curly_state_estimator/examples` directory. Let's take the `mini_cheetah.cpp` as an example. The full file looks like:
+Users can create a new case by following the comments in the `drift/ROS/drift/examples` directory. Let's take the `mini_cheetah.cpp` as an example. The full file looks like:
 ```cpp
 /* ----------------------------------------------------------------------------
  * Copyright 2022, CURLY Lab, University of Michigan
@@ -165,7 +165,7 @@ The `AddMiniCheetahKinematicsSubscriber(<contact_topic>, <joint_state_topic>)` w
 1. Create an ApproximateTime filter to synchronize the contact and joint state data.
 2. Call the `ROSSubscriber::MiniCHeetahKinCallBack` to process the synchronized data and generates legged kinematics message required by the state estimator.
 
-**REMINDER:** Users needs to create a new subscriber as well as its callback function for a new robot. They also need to create their own kinematics measurement file resembles to `curly_state_estimator/include/kinematics/mini_cheetah_kinematics.h` and `curly_state_estimator/src/kinematics/mini_cheetah_kinematics.cpp`.
+**REMINDER:** Users needs to create a new subscriber as well as its callback function for a new robot. They also need to create their own kinematics measurement file resembles to `drift/include/kinematics/mini_cheetah_kinematics.h` and `drift/src/kinematics/mini_cheetah_kinematics.cpp`.
 
 After adding all the subscribers, we can start the subscriber thread to avoid traffic jam:
 ```cpp
@@ -195,7 +195,7 @@ inekf_estimator.add_legged_kinematics_correction(
 RobotStateQueuePtr robot_state_queue_ptr = inekf_estimator.get_robot_state_queue_ptr();
 std::shared_ptr<std::mutex> robot_state_queue_mutex_ptr = inekf_estimator.get_robot_state_queue_mutex_ptr();
 ```
-**REMINDER:** If users have different legged robots, they need to create their own kinematics measurement file resembles to `curly_state_estimator/include/kinematics/mini_cheetah_kinematics.h` and `curly_state_estimator/src/kinematics/mini_cheetah_kinematics.cpp`. These two files as well as their corresponding robot kinematics files are used to generate kinematics information needed by the filter. Once these files are settled, the our legged kinematics correction method can be used for user defined legged robots.
+**REMINDER:** If users have different legged robots, they need to create their own kinematics measurement file resembles to `drift/include/kinematics/mini_cheetah_kinematics.h` and `drift/src/kinematics/mini_cheetah_kinematics.cpp`. These two files as well as their corresponding robot kinematics files are used to generate kinematics information needed by the filter. Once these files are settled, the our legged kinematics correction method can be used for user defined legged robots.
 
 #### 2.4 Create publisher to publish state estimation results
 We have a ROS publisher wrapper to publish state estimation results. To use it, we need to create a publisher and start the publishing thread:
@@ -228,9 +228,9 @@ return 0; // Exit
 ```
 In the loop above, we first check if the state estimator is **enabled**. By saying **enabled**, we mean if the necessary biases and initial state are initialized so that the estimator is ready to run. If the estimator is enabled, we call the `RunOnce()` function to perform one step of propagation and correction. If it is not enabled, we would initialize the biases and initial state according to user's settings.
 
-After writing up your own case and adding it to `curly_state_estimator/ROS/curly_state_estimator/CMakeLists.txt`, you can run the state estimator by:
+After writing up your own case and adding it to `drift/ROS/drift/CMakeLists.txt`, you can run the state estimator by:
 ```bash
-rosrun curly_state_estimator <YOUR_CASE>
+rosrun drift <YOUR_CASE>
 ```
 
 Enjoy!

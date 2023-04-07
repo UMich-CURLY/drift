@@ -1,9 +1,9 @@
-# CURLY State Estimator
+# DRIFT
 
 **Authors: Tzu-Yuan Lin, Tingjun Li, Jonathan Tong, and Justin Yu** 
 
 ## 1. License
-CURLY State Estimator is released under a [GPLv3 license](https://github.com/UMich-CURLY/curly_state_estimator/blob/main/LICENSE). 
+DRIFT is released under a [GPLv3 license](https://github.com/UMich-CURLY/drift/blob/main/LICENSE). 
 
 
 ## 2. Dependencies
@@ -20,13 +20,13 @@ Required by header files. Download and install instructions can be found at: htt
 Required by header files. Download and install instructions can be found at: https://github.com/jbeder/yaml-cpp.
 
 ### ROS1 or ROS2 (optional)
-Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/curly_state_estimator/tree/main#4-ros).
+Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/drift/tree/main#4-ros).
 
-## 3. Building CURLY State Estimator library
+## 3. Building DRIFT library
 
 Clone the repository:
 ```
-git clone https://github.com/UMich-CURLY/curly_state_estimator.git
+git clone https://github.com/UMich-CURLY/drift.git
 ```
 Create another directory which we will name 'build' and use cmake and make to compile an build project:
 
@@ -39,10 +39,10 @@ make -j4
 
 ## 4. ROS
 ### Building the ROS1 robot_state_est nodes
-1. Add `/ROS/curly_state_estimator` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned curly_state_estimator:
+1. Add `/ROS/drift` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned drift:
 
   ```
-  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/TO/curly_state_estimator/ROS/curly_state_estimator
+  export ROS_PACKAGE_PATH=${ROS_PACKAGE_PATH}:PATH/TO/drift/ROS/drift
   ```
 
   Then
@@ -53,7 +53,7 @@ make -j4
 2. Execute `build_ros.sh` script in the repository root directory:
 
   ```
-  cd <PATH>/<TO>/curly_state_estimator
+  cd <PATH>/<TO>/drift
   chmod +x build_ros.sh
   ./build_ros.sh
   ```
@@ -61,17 +61,17 @@ make -j4
 ### Run examples:
 **Clearpath Husky robot:**
 ```
-rosrun curly_state_estimator husky
+rosrun drift husky
 ```
 
 **Fetch robot:**
 ```
-rosrun curly_state_estimator fetch
+rosrun drift fetch
 ```
 
 **MIT mini-cheetah robot:**
 ```
-rosrun curly_state_estimator mini_cheetah
+rosrun drift mini_cheetah
 ```
 
 ### Run the repo with your own settings:

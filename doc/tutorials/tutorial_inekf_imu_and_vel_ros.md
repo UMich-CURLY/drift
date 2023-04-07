@@ -7,14 +7,14 @@ refer to the [ROS tutorials](http://wiki.ros.org/ROS/Tutorials). In this tutoria
 
 ### Step 1: Edit Configs
 There are at least two configuration files that need to be edited before running the 
-state estimator. The first is the `<propagation>.yaml` file in the `curly_state_estimator/config/filter/inekf/propagation`.
+state estimator. The first is the `<propagation>.yaml` file in the `drift/config/filter/inekf/propagation`.
 This file contains the settings for the propagation method and users can copy the `imu_propagation.yaml` under that directory
-to start with a new set of settings. The second is the `<correction>.yaml` file in the `curly_state_estimator/config/filter/inekf/correction`.
+to start with a new set of settings. The second is the `<correction>.yaml` file in the `drift/config/filter/inekf/correction`.
 This file contains the settings for the correction method. The `velocity_correction.yaml` file is a good example to start with if a user is interested 
 in using velocity message to perform correction. There is also a `legged_kinematics_correction.yaml` file that contains the settings for the legged kinematics correction method. All the example config files contains all the informations needed to run the state estimator with corresponding propagation or correction method.
 
 ### Step 2: Create a new case with existing propagation and correction methods
-Users can create a new case by following the comments in the `curly_state_estimator/ROS/curly_state_estimator/examples` directory. Let's take the `husky.cpp` as an example. The full file looks like:
+Users can create a new case by following the comments in the `drift/ROS/drift/examples` directory. Let's take the `husky.cpp` as an example. The full file looks like:
 ```cpp
 #include <ros/ros.h>
 #include <iostream>
@@ -214,9 +214,9 @@ return 0; // Exit
 ```
 In the loop above, we first check if the state estimator is **enabled**. By saying **enabled**, we mean if the necessary biases and initial state are initialized so that the estimator is ready to run. If the estimator is enabled, we call the `RunOnce()` function to perform one step of propagation and correction. If it is not enabled, we would initialize the biases and initial state according to user's settings.
 
-After writing up your own case and adding it to `curly_state_estimator/ROS/curly_state_estimator/CMakeLists.txt`, you can run the state estimator by:
+After writing up your own case and adding it to `drift/ROS/drift/CMakeLists.txt`, you can run the state estimator by:
 ```bash
-rosrun curly_state_estimator <YOUR_CASE>
+rosrun drift <YOUR_CASE>
 ```
 
 Enjoy!

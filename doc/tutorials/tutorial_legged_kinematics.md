@@ -5,10 +5,10 @@ This tutorial will guide you through adding a custom legged kinematics class to 
 ### Step 1: Generate Kinematics Definition Header and Source Files
 Users must to generate their own kinematics files. For this, we used the [Fast Robot Optimization and Simulation Toolkit (FROST) Library](http://ayonga.github.io/frost-dev/).
 
-The kinematics definition header files should be placed under an appropriately named folder under the `curly_state_estimator/include/kinematics/robots` directory, and source files should be placed under an appropriately named folder under the `curly_state_estimator/src/kinematics/robots` directory, similar to the robots/mini_cheetah folders.
+The kinematics definition header files should be placed under an appropriately named folder under the `drift/include/kinematics/robots` directory, and source files should be placed under an appropriately named folder under the `drift/src/kinematics/robots` directory, similar to the robots/mini_cheetah folders.
 
 ### Step 2: Create Custom Kinematics Class Header and Source Files
-Users can create a new derived LeggedKinematicsMeasurement class by following the format of the existing `curly_state_estimator/include/kinematics/mini_cheetah_kinematics.h` header file. Let's take the `mini_cheetah_kinematics.h` header file as an example. The full file looks like:
+Users can create a new derived LeggedKinematicsMeasurement class by following the format of the existing `drift/include/kinematics/mini_cheetah_kinematics.h` header file. Let's take the `mini_cheetah_kinematics.h` header file as an example. The full file looks like:
 ```cpp
 #ifndef MC_KIN_H
 #define MC_KIN_H

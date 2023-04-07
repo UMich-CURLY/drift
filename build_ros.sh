@@ -7,8 +7,8 @@
 echo "Building custom_sensor_msgs"
 
 MSG_NAMESPACE=custom_sensor_msgs
-MSG_PATH=./ROS/curly_state_estimator/msg
-MSG_HEADER_OUTPUT_PATH=./ROS/curly_state_estimator/include/$MSG_NAMESPACE/
+MSG_PATH=./ROS/drift/msg
+MSG_HEADER_OUTPUT_PATH=./ROS/drift/include/$MSG_NAMESPACE/
 
 for file in $MSG_PATH/*
 do
@@ -21,7 +21,7 @@ done
 
 echo "Building ROS nodes"
 
-cd ROS/curly_state_estimator
+cd ROS/drift
 mkdir build
 cd build
 cmake .. -DROS_BUILD_TYPE=Release -Wno-dev 

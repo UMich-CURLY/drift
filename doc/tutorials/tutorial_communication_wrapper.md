@@ -2,11 +2,11 @@
 Although we provided a ROS wrapper inside our repository, users can actually write their own communication wrappers according to their needs. The only requirement is that the wrapper should be able to send and receive messages to and from the robot or simulator. In this tutorial, we will show you how to write a communication wrapper. The wrapper includes three parts: message types, communication subscriber, and communication publisher. It is relatively simple once you understan the framework. 
 
 ### Step 1: Create custom message types if necessary
-Although most of the time, you can use the message types provided by the simulator or robot, sometimes you may need to create your own message types. For example, in our case, we need to create `contact` related messages for the MIT mini-cheetah robot. In this case, we created the new message types by following the [ROS tutorial](http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv) and put them under `curly_state_estimator/ROS/curly_state_estimator/msg` folder. After creating the message type, the `./build_ros.sh` script will automatically build the message types. The specific lines of message builder is shown below:
+Although most of the time, you can use the message types provided by the simulator or robot, sometimes you may need to create your own message types. For example, in our case, we need to create `contact` related messages for the MIT mini-cheetah robot. In this case, we created the new message types by following the [ROS tutorial](http://wiki.ros.org/ROS/Tutorials/CreatingMsgAndSrv) and put them under `drift/ROS/drift/msg` folder. After creating the message type, the `./build_ros.sh` script will automatically build the message types. The specific lines of message builder is shown below:
 ```bash
 MSG_NAMESPACE=custom_sensor_msgs
-MSG_PATH=./ROS/curly_state_estimator/msg
-MSG_HEADER_OUTPUT_PATH=./ROS/curly_state_estimator/include/$MSG_NAMESPACE/
+MSG_PATH=./ROS/drift/msg
+MSG_HEADER_OUTPUT_PATH=./ROS/drift/include/$MSG_NAMESPACE/
 
 for file in $MSG_PATH/*
 do

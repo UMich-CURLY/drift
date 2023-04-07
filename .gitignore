@@ -30,9 +30,9 @@
 *.exe
 *.out
 *.app
-ROS/curly_state_estimator/fetch
-ROS/curly_state_estimator/husky
-ROS/curly_state_estimator/mini_cheetah
+ROS/drift/fetch
+ROS/drift/husky
+ROS/drift/mini_cheetah
 
 build/
 lib/
