@@ -147,7 +147,8 @@ void InekfEstimator::InitState() {
     if (correction.get()->get_correction_type() == CorrectionType::VELOCITY) {
       std::shared_ptr<VelocityCorrection> velocity_correction_ptr
           = std::dynamic_pointer_cast<VelocityCorrection>(correction);
-      v0_body = velocity_correction_ptr.get()->get_initial_velocity(w0);
+      v0_body
+          = velocity_correction_ptr.get()->set_initial_velocity(w0, state_, R0);
       break;
     } else if (correction.get()->get_correction_type()
                == CorrectionType::LEGGED_KINEMATICS) {

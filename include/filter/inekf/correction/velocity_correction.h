@@ -90,13 +90,15 @@ class VelocityCorrection : public Correction {
    */
   const VelocityQueuePtr get_sensor_data_buffer_ptr() const;
 
+  /// @name Setters
   /**
    * @brief Get the initial velocity of the robot
    *
    * @param[in] w: initial angular velocity of the robot
    * @return const Eigen::Vector3d: initial velocity of the robot
    */
-  const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
+  void set_initial_velocity(const Eigen::Vector3d& w, const Eigen::Matrix3d& R,
+                            RobotState& state) const;
   /// @}
 
 

@@ -1,0 +1,70 @@
+/* Custom styles for Doxygen HTML output */
+
+/* Set font family and size */
+body {
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  margin: 10px;
+}
+
+/* Add a background color to the header */
+div.header {
+  background-color: #0077be;
+}
+
+/* Change the color of the links in the footer */
+div.footer a {
+  color: #0077be;
+}
+
+
+
+/* Change the color of the code blocks */
+div.fragment pre {
+  background-color: #f6f8fa;
+  border: 1px solid #e1e4e8;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+/* Change the color of the code block text */
+div.fragment pre code {
+  color: #24292e;
+}
+
+/* Add a border to tables */
+table {
+  border-collapse: collapse;
+  border: 1px solid #dfe2e5;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* Add a background color to table headers */
+table th {
+  background-color: #f6f8fa;
+  border: 1px solid #dfe2e5;
+  padding: 8px;
+  text-align: left;
+}
+
+/* Add a background color to table cells */
+table td {
+  background-color: #fff;
+  border: 1px solid #dfe2e5;
+  padding: 8px;
+}
+
+/* Add a background color to alternating table rows */
+table tr:nth-child(even) td {
+  background-color: #f6f8fa;
+}
+
+/* Add padding to images */
+img {
+  padding: 4px;
+  border: 1px solid #dfe2e5;
+}
