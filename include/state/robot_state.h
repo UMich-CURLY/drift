@@ -346,10 +346,26 @@ class RobotState {
    * @return const Eigen::MatrixXd: inverse of the state matrix X_.
    */
   const Eigen::MatrixXd get_Xinv() const;
+
+  /**
+   * @brief Get the BodyCentric Angular Velocity vector w.
+   *
+   * @return const Eigen::Vector3d: angular velocity vector w in the body
+   * frame.
+   */
+  const Eigen::Vector3d get_body_angular_velocity() const;
   /// @} End of Getters
 
   /// @name Setters
   /// @{
+  /**
+   * @brief Set the BodyCentric Angular Velocity vector w.
+   *
+   * @param[in] const Eigen::Vector3d: angular velocity vector w in the body
+   * frame.
+   */
+  void set_body_angular_velocity(const Eigen::Vector3d& w);
+
   /**
    * @brief Add the augmented state
    *
@@ -589,6 +605,7 @@ class RobotState {
   double t_;              // The latest time when the state X_ is updated
   double t_prop_;         // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
+  Eigen::Vector3d body_ang_vel_;    // Latest angular velocity
 };
 }    // namespace state
 

@@ -135,9 +135,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
   return true;
 }
 
-void VelocityCorrection::set_initial_velocity(const Eigen::Vector3d& w,
-                                              const Eigen::Matrix3d& R,
-                                              RobotState& state) const {
+void VelocityCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
   // Eigen::Vector3d w = this->getAngularVelocity();
 
@@ -156,6 +154,8 @@ void VelocityCorrection::set_initial_velocity(const Eigen::Vector3d& w,
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  state.set_velocity(R * measured_velocity->get_velocity());
+  // Apply the rotation to map the body velocity to the world frame
+  state.set_velocity(state.get_rotation() * measured_velocity->get_velocity());
+  state.set_time(measured_velocity->get_time());
 }
 }    // namespace filter::inekf

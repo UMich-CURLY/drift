@@ -51,9 +51,9 @@ ImuPropagation::ImuPropagation(
   init_bias_size_ = config_["settings"]["init_bias_size"]
                         ? config_["settings"]["init_bias_size"].as<int>()
                         : 0;
-  use_imu_ori_est_init_bias_
-      = config_["settings"]["use_imu_ori_est_init_bias"]
-            ? config_["settings"]["use_imu_ori_est_init_bias"].as<bool>()
+  use_imu_ori_to_init_
+      = config_["settings"]["use_imu_ori_to_init_"]
+            ? config_["settings"]["use_imu_ori_to_init_"].as<bool>()
             : false;
 
   // Set the imu to body rotation
@@ -404,7 +404,7 @@ void ImuPropagation::InitImuBias() {
     a = R_imu2body_ * a;
 
     Eigen::Matrix3d R;
-    if (use_imu_ori_est_init_bias_) {
+    if (use_imu_ori_to_init_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
       R = R_imu2body_ * quat.toRotationMatrix();
     } else {
@@ -441,4 +441,34 @@ const bool ImuPropagation::get_bias_initialized() const {
   return bias_initialized_;
 }
 
+// IMU propagation initialization for robot state
+void ImuPropagation::set_initial_state(RobotState& state) {
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  if (sensor_data_buffer_ptr_->empty()) {
+    sensor_data_buffer_mutex_ptr_.get()->unlock();
+  }
+  const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
+  sensor_data_buffer_ptr_->pop();
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
+  if (use_imu_ori_to_init_) {
+    Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
+    R0 = quat.toRotationMatrix();    // Initialize based on VectorNav estimate
+  }
+  Eigen::Vector3d p0
+      = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame
+
+  state.set_rotation(R0);
+  state.set_position(p0);
+  state.set_body_angular_velocity(imu_measurement->get_ang_vel());
+
+  // Set the initial bias
+  state.set_gyroscope_bias(bg0_);
+  state.set_accelerometer_bias(ba0_);
+
+  double t_prev = imu_measurement->get_time();
+  state.set_time(t_prev);
+  state.set_propagate_time(t_prev);
+}
 }    // namespace filter::inekf

@@ -119,58 +119,12 @@ void InekfEstimator::InitState() {
   this->clear();
 
   // Initialize state mean
-  std::shared_ptr<ImuPropagation> imu_propagation_ptr
-      = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
-  const IMUQueuePtr imu_queue_ptr
-      = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();
+  propagation_.get()->set_initial_state(state_);
 
-  // Don't initialize if IMU queue is empty
-  imu_propagation_ptr.get()->get_mutex_ptr()->lock();
-  if (imu_queue_ptr.get()->empty()) {
-    imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
-    return;
+  for (auto& correction_ : corrections_) {
+    correction_.get()->set_initial_velocity(state_);
   }
 
-  const ImuMeasurementPtr imu_packet_in = imu_queue_ptr->front();
-  imu_queue_ptr->pop();
-  imu_propagation_ptr.get()->get_mutex_ptr()->unlock();
-
-  // Eigen::Quaternion<double> quat = imu_packet_in->get_quaternion();
-  // Eigen::Matrix3d R0 = quat.toRotationMatrix(); // Initialize based on
-  // VectorNav estimate
-  Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
-  Eigen::Vector3d w0 = imu_packet_in->get_ang_vel();
-
-  Eigen::Vector3d v0_body = Eigen::Vector3d::Zero();
-  for (auto& correction : corrections_) {
-    /// TODO: How to deal with multiple velocity measurements?
-    if (correction.get()->get_correction_type() == CorrectionType::VELOCITY) {
-      std::shared_ptr<VelocityCorrection> velocity_correction_ptr
-          = std::dynamic_pointer_cast<VelocityCorrection>(correction);
-      v0_body
-          = velocity_correction_ptr.get()->set_initial_velocity(w0, state_, R0);
-      break;
-    } else if (correction.get()->get_correction_type()
-               == CorrectionType::LEGGED_KINEMATICS) {
-      std::shared_ptr<LeggedKinematicsCorrection> legged_correction_ptr
-          = std::dynamic_pointer_cast<LeggedKinematicsCorrection>(correction);
-      v0_body = legged_correction_ptr.get()->get_initial_velocity(w0);
-      break;
-    }
-  }
-
-  Eigen::Vector3d v0 = R0 * v0_body;    // initial velocity
-
-  Eigen::Vector3d p0
-      = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame
-
-  Eigen::Vector3d bg0 = imu_propagation_ptr.get()->get_estimate_gyro_bias();
-  Eigen::Vector3d ba0 = imu_propagation_ptr.get()->get_estimate_accel_bias();
-  state_.set_rotation(R0);
-  state_.set_velocity(v0);
-  state_.set_position(p0);
-  state_.set_gyroscope_bias(bg0);
-  state_.set_accelerometer_bias(ba0);
   // Initialize state covariance
   state_.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
   state_.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
@@ -184,9 +138,6 @@ void InekfEstimator::InitState() {
   std::cout << "Robot's state covariance is initialized to: \n";
   std::cout << this->get_state().get_P() << std::endl;
   // Set enabled flag
-  double t_prev = imu_packet_in->get_time();
-  state_.set_time(t_prev);
-  state_.set_propagate_time(t_prev);
   enabled_ = true;
 }
 

@@ -112,9 +112,19 @@ class Correction {
   std::shared_ptr<std::mutex> get_mutex_ptr();
   /// @} End of Getters
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Set the pointer to the sensor data buffer
+   *
+   * @param[in,out] state: the current state estimate, which will be initialized
+   */
+  virtual void set_initial_velocity(RobotState& state);
+
  protected:
-  const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
-                               Default is 9.81m/s^2 */
+  const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame
+                               (z-up). Default is 9.81m/s^2 */
   Eigen::Vector3d
       magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
   CorrectionType correction_type_; /**< Correction type. */

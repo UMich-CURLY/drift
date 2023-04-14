@@ -257,10 +257,8 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   return true;
 }
 
-const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
-    const Eigen::Vector3d& w) const {
+void LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
-  // Eigen::Vector3d w = this->getAngularVelocity();
 
   // Get measurement from sensor data buffer
   while (sensor_data_buffer_ptr_->empty()) {
@@ -277,6 +275,11 @@ const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  return kinematics_measurement->get_init_velocity(w);
+  // Get body angular velocity:
+  Eigen::Vector3d body_w = state.get_body_angular_velocity();
+  state.set_velocity(state.get_rotation()
+                     * kinematics_measurement->get_init_velocity(body_w));
+  state.set_time(kinematics_measurement->get_time());
+  return;
 }
 }    // namespace filter::inekf

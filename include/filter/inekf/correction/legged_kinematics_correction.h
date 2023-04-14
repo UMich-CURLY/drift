@@ -101,7 +101,7 @@ class LeggedKinematicsCorrection : public Correction {
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
-  bool Correct(RobotState& state);
+  bool Correct(RobotState& state) override;
   /// @}
 
   /// @name Getters
@@ -114,13 +114,15 @@ class LeggedKinematicsCorrection : public Correction {
    */
   const LeggedKinematicsQueuePtr get_sensor_data_buffer_ptr() const;
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
   /**
-   * @brief Get the initial velocity of the robot
+   * @brief Set the initial velocity of the robot
    *
-   * @param[in] w: initial angular velocity of the robot
-   * @return const Eigen::Vector3d
+   * @param[in,out] state: the current state estimate, which will be initialized
    */
-  const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
+  void set_initial_velocity(RobotState& state) override;
   /// @}
 
  private:

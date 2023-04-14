@@ -87,7 +87,7 @@ class ImuPropagation : public Propagation {
    * @return bool: successfully propagate state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
-  bool Propagate(RobotState& state);
+  bool Propagate(RobotState& state) override;
   /// @} End of Propagation
 
   /// @name Getters
@@ -143,6 +143,16 @@ class ImuPropagation : public Propagation {
   void InitImuBias();
   ///@} End of Initialize IMU bias
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Set the initial state of the robot according to IMU measurement.
+   *
+   * @param[in,out] state: The state of the robot, which will be initialized in
+   * this method
+   */
+  void set_initial_state(RobotState& state) override;
 
  private:
   /// @name helper functions
@@ -201,11 +211,11 @@ class ImuPropagation : public Propagation {
                                    // during propagation (true for enabling bias
                                    // update, false for disabling).
   bool static_bias_initialization_;    // Flag for static bias initialization
-  bool use_imu_ori_est_init_bias_;     // Flag for using orientation estimated
+  bool use_imu_ori_to_init_;           // Flag for using orientation estimated
                                        // from the imu to perform static bias
-                                       // initialization. If set to false, the
-  // initial orientation is set to identity.
-  // i.e. assumes the robot is on a
+                                       // and robot state initialization. If set
+  // to false, the initial orientation is set
+  // to identity. i.e. assumes the robot is on a
   // horizontal flat surface.
 
   bool bias_initialized_ = false;    // Indicating whether IMU bias has been

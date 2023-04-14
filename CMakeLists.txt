@@ -99,54 +99,54 @@ endif(BUILD_DOC)
 # #################################################
 # Add Library                #
 # #################################################
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 
-# declaire a c++ library
-add_library(drift SHARED
-  ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
-  ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp
-  ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp
-  ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
-  ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
-  ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
-  ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
-  ${MINI_CHEETAH_KIN_SRC_FILES}
-)
-target_include_directories(drift PRIVATE ${PROJECT_SOURCE_DIR}/include)
-set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift VERSION ${PACKAGE_VERSION} SOVERSION ${PACKAGE_VERSION_MAJOR})
+# # declaire a c++ library
+# add_library(drift SHARED
+#   ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
+#   ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp
+#   ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp
+#   ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
+#   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
+#   ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+#   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
+#   ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
+#   ${MINI_CHEETAH_KIN_SRC_FILES}
+# )
+# target_include_directories(drift PRIVATE ${PROJECT_SOURCE_DIR}/include)
+# set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift VERSION ${PACKAGE_VERSION} SOVERSION ${PACKAGE_VERSION_MAJOR})
 
-# Add version info to the library
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-        driftConfigVersion.cmake
-        VERSION ${PACKAGE_VERSION}
-        COMPATIBILITY AnyNewerVersion
-        )
+# # Add version info to the library
+# include(CMakePackageConfigHelpers)
+# write_basic_package_version_file(
+#         driftConfigVersion.cmake
+#         VERSION ${PACKAGE_VERSION}
+#         COMPATIBILITY AnyNewerVersion
+#         )
 
-# Install the library
-install(TARGETS drift
-        EXPORT driftTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include
-        PUBLIC_HEADER DESTINATION include
-        )
+# # Install the library
+# install(TARGETS drift
+#         EXPORT driftTargets
+#         LIBRARY DESTINATION lib
+#         ARCHIVE DESTINATION lib
+#         RUNTIME DESTINATION bin
+#         INCLUDES DESTINATION include
+#         PUBLIC_HEADER DESTINATION include
+#         )
 
-install(EXPORT driftTargets
-        FILE driftTargets.cmake
-        NAMESPACE drift::
-        DESTINATION lib/cmake/drift
-        )
+# install(EXPORT driftTargets
+#         FILE driftTargets.cmake
+#         NAMESPACE drift::
+#         DESTINATION lib/cmake/drift
+#         )
 
-configure_file(driftConfig.cmake.in driftConfig.cmake @ONLY)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/driftConfigVersion.cmake"
-        DESTINATION lib/cmake/drift
-        )
+# configure_file(driftConfig.cmake.in driftConfig.cmake @ONLY)
+# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake"
+#         "${CMAKE_CURRENT_BINARY_DIR}/driftConfigVersion.cmake"
+#         DESTINATION lib/cmake/drift
+#         )

@@ -48,4 +48,7 @@ const CorrectionType Correction::get_correction_type() const {
 std::shared_ptr<std::mutex> Correction::get_mutex_ptr() {
   return sensor_data_buffer_mutex_ptr_;
 }
+
+// Set initial velocity to the state. Dummy method
+void Correction::set_initial_velocity(RobotState& state_) { return; }
 }    // namespace filter
