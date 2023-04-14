@@ -112,8 +112,9 @@ class Propagation {
    *
    * @param[in,out] state: The state of the robot, which will be initialized in
    * this method
+   * @return bool: whether the initialization is successful
    */
-  virtual void set_initial_state(RobotState& state);
+  virtual bool set_initial_state(RobotState& state);
   /// @}
 
  protected:

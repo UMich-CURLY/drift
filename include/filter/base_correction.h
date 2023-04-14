@@ -119,8 +119,9 @@ class Correction {
    * @brief Set the pointer to the sensor data buffer
    *
    * @param[in,out] state: the current state estimate, which will be initialized
+   * @return bool: whether the initialization is successful
    */
-  virtual void set_initial_velocity(RobotState& state);
+  virtual bool set_initial_velocity(RobotState& state);
 
  protected:
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame

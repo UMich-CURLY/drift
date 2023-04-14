@@ -58,8 +58,8 @@ std::shared_ptr<std::mutex> Propagation::get_mutex_ptr() {
   return sensor_data_buffer_mutex_ptr_;
 }
 
-void Propagation::set_initial_state(RobotState& state_) {
+bool Propagation::set_initial_state(RobotState& state_) {
   // Dummy method
-  return;
+  return true;
 };
 }    // namespace filter

@@ -119,10 +119,16 @@ void InekfEstimator::InitState() {
   this->clear();
 
   // Initialize state mean
-  propagation_.get()->set_initial_state(state_);
+  bool propagation_initialized = propagation_.get()->set_initial_state(state_);
+  if (!propagation_initialized) {
+    return;
+  }
 
   for (auto& correction_ : corrections_) {
-    correction_.get()->set_initial_velocity(state_);
+    bool current_correction_initialized = false;
+    while (!current_correction_initialized)
+      current_correction_initialized
+          = correction_.get()->set_initial_velocity(state_);
   }
 
   // Initialize state covariance

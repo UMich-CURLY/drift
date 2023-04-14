@@ -50,5 +50,5 @@ std::shared_ptr<std::mutex> Correction::get_mutex_ptr() {
 }
 
 // Set initial velocity to the state. Dummy method
-void Correction::set_initial_velocity(RobotState& state_) { return; }
+bool Correction::set_initial_velocity(RobotState& state_) { return true; }
 }    // namespace filter

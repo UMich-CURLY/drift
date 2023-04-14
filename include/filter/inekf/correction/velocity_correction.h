@@ -95,8 +95,9 @@ class VelocityCorrection : public Correction {
    * @brief Set the initial velocity of the robot
    *
    * @param[in,out] state: the current state estimate, which will be initialized
+   * @return bool: whether the initialization is successful
    */
-  void set_initial_velocity(RobotState& state) override;
+  bool set_initial_velocity(RobotState& state) override;
   /// @}
 
 

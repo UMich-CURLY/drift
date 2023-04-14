@@ -151,8 +151,9 @@ class ImuPropagation : public Propagation {
    *
    * @param[in,out] state: The state of the robot, which will be initialized in
    * this method
+   * @return bool: whether the initialization is successful
    */
-  void set_initial_state(RobotState& state) override;
+  bool set_initial_state(RobotState& state) override;
 
  private:
   /// @name helper functions

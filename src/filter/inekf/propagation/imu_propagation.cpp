@@ -442,11 +442,12 @@ const bool ImuPropagation::get_bias_initialized() const {
 }
 
 // IMU propagation initialization for robot state
-void ImuPropagation::set_initial_state(RobotState& state) {
-  sensor_data_buffer_mutex_ptr_.get()->lock();
+bool ImuPropagation::set_initial_state(RobotState& state) {
+  // Do not initialize if the buffer is emptys
   if (sensor_data_buffer_ptr_->empty()) {
-    sensor_data_buffer_mutex_ptr_.get()->unlock();
+    return false;
   }
+  sensor_data_buffer_mutex_ptr_.get()->lock();
   const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
@@ -470,5 +471,6 @@ void ImuPropagation::set_initial_state(RobotState& state) {
   double t_prev = imu_measurement->get_time();
   state.set_time(t_prev);
   state.set_propagate_time(t_prev);
+  return true;
 }
 }    // namespace filter::inekf

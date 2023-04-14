@@ -135,19 +135,20 @@ bool VelocityCorrection::Correct(RobotState& state) {
   return true;
 }
 
-void VelocityCorrection::set_initial_velocity(RobotState& state) {
+bool VelocityCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
-  // Eigen::Vector3d w = this->getAngularVelocity();
 
   // Get measurement from sensor data buffer
+  // Do not initialize if the buffer is emptys
   while (sensor_data_buffer_ptr_->empty()) {
-    std::cout << "Waiting for sensor data..." << std::endl;
+    // std::cout << "Waiting for velocity related encoder data..." << std::endl;
+    return false;
   }
 
   sensor_data_buffer_mutex_ptr_.get()->lock();
   // Get the latest measurement
   while (sensor_data_buffer_ptr_->size() > 1) {
-    std::cout << "Discarding old sensor data..." << std::endl;
+    // std::cout << "Discarding old sensor data..." << std::endl;
     sensor_data_buffer_ptr_->pop();
   }
   VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
@@ -157,5 +158,6 @@ void VelocityCorrection::set_initial_velocity(RobotState& state) {
   // Apply the rotation to map the body velocity to the world frame
   state.set_velocity(state.get_rotation() * measured_velocity->get_velocity());
   state.set_time(measured_velocity->get_time());
+  return true;
 }
 }    // namespace filter::inekf

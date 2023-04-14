@@ -257,17 +257,20 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   return true;
 }
 
-void LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
+bool LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
 
   // Get measurement from sensor data buffer
+  // Do not initialize if the buffer is emptys
   while (sensor_data_buffer_ptr_->empty()) {
-    std::cout << "Waiting for sensor data..." << std::endl;
+    // std::cout << "Waiting for leg encoder data..." << std::endl;
+    return false;
   }
 
   sensor_data_buffer_mutex_ptr_.get()->lock();
   // Get the lates measurement
   while (sensor_data_buffer_ptr_->size() > 1) {
+    // std::cout << "Discarding old sensor data..." << std::endl;
     sensor_data_buffer_ptr_->pop();
   }
   KinematicsMeasurementPtr kinematics_measurement
@@ -280,6 +283,6 @@ void LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
   state.set_velocity(state.get_rotation()
                      * kinematics_measurement->get_init_velocity(body_w));
   state.set_time(kinematics_measurement->get_time());
-  return;
+  return true;
 }
 }    // namespace filter::inekf
