@@ -114,6 +114,13 @@ FilteredImuPropagation::FilteredImuPropagation(
                 : std::vector<double>({0, 0, 0});
       ba0_ = Eigen::Vector3d(accelerometer_bias[0], accelerometer_bias[1],
                              accelerometer_bias[2]);
+
+
+      // Set the parameters for the angular velocity filter
+      H_imu_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+      H_imu_.block<3, 3>(0, 3) = -Eigen::MatrixXd::Identity(3, 3);
+      H_enc_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+      H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
     }
 
     const IMUQueuePtr FilteredImuPropagation::get_sensor_data_buffer_ptr()
@@ -124,7 +131,7 @@ FilteredImuPropagation::FilteredImuPropagation(
     // IMU propagation method
     bool FilteredImuPropagation::Propagate(RobotState& state) {
       const ImuMeasurementPtr imu_measurement = nullptr;
-      const AngularVelocityMeasurement ang_vel_measurement = nullptr;
+      const AngularVelocityMeasurement<double> ang_vel_measurement = nullptr;
       // Bias corrected IMU measurements
       sensor_data_buffer_mutex_ptr_.get()->lock();
       if (imu_data_buffer_ptr_->empty()) {
@@ -150,15 +157,71 @@ FilteredImuPropagation::FilteredImuPropagation(
       // =================== Angular Velocity filter ====================
       AngVelFilterPropagate();
       if (imu_measurement) {
+        latest_imu_measurement_ = imu_measurement;
+        auto fused_ang_imu = AngVelFilterPropagate(imu_measurement);
+
+        // =================== InEKF Propagation ====================
+        PropagateInEKF(fused_ang_imu, state);
+      }
+
+      if (ang_vel_measurement) {
+        auto fused_ang_imu
+            = AngVelFilterCorrect(latest_imu_measurement_, ang_vel_measurement);
+
+        // =================== InEKF Propagation ====================
+        PropagateInEKF(fused_ang_imu, state);
       }
 
 
-      // =================== InEKF Propagation ====================
-      PropagateInEKF(state);
       return true;
     }
 
-    void FilteredIMUPropagation::PropagateInEKF(RobotState& state) {
+
+    void FilteredImuPropagation::AngVelFilterPropagate() {
+      // Random walk
+      // X = X, so we don't need to do anything for mean propagation
+
+      // Covariance propagation
+      ang_vel_P_ = ang_vel_P_ + ang_vel_Q_;
+    }
+
+    void FilteredImuPropagation::AngVelFilterCorrectIMU(
+        const ImuMeasurementPtr& imu_measurement) {
+      z = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_bias_est_;
+      S_inv = (H_imu_ * ang_vel_bias_P_ * H_imu_.transpose()
+               + ang_vel_bias_imu_R_)
+                  .inverse();
+      K = ang_vel_bias_P_ * H_imu_.transpose() * S_inv;
+      ang_vel_bias_est_ = ang_vel_bias_est_ + K * z;
+      ang_vel_bias_P_
+          = (Eigen::MatrixXd::Identity(3, 3) - K * H_imu_) * ang_vel_bias_P_;
+
+      ImuMeasurementPtr imu_measurement_corrected = imu_measurement;
+      imu_measurement_corrected->set_ang_vel(ang_vel_bias_est_.head(3));
+      imu_measurement_corrected->set_time(imu_measurement->get_time());
+      return imu_measurement_corrected;
+    }
+
+    void FilteredImuPropagation::AngVelFilterCorrectEncoder(
+        const ImuMeasurementPtr& imu_measurement,
+        const AngularVelocityMeasurement<double>& ang_vel_measurement) {
+      z = imu_measurement->get_ang_vel() - H_enc_ * ang_vel_bias_est_;
+      S_inv = (H_enc_ * ang_vel_bias_P_ * H_enc_.transpose()
+               + ang_vel_bias_imu_R_)
+                  .inverse();
+      K = ang_vel_bias_P_ * H_enc_.transpose() * S_inv;
+      ang_vel_bias_est_ = ang_vel_bias_est_ + K * z;
+      ang_vel_bias_P_
+          = (Eigen::MatrixXd::Identity(3, 3) - K * H_enc_) * ang_vel_bias_P_;
+
+      ImuMeasurementPtr imu_measurement_corrected = imu_measurement;
+      imu_measurement_corrected->set_ang_vel(ang_vel_bias_est_.head(3));
+      imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
+      return imu_measurement_corrected;
+    }
+
+    void FilteredIMUPropagation::PropagateInEKF(
+        const ImuMeasurementPtr& imu_measurement, RobotState& state) {
       double dt = imu_measurement->get_time() - state.get_propagate_time();
       state.set_time(imu_measurement->get_time());
       state.set_propagate_time(imu_measurement->get_time());
@@ -228,18 +291,6 @@ FilteredImuPropagation::FilteredImuPropagation(
       state.set_X(X_pred);
       state.set_P(P_pred);
     }
-
-
-    void FilteredImuPropagation::AngVelFilterPropagate() {
-      // Random walk
-      // X = X, so we don't need to do anything for mean propagation
-
-      // Covariance propagation
-      ang_vel_P_ = ang_vel_P_ + ang_vel_Q_;
-    }
-    void FilteredImuPropagation::AngVelFilterCorrectIMU() { ang_vel_est_ }
-    void FilteredImuPropagation::AngVelFilterCorrectEncoder() {}
-
 
     // Compute Analytical state transition matrix
     Eigen::MatrixXd FilteredImuPropagation::StateTransitionMatrix(

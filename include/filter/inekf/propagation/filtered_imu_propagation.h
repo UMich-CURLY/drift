@@ -156,11 +156,14 @@ class FilteredImuPropagation : public Propagation {
  private:
   /// @name helper functions
   /// @{
-  void PropagateInEKF(RobotState& state);
 
   void AngVelFilterPropagate();
-  void AngVelFilterCorrectIMU();
-  void AngVelFilterCorrectEncoder();
+  void AngVelFilterCorrectIMU(const ImuMeasurementPtr& imu_measurement);
+  void AngVelFilterCorrectEncoder(
+      const ImuMeasurementPtr& imu_measurement,
+      const AngularVelocityMeasurement<double>& ang_vel_measurement);
+
+  void PropagateInEKF(RobotState& state);
 
 
   // ======================================================================
@@ -237,10 +240,14 @@ class FilteredImuPropagation : public Propagation {
 
 
   // Variables for the angular velocity filter
-  Eigen::Vector3d ang_vel_est_ = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d ang_vel_P_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ang_vel_Q_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ang_vel_R_ = 0.1 * 0.1 * Eigen::Matrix3d::Identity();
+  ImuMeasurementPtr latest_imu_measurement_;
+  Eigen::VectorXd ang_vel_bias_est_ = Eigen::VectorXd::Zero(6);
+  Eigen::Matrix3d ang_vel_bias_P_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
+  Eigen::Matrix3d ang_vel_bias_Q_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
+  Eigen::Matrix3d ang_vel_bias_imu_R_ = 0.1 * 0.1 * Eigen::Matrix3d::Identity();
+  Eigen::Matrix3d ang_vel_bias_enc_R_ = 0.1 * 0.1 * Eigen::Matrix3d::Identity();
+  Eigen::Matrix<double, 3, 6> H_imu_;
+  Eigen::Matrix<double, 3, 6> H_enc_;
 
 };    // End of class FilteredImuPropagation
 }    // namespace filter::inekf

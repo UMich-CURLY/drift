@@ -22,7 +22,9 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/legged_kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
+#include "filter/inekf/propagation/filtered_imu_propagation.h"
 #include "filter/inekf/propagation/imu_propagation.h"
+#include "measurement/angular_velocity.h"
 #include "measurement/imu.h"
 #include "measurement/legged_kinematics.h"
 #include "measurement/velocity.h"
@@ -134,6 +136,13 @@ class InekfEstimator {
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
       = "config/filter/inekf/propagation/imu_propagation.yaml");
+
+  void add_filtered_imu_propagation(
+      IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+      AngularVelocityQueuePtr ang_vel_buffer_ptr,
+      std::shared_ptr<std::mutex> ang_vel_buffer_mutex_ptr,
+      const std::string& yaml_filepath);
+
   /// @}
 
   /// @name Correction adders
@@ -141,13 +150,15 @@ class InekfEstimator {
   // ======================================================================
   /**
    * @brief Add a legged kinematics correction method to the InekfEstimator
-   * object, which uses leg kinematic data to correct the state of the robot.
-   * This correction method will be called in the when the filter is running.
+   * object, which uses leg kinematic data to correct the state of the
+   * robot. This correction method will be called in the when the filter is
+   * running.
    *
-   * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores the
-   * message from the subscriber.
+   * @param[in] buffer_ptr: The kinematic buffer queue temporarily stores
+   * the message from the subscriber.
    * @param[in] buffer_mutex_ptr: The kinematic buffer mutex pointer
-   * @param[in] yaml_filepath: The yaml file path for the kinematic correction
+   * @param[in] yaml_filepath: The yaml file path for the kinematic
+   * correction
    */
   void add_legged_kinematics_correction(
       LeggedKinematicsQueuePtr buffer_ptr,

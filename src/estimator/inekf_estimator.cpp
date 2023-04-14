@@ -70,6 +70,17 @@ void InekfEstimator::add_imu_propagation(
       yaml_filepath);
 }
 
+void InekfEstimator::add_filtered_imu_propagation(
+    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    AngularVelocityQueuePtr ang_vel_buffer_ptr,
+    std::shared_ptr<std::mutex> ang_vel_buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
+  propagation_ = std::make_shared<FilteredImuPropagation>(
+      buffer_ptr, buffer_mutex_ptr, ang_vel_buffer_ptr,
+      ang_vel_buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
+      yaml_filepath);
+}
+
 void InekfEstimator::add_legged_kinematics_correction(
     LeggedKinematicsQueuePtr buffer_ptr,
     std::shared_ptr<std::mutex> buffer_mutex_ptr,
@@ -119,7 +130,7 @@ void InekfEstimator::InitState() {
   this->clear();
 
   // Initialize state mean
-  std::shared_ptr<ImuPropagation> imu_propagation_ptr
+  auto imu_propagation_ptr
       = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
   const IMUQueuePtr imu_queue_ptr
       = imu_propagation_ptr.get()->get_sensor_data_buffer_ptr();

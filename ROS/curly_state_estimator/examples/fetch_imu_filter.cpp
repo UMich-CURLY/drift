@@ -65,10 +65,10 @@ int main(int argc, char** argv) {
   InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator:
-  inekf_estimator.add_imu_propagation(
+  inekf_estimator.add_filtered_imu_propagation(
       qimu, qimu_mutex,
       "config/filter/inekf/propagation/"
-      "fetch_imu_propagation.yaml");    // Fetch's setting
+      "fetch_filtered_imu_propagation.yaml");    // Fetch's setting
   inekf_estimator.add_velocity_correction(qv, qv_mutex,
                                           "config/filter/inekf/correction/"
                                           "fetch_velocity_correction.yaml");
