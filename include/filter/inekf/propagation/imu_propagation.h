@@ -63,14 +63,11 @@ class ImuPropagation : public Propagation {
    * sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
    * @param[in] yaml_filepath: Name of the yaml file for the propagation
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                 const ErrorType& error_type, bool enable_imu_bias_update,
-                 const std::string& yaml_filepath);
+                 const ErrorType& error_type, const std::string& yaml_filepath);
   /// @}
 
   /// @name Propagation
@@ -208,9 +205,10 @@ class ImuPropagation : public Propagation {
   Eigen::Matrix3d gyro_bias_cov_;     // Gyroscope bias covariance.
   Eigen::Matrix3d accel_bias_cov_;    // Accelerometer bias covariance.
 
-  bool enable_imu_bias_update_;    // Boolean value that allows IMU bias update
-                                   // during propagation (true for enabling bias
-                                   // update, false for disabling).
+  bool enable_imu_bias_update_
+      = false;    // Boolean value that allows IMU bias update
+                  // during propagation (true for enabling bias
+                  // update, false for disabling).
   bool static_bias_initialization_;    // Flag for static bias initialization
   bool use_imu_ori_to_init_;           // Flag for using orientation estimated
                                        // from the imu to perform static bias

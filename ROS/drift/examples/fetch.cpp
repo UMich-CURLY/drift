@@ -57,23 +57,17 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Define some configurations for the state estimator
   inekf::ErrorType error_type = LeftInvariant;
-  YAML::Node config_ = YAML::LoadFile(
-      "config/filter/inekf/propagation/"
-      "fetch_imu_propagation.yaml");
-  bool enable_imu_bias_update
-      = config_["settings"]["enable_imu_bias_update"].as<bool>();
 
   /// TUTORIAL: Create a state estimator
-  InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
+  InekfEstimator inekf_estimator(error_type,
+                                 "config/fetch/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator:
   inekf_estimator.add_imu_propagation(
       qimu, qimu_mutex,
-      "config/filter/inekf/propagation/"
-      "fetch_imu_propagation.yaml");    // Fetch's setting
-  inekf_estimator.add_velocity_correction(qv, qv_mutex,
-                                          "config/filter/inekf/correction/"
-                                          "fetch_velocity_correction.yaml");
+      "config/fetch/imu_propagation.yaml");    // Fetch's setting
+  inekf_estimator.add_velocity_correction(
+      qv, qv_mutex, "config/fetch/velocity_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr

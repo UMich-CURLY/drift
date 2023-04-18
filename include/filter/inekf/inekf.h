@@ -45,13 +45,12 @@ enum ErrorType { LeftInvariant, RightInvariant };
  * @param[in] H: measurement error matrix
  * @param[in] N: measurement noise matrix
  * @param[in,out] state: Robot state
- * @param[in] enable_imu_bias_update: Whether or not to update IMU bias
  * @param[in] error_type: Error type， RightInvariant or LeftInvariant
  * @return None
  */
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                            const Eigen::MatrixXd& N, RobotState& state,
-                           bool enable_imu_bias_update, ErrorType error_type);
+                           ErrorType error_type);
 
 // ======================================================================
 /**
@@ -62,13 +61,12 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
  * @param[in] H: measurement error matrix
  * @param[in] N: measurement noise matrix
  * @param[in,out] state: Robot state
- * @param[in] enable_imu_bias_update: Whether or not to update IMU bias
  * @param[in] error_type: Error type， RightInvariant or LeftInvariant
  * @return None
  */
 void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
-                          bool enable_imu_bias_update, ErrorType error_type);
+                          ErrorType error_type);
 
 
 }    // namespace filter::inekf

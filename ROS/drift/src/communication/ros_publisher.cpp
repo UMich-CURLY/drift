@@ -24,17 +24,15 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
       thread_started_(false) {
   std::string pose_topic;
   std::string path_topic;
-  nh_->param<std::string>("/curly_state_est_settings/pose_topic", pose_topic,
+  nh_->param<std::string>("/drift_settings/pose_topic", pose_topic,
                           "/robot/inekf_estimation/pose");
-  nh_->param<std::string>("/curly_state_est_settings/map_frame_id", pose_frame_,
-                          "/odom");
-  nh->param<std::string>("/curly_state_est_settings/path_topic", path_topic,
+  nh_->param<std::string>("/drift_settings/map_frame_id", pose_frame_, "/odom");
+  nh->param<std::string>("/drift_settings/path_topic", path_topic,
                          "/robot/inekf_estimation/path");
-  nh_->param<double>("/curly_state_est_settings/pose_publish_rate",
-                     pose_publish_rate_, 1000);
-  nh_->param<double>("/curly_state_est_settings/path_publish_rate",
-                     path_publish_rate_, 1000);
-  nh_->param<int>("/curly_state_est_settings/pose_skip", pose_skip_, 1);
+  nh_->param<double>("/drift_settings/pose_publish_rate", pose_publish_rate_,
+                     1000);
+  nh_->param<double>("/drift_settings/path_publish_rate", path_publish_rate_,
+                     10);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
@@ -55,7 +53,7 @@ ROSPublisher::~ROSPublisher() {
 }
 
 void ROSPublisher::StartPublishingThread() {
-  std::cout << "start publishing thread" << std::endl;
+  std::cout << "Starting publishing thread" << std::endl;
   this->pose_publishing_thread_
       = std::thread([this] { this->PosePublishingThread(); });
   this->path_publishing_thread_
@@ -113,7 +111,11 @@ void ROSPublisher::PosePublish() {
   pose_pub_.publish(pose_msg);
   pose_seq_++;
 
-  if (int(pose_seq_) % pose_skip_ == 0) {
+  int pose_skip = pose_publish_rate_
+                  / path_publish_rate_;    // Pose publish rate must be faster
+                                           // than path publish rate
+  // std::cout << "pose_skip: " << pose_skip << std::endl;
+  if (int(pose_seq_) % pose_skip == 0) {
     geometry_msgs::PoseStamped pose_stamped;
     pose_stamped.header = pose_msg.header;
     pose_stamped.pose = pose_msg.pose.pose;

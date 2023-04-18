@@ -53,23 +53,19 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Define some configurations for the state estimator
   inekf::ErrorType error_type = LeftInvariant;
-  YAML::Node config_ = YAML::LoadFile(
-      "config/filter/inekf/propagation/husky_imu_propagation.yaml");
-  bool enable_imu_bias_update
-      = config_["settings"]["enable_imu_bias_update"].as<bool>();
 
   /// TUTORIAL: Create a state estimator
-  InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
+  InekfEstimator inekf_estimator(error_type,
+                                 "config/husky/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) methods to the state
   /// estimator. Here is an example of IMU propagation and velocity correction
   /// for Husky robot
-  inekf_estimator.add_imu_propagation(
-      qimu, qimu_mutex,
-      "config/filter/inekf/propagation/husky_imu_propagation.yaml");
-  inekf_estimator.add_velocity_correction(qv, qv_mutex,
-                                          "config/filter/inekf/correction/"
-                                          "husky_velocity_correction.yaml");
+  inekf_estimator.add_imu_propagation(qimu, qimu_mutex,
+                                      "config/husky/imu_propagation.yaml");
+  inekf_estimator.add_velocity_correction(
+      qv, qv_mutex, "config/husky/velocity_correction.yaml");
+
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr

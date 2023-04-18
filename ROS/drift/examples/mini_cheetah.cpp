@@ -55,23 +55,18 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Define some configurations for the state estimator
   inekf::ErrorType error_type = LeftInvariant;
-  YAML::Node config_ = YAML::LoadFile(
-      "config/filter/inekf/propagation/mini_cheetah_imu_propagation.yaml");
-  bool enable_imu_bias_update
-      = config_["settings"]["enable_imu_bias_update"].as<bool>();
 
   /// TUTORIAL: Create a state estimator
-  InekfEstimator inekf_estimator(error_type, enable_imu_bias_update);
+  InekfEstimator inekf_estimator(error_type,
+                                 "config/mini_cheetah/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator
   // Mini Cheetah's setting:
   inekf_estimator.add_imu_propagation(
-      qimu, qimu_mutex,
-      "config/filter/inekf/propagation/mini_cheetah_imu_propagation.yaml");
+      qimu, qimu_mutex, "config/mini_cheetah/imu_propagation.yaml");
   inekf_estimator.add_legged_kinematics_correction(
       qkin, qkin_mutex,
-      "config/filter/inekf/correction/"
-      "mini_cheetah_legged_kinematics_correction.yaml");
+      "config/mini_cheetah/legged_kinematics_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr

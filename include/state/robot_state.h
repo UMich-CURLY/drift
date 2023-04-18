@@ -354,6 +354,13 @@ class RobotState {
    * frame.
    */
   const Eigen::Vector3d get_body_angular_velocity() const;
+
+  /**
+   * @brief Get the boolean value enable_imu_bias_update_
+   *
+   * @return const bool: boolean value enable_imu_bias_update_
+   */
+  const bool get_enable_imu_bias_update() const;
   /// @} End of Getters
 
   /// @name Setters
@@ -546,6 +553,14 @@ class RobotState {
    * located
    */
   void del_aug_cov(int matrix_idx);
+
+  /**
+   * @brief set enable bias update boolean variable
+   *
+   * @param[in] enable_imu_bias_update_: boolean variable to enable/disable bias
+   * update
+   */
+  void set_enable_imu_bias_update(bool enable_imu_bias_update_);
   /// @} End of Setters
 
   /// @name Utility functions
@@ -606,6 +621,7 @@ class RobotState {
   double t_prop_;         // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
   Eigen::Vector3d body_ang_vel_;    // Latest angular velocity
+  bool enable_imu_bias_update_ = false;
 };
 }    // namespace state
 

@@ -52,7 +52,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   inekf::ErrorType error_type = LeftInvariant;
 
-  InekfEstimator inekf_estimator(error_type);
+  InekfEstimator inekf_estimator(error_type, "");
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);

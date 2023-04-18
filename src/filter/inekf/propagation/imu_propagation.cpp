@@ -31,12 +31,10 @@ namespace filter::inekf {
 ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, bool enable_imu_bias_update,
-    const std::string& yaml_filepath)
+    const ErrorType& error_type, const std::string& yaml_filepath)
     : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      error_type_(error_type),
-      enable_imu_bias_update_(enable_imu_bias_update) {
+      error_type_(error_type) {
   propagation_type_ = PropagationType::IMU;
 
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
@@ -103,6 +101,11 @@ ImuPropagation::ImuPropagation(
             : std::vector<double>({0, 0, 0});
   ba0_ = Eigen::Vector3d(accelerometer_bias[0], accelerometer_bias[1],
                          accelerometer_bias[2]);
+
+  enable_imu_bias_update_
+      = config_["settings"]["enable_imu_bias_update"]
+            ? config_["settings"]["enable_imu_bias_update"].as<bool>()
+            : false;
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -468,9 +471,15 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
   state.set_gyroscope_bias(bg0_);
   state.set_accelerometer_bias(ba0_);
 
+  // Set the enable imu bias update boolean
+  state.set_enable_imu_bias_update(enable_imu_bias_update_);
+
   double t_prev = imu_measurement->get_time();
   state.set_time(t_prev);
   state.set_propagate_time(t_prev);
+
+  state.set_gyroscope_bias_covariance(gyro_bias_cov_);
+  state.set_accelerometer_bias_covariance(accel_bias_cov_);
   return true;
 }
 }    // namespace filter::inekf

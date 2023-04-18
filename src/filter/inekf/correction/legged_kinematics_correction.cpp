@@ -8,10 +8,8 @@ namespace filter::inekf {
 LeggedKinematicsCorrection::LeggedKinematicsCorrection(
     LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, bool enable_imu_bias_update,
-    const std::string& yaml_filepath)
-    : Correction::Correction(sensor_data_buffer_mutex_ptr,
-                             enable_imu_bias_update),
+    const ErrorType& error_type, const std::string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   correction_type_ = CorrectionType::LEGGED_KINEMATICS;
@@ -180,11 +178,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     if (state.get_state_type() == StateType::WorldCentric) {
-      CorrectRightInvariant(Z, H, N, state, enable_imu_bias_update_,
-                            error_type_);
+      CorrectRightInvariant(Z, H, N, state, error_type_);
     } else {
-      CorrectLeftInvariant(Z, H, N, state, enable_imu_bias_update_,
-                           error_type_);
+      CorrectLeftInvariant(Z, H, N, state, error_type_);
     }
   }
 

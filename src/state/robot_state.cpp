@@ -411,4 +411,12 @@ void RobotState::RemoveRowAndColumn(Eigen::MatrixXd& M, int index,
       = M.rightCols(dimX - index - move_dim).eval();
   M.conservativeResize(dimX - move_dim, dimX - move_dim);
 }
+
+void RobotState::set_enable_imu_bias_update(bool enable_imu_bias_update) {
+  enable_imu_bias_update_ = enable_imu_bias_update;
+}
+
+const bool RobotState::get_enable_imu_bias_update() const {
+  return enable_imu_bias_update_;
+}
 }    // namespace state

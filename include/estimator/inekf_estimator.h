@@ -11,12 +11,17 @@
  *  @date   December 1, 2022
  **/
 
+#include <stdlib.h>
 #include <Eigen/Dense>
+#include <atomic>
 #include <boost/circular_buffer.hpp>
+#include <fstream>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <thread>
 
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
@@ -37,7 +42,7 @@ typedef std::queue<std::shared_ptr<RobotState>>
     RobotStateQueue; /**< Queue of pointers to robot state */
 typedef std::shared_ptr<RobotStateQueue>
     RobotStateQueuePtr; /**< Pointer to the robot state queue */
-
+typedef std::numeric_limits<double> dbl;
 
 namespace estimator {
 /**
@@ -58,24 +63,22 @@ class InekfEstimator {
    */
   InekfEstimator();
 
-  // ======================================================================
-  /**
-   * @brief Construct a new State Estimator object.
-   *
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
-   */
-  InekfEstimator(bool enable_imu_bias_update = false);
-
   /**
    * @brief Construct a new State Estimator object according to given settings.
    *
    * @param[in] error_type: Error type of the filter
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
+   * @param[in] config_file: The yaml file path for the filter config
    */
-  InekfEstimator(ErrorType error_type, bool enable_imu_bias_update = false);
+  InekfEstimator(ErrorType error_type, std::string config_file);
   /// @}
+
+  /// @name Destructors
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Destroy the State Estimator object
+   */
+  ~InekfEstimator();
 
   /// @name Setters
   /// @{
@@ -228,6 +231,21 @@ class InekfEstimator {
   void RunOnce();
   /// @}
 
+  /// @name Pose logger
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Start pose logging thread
+   *
+   */
+  void StartLoggingThread();
+
+  /**
+   * @brief Enable the pose logger
+   */
+  void PoseLoggingThread();
+  // @} Pose logger
+
 
   // ======================================================================
   /**
@@ -248,8 +266,6 @@ class InekfEstimator {
       propagation_;         // Propagation method of the filter
   bool enabled_ = false;    // Boolean value indicating whether the filter is
                             // enabled or not
-  bool enable_imu_bias_update_ = false;    // Boolean value indicating whether
-                                           // the filter should update imu bias
   bool new_pose_ready_
       = false;    // Boolean value indicating whether a new pose is generated
   RobotStateQueuePtr robot_state_queue_ptr_;    // Pointer to the filter
@@ -257,5 +273,21 @@ class InekfEstimator {
   std::shared_ptr<std::mutex>
       robot_state_queue_mutex_ptr_;    // Mutex of the robot
                                        // state queue
-};                                     // class InekfEstimator
+  bool enable_pose_logger_;            // Boolean value indicating whether
+                                       // the filter should log the pose
+  std::ofstream outfile_;              // Output file stream for pose logger
+  double pose_log_rate_;               // Pose logger rate
+  double last_pub_t_ = 0.0;            // Last published time for pose logger
+  std::thread pose_logging_thread_;    // Pose logging thread
+  std::mutex
+      robot_state_log_queue_mutex_;    // Mutex of the robot state log queue
+  RobotStateQueuePtr robot_state_log_queue_ptr_;    // Pointer to the robot
+                                                    // state log queue
+
+  double rotation_cov_val_;                  // Covariance value for rotation
+  double velocity_cov_val_;                  // Covariance value for velocity
+  double position_cov_val_;                  // Covariance value for position
+  std::atomic<bool> stop_signal_ = false;    // Stop signal for pose logger
+  std::string pose_log_file_ = "";           // Pose log file path
+};                                           // class InekfEstimator
 }    // namespace estimator

@@ -16,19 +16,49 @@
 namespace estimator {
 InekfEstimator::InekfEstimator()
     : robot_state_queue_ptr_(new RobotStateQueue),
-      robot_state_queue_mutex_ptr_(new std::mutex) {}
+      robot_state_queue_mutex_ptr_(new std::mutex),
+      robot_state_log_queue_ptr_(new RobotStateQueue),
+      robot_state_log_queue_mutex_() {}
 
-InekfEstimator::InekfEstimator(bool enable_imu_bias_update)
-    : enable_imu_bias_update_(enable_imu_bias_update),
-      robot_state_queue_ptr_(new RobotStateQueue),
-      robot_state_queue_mutex_ptr_(new std::mutex) {}
-
-InekfEstimator::InekfEstimator(ErrorType error_type,
-                               bool enable_imu_bias_update)
+InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
     : error_type_(error_type),
-      enable_imu_bias_update_(enable_imu_bias_update),
       robot_state_queue_ptr_(new RobotStateQueue),
-      robot_state_queue_mutex_ptr_(new std::mutex) {}
+      robot_state_queue_mutex_ptr_(new std::mutex),
+      robot_state_log_queue_ptr_(new RobotStateQueue),
+      robot_state_log_queue_mutex_() {
+  YAML::Node config = YAML::LoadFile(config_file);
+  enable_pose_logger_ = config["logger"]["enable_pose_logger"].as<bool>();
+
+  rotation_cov_val_ = config["state"]["rotation_std_value"] ? pow(
+                          config["state"]["rotation_std_value"].as<double>(), 2)
+                                                            : 0.03;
+  velocity_cov_val_ = config["state"]["velocity_std_value"] ? pow(
+                          config["state"]["velocity_std_value"].as<double>(), 2)
+                                                            : 0.01;
+  position_cov_val_ = config["state"]["position_std_value"] ? pow(
+                          config["state"]["position_std_value"].as<double>(), 2)
+                                                            : 0.00001;
+
+  if (enable_pose_logger_) {
+    pose_log_file_ = config["logger"]["pose_log_file"].as<std::string>();
+    outfile_.open(pose_log_file_);
+    pose_log_rate_ = config["logger"]["pose_log_rate"]
+                         ? config["logger"]["pose_log_rate"].as<double>()
+                         : 10.0;
+    outfile_.precision(dbl::max_digits10);
+    this->StartLoggingThread();
+  }
+}
+
+InekfEstimator::~InekfEstimator() {
+  if (enable_pose_logger_) {
+    std::cout << "Saving logged path..." << std::endl;
+    stop_signal_ = true;
+    this->pose_logging_thread_.join();
+    std::cout << "Logged path is saved to " << pose_log_file_ << std::endl;
+    outfile_.close();
+  }
+}
 
 void InekfEstimator::RunOnce() {
   // Propagate
@@ -46,8 +76,53 @@ void InekfEstimator::RunOnce() {
     robot_state_queue_mutex_ptr_.get()->lock();
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
+
+    if (enable_pose_logger_) {
+      robot_state_log_queue_mutex_.lock();
+      robot_state_log_queue_ptr_.get()->push(
+          std::make_shared<RobotState>(state_));
+      robot_state_log_queue_mutex_.unlock();
+    }
   }
   new_pose_ready_ = false;
+}
+
+void InekfEstimator::StartLoggingThread() {
+  if (enable_pose_logger_) {
+    std::cout << "Starting logging thread..." << std::endl;
+    this->pose_logging_thread_
+        = std::thread([this] { this->PoseLoggingThread(); });
+  }
+}
+
+void InekfEstimator::PoseLoggingThread() {
+  // logger, tum style
+  while (stop_signal_ == false) {
+    // Get new pose data for logger
+    robot_state_log_queue_mutex_.lock();
+    if (robot_state_log_queue_ptr_.get()->empty()) {
+      robot_state_log_queue_mutex_.unlock();
+      continue;
+    }
+
+    std::shared_ptr<RobotState> state_log_ptr
+        = robot_state_log_queue_ptr_.get()->front();
+    robot_state_log_queue_ptr_.get()->pop();
+    robot_state_log_queue_mutex_.unlock();
+
+    double time_diff = state_log_ptr->get_time() - last_pub_t_;
+    if (enable_pose_logger_ && time_diff >= 1.0 / pose_log_rate_) {
+      Eigen::Quaterniond state_quat(state_log_ptr->get_world_rotation());
+      outfile_ << state_log_ptr->get_time() << " "
+               << state_log_ptr->get_world_position()(0) << " "
+               << state_log_ptr->get_world_position()(1) << " "
+               << state_log_ptr->get_world_position()(2) << " "
+               << state_quat.x() << " " << state_quat.y() << " "
+               << state_quat.z() << " " << state_quat.w() << std::endl
+               << std::flush;
+      last_pub_t_ = state_log_ptr->get_time();
+    }
+  }
 }
 
 RobotStateQueuePtr InekfEstimator::get_robot_state_queue_ptr() {
@@ -65,9 +140,8 @@ const RobotState InekfEstimator::get_state() const { return state_; }
 void InekfEstimator::add_imu_propagation(
     IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
-  propagation_ = std::make_shared<ImuPropagation>(
-      buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
-      yaml_filepath);
+  propagation_ = std::make_shared<ImuPropagation>(buffer_ptr, buffer_mutex_ptr,
+                                                  error_type_, yaml_filepath);
 }
 
 void InekfEstimator::add_legged_kinematics_correction(
@@ -76,8 +150,7 @@ void InekfEstimator::add_legged_kinematics_correction(
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction
       = std::make_shared<LeggedKinematicsCorrection>(
-          buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
-          yaml_filepath);
+          buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
   corrections_.push_back(correction);
 }
 
@@ -85,8 +158,7 @@ void InekfEstimator::add_velocity_correction(
     VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
-      buffer_ptr, buffer_mutex_ptr, error_type_, enable_imu_bias_update_,
-      yaml_filepath);
+      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
   corrections_.push_back(correction);
 }
 
@@ -132,12 +204,12 @@ void InekfEstimator::InitState() {
   }
 
   // Initialize state covariance
-  state_.set_rotation_covariance(0.03 * Eigen::Matrix3d::Identity());
-  state_.set_velocity_covariance(0.01 * Eigen::Matrix3d::Identity());
-  state_.set_position_covariance(0.00001 * Eigen::Matrix3d::Identity());
-  state_.set_gyroscope_bias_covariance(0.0001 * Eigen::Matrix3d::Identity());
-  state_.set_accelerometer_bias_covariance(0.0025
-                                           * Eigen::Matrix3d::Identity());
+  state_.set_rotation_covariance(rotation_cov_val_
+                                 * Eigen::Matrix3d::Identity());
+  state_.set_velocity_covariance(velocity_cov_val_
+                                 * Eigen::Matrix3d::Identity());
+  state_.set_position_covariance(position_cov_val_
+                                 * Eigen::Matrix3d::Identity());
 
   std::cout << "Robot's state mean is initialized to: \n";
   std::cout << this->get_state().get_X() << std::endl;
