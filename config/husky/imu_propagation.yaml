@@ -3,7 +3,7 @@ settings:
   ###################
   # Filter Settings #
   ###################
-  static_bias_initialization: true  # Enable this the filter will use the first N data points
+  static_bias_initialization: false  # Enable this the filter will use the first N data points
                                     # to initialize bias with the assumption of robot being static.
                                     # If you set this to false, remember to also change the bias
                                     # prior in config/prior.yaml.
@@ -13,7 +13,7 @@ settings:
                                                   # Setting this to false the filter will assume
                                                   # the robot to be horizontally static (gravity pointing
                                                   # downwards) to initialize the filter.   
-  enable_imu_bias_update: true # Enable imu bias update or not.
+  enable_imu_bias_update: false # Enable imu bias update or not.
   use_imu_ori_to_init: false # Use the orientation estimated from the imu to initialize robot state and bias.
 
   ########################
@@ -26,8 +26,19 @@ settings:
 
 # IMU bias prior:
 priors:
-  gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
-  accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
+  # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
+  # accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
+
+  # gx1
+  # northwood, imu orient init
+  gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
+  accelerometer_bias: [0.120438,-0.170559,-0.00045046]
+  
+
+  # gx0
+  # northwood, identity init
+  # gyroscope_bias: [-0.589967,0.000442572,0.00351768]
+  # accelerometer_bias: [0.228787,0.172799,-0.0087461]
 
   # gyroscope_bias: [0, 0, 0] 
   # accelerometer_bias: [0, 0, 0]

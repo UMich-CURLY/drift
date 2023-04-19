@@ -22,17 +22,12 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
       robot_state_queue_ptr_(robot_state_queue_ptr),
       robot_state_queue_mutex_(robot_state_queue_mutex),
       thread_started_(false) {
-  std::string pose_topic;
-  std::string path_topic;
-  nh_->param<std::string>("/drift_settings/pose_topic", pose_topic,
-                          "/robot/inekf_estimation/pose");
-  nh_->param<std::string>("/drift_settings/map_frame_id", pose_frame_, "/odom");
-  nh->param<std::string>("/drift_settings/path_topic", path_topic,
-                         "/robot/inekf_estimation/path");
-  nh_->param<double>("/drift_settings/pose_publish_rate", pose_publish_rate_,
-                     1000);
-  nh_->param<double>("/drift_settings/path_publish_rate", path_publish_rate_,
-                     10);
+  std::string pose_topic = "/robot/inekf_estimation/pose";
+  std::string path_topic = "/robot/inekf_estimation/path";
+  pose_frame_ = "/odom";
+  pose_publish_rate_ = 1000;    // Hz
+  path_publish_rate_ = 10;      // Hz
+
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
@@ -41,13 +36,42 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);
-  path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
+  // path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
+}
+
+ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
+                           RobotStateQueuePtr& robot_state_queue_ptr,
+                           std::shared_ptr<std::mutex> robot_state_queue_mutex,
+                           std::string config_file)
+    : nh_(nh),
+      robot_state_queue_ptr_(robot_state_queue_ptr),
+      robot_state_queue_mutex_(robot_state_queue_mutex),
+      thread_started_(false) {
+  YAML::Node config = YAML::LoadFile(config_file);
+  std::string pose_topic
+      = config["publishers"]["pose_publish_topic"].as<std::string>();
+  std::string path_topic
+      = config["publishers"]["path_publish_topic"].as<std::string>();
+  pose_frame_ = config["publishers"]["pose_frame"].as<std::string>();
+
+  pose_publish_rate_ = config["publishers"]["pose_publish_rate"].as<double>();
+  path_publish_rate_ = config["publishers"]["path_publish_rate"].as<double>();
+
+  first_pose_ = {0, 0, 0};
+
+  std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
+            << std::endl;
+  std::cout << "path publish rate: " << path_publish_rate_ << std::endl;
+
+  pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
+      pose_topic, 1000);
+  // path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
 }
 
 ROSPublisher::~ROSPublisher() {
   if (thread_started_ == true) {
     pose_publishing_thread_.join();
-    path_publishing_thread_.join();
+    // path_publishing_thread_.join();
   }
   poses_.clear();
 }
@@ -56,8 +80,8 @@ void ROSPublisher::StartPublishingThread() {
   std::cout << "Starting publishing thread" << std::endl;
   this->pose_publishing_thread_
       = std::thread([this] { this->PosePublishingThread(); });
-  this->path_publishing_thread_
-      = std::thread([this] { this->PathPublishingThread(); });
+  // this->path_publishing_thread_
+  //     = std::thread([this] { this->PathPublishingThread(); });
 
   thread_started_ = true;
 }

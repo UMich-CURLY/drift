@@ -50,8 +50,8 @@ ImuPropagation::ImuPropagation(
                         ? config_["settings"]["init_bias_size"].as<int>()
                         : 0;
   use_imu_ori_to_init_
-      = config_["settings"]["use_imu_ori_to_init_"]
-            ? config_["settings"]["use_imu_ori_to_init_"].as<bool>()
+      = config_["settings"]["use_imu_ori_to_init"]
+            ? config_["settings"]["use_imu_ori_to_init"].as<bool>()
             : false;
 
   // Set the imu to body rotation
@@ -459,6 +459,7 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
   if (use_imu_ori_to_init_) {
     Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
     R0 = quat.toRotationMatrix();    // Initialize based on VectorNav estimate
+    std::cout << "R0: \n" << R0 << std::endl;
   }
   Eigen::Vector3d p0
       = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame

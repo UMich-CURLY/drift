@@ -37,14 +37,24 @@ int main(int argc, char** argv) {
   /// TUTORIAL: Create a ROS subscriber
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
+  /// TUTORIAL: Load your yaml file
+  std::string config_file
+      = "/home/neofelis/Code/drift/ROS/drift/config/husky/ros_comm.yaml";
+  YAML::Node config = YAML::LoadFile(config_file);
+  std::string imu_topic = config["subscribers"]["imu_topic"].as<std::string>();
+  std::string wheel_encoder_topic
+      = config["subscribers"]["wheel_encoder_topic"].as<std::string>();
+  double wheel_radius = config["subscribers"]["wheel_radius"].as<double>();
+  double track_width = config["subscribers"]["track_width"].as<double>();
+
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
-  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/gx5_1/imu/data");
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber(imu_topic);
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 
   /// TUTORIAL: Add a subscriber for velocity data and get its queue and mutex
   auto qv_and_mutex = ros_sub.AddDifferentialDriveVelocitySubscriber(
-      "/joint_states", 0.1651, 0.555);
+      wheel_encoder_topic, wheel_radius, track_width);
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 
@@ -75,7 +85,7 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Create a ROS publisher and start the publishing thread
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
-                                    robot_state_queue_mutex_ptr);
+                                    robot_state_queue_mutex_ptr, config_file);
   ros_pub.StartPublishingThread();
 
   /// TUTORIAL: Run the state estimator. Initialize the bias first, then

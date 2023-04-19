@@ -1,0 +1,26 @@
+subscribers:
+  # Name all the topics to subscribe from in this section. You may also redefine the variable name
+  # as long as you can load the yaml variable in your main file
+  
+  # General topics:
+  imu_topic_1: "/imu_data_1"
+  imu_topic_2: "/imu_data_2"
+  
+  # Wheeled robot specific:
+  wheel_encoder_topic: "/joint_states_wheel"
+  wheel_radius: 0.3 # meter
+  track_width: 1 # meter
+  
+  # Legged robot specific:
+  joint_encoder_topic: "/jiont_states_leg"
+  contact_topic: "/Contacts"
+
+
+publishers:
+  # Define publish rate and topics for publishers
+  pose_publish_rate: 1000 # Hz
+  pose_publish_topic: "/robot/inekf_estimation/pose"
+  pose_frame: "/odom"
+
+  path_publish_rate: 10 # Hz
+  path_publish_topic: "/robot/inekf_estimation/path"

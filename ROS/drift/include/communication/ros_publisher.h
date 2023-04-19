@@ -26,6 +26,7 @@
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "geometry_msgs/Twist.h"
 #include "ros/ros.h"
+#include "yaml-cpp/yaml.h"
 
 #include "state/robot_state.h"
 
@@ -59,6 +60,18 @@ class ROSPublisher {
    */
   ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
                std::shared_ptr<std::mutex> robot_state_queue_mutex);
+  /**
+   * @brief Construct a new ROS Publisher object
+   *
+   * @param[in] nh: ROS node handle
+   * @param[in] robot_state_queue: Robot state queue
+   * @param[in] robot_state_queue_mutex: Robot state queue mutex
+   * @param[in] config_file: Configuration file
+   */
+  ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
+               std::shared_ptr<std::mutex> robot_state_queue_mutex,
+               std::string config_file);
+
   /// @}
 
   /// @name Destructors
