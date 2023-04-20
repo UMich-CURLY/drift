@@ -36,17 +36,32 @@ int main(int argc, char** argv) {
   /// TUTORIAL: Create a ROS subscriber
   ros_wrapper::ROSSubscriber ros_sub(&nh);
 
+  /// TUTORIAL: Load your yaml file
+  // Find project path
+  std::string file{__FILE__};
+  std::string project_dir{file.substr(0, file.rfind("ROS/drift/examples/"))};
+  std::cout << "Project directory: " << project_dir << std::endl;
+
+  std::string config_file
+      = project_dir + "/ROS/drift/config/mini_cheetah/ros_comm.yaml";
+  YAML::Node config = YAML::LoadFile(config_file);
+  std::string imu_topic = config["subscribers"]["imu_topic"].as<std::string>();
+  std::string joint_encoder_topic
+      = config["subscribers"]["joint_encoder_topic"].as<std::string>();
+  std::string contact_topic
+      = config["subscribers"]["contact_topic"].as<std::string>();
+
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
   std::cout << "Subscribing to imu channel..." << std::endl;
-  auto qimu_and_mutex = ros_sub.AddIMUSubscriber("/Imu");
+  auto qimu_and_mutex = ros_sub.AddIMUSubscriber(imu_topic);
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;
 
   /// TUTORIAL: Add a subscriber for legged kinematics data and get its queue
   std::cout << "Subscribing to joint_states and contact channel..."
             << std::endl;
-  auto qkin_and_mutex
-      = ros_sub.AddMiniCheetahKinematicsSubscriber("/Contacts", "/JointState");
+  auto qkin_and_mutex = ros_sub.AddMiniCheetahKinematicsSubscriber(
+      contact_topic, joint_encoder_topic);
   auto qkin = qkin_and_mutex.first;
   auto qkin_mutex = qkin_and_mutex.second;
 
@@ -57,16 +72,17 @@ int main(int argc, char** argv) {
   inekf::ErrorType error_type = LeftInvariant;
 
   /// TUTORIAL: Create a state estimator
-  InekfEstimator inekf_estimator(error_type,
-                                 "config/mini_cheetah/inekf_estimator.yaml");
+  InekfEstimator inekf_estimator(
+      error_type, project_dir + "/config/mini_cheetah/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator
   // Mini Cheetah's setting:
   inekf_estimator.add_imu_propagation(
-      qimu, qimu_mutex, "config/mini_cheetah/imu_propagation.yaml");
+      qimu, qimu_mutex,
+      project_dir + "/config/mini_cheetah/imu_propagation.yaml");
   inekf_estimator.add_legged_kinematics_correction(
       qkin, qkin_mutex,
-      "config/mini_cheetah/legged_kinematics_correction.yaml");
+      project_dir + "/config/mini_cheetah/legged_kinematics_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr

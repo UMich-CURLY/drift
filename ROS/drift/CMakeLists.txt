@@ -3,8 +3,8 @@ include($ENV{ROS_ROOT}/core/rosbuild/rosbuild.cmake)
 
 # documentation for rosbuild macros: http://wiki.ros.org/rosbuild/CMakeLists
 rosbuild_init()
-# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 
+# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/build/bin)
 IF(NOT ROS_BUILD_TYPE)
   SET(ROS_BUILD_TYPE Release)
 ENDIF()
@@ -17,19 +17,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall  -O3 -march=native")
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(catkin REQUIRED COMPONENTS
-roscpp
-std_msgs
-geometry_msgs
-trajectory_msgs
-message_generation
-message_filters
+  roscpp
+  std_msgs
+  geometry_msgs
+  trajectory_msgs
+  message_generation
+  message_filters
 )
 
 # catkin_package(
-#   INCLUDE_DIRS include
-#   CATKIN_DEPENDS roscpp std_msgs geometry_msgs trajectory_msgs message_generation message_filters
+# INCLUDE_DIRS include
+# CATKIN_DEPENDS roscpp std_msgs geometry_msgs trajectory_msgs message_generation message_filters
 # )
-
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED)
 find_package(yaml-cpp REQUIRED)
@@ -40,15 +39,15 @@ message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 message("catkin include dir: ${catkin_INCLUDE_DIRS}")
 
 include_directories(
-${PROJECT_SOURCE_DIR}/../../include
-${PROJECT_SOURCE_DIR}/include
-${EIGEN3_INCLUDE_DIR}
-${YAML_CPP_INCLUDE_DIR}
-${Boost_INCLUDE_DIRS}
-${catkin_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/../../include
+  ${PROJECT_SOURCE_DIR}/include
+  ${EIGEN3_INCLUDE_DIR}
+  ${YAML_CPP_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  ${catkin_INCLUDE_DIRS}
 )
 
-set(LIBS 
+set(LIBS
   ${EIGEN3_LIBS}
   ${catkin_LIBRARIES}
 )
@@ -62,8 +61,10 @@ rosbuild_add_library(mini_cheetah_kin_lib
 )
 
 rosbuild_add_library(filter_lib
+
   # State Estimator
   ${PROJECT_SOURCE_DIR}/../../src/estimator/inekf_estimator.cpp
+
   # Filter
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
@@ -71,8 +72,10 @@ rosbuild_add_library(filter_lib
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
+
   # State
   ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp
+
   # Math
   ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
   ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
@@ -93,41 +96,39 @@ rosbuild_add_library(ros_communication_lib
 
 # example for legged robot kinemtaics correction:
 rosbuild_add_executable(mini_cheetah
-${PROJECT_SOURCE_DIR}/examples/mini_cheetah.cpp)
+  ${PROJECT_SOURCE_DIR}/examples/mini_cheetah.cpp)
 
 target_link_libraries(mini_cheetah
-${LIBS}
-ros_communication_lib
-mini_cheetah_kin_lib
-measurement_lib
-filter_lib
-yaml-cpp
+  ${LIBS}
+  ros_communication_lib
+  mini_cheetah_kin_lib
+  measurement_lib
+  filter_lib
+  yaml-cpp
 )
 
 # # temporary test for ros communicator: subscriber + publisher
 rosbuild_add_executable(husky
-${PROJECT_SOURCE_DIR}/examples/husky.cpp)
-
+  ${PROJECT_SOURCE_DIR}/examples/husky.cpp)
 
 target_link_libraries(husky
-${LIBS}
-ros_communication_lib
-mini_cheetah_kin_lib
-measurement_lib
-filter_lib
-yaml-cpp
+  ${LIBS}
+  ros_communication_lib
+  mini_cheetah_kin_lib
+  measurement_lib
+  filter_lib
+  yaml-cpp
 )
 
 # # temporary test for fetch
 rosbuild_add_executable(fetch
-${PROJECT_SOURCE_DIR}/examples/fetch.cpp)
-
+  ${PROJECT_SOURCE_DIR}/examples/fetch.cpp)
 
 target_link_libraries(fetch
-${LIBS}
-ros_communication_lib
-mini_cheetah_kin_lib
-measurement_lib
-filter_lib
-yaml-cpp
+  ${LIBS}
+  ros_communication_lib
+  mini_cheetah_kin_lib
+  measurement_lib
+  filter_lib
+  yaml-cpp
 )

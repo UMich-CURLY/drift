@@ -3,6 +3,8 @@ subscribers:
   # as long as you can load the yaml variable in your main file
   imu_topic: "/vectornav/IMU"
   wheel_encoder_topic: "/joint_states"
+  wheel_radius: 0.06033 # meter
+  track_width: 0.37476 # meter
 
 publishers:
   # Define publish rate and topics for publishers
