@@ -8,10 +8,8 @@ namespace filter::inekf {
 LeggedKinematicsCorrection::LeggedKinematicsCorrection(
     LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, bool enable_imu_bias_update,
-    const std::string& yaml_filepath)
-    : Correction::Correction(sensor_data_buffer_mutex_ptr,
-                             enable_imu_bias_update),
+    const ErrorType& error_type, const std::string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   correction_type_ = CorrectionType::LEGGED_KINEMATICS;
@@ -180,11 +178,9 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     if (state.get_state_type() == StateType::WorldCentric) {
-      CorrectRightInvariant(Z, H, N, state, enable_imu_bias_update_,
-                            error_type_);
+      CorrectRightInvariant(Z, H, N, state, error_type_);
     } else {
-      CorrectLeftInvariant(Z, H, N, state, enable_imu_bias_update_,
-                           error_type_);
+      CorrectLeftInvariant(Z, H, N, state, error_type_);
     }
   }
 
@@ -257,19 +253,20 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   return true;
 }
 
-const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
-    const Eigen::Vector3d& w) const {
+bool LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
-  // Eigen::Vector3d w = this->getAngularVelocity();
 
   // Get measurement from sensor data buffer
+  // Do not initialize if the buffer is emptys
   while (sensor_data_buffer_ptr_->empty()) {
-    std::cout << "Waiting for sensor data..." << std::endl;
+    // std::cout << "Waiting for leg encoder data..." << std::endl;
+    return false;
   }
 
   sensor_data_buffer_mutex_ptr_.get()->lock();
   // Get the lates measurement
   while (sensor_data_buffer_ptr_->size() > 1) {
+    // std::cout << "Discarding old sensor data..." << std::endl;
     sensor_data_buffer_ptr_->pop();
   }
   KinematicsMeasurementPtr kinematics_measurement
@@ -277,6 +274,11 @@ const Eigen::Vector3d LeggedKinematicsCorrection::get_initial_velocity(
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  return kinematics_measurement->get_init_velocity(w);
+  // Get body angular velocity:
+  Eigen::Vector3d body_w = state.get_body_angular_velocity();
+  state.set_velocity(state.get_rotation()
+                     * kinematics_measurement->get_init_velocity(body_w));
+  state.set_time(kinematics_measurement->get_time());
+  return true;
 }
 }    // namespace filter::inekf

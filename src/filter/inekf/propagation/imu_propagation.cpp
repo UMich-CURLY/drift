@@ -31,12 +31,10 @@ namespace filter::inekf {
 ImuPropagation::ImuPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, bool enable_imu_bias_update,
-    const std::string& yaml_filepath)
+    const ErrorType& error_type, const std::string& yaml_filepath)
     : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
-      error_type_(error_type),
-      enable_imu_bias_update_(enable_imu_bias_update) {
+      error_type_(error_type) {
   propagation_type_ = PropagationType::IMU;
 
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
@@ -51,9 +49,9 @@ ImuPropagation::ImuPropagation(
   init_bias_size_ = config_["settings"]["init_bias_size"]
                         ? config_["settings"]["init_bias_size"].as<int>()
                         : 0;
-  use_imu_ori_est_init_bias_
-      = config_["settings"]["use_imu_ori_est_init_bias"]
-            ? config_["settings"]["use_imu_ori_est_init_bias"].as<bool>()
+  use_imu_ori_to_init_
+      = config_["settings"]["use_imu_ori_to_init"]
+            ? config_["settings"]["use_imu_ori_to_init"].as<bool>()
             : false;
 
   // Set the imu to body rotation
@@ -103,6 +101,11 @@ ImuPropagation::ImuPropagation(
             : std::vector<double>({0, 0, 0});
   ba0_ = Eigen::Vector3d(accelerometer_bias[0], accelerometer_bias[1],
                          accelerometer_bias[2]);
+
+  enable_imu_bias_update_
+      = config_["settings"]["enable_imu_bias_update"]
+            ? config_["settings"]["enable_imu_bias_update"].as<bool>()
+            : false;
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -404,7 +407,7 @@ void ImuPropagation::InitImuBias() {
     a = R_imu2body_ * a;
 
     Eigen::Matrix3d R;
-    if (use_imu_ori_est_init_bias_) {
+    if (use_imu_ori_to_init_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
       R = R_imu2body_ * quat.toRotationMatrix();
     } else {
@@ -441,4 +444,43 @@ const bool ImuPropagation::get_bias_initialized() const {
   return bias_initialized_;
 }
 
+// IMU propagation initialization for robot state
+bool ImuPropagation::set_initial_state(RobotState& state) {
+  // Do not initialize if the buffer is emptys
+  if (sensor_data_buffer_ptr_->empty()) {
+    return false;
+  }
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
+  sensor_data_buffer_ptr_->pop();
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
+  if (use_imu_ori_to_init_) {
+    Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
+    R0 = quat.toRotationMatrix();    // Initialize based on VectorNav estimate
+    std::cout << "R0: \n" << R0 << std::endl;
+  }
+  Eigen::Vector3d p0
+      = {0.0, 0.0, 0.0};    // initial position, we set imu frame as world frame
+
+  state.set_rotation(R0);
+  state.set_position(p0);
+  state.set_body_angular_velocity(imu_measurement->get_ang_vel());
+
+  // Set the initial bias
+  state.set_gyroscope_bias(bg0_);
+  state.set_accelerometer_bias(ba0_);
+
+  // Set the enable imu bias update boolean
+  state.set_enable_imu_bias_update(enable_imu_bias_update_);
+
+  double t_prev = imu_measurement->get_time();
+  state.set_time(t_prev);
+  state.set_propagate_time(t_prev);
+
+  state.set_gyroscope_bias_covariance(gyro_bias_cov_);
+  state.set_accelerometer_bias_covariance(accel_bias_cov_);
+  return true;
+}
 }    // namespace filter::inekf

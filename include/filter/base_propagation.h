@@ -105,6 +105,19 @@ class Propagation {
   std::shared_ptr<std::mutex> get_mutex_ptr();
   /// @}   // End of getters
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Set the initial state of the robot
+   *
+   * @param[in,out] state: The state of the robot, which will be initialized in
+   * this method
+   * @return bool: whether the initialization is successful
+   */
+  virtual bool set_initial_state(RobotState& state);
+  /// @}
+
  protected:
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
                                Default is 9.81m/s^2 */

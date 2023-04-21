@@ -57,4 +57,9 @@ const PropagationType Propagation::get_propagation_type() const {
 std::shared_ptr<std::mutex> Propagation::get_mutex_ptr() {
   return sensor_data_buffer_mutex_ptr_;
 }
+
+bool Propagation::set_initial_state(RobotState& state_) {
+  // Dummy method
+  return true;
+};
 }    // namespace filter

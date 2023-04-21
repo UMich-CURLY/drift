@@ -138,6 +138,10 @@ const double RobotState::get_time() const { return t_; }
 
 const double RobotState::get_propagate_time() const { return t_prop_; }
 
+const Eigen::Vector3d RobotState::get_body_angular_velocity() const {
+  return body_ang_vel_;
+}
+
 int RobotState::add_aug_state(const Eigen::Vector3d& aug,
                               const Eigen::MatrixXd& P_aug,
                               const Eigen::Matrix3d& noise_cov,
@@ -166,6 +170,10 @@ int RobotState::add_aug_state(const Eigen::Vector3d& aug,
 
 void RobotState::set_aug_state(int matrix_idx, const Eigen::Vector3d& aug) {
   X_.block<3, 1>(0, matrix_idx) = aug;
+}
+
+void RobotState::set_body_angular_velocity(const Eigen::Vector3d& w) {
+  body_ang_vel_ = w;
 }
 
 void RobotState::del_aug_state(int matrix_idx) {
@@ -402,5 +410,13 @@ void RobotState::RemoveRowAndColumn(Eigen::MatrixXd& M, int index,
   M.block(0, index, dimX, dimX - index - move_dim)
       = M.rightCols(dimX - index - move_dim).eval();
   M.conservativeResize(dimX - move_dim, dimX - move_dim);
+}
+
+void RobotState::set_enable_imu_bias_update(bool enable_imu_bias_update) {
+  enable_imu_bias_update_ = enable_imu_bias_update;
+}
+
+const bool RobotState::get_enable_imu_bias_update() const {
+  return enable_imu_bias_update_;
 }
 }    // namespace state

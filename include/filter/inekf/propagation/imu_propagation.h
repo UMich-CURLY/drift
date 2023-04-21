@@ -63,14 +63,11 @@ class ImuPropagation : public Propagation {
    * sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
    * @param[in] yaml_filepath: Name of the yaml file for the propagation
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                 const ErrorType& error_type, bool enable_imu_bias_update,
-                 const std::string& yaml_filepath);
+                 const ErrorType& error_type, const std::string& yaml_filepath);
   /// @}
 
   /// @name Propagation
@@ -87,7 +84,7 @@ class ImuPropagation : public Propagation {
    * @return bool: successfully propagate state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
-  bool Propagate(RobotState& state);
+  bool Propagate(RobotState& state) override;
   /// @} End of Propagation
 
   /// @name Getters
@@ -143,6 +140,18 @@ class ImuPropagation : public Propagation {
   void InitImuBias();
   ///@} End of Initialize IMU bias
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Set the initial state of the robot according to IMU measurement.
+   *
+   * @param[in,out] state: The state of the robot, which will be initialized in
+   * this method
+   * @return bool: whether the initialization is successful
+   */
+  bool set_initial_state(RobotState& state) override;
+  /// @} End of Setters
 
  private:
   /// @name helper functions
@@ -197,15 +206,16 @@ class ImuPropagation : public Propagation {
   Eigen::Matrix3d gyro_bias_cov_;     // Gyroscope bias covariance.
   Eigen::Matrix3d accel_bias_cov_;    // Accelerometer bias covariance.
 
-  bool enable_imu_bias_update_;    // Boolean value that allows IMU bias update
-                                   // during propagation (true for enabling bias
-                                   // update, false for disabling).
+  bool enable_imu_bias_update_
+      = false;    // Boolean value that allows IMU bias update
+                  // during propagation (true for enabling bias
+                  // update, false for disabling).
   bool static_bias_initialization_;    // Flag for static bias initialization
-  bool use_imu_ori_est_init_bias_;     // Flag for using orientation estimated
+  bool use_imu_ori_to_init_;           // Flag for using orientation estimated
                                        // from the imu to perform static bias
-                                       // initialization. If set to false, the
-  // initial orientation is set to identity.
-  // i.e. assumes the robot is on a
+                                       // and robot state initialization. If set
+  // to false, the initial orientation is set
+  // to identity. i.e. assumes the robot is on a
   // horizontal flat surface.
 
   bool bias_initialized_ = false;    // Indicating whether IMU bias has been

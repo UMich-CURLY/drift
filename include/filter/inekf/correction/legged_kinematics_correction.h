@@ -74,8 +74,6 @@ class LeggedKinematicsCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
    * @param[in] yaml_filepath: Path of the yaml file for the correction
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
@@ -83,8 +81,7 @@ class LeggedKinematicsCorrection : public Correction {
   LeggedKinematicsCorrection(
       LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-      const ErrorType& error_type, bool enable_imu_bias_update,
-      const std::string& yaml_filepath);
+      const ErrorType& error_type, const std::string& yaml_filepath);
 
   /// @name Correction Methods
   /// @{
@@ -101,7 +98,7 @@ class LeggedKinematicsCorrection : public Correction {
    * @return bool: successfully correct state or not (if we do not receive a
    * new message and this method is called it'll return false.)
    */
-  bool Correct(RobotState& state);
+  bool Correct(RobotState& state) override;
   /// @}
 
   /// @name Getters
@@ -114,13 +111,16 @@ class LeggedKinematicsCorrection : public Correction {
    */
   const LeggedKinematicsQueuePtr get_sensor_data_buffer_ptr() const;
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
   /**
-   * @brief Get the initial velocity of the robot
+   * @brief Set the initial velocity of the robot
    *
-   * @param[in] w: initial angular velocity of the robot
-   * @return const Eigen::Vector3d
+   * @param[in,out] state: the current state estimate, which will be initialized
+   * @return bool: whether the initialization is successful
    */
-  const Eigen::Vector3d get_initial_velocity(const Eigen::Vector3d& w) const;
+  bool set_initial_velocity(RobotState& state) override;
   /// @}
 
  private:

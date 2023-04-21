@@ -26,7 +26,7 @@ namespace filter::inekf {
 // Correct Input State: Right-Invariant Observation
 void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                            const Eigen::MatrixXd& N, RobotState& state,
-                           bool enable_imu_bias_update, ErrorType error_type) {
+                           ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -37,6 +37,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Remove bias
   // Theta = Eigen::Matrix<double, 6, 1>::Zero();
+  bool enable_imu_bias_update = state.get_enable_imu_bias_update();
   if (!enable_imu_bias_update) {
     P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
         = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();
@@ -100,7 +101,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 // Correct Input State: Left-Invariant Observation
 void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           const Eigen::MatrixXd& N, RobotState& state,
-                          bool enable_imu_bias_update, ErrorType error_type) {
+                          ErrorType error_type) {
   // Get current state estimate
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
@@ -110,6 +111,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimP = state.dimP();
 
   // Remove bias
+  bool enable_imu_bias_update = state.get_enable_imu_bias_update();
   if (!enable_imu_bias_update) {
     P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)
         = 0.0001 * Eigen::Matrix<double, 6, 6>::Identity();

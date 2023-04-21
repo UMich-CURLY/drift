@@ -2,7 +2,8 @@
  * Copyright 2022, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
- * -------------------------------------------------------------------------- */
+ * --------------------------------------------------------------------------
+ */
 
 /**
  *  @file   imu_propagation.h
@@ -17,8 +18,8 @@
  *  @date   November 25, 2022
  **/
 
-#ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
-#define FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+#ifndef FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H
+#define FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H
 
 #include <vector>
 
@@ -44,10 +45,14 @@ typedef std::queue<std::shared_ptr<AngularVelocityMeasurement<double>>>
                            */
 typedef std::shared_ptr<AngularVelocityQueue> AngularVelocityQueuePtr; /**<
 Pointer to the AngularVelocityQueue. */
+typedef std::shared_ptr<AngularVelocityMeasurement<double>>
+    AngularVelocityMeasurementPtr; /**< Pointer to the
+                                      AngularVelocityMeasurement object. */
 
 /**
- * @class ImuPropagation
- * @brief A class for state propagation using imu measurement data.
+ * @class FilteredImuPropagation
+ * @brief A class for state propagation using imu measurement data angular
+ * velocity data.
  *
  * A class for state propagation using imu measurement data. This propagation
  * class holds methods for propagating the state forward by one step using one
@@ -64,13 +69,15 @@ class FilteredImuPropagation : public Propagation {
   /**
    * @brief Constructor for the propagation class
    *
-   * @param[in] imu_data_buffer_ptr: Pointer to the buffer of sensor data.
+   * @param[in] imu_data_buffer_ptr: Pointer to the buffer of IMU sensor data.
    * @param[in] imu_data_buffer_mutex_ptr: Pointer to the mutex for the.
-   * sensor data buffer.
+   * IMU sensor data buffer.
+   * @param[in] ang_vel_data_buffer_ptr: Pointer to the buffer of angular
+   * velocity sensor data.
+   * @param[in] ang_vel_data_buffer_mutex_ptr: Pointer to the mutex for the
+   * angular velocity sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
-   * @param[in] enable_imu_bias_update: True if the filter should update imu
-   * bias
    * @param[in] yaml_filepath: Name of the yaml file for the propagation
    */
   FilteredImuPropagation(
@@ -78,8 +85,7 @@ class FilteredImuPropagation : public Propagation {
       std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr,
       AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
       std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr,
-      const ErrorType& error_type, bool enable_imu_bias_update,
-      const std::string& yaml_filepath);
+      const ErrorType& error_type, const std::string& yaml_filepath);
   /// @}
 
   /// @name Propagation
@@ -130,12 +136,13 @@ class FilteredImuPropagation : public Propagation {
   // ======================================================================
   /**
    * @brief Get the pointer to the sensor data buffer, which is a queue that
-   * contains all the measurements received from the sensor.
+   * contains all the measurements received from the sensor. In this case, it
+   * refers to filtered IMU measurements.
    *
    * @return const IMUQueuePtr: A smart pointer to the IMU measurement queue.
    * `std::shared_ptr<std::queue<std::shared_ptr<ImuMeasurement<double>>>>`
    */
-  const IMUQueuePtr get_imu_data_buffer_ptr() const;
+  const IMUQueuePtr get_sensor_data_buffer_ptr() const;
   /// @} End of Getters
 
   /// @name Initialze IMU bias
@@ -152,18 +159,33 @@ class FilteredImuPropagation : public Propagation {
   void InitImuBias();
   ///@} End of Initialize IMU bias
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Set the initial state of the robot according to IMU measurement.
+   *
+   * @param[in,out] state: The state of the robot, which will be initialized in
+   * this method
+   * @return bool: whether the initialization is successful
+   */
+  bool set_initial_state(RobotState& state) override;
+  /// @} End of Setters
+
 
  private:
   /// @name helper functions
   /// @{
 
   void AngVelFilterPropagate();
-  void AngVelFilterCorrectIMU(const ImuMeasurementPtr& imu_measurement);
-  void AngVelFilterCorrectEncoder(
+  ImuMeasurementPtr AngVelFilterCorrectIMU(
+      const ImuMeasurementPtr& imu_measurement);
+  ImuMeasurementPtr AngVelFilterCorrectEncoder(
       const ImuMeasurementPtr& imu_measurement,
-      const AngularVelocityMeasurement<double>& ang_vel_measurement);
+      const AngularVelocityMeasurementPtr& ang_vel_measurement);
 
-  void PropagateInEKF(RobotState& state);
+  void PropagateInEKF(const ImuMeasurementPtr& imu_measurement,
+                      RobotState& state);
 
 
   // ======================================================================
@@ -203,8 +225,8 @@ class FilteredImuPropagation : public Propagation {
   const ErrorType error_type_;         // Error type for the propagation.
                                        // LeftInvariant or RightInvariant.
   IMUQueuePtr imu_data_buffer_ptr_;    // Pointer to the sensor data buffer.
-  AngularVelocityQueuePtr angular_velocity_data_buffer_ptr_;
-  std::shared_ptr<std::mutex> angular_velocity_data_buffer_mutex_ptr_;
+  AngularVelocityQueuePtr ang_vel_data_buffer_ptr_;
+  std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr_;
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
                                   // from IMU frame to body frame (meas_body = R
                                   // * meas_imu).
@@ -222,7 +244,7 @@ class FilteredImuPropagation : public Propagation {
                                    // during propagation (true for enabling bias
                                    // update, false for disabling).
   bool static_bias_initialization_;    // Flag for static bias initialization
-  bool use_imu_ori_est_init_bias_;     // Flag for using orientation estimated
+  bool use_imu_ori_est_to_init_;       // Flag for using orientation estimated
                                        // from the imu to perform static bias
                                        // initialization. If set to false, the
   // initial orientation is set to identity.
@@ -242,14 +264,18 @@ class FilteredImuPropagation : public Propagation {
   // Variables for the angular velocity filter
   ImuMeasurementPtr latest_imu_measurement_;
   Eigen::VectorXd ang_vel_bias_est_ = Eigen::VectorXd::Zero(6);
-  Eigen::Matrix3d ang_vel_bias_P_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ang_vel_bias_Q_ = 0.5 * 0.5 * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ang_vel_bias_imu_R_ = 0.1 * 0.1 * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d ang_vel_bias_enc_R_ = 0.1 * 0.1 * Eigen::Matrix3d::Identity();
+  Eigen::MatrixXd ang_vel_and_bias_P_
+      = 0.5 * 0.5 * Eigen::Matrix<double, 6, 6>::Identity();
+  Eigen::MatrixXd ang_vel_and_bias_Q_
+      = 0.5 * 0.5 * Eigen::Matrix<double, 6, 6>::Identity();
+  Eigen::MatrixXd ang_vel_and_bias_imu_R_
+      = 0.1 * 0.1 * Eigen::Matrix<double, 6, 6>::Identity();
+  Eigen::MatrixXd ang_vel_and_bias_enc_R_
+      = 0.1 * 0.1 * Eigen::Matrix<double, 6, 6>::Identity();
   Eigen::Matrix<double, 3, 6> H_imu_;
   Eigen::Matrix<double, 3, 6> H_enc_;
 
 };    // End of class FilteredImuPropagation
 }    // namespace filter::inekf
 
-#endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+#endif    // FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H

@@ -23,12 +23,10 @@ Correction::Correction()
   correction_type_ = CorrectionType::BASE;
 }
 
-Correction::Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-                       bool enable_imu_bias_update)
+Correction::Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr)
     : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
       magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()),
-      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr),
-      enable_imu_bias_update_(enable_imu_bias_update) {
+      sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr) {
   correction_type_ = CorrectionType::BASE;
 }
 
@@ -48,4 +46,7 @@ const CorrectionType Correction::get_correction_type() const {
 std::shared_ptr<std::mutex> Correction::get_mutex_ptr() {
   return sensor_data_buffer_mutex_ptr_;
 }
+
+// Set initial velocity to the state. Dummy method
+bool Correction::set_initial_velocity(RobotState& state_) { return true; }
 }    // namespace filter

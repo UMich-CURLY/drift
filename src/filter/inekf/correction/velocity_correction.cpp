@@ -21,10 +21,8 @@ namespace filter::inekf {
 VelocityCorrection::VelocityCorrection(
     VelocityQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-    const ErrorType& error_type, bool enable_imu_bias_update,
-    const string& yaml_filepath)
-    : Correction::Correction(sensor_data_buffer_mutex_ptr,
-                             enable_imu_bias_update),
+    const ErrorType& error_type, const string& yaml_filepath)
+    : Correction::Correction(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
   correction_type_ = CorrectionType::VELOCITY;
@@ -129,32 +127,35 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
-    CorrectRightInvariant(Z, H, N, state, enable_imu_bias_update_, error_type_);
+    CorrectRightInvariant(Z, H, N, state, error_type_);
   }
 
   return true;
 }
 
-const Eigen::Vector3d VelocityCorrection::get_initial_velocity(
-    const Eigen::Vector3d& w) const {
+bool VelocityCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
-  // Eigen::Vector3d w = this->getAngularVelocity();
 
   // Get measurement from sensor data buffer
+  // Do not initialize if the buffer is emptys
   while (sensor_data_buffer_ptr_->empty()) {
-    std::cout << "Waiting for sensor data..." << std::endl;
+    // std::cout << "Waiting for velocity related encoder data..." << std::endl;
+    return false;
   }
 
   sensor_data_buffer_mutex_ptr_.get()->lock();
   // Get the latest measurement
   while (sensor_data_buffer_ptr_->size() > 1) {
-    std::cout << "Discarding old sensor data..." << std::endl;
+    // std::cout << "Discarding old sensor data..." << std::endl;
     sensor_data_buffer_ptr_->pop();
   }
   VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-  return measured_velocity->get_velocity();
+  // Apply the rotation to map the body velocity to the world frame
+  state.set_velocity(state.get_rotation() * measured_velocity->get_velocity());
+  state.set_time(measured_velocity->get_time());
+  return true;
 }
-}    // namespace inekf
+}    // namespace filter::inekf
