@@ -144,14 +144,19 @@ void InekfEstimator::add_imu_propagation(
                                                   error_type_, yaml_filepath);
 }
 
-void InekfEstimator::add_filtered_imu_propagation(
-    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
+InekfEstimator::add_imu_ang_vel_ekf(
+    IMUQueuePtr imu_buffer_ptr,
+    std::shared_ptr<std::mutex> imu_buffer_mutex_ptr,
     AngularVelocityQueuePtr ang_vel_buffer_ptr,
     std::shared_ptr<std::mutex> ang_vel_buffer_mutex_ptr,
     const std::string& yaml_filepath) {
-  propagation_ = std::make_shared<FilteredImuPropagation>(
-      buffer_ptr, buffer_mutex_ptr, ang_vel_buffer_ptr,
-      ang_vel_buffer_mutex_ptr, error_type_, yaml_filepath);
+  imu_filter_ = std::make_shared<imu_filter::ImuAngVelEKF>(
+      imu_buffer_ptr, imu_buffer_mutex_ptr, ang_vel_buffer_ptr,
+      ang_vel_buffer_mutex_ptr, yaml_filepath);
+  imu_filter_.get()->StartImuFilterThread();
+  return {imu_filter_.get()->get_filtered_imu_data_buffer_ptr(),
+          imu_filter_.get()->get_filtered_imu_data_buffer_mutex_ptr()};
 }
 
 void InekfEstimator::add_legged_kinematics_correction(

@@ -45,8 +45,8 @@ add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
 add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/filtered_imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+add_library(imu_filter ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp)
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp)
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
@@ -113,7 +113,7 @@ endif(BUILD_DOC)
 # ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
 # ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
 # ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/filtered_imu_propagation.cpp
+# ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
 # ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
 # ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
 # ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp

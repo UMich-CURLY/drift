@@ -1,27 +1,24 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * --------------------------------------------------------------------------
  */
 
 /**
- *  @file   imu_propagation.h
- *  @author Tingjun Li
- *  @brief  Header file for Invariant EKF imu propagation method
- *  Part of the code is modified from Ross Hartley's work:
- *  Paper:
- *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
- *  Github repo:
- *  https://github.com/RossHartley/invariant-ekf
+ *  @file   imu_ang_vel_ekf.h
+ *  @author Tzu-Yuan Lin, Tingjun Li
  *
- *  @date   November 25, 2022
+ *  @date   April 21, 2023
  **/
 
-#ifndef FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H
-#define FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H
+#ifndef IMU_FILTER_IMU_ANF_VEL_EKF_H
+#define IMU_FILTER_IMU_ANF_VEL_EKF_H
 
+#include <atomic>
+#include <thread>
 #include <vector>
+
 
 #include "filter/base_propagation.h"
 #include "filter/inekf/inekf.h"
@@ -33,7 +30,6 @@ using namespace math;
 using namespace state;
 using namespace measurement;
 
-namespace filter::inekf {
 typedef std::shared_ptr<ImuMeasurement<double>>
     ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
 typedef std::queue<ImuMeasurementPtr>
@@ -49,17 +45,12 @@ typedef std::shared_ptr<AngularVelocityMeasurement<double>>
     AngularVelocityMeasurementPtr; /**< Pointer to the
                                       AngularVelocityMeasurement object. */
 
+namespace imu_filter {
+
 /**
- * @class FilteredImuPropagation
- * @brief A class for state propagation using imu measurement data angular
- * velocity data.
- *
- * A class for state propagation using imu measurement data. This propagation
- * class holds methods for propagating the state forward by one step using one
- * IMU data. The model is based on the paper:
- * https://journals.sagepub.com/doi/full/10.1177/0278364919894385
+ * @class ImuAngVelEKF
  */
-class FilteredImuPropagation : public Propagation {
+class ImuAngVelEKF {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -76,74 +67,59 @@ class FilteredImuPropagation : public Propagation {
    * velocity sensor data.
    * @param[in] ang_vel_data_buffer_mutex_ptr: Pointer to the mutex for the
    * angular velocity sensor data buffer.
-   * @param[in] error_type: Error type for the propagation. LeftInvariant or
-   * RightInvariant
    * @param[in] yaml_filepath: Name of the yaml file for the propagation
    */
-  FilteredImuPropagation(
-      IMUQueuePtr imu_data_buffer_ptr,
-      std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr,
-      AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
-      std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr,
-      const ErrorType& error_type, const std::string& yaml_filepath);
+  ImuAngVelEKF(IMUQueuePtr imu_data_buffer_ptr,
+               std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr,
+               AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
+               std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr,
+               const std::string& yaml_filepath);
   /// @}
 
-  /// @name Propagation
+  /// @name Filter thread
   /// @{
   // ======================================================================
   /**
-   * @brief Propagates the estimated state mean and covariance forward using
-   * inertial measurements. All landmarks positions are assumed to be static.
-   * All contacts' velocities are assumed to be zero + Gaussian noise.
-   * The propagation model currently assumes that the covariance is for the
-   * right invariant error.
+   * @brief Start IMU fitler thread
    *
-   * @param[in,out] state: state of the robot.
-   * @return bool: successfully propagate state or not (if we do not receive a
-   * new message and this method is called it'll return false.)
    */
-  bool Propagate(RobotState& state);
-  /// @} End of Propagation
+  void StartImuFilterThread();
+
+  // ======================================================================
+  /**
+   * @brief Run IMU filter
+   *
+   */
+  void RunFilter();
+
+  // ======================================================================
+  /**
+   * @brief Run the IMU angular velocity EKF filter for one step.
+   *
+   */
+  void RunOnce();
+  /// @} End of Filter thread
 
   /// @name Getters
   /// @{
   // ======================================================================
   /**
-   * @brief Get the estimate gyro bias.
+   * @brief Get the filtered imu data buffer
    *
-   * @return const Eigen::Vector3d: Estimated gyro bias. (rad/s)
+   * @return RobotStateQueuePtr: Pointer to the filtered imu data buffer
    */
-  const Eigen::Vector3d get_estimate_gyro_bias() const;
+  IMUQueuePtr get_filtered_imu_data_buffer_ptr();
 
   // ======================================================================
   /**
-   * @brief Get the estimate accel bias.
+   * @brief Get the filtered_imu data buffer mutex pointer
    *
-   * @return const Eigen::Vector3d:Estimated acceleration bias. (m/s^2)
+   * @return std::shared_ptr<std::mutex>: Pointer to the filtered_imu data
+   * buffer mutex pointer
    */
-  const Eigen::Vector3d get_estimate_accel_bias() const;
+  std::shared_ptr<std::mutex> get_filtered_imu_data_buffer_mutex_ptr();
+  /// @}
 
-  // ======================================================================
-  /**
-   * @brief Check if the bias is initialized or not.
-   *
-   * @return true: Bias has been successfully initialized or the static bias
-   * initialization feature is turned off.
-   * @return false: The bias has not been initialized.
-   */
-  const bool get_bias_initialized() const;
-
-  // ======================================================================
-  /**
-   * @brief Get the pointer to the sensor data buffer, which is a queue that
-   * contains all the measurements received from the sensor. In this case, it
-   * refers to filtered IMU measurements.
-   *
-   * @return const IMUQueuePtr: A smart pointer to the IMU measurement queue.
-   * `std::shared_ptr<std::queue<std::shared_ptr<ImuMeasurement<double>>>>`
-   */
-  const IMUQueuePtr get_sensor_data_buffer_ptr() const;
-  /// @} End of Getters
 
   /// @name Initialze IMU bias
   //{
@@ -158,19 +134,6 @@ class FilteredImuPropagation : public Propagation {
    */
   void InitImuBias();
   ///@} End of Initialize IMU bias
-
-  /// @name Setters
-  /// @{
-  // ======================================================================
-  /**
-   * @brief Set the initial state of the robot according to IMU measurement.
-   *
-   * @param[in,out] state: The state of the robot, which will be initialized in
-   * this method
-   * @return bool: whether the initialization is successful
-   */
-  bool set_initial_state(RobotState& state) override;
-  /// @} End of Setters
 
 
  private:
@@ -221,10 +184,8 @@ class FilteredImuPropagation : public Propagation {
                                       const double dt, const RobotState& state);
   /// @} // End of helper functions
 
-
-  const ErrorType error_type_;         // Error type for the propagation.
-                                       // LeftInvariant or RightInvariant.
   IMUQueuePtr imu_data_buffer_ptr_;    // Pointer to the sensor data buffer.
+  std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr_;
   AngularVelocityQueuePtr ang_vel_data_buffer_ptr_;
   std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr_;
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
@@ -275,7 +236,14 @@ class FilteredImuPropagation : public Propagation {
   Eigen::Matrix<double, 3, 6> H_imu_;
   Eigen::Matrix<double, 3, 6> H_enc_;
 
-};    // End of class FilteredImuPropagation
-}    // namespace filter::inekf
+  // Thread related:
+  std::atomic<bool> stop_thread_ = false;
+  std::thread imu_filter_thread_;
+  std::shared_ptr<std::mutex> filtered_imu_data_buffer_mutex_ptr_;
+  IMUQueuePtr filtered_imu_data_buffer_ptr_;
 
-#endif    // FILTER_INEKF_PROPAGATION_FILTERED_IMU_PROPAGATION_H
+
+};    // End of class FilteredImuPropagation
+}    // namespace imu_filter
+
+#endif    // IMU_FILTER_IMU_ANF_VEL_EKF_H

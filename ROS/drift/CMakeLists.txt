@@ -71,7 +71,6 @@ rosbuild_add_library(filter_lib
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
-  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/filtered_imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
 
   # State
@@ -80,6 +79,10 @@ rosbuild_add_library(filter_lib
   # Math
   ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
   ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
+)
+
+rosbuild_add_library(imu_filter
+  ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
 )
 
 rosbuild_add_library(measurement_lib

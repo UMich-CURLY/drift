@@ -27,8 +27,8 @@
 #include "filter/base_propagation.h"
 #include "filter/inekf/correction/legged_kinematics_correction.h"
 #include "filter/inekf/correction/velocity_correction.h"
-#include "filter/inekf/propagation/filtered_imu_propagation.h"
 #include "filter/inekf/propagation/imu_propagation.h"
+#include "imu_filter/imu_ang_vel_ekf.h"
 #include "measurement/angular_velocity.h"
 #include "measurement/imu.h"
 #include "measurement/legged_kinematics.h"
@@ -140,7 +140,7 @@ class InekfEstimator {
       const std::string& yaml_filepath
       = "config/filter/inekf/propagation/imu_propagation.yaml");
 
-  void add_filtered_imu_propagation(
+  std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> add_imu_ang_vel_ekf(
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
       AngularVelocityQueuePtr ang_vel_buffer_ptr,
       std::shared_ptr<std::mutex> ang_vel_buffer_mutex_ptr,
@@ -300,5 +300,7 @@ class InekfEstimator {
   double position_cov_val_;                  // Covariance value for position
   std::atomic<bool> stop_signal_ = false;    // Stop signal for pose logger
   std::string pose_log_file_ = "";           // Pose log file path
-};                                           // class InekfEstimator
+
+  std::shared_ptr<imu_filter::ImuAngVelEKF> imu_filter_;
+};    // class InekfEstimator
 }    // namespace estimator
