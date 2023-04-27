@@ -30,7 +30,7 @@ find_package(catkin REQUIRED COMPONENTS
 # CATKIN_DEPENDS roscpp std_msgs geometry_msgs trajectory_msgs message_generation message_filters
 # )
 find_package(Eigen3 REQUIRED)
-find_package(Boost REQUIRED)
+find_package(Boost REQUIRED timer chrono)
 find_package(yaml-cpp REQUIRED)
 
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
@@ -50,6 +50,8 @@ include_directories(
 set(LIBS
   ${EIGEN3_LIBS}
   ${catkin_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${Boost_GENERAL}
 )
 
 file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
@@ -81,8 +83,8 @@ rosbuild_add_library(filter_lib
   ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
 )
 
-rosbuild_add_library(imu_filter
-  ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
+rosbuild_add_library(imu_filter_lib
+  ${PROJECT_SOURCE_DIR}/../../src/imu_filter/imu_ang_vel_ekf.cpp
 )
 
 rosbuild_add_library(measurement_lib
@@ -109,6 +111,7 @@ target_link_libraries(mini_cheetah
   measurement_lib
   filter_lib
   yaml-cpp
+  imu_filter_lib
 )
 
 # # temporary test for ros communicator: subscriber + publisher
@@ -122,6 +125,7 @@ target_link_libraries(husky
   measurement_lib
   filter_lib
   yaml-cpp
+  imu_filter_lib
 )
 
 # # temporary test for fetch
@@ -135,6 +139,7 @@ target_link_libraries(fetch
   measurement_lib
   filter_lib
   yaml-cpp
+  imu_filter_lib
 )
 
 # # temporary test for fetch
@@ -148,4 +153,5 @@ target_link_libraries(fetch_imu_filter
   measurement_lib
   filter_lib
   yaml-cpp
+  imu_filter_lib
 )

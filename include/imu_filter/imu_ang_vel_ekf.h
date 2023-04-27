@@ -76,6 +76,15 @@ class ImuAngVelEKF {
                const std::string& yaml_filepath);
   /// @}
 
+  /// @name Destructor
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Destructor for the imu filter class
+   *
+   */
+  ~ImuAngVelEKF();
+
   /// @name Filter thread
   /// @{
   // ======================================================================
@@ -223,12 +232,12 @@ class ImuAngVelEKF {
 
 
   // Variables for the angular velocity filter
-  ImuMeasurementPtr latest_imu_measurement_;
-  Eigen::VectorXd ang_vel_bias_est_ = Eigen::VectorXd::Zero(6);
+  ImuMeasurementPtr latest_imu_measurement_ = nullptr;
+  Eigen::VectorXd ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
   Eigen::MatrixXd ang_vel_and_bias_P_
-      = 0.5 * 0.5 * Eigen::Matrix<double, 6, 6>::Identity();
+      = 0.05 * 0.05 * Eigen::Matrix<double, 6, 6>::Identity();
   Eigen::MatrixXd ang_vel_and_bias_Q_
-      = 0.5 * 0.5 * Eigen::Matrix<double, 6, 6>::Identity();
+      = 0.05 * 0.05 * Eigen::Matrix<double, 6, 6>::Identity();
   Eigen::MatrixXd ang_vel_and_bias_imu_R_
       = 0.1 * 0.1 * Eigen::Matrix<double, 6, 6>::Identity();
   Eigen::MatrixXd ang_vel_and_bias_enc_R_

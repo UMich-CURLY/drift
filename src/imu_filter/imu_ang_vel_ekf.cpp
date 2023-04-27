@@ -38,9 +38,8 @@ ImuAngVelEKF::ImuAngVelEKF(
       imu_data_buffer_mutex_ptr_(imu_data_buffer_mutex_ptr),
       ang_vel_data_buffer_ptr_(angular_velocity_data_buffer_ptr),
       ang_vel_data_buffer_mutex_ptr_(angular_velocity_data_buffer_mutex_ptr),
-      filtered_imu_data_buffer_ptr_(new ImuQueue),
-      filtered_imu_data_buffer_mutex_ptr_(new std::mutex),
-{
+      filtered_imu_data_buffer_ptr_(new IMUQueue),
+      filtered_imu_data_buffer_mutex_ptr_(new std::mutex) {
   // Load configs
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
@@ -157,14 +156,8 @@ void ImuAngVelEKF::RunOnce() {
     // Only use the earliest sensor data and keep the other one in the buffer
     if (imu_measurement->get_time() <= ang_vel_measurement->get_time()) {
       ang_vel_measurement = nullptr;
-      imu_data_buffer_mutex_ptr_.get()->lock();
-      imu_data_buffer_ptr_->pop();
-      imu_data_buffer_mutex_ptr_.get()->unlock();
     } else {
       imu_measurement = nullptr;
-      ang_vel_data_buffer_mutex_ptr_.get()->lock();
-      ang_vel_data_buffer_ptr_->pop();
-      ang_vel_data_buffer_mutex_ptr_.get()->unlock();
     }
   }
   // =================== Angular Velocity filter ====================
@@ -172,24 +165,43 @@ void ImuAngVelEKF::RunOnce() {
   if (imu_measurement) {
     latest_imu_measurement_ = imu_measurement;
     auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
+
+    // std::cout << "IMU filter running..." << std::endl;
     filtered_imu_data_buffer_mutex_ptr_.get()->lock();
     filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
     filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+
+    imu_data_buffer_mutex_ptr_.get()->lock();
+    imu_data_buffer_ptr_->pop();
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+    return;
   }
 
-  if (ang_vel_measurement) {
+  if (ang_vel_measurement && !latest_imu_measurement_) {
+    ang_vel_data_buffer_mutex_ptr_.get()->lock();
+    ang_vel_data_buffer_ptr_->pop();
+    ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  // only execute the following code if we have a latest_imu_measurement_
+  if (ang_vel_measurement && latest_imu_measurement_) {
     auto fused_ang_imu = AngVelFilterCorrectEncoder(latest_imu_measurement_,
                                                     ang_vel_measurement);
+    // std::cout << "Encoder filter running..." << std::endl;
     filtered_imu_data_buffer_mutex_ptr_.get()->lock();
     filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
     filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
-  }
 
-  return true;
+    ang_vel_data_buffer_mutex_ptr_.get()->lock();
+    ang_vel_data_buffer_ptr_->pop();
+    ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
 }
 
 
-void FilteredImuPropagation::AngVelFilterPropagate() {
+void ImuAngVelEKF::AngVelFilterPropagate() {
   // Random walk
   // X = X, so we don't need to do anything for mean propagation
 
@@ -197,52 +209,71 @@ void FilteredImuPropagation::AngVelFilterPropagate() {
   ang_vel_and_bias_P_ = ang_vel_and_bias_P_ + ang_vel_and_bias_Q_;
 }
 
-ImuMeasurementPtr FilteredImuPropagation::AngVelFilterCorrectIMU(
+ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
     const ImuMeasurementPtr& imu_measurement) {
-  auto z = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_bias_est_;
+  Eigen::VectorXd z
+      = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_and_bias_est_;
+  // std::cout << "IMU difference: " << z.transpose()
+  //           << ", H * est = " << (H_imu_ * ang_vel_and_bias_est_).transpose()
+  //           << std::endl;
   auto S_inv = (H_imu_ * ang_vel_and_bias_P_ * H_imu_.transpose()
                 + ang_vel_and_bias_imu_R_)
                    .inverse();
   auto K = ang_vel_and_bias_P_ * H_imu_.transpose() * S_inv;
-  ang_vel_bias_est_ = ang_vel_bias_est_ + K * z;
+  ang_vel_and_bias_est_ = ang_vel_and_bias_est_ + K * z;
   ang_vel_and_bias_P_
-      = (Eigen::MatrixXd::Identity(3, 3) - K * H_imu_) * ang_vel_and_bias_P_;
+      = (Eigen::MatrixXd::Identity(6, 6) - K * H_imu_) * ang_vel_and_bias_P_;
 
   ImuMeasurementPtr imu_measurement_corrected
       = std::make_shared<ImuMeasurement<double>>(*imu_measurement);
-  imu_measurement_corrected->set_ang_vel(
-      ang_vel_bias_est_(0), ang_vel_bias_est_(1), ang_vel_bias_est_(2));
+  imu_measurement_corrected->set_ang_vel(ang_vel_and_bias_est_(0),
+                                         ang_vel_and_bias_est_(1),
+                                         ang_vel_and_bias_est_(2));
+  // std::cout << "IMU angular measurement: "
+  //           << imu_measurement->get_ang_vel().transpose() << std::endl;
+  // std::cout << "Corrected IMU angular measurement (IMU correction): "
+  //           << ang_vel_and_bias_est_.transpose() << std::endl;
   imu_measurement_corrected->set_time(imu_measurement->get_time());
   return imu_measurement_corrected;
 }
 
-ImuMeasurementPtr FilteredImuPropagation::AngVelFilterCorrectEncoder(
+ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
     const ImuMeasurementPtr& imu_measurement,
     const AngularVelocityMeasurementPtr& ang_vel_measurement) {
-  auto z = imu_measurement->get_ang_vel() - H_enc_ * ang_vel_bias_est_;
+  Eigen::VectorXd z = ang_vel_measurement->get_ang_velocity()
+                      - H_enc_ * ang_vel_and_bias_est_;
+  // std::cout << "Encoder difference: " << z.transpose()
+  //           << ", H * est = " << (H_enc_ * ang_vel_and_bias_est_).transpose()
+  //           << std::endl;
   auto S_inv = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose()
                 + ang_vel_and_bias_enc_R_)
                    .inverse();
   auto K = ang_vel_and_bias_P_ * H_enc_.transpose() * S_inv;
-  ang_vel_bias_est_ = ang_vel_bias_est_ + K * z;
+  ang_vel_and_bias_est_ = ang_vel_and_bias_est_ + K * z;
   ang_vel_and_bias_P_
-      = (Eigen::MatrixXd::Identity(3, 3) - K * H_enc_) * ang_vel_and_bias_P_;
+      = (Eigen::MatrixXd::Identity(6, 6) - K * H_enc_) * ang_vel_and_bias_P_;
 
   ImuMeasurementPtr imu_measurement_corrected
       = std::make_shared<ImuMeasurement<double>>(*imu_measurement);
-  imu_measurement_corrected->set_ang_vel(
-      ang_vel_bias_est_(0), ang_vel_bias_est_(1), ang_vel_bias_est_(2));
+  imu_measurement_corrected->set_ang_vel(ang_vel_and_bias_est_(0),
+                                         ang_vel_and_bias_est_(1),
+                                         ang_vel_and_bias_est_(2));
+  // std::cout << "Encoder angular measurement: "
+  //           << ang_vel_measurement->get_ang_velocity().transpose() <<
+  //           std::endl;
+  // std::cout << "Corrected IMU angular measurement (encoder correction): "
+  //           << ang_vel_and_bias_est_.transpose() << std::endl;
   imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
   return imu_measurement_corrected;
 }
 
 // Getters
-ImuMeasurementPtr FilteredImuPropagation::get_filtered_imu_data_buffer_ptr() {
+IMUQueuePtr ImuAngVelEKF::get_filtered_imu_data_buffer_ptr() {
   return filtered_imu_data_buffer_ptr_;
 }
 
 std::shared_ptr<std::mutex>
-FilteredImuPropagation::get_filtered_imu_data_buffer_mutex_ptr() {
+ImuAngVelEKF::get_filtered_imu_data_buffer_mutex_ptr() {
   return filtered_imu_data_buffer_mutex_ptr_;
 }
 }    // namespace imu_filter

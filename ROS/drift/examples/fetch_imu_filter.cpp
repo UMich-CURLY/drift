@@ -79,10 +79,16 @@ int main(int argc, char** argv) {
       project_dir + "/config/fetch_imu_filter/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator:
-  inekf_estimator.add_filtered_imu_propagation(
+  auto [q_filtered_imu, q_filtered_imu_mutex] = inekf_estimator.add_imu_ang_vel_ekf(
       qimu, qimu_mutex, qangv, qangv_mutex,
       project_dir + "/config/fetch_imu_filter/"
-      "imu_propagation.yaml");    // Fetch's setting
+      "imu_filter.yaml");    // Fetch's setting
+  inekf_estimator.add_imu_propagation(
+      q_filtered_imu, q_filtered_imu_mutex,
+      project_dir
+          + "/config/fetch_imu_filter/imu_propagation.yaml");    // Insert the
+                                                                 // filtered IMU
+                                                                 // data
   inekf_estimator.add_velocity_correction(
       qv, qv_mutex,
       project_dir + "/config/fetch_imu_filter/velocity_correction.yaml");

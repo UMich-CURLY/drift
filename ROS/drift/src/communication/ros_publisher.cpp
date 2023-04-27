@@ -36,7 +36,7 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);
-  // path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
+  path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
 }
 
 ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
@@ -65,7 +65,7 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);
-  // path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
+  path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
 }
 
 ROSPublisher::~ROSPublisher() {
@@ -80,8 +80,8 @@ void ROSPublisher::StartPublishingThread() {
   std::cout << "Starting publishing thread" << std::endl;
   this->pose_publishing_thread_
       = std::thread([this] { this->PosePublishingThread(); });
-  // this->path_publishing_thread_
-  //     = std::thread([this] { this->PathPublishingThread(); });
+  this->path_publishing_thread_
+      = std::thread([this] { this->PathPublishingThread(); });
 
   thread_started_ = true;
 }

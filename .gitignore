@@ -43,3 +43,6 @@ lib/
 
 # MAC OS
 .DS_Store
+
+# logs
+log/*.txt
