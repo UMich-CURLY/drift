@@ -409,7 +409,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Matrix3d R;
     if (use_imu_ori_to_init_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
-      R = R_imu2body_ * quat.toRotationMatrix();
+      R = quat.toRotationMatrix();
     } else {
       R = Eigen::Matrix3d::Identity();
     }
