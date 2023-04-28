@@ -33,8 +33,9 @@ ROSSubscriber::~ROSSubscriber() {
 
 IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   // Create a new queue for data buffers
-  IMUQueuePtr imu_queue_ptr(new IMUQueue);
+  std::cout << "Subscribing to IMU topic: " << topic_name << std::endl;
 
+  IMUQueuePtr imu_queue_ptr(new IMUQueue);
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
 
@@ -52,6 +53,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
 
 IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
     const std::string imu_topic_name, const std::string offset_topic_name) {
+  std::cout << "Subscribing to IMU topic: " << imu_topic_name << std::endl;
   // Create a new queue for data buffers
   IMUQueuePtr imu_queue_ptr(new IMUQueue);
 
@@ -84,6 +86,10 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
 LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
+  std::cout << "Subscribing to contact topic: " << contact_topic_name
+            << std::endl;
+  std::cout << "Subscribing to encoder topic: " << encoder_topic_name
+            << std::endl;
   // Create a new queue for data buffers
   LegKinQueuePtr kin_queue_ptr(new LegKinQueue);
 
@@ -115,6 +121,8 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
 
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
     const std::string topic_name, double wheel_radius, double track_width) {
+  std::cout << "Subscribing to wheel encoder topic: " << topic_name
+            << std::endl;
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
 
@@ -136,6 +144,8 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
 
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Husky(
     const std::string topic_name) {
+  std::cout << "Subscribing to wheel encoder topic: " << topic_name
+            << std::endl;
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
 
@@ -158,6 +168,8 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Husky(
 VelocityQueuePair
 ROSSubscriber::AddDifferentialDriveLinearVelocitySubscriber_Fetch(
     const std::string topic_name, double wheel_raidus) {
+  std::cout << "Subscribing to wheel encoder topic: " << topic_name
+            << std::endl;
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
 
@@ -181,6 +193,8 @@ std::tuple<VelocityQueuePtr, std::shared_ptr<std::mutex>,
            AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
 ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Fetch(
     const std::string topic_name, double wheel_radius, double track_width) {
+  std::cout << "Subscribing to wheel encoder topic: " << topic_name
+            << std::endl;
   // Create a new queue for data buffers
   VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
   AngularVelocityQueuePtr ang_vel_queue_ptr(new AngularVelocityQueue);

@@ -239,18 +239,10 @@ class ImuAngVelEKF {
   // Variables for the angular velocity filter
   ImuMeasurementPtr latest_imu_measurement_ = nullptr;
   Eigen::VectorXd ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
-  Eigen::MatrixXd ang_vel_and_bias_P_
-      = 0.05 * 0.05 * Eigen::Matrix<double, 6, 6>::Identity();
-  Eigen::MatrixXd ang_vel_and_bias_Q_
-      = 0.05 * 0.05
-        * Eigen::Matrix<double, 6, 6>::Identity();    // Process noise
-  Eigen::MatrixXd ang_vel_and_bias_imu_R_
-      = 0.1 * 0.1
-        * Eigen::Matrix<double, 6, 6>::Identity();    // IMU measurement noise
-  Eigen::MatrixXd ang_vel_and_bias_enc_R_
-      = 0.1 * 0.1
-        * Eigen::Matrix<double, 6,
-                        6>::Identity();    // Encoder measurement noise
+  Eigen::Matrix<double, 6, 6> ang_vel_and_bias_P_;
+  Eigen::Matrix<double, 6, 6> ang_vel_and_bias_Q_;    // Process noise
+  Eigen::Matrix<double, 3, 3> ang_vel_imu_R_;         // IMU measurement noise
+  Eigen::Matrix<double, 3, 3> ang_vel_enc_R_;    // Encoder measurement noise
   Eigen::Matrix<double, 3, 6> H_imu_;
   Eigen::Matrix<double, 3, 6> H_enc_;
 

@@ -44,63 +44,50 @@ ImuAngVelEKF::ImuAngVelEKF(
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
 
-  // Set the imu to body rotation
-  const std::vector<double> quat_imu2body
-      = config_["settings"]["rotation_imu2body"]
-            ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
-            : std::vector<double>({1, 0, 0, 0});
-
-  Eigen::Quaternion<double> quarternion_imu2body(
-      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
-  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
-
   // Set the noise parameters
-  double gyro_std = config_["noises"]["gyroscope_std"]
-                        ? config_["noises"]["gyroscope_std"].as<double>()
-                        : 0.1;
-  double accel_std = config_["noises"]["accelerometer_std"]
-                         ? config_["noises"]["accelerometer_std"].as<double>()
-                         : 0.1;
-  double gyro_bias_std
-      = config_["noises"]["gyroscope_bias_std"]
-            ? config_["noises"]["gyroscope_bias_std"].as<double>()
+  double ang_vel_std = config_["noises"]["ang_vel_std"]
+                           ? config_["noises"]["ang_vel_std"].as<double>()
+                           : 0.01;
+
+  double ang_vel_bias_std
+      = config_["noises"]["ang_vel_bias_std"]
+            ? config_["noises"]["ang_vel_bias_std"].as<double>()
+            : 0.01;
+  double filter_std = config_["noises"]["filter_std"]
+                          ? config_["noises"]["filter_std"].as<double>()
+                          : 0.01;
+  double filter_bias_std
+      = config_["noises"]["filter_bias_std"]
+            ? config_["noises"]["filter_bias_std"].as<double>()
+            : 0.01;
+  double imu_meas_noise_std
+      = config_["noises"]["imu_meas_noise_std"]
+            ? config_["noises"]["imu_meas_noise_std"].as<double>()
             : 0.1;
-  double accel_bias_std
-      = config_["noises"]["accelerometer_bias_std"]
-            ? config_["noises"]["accelerometer_bias_std"].as<double>()
-            : 0.1;
-  double encoder_ang_vel_std
-      = config_["noises"]["angular_velocity_std"]
-            ? config_["noises"]["encoder_angular_velocity_std"].as<double>()
-            : 0.1;
-  double encoder_ang_vel_bias_std
-      = config_["noises"]["angular_velocity_bias_std"]
-            ? config_["noises"]["encoder_angular_velocity_bias_std"]
-                  .as<double>()
+  double encoder_meas_noise_std
+      = config_["noises"]["encoder_meas_noise_std"]
+            ? config_["noises"]["encoder_meas_noise_std"].as<double>()
             : 0.1;
 
+  ang_vel_and_bias_P_.block<3, 3>(0, 0)
+      = ang_vel_std * ang_vel_std * Eigen::Matrix3d::Identity();
+  ang_vel_and_bias_P_.block<3, 3>(3, 3)
+      = ang_vel_bias_std * ang_vel_bias_std * Eigen::Matrix3d::Identity();
 
-  gyro_cov_ = gyro_std * gyro_std * Eigen::Matrix<double, 3, 3>::Identity();
-  gyro_bias_cov_
-      = gyro_bias_std * gyro_bias_std * Eigen::Matrix<double, 3, 3>::Identity();
-  accel_cov_ = accel_std * accel_std * Eigen::Matrix<double, 3, 3>::Identity();
-  accel_bias_cov_ = accel_bias_std * accel_bias_std
-                    * Eigen::Matrix<double, 3, 3>::Identity();
+  ang_vel_and_bias_Q_.block<3, 3>(0, 0)
+      = filter_std * filter_std
+        * Eigen::Matrix3d::Identity();    // Process noise
+  ang_vel_and_bias_Q_.block<3, 3>(3, 3)
+      = filter_bias_std * filter_bias_std
+        * Eigen::Matrix3d::Identity();    // Process noise for bias
 
-  // Set the initial bias
-  std::vector<double> gyroscope_bias
-      = config_["priors"]["gyroscope_bias"]
-            ? config_["priors"]["gyroscope_bias"].as<std::vector<double>>()
-            : std::vector<double>({0, 0, 0});
-  bg0_ = Eigen::Vector3d(gyroscope_bias[0], gyroscope_bias[1],
-                         gyroscope_bias[2]);
+  // IMU measurement ang vel noise
+  ang_vel_imu_R_
+      = imu_meas_noise_std * imu_meas_noise_std * Eigen::Matrix3d::Identity();
 
-  std::vector<double> accelerometer_bias
-      = config_["priors"]["accelerometer_bias"]
-            ? config_["priors"]["accelerometer_bias"].as<std::vector<double>>()
-            : std::vector<double>({0, 0, 0});
-  ba0_ = Eigen::Vector3d(accelerometer_bias[0], accelerometer_bias[1],
-                         accelerometer_bias[2]);
+  // Encoder measurement ang vel noise
+  ang_vel_enc_R_ = encoder_meas_noise_std * encoder_meas_noise_std
+                   * Eigen::Matrix3d::Identity();
 
   // Set the parameters for the angular velocity filter
   H_imu_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
@@ -231,9 +218,9 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
     const ImuMeasurementPtr& imu_measurement) {
   Eigen::VectorXd z
       = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_and_bias_est_;
-  auto S_inv = (H_imu_ * ang_vel_and_bias_P_ * H_imu_.transpose()
-                + ang_vel_and_bias_imu_R_)
-                   .inverse();
+  auto S_inv
+      = (H_imu_ * ang_vel_and_bias_P_ * H_imu_.transpose() + ang_vel_imu_R_)
+            .inverse();
   auto K = ang_vel_and_bias_P_ * H_imu_.transpose() * S_inv;
   ang_vel_and_bias_est_ = ang_vel_and_bias_est_ + K * z;
   ang_vel_and_bias_P_
@@ -266,9 +253,9 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
     const AngularVelocityMeasurementPtr& ang_vel_measurement) {
   Eigen::VectorXd z
       = ang_vel_measurement->get_ang_vel() - H_enc_ * ang_vel_and_bias_est_;
-  auto S_inv = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose()
-                + ang_vel_and_bias_enc_R_)
-                   .inverse();
+  auto S_inv
+      = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose() + ang_vel_enc_R_)
+            .inverse();
   auto K = ang_vel_and_bias_P_ * H_enc_.transpose() * S_inv;
   ang_vel_and_bias_est_ = ang_vel_and_bias_est_ + K * z;
   ang_vel_and_bias_P_
