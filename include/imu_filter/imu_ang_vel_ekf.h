@@ -16,6 +16,9 @@
 #define IMU_FILTER_IMU_ANF_VEL_EKF_H
 
 #include <atomic>
+#include <fstream>
+#include <iostream>
+#include <limits>
 #include <thread>
 #include <vector>
 
@@ -29,6 +32,8 @@
 using namespace math;
 using namespace state;
 using namespace measurement;
+
+typedef std::numeric_limits<double> dbl;
 
 typedef std::shared_ptr<ImuMeasurement<double>>
     ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
@@ -237,11 +242,15 @@ class ImuAngVelEKF {
   Eigen::MatrixXd ang_vel_and_bias_P_
       = 0.05 * 0.05 * Eigen::Matrix<double, 6, 6>::Identity();
   Eigen::MatrixXd ang_vel_and_bias_Q_
-      = 0.05 * 0.05 * Eigen::Matrix<double, 6, 6>::Identity();
+      = 0.05 * 0.05
+        * Eigen::Matrix<double, 6, 6>::Identity();    // Process noise
   Eigen::MatrixXd ang_vel_and_bias_imu_R_
-      = 0.1 * 0.1 * Eigen::Matrix<double, 6, 6>::Identity();
+      = 0.1 * 0.1
+        * Eigen::Matrix<double, 6, 6>::Identity();    // IMU measurement noise
   Eigen::MatrixXd ang_vel_and_bias_enc_R_
-      = 0.1 * 0.1 * Eigen::Matrix<double, 6, 6>::Identity();
+      = 0.1 * 0.1
+        * Eigen::Matrix<double, 6,
+                        6>::Identity();    // Encoder measurement noise
   Eigen::Matrix<double, 3, 6> H_imu_;
   Eigen::Matrix<double, 3, 6> H_enc_;
 
@@ -251,7 +260,10 @@ class ImuAngVelEKF {
   std::shared_ptr<std::mutex> filtered_imu_data_buffer_mutex_ptr_;
   IMUQueuePtr filtered_imu_data_buffer_ptr_;
 
-
+  // Logger tempero
+  std::ofstream imu_ang_vel_outfile_;
+  std::ofstream encoder_ang_vel_outfile_;
+  std::ofstream filtered_ang_vel_outfile_;
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 

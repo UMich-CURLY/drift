@@ -25,7 +25,7 @@ using namespace estimator;
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
-  ros::init(argc, argv, "robot_state_est");
+  ros::init(argc, argv, "mini_cheetah");
 
   std::cout << "The subscriber is on!" << std::endl;
 

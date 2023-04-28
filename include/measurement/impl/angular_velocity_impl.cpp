@@ -17,14 +17,14 @@ AngularVelocityMeasurement<T>::AngularVelocityMeasurement()
     : Measurement(ANGULAR_VELOCITY), ang_vel_{0, 0, 0} {}
 
 template<typename T>
-void AngularVelocityMeasurement<T>::set_ang_velocity(T vx, T vy, T vz) {
+void AngularVelocityMeasurement<T>::set_ang_vel(T vx, T vy, T vz) {
   ang_vel_(0) = vx;
   ang_vel_(1) = vy;
   ang_vel_(2) = vz;
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> AngularVelocityMeasurement<T>::get_ang_velocity() const {
+Eigen::Matrix<T, 3, 1> AngularVelocityMeasurement<T>::get_ang_vel() const {
   return ang_vel_;
 }
 

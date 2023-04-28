@@ -43,7 +43,7 @@ class AngularVelocityMeasurement : public Measurement {
    * @param[in] vy: y velocity coefficient.
    * @param[in] vz: z velocity coefficient.
    */
-  void set_ang_velocity(T vx, T vy, T vz);
+  void set_ang_vel(T vx, T vy, T vz);
   /// @}
 
   /// @name Getter
@@ -53,7 +53,7 @@ class AngularVelocityMeasurement : public Measurement {
    *
    * @return 3-vector cotaining the robot-frame velocity (m/s).
    */
-  Eigen::Matrix<T, 3, 1> get_ang_velocity() const;
+  Eigen::Matrix<T, 3, 1> get_ang_vel() const;
 
   /**
    * @brief Get the velocity vector magnitude.

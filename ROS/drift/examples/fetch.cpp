@@ -25,7 +25,7 @@ using namespace estimator;
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
-  ros::init(argc, argv, "robot_state_est");
+  ros::init(argc, argv, "fetch");
 
   std::cout << "The subscriber is on!" << std::endl;
 
@@ -57,6 +57,7 @@ int main(int argc, char** argv) {
   //     = ros_sub.AddFetchIMUSubscriber("/imu1/imu", "/imu1/gyro_offset");
 
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
+  std::cout << "imu_topic: " << imu_topic << std::endl;
   auto qimu_and_mutex = ros_sub.AddIMUSubscriber(imu_topic);
   auto qimu = qimu_and_mutex.first;
   auto qimu_mutex = qimu_and_mutex.second;

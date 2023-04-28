@@ -33,7 +33,7 @@
 using namespace estimator;
 
 int main(int argc, char** argv) {
-  ros::init(argc, argv, "robot_state_est");
+  ros::init(argc, argv, "velocity_correction");
 
 
   // ros handle handles the start/shutdown for us
