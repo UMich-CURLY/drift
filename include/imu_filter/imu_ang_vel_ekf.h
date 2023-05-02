@@ -255,7 +255,7 @@ class ImuAngVelEKF {
   // Logger tempero
   std::ofstream imu_ang_vel_outfile_;
   std::ofstream encoder_ang_vel_outfile_;
-  std::ofstream filtered_ang_vel_outfile_;
+  std::ofstream filtered_acc_ang_vel_outfile_;
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 

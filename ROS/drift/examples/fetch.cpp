@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Create a ROS publisher and start the publishing thread
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
-                                    robot_state_queue_mutex_ptr);
+                                    robot_state_queue_mutex_ptr, config_file);
   ros_pub.StartPublishingThread();
 
   /// TUTORIAL: Run the state estimator. Initialize the bias first, then

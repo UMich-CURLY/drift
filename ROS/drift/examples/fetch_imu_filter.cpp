@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
   /// REMARK: To use Fetch's IMU data, please use the following line
   /// ("AddFetchIMUSubscriber") instead of the "AddIMUSubscriber"
   // auto qimu_and_mutex
-  //     = ros_sub.AddFetchIMUSubscriber("/imu1/imu", "/imu1/gyro_offset");
+  // = ros_sub.AddFetchIMUSubscriber(imu_topic, "/imu1/gyro_offset");
 
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
   auto qimu_and_mutex = ros_sub.AddIMUSubscriber(imu_topic);

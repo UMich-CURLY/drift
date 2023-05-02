@@ -170,6 +170,21 @@ bool ImuPropagation::Propagate(RobotState& state) {
   Eigen::Matrix3d G1 = Gamma_SO3(phi, 1);
   Eigen::Matrix3d G2 = Gamma_SO3(phi, 2);
 
+  // std::cout << "R: \n" << R << std::endl;
+  // std::cout << "v: \n" << v << std::endl;
+  // std::cout << "a: \n" << a << std::endl;
+  // std::cout << "p: \n" << p << std::endl;
+  // std::cout << "dt: " << dt << std::endl;
+  // std::cout << "P: \n" << P << std::endl;
+  // std::cout << "Phi: \n" << Phi << std::endl;
+  // std::cout << "Qd: \n" << Qd << std::endl;
+  // std::cout << "P_pred: \n" << P_pred << std::endl;
+  // std::cout << "G0: \n" << G0 << std::endl;
+  // std::cout << "G1: \n" << G1 << std::endl;
+  // std::cout << "G2: \n" << G2 << std::endl;
+  // std::cout << "=========================================================="
+  //           << std::endl;
+
   Eigen::MatrixXd X_pred = X;
   if (state.get_state_type() == StateType::WorldCentric) {
     // Propagate world-centric state estimate
@@ -305,11 +320,16 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     for (int i = 5; i < dimX; ++i) {
       Phi.block<3, 3>((i - 2) * 3, (i - 2) * 3) = G0t;    // Phi_(3+i)(3+i)
     }
-    Phi.block<3, 3>(0, dimP - dimTheta) = -G1t * dt;              // Phi_15
-    Phi.block<3, 3>(3, dimP - dimTheta) = Phi25L;                 // Phi_25
-    Phi.block<3, 3>(6, dimP - dimTheta) = Phi35L;                 // Phi_35
-    Phi.block<3, 3>(3, dimP - dimTheta + 3) = -G1t * dt;          // Phi_26
-    Phi.block<3, 3>(6, dimP - dimTheta + 3) = -G0t * G2 * dt2;    // Phi_36
+    if (enable_imu_bias_update_) {
+      Phi.block<3, 3>(0, dimP - dimTheta) = -G1t * dt;              // Phi_15
+      Phi.block<3, 3>(3, dimP - dimTheta) = Phi25L;                 // Phi_25
+      Phi.block<3, 3>(6, dimP - dimTheta) = Phi35L;                 // Phi_35
+      Phi.block<3, 3>(3, dimP - dimTheta + 3) = -G1t * dt;          // Phi_26
+      Phi.block<3, 3>(6, dimP - dimTheta + 3) = -G0t * G2 * dt2;    // Phi_36
+    } else {
+      Phi.block(0, dimP - dimTheta, dimP, dimTheta)
+          = Eigen::MatrixXd::Zero(dimP, dimTheta);
+    }
   } else {
     // Compute right-invariant state transition matrix (Assumes unpropagated
     // state)
@@ -323,18 +343,23 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     Phi.block<3, 3>(3, 0) = gx * dt;                             // Phi_21
     Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                      // Phi_31
     Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;    // Phi_32
-    Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                // Phi_15
-    Phi.block<3, 3>(3, dimP - dimTheta)
-        = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
-    Phi.block<3, 3>(6, dimP - dimTheta)
-        = -skew(p + v * dt + RG2dt2 * a + 0.5 * g_ * dt2) * RG1dt
-          + RG0 * Phi35L;    // Phi_35
-    for (int i = 5; i < dimX; ++i) {
-      Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-          = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
+    if (enable_imu_bias_update_) {
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
+      Phi.block<3, 3>(3, dimP - dimTheta)
+          = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
+      Phi.block<3, 3>(6, dimP - dimTheta)
+          = -skew(p + v * dt + RG2dt2 * a + 0.5 * g_ * dt2) * RG1dt
+            + RG0 * Phi35L;    // Phi_35
+      for (int i = 5; i < dimX; ++i) {
+        Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
+            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
+      }
+      Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
+      Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
+    } else {
+      Phi.block(0, dimP - dimTheta, dimP, dimTheta)
+          = Eigen::MatrixXd::Zero(dimP, dimTheta);
     }
-    Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
-    Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
   }
   return Phi;
 }
@@ -362,11 +387,14 @@ Eigen::MatrixXd ImuPropagation::DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
   Eigen::MatrixXd Qc
       = state.get_continuous_noise_covariance();    // Landmark noise terms will
                                                     // remain zero
+  /// TODO: Move this to initialization
   Qc.block<3, 3>(0, 0) = gyro_cov_;
   Qc.block<3, 3>(3, 3) = accel_cov_;
 
-  Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
-  Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
+  if (enable_imu_bias_update_) {
+    Qc.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = gyro_bias_cov_;
+    Qc.block<3, 3>(dimP - dimTheta + 3, dimP - dimTheta + 3) = accel_bias_cov_;
+  }
 
   // state.set_continuous_noise_covariance(Qc);
 

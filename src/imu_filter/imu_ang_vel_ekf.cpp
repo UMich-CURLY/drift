@@ -96,19 +96,23 @@ ImuAngVelEKF::ImuAngVelEKF(
   H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
 
   std::string imu_ang_vel_log_file
-      = "/home/tingjunl/code/drift/log/imu_ang_vel_log.txt";
+      = "/home/neofe/Code/drift/log/imu_ang_vel_log.txt";
   imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
   imu_ang_vel_outfile_.precision(dbl::max_digits10);
 
   std::string encoder_ang_vel_log_file
-      = "/home/tingjunl/code/drift/log/encoder_ang_vel_log.txt";
+      = "/home/neofe/Code/drift/log/encoder_ang_vel_log.txt";
   encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
   encoder_ang_vel_outfile_.precision(dbl::max_digits10);
 
-  std::string filtered_ang_vel_log_file
-      = "/home/tingjunl/code/drift/log/filtered_ang_vel_log.txt";
-  filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
-  filtered_ang_vel_outfile_.precision(dbl::max_digits10);
+  std::string filtered_acc_ang_vel_log_file
+      = "/home/neofe/Code/drift/log/filtered_acc_ang_vel_log.txt";
+  filtered_acc_ang_vel_outfile_.open(filtered_acc_ang_vel_log_file);
+  filtered_acc_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  ang_vel_and_bias_est_(3) = -0.011705041719176053;
+  ang_vel_and_bias_est_(4) = 0.02345814130845961;
+  ang_vel_and_bias_est_(5) = -0.011462608480202011;
 }
 
 // IMU filter destructor
@@ -117,7 +121,7 @@ ImuAngVelEKF::~ImuAngVelEKF() {
   imu_filter_thread_.join();
   imu_ang_vel_outfile_.close();
   encoder_ang_vel_outfile_.close();
-  filtered_ang_vel_outfile_.close();
+  filtered_acc_ang_vel_outfile_.close();
 }
 
 // Start IMU filter thread
@@ -239,11 +243,15 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
                        << imu_measurement->get_ang_vel()(2) << std::endl
                        << std::flush;
 
-  filtered_ang_vel_outfile_
-      << imu_measurement->get_time() << "," << ang_vel_and_bias_est_(0) << ","
-      << ang_vel_and_bias_est_(1) << "," << ang_vel_and_bias_est_(2) << ","
-      << ang_vel_and_bias_est_(3) << "," << ang_vel_and_bias_est_(4) << ","
-      << ang_vel_and_bias_est_(5) << std::endl
+  filtered_acc_ang_vel_outfile_
+      << imu_measurement->get_time() << ","
+      << imu_measurement_corrected->get_lin_acc()(0, 0) << ","
+      << imu_measurement_corrected->get_lin_acc()(1, 0) << ","
+      << imu_measurement_corrected->get_lin_acc()(2, 0) << ","
+      << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1) << ","
+      << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3) << ","
+      << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
+      << std::endl
       << std::flush;
   return imu_measurement_corrected;
 }
@@ -253,6 +261,7 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
     const AngularVelocityMeasurementPtr& ang_vel_measurement) {
   Eigen::VectorXd z
       = ang_vel_measurement->get_ang_vel() - H_enc_ * ang_vel_and_bias_est_;
+
   auto S_inv
       = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose() + ang_vel_enc_R_)
             .inverse();
@@ -274,11 +283,15 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
                            << ang_vel_measurement->get_ang_vel()(2) << std::endl
                            << std::flush;
 
-  filtered_ang_vel_outfile_
-      << imu_measurement->get_time() << "," << ang_vel_and_bias_est_(0) << ","
-      << ang_vel_and_bias_est_(1) << "," << ang_vel_and_bias_est_(2) << ","
-      << ang_vel_and_bias_est_(3) << "," << ang_vel_and_bias_est_(4) << ","
-      << ang_vel_and_bias_est_(5) << std::endl
+  filtered_acc_ang_vel_outfile_
+      << imu_measurement->get_time() << ","
+      << imu_measurement_corrected->get_lin_acc()(0, 0) << ","
+      << imu_measurement_corrected->get_lin_acc()(1, 0) << ","
+      << imu_measurement_corrected->get_lin_acc()(2, 0) << ","
+      << "," << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1)
+      << "," << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3)
+      << "," << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
+      << std::endl
       << std::flush;
 
   return imu_measurement_corrected;
