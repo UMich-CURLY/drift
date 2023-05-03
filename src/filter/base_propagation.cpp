@@ -20,7 +20,7 @@ namespace filter {
 // ======================================================================
 // Default constructor
 Propagation::Propagation()
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
+    : g_((Eigen::VectorXd(3) << 0, 0, -9.80).finished()),
       magnetic_field_(
           (Eigen::VectorXd(3) << std::cos(1.2049), 0, std::sin(1.2049))
               .finished()) {
@@ -29,7 +29,7 @@ Propagation::Propagation()
 
 Propagation::Propagation(
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr)
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
+    : g_((Eigen::VectorXd(3) << 0, 0, -9.80).finished()),
       magnetic_field_(
           (Eigen::VectorXd(3) << std::cos(1.2049), 0, std::sin(1.2049))
               .finished()),

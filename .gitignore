@@ -46,3 +46,4 @@ lib/
 
 # logs
 log/*.txt
+log/*/*.txt

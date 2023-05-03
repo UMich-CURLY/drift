@@ -18,13 +18,13 @@ using namespace std;
 // Constructor with error type
 namespace filter {
 Correction::Correction()
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
+    : g_((Eigen::VectorXd(3) << 0, 0, -9.80).finished()),
       magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()) {
   correction_type_ = CorrectionType::BASE;
 }
 
 Correction::Correction(std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr)
-    : g_((Eigen::VectorXd(3) << 0, 0, -9.81).finished()),
+    : g_((Eigen::VectorXd(3) << 0, 0, -9.80).finished()),
       magnetic_field_((Eigen::VectorXd(3) << 0, 0, 0).finished()),
       sensor_data_buffer_mutex_ptr_(sensor_data_buffer_mutex_ptr) {
   correction_type_ = CorrectionType::BASE;

@@ -131,7 +131,7 @@ class ImuPropagation : public Propagation {
   // ======================================================================
   /**
    * @brief Initialize IMU bias using the static assumption. This assumes the
-   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.81
+   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.80
    * m/s^2/f$ is pointing downward.)
    *
    * The function takes the first n data points, average their value, and
@@ -196,6 +196,8 @@ class ImuPropagation : public Propagation {
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
                                   // from IMU frame to body frame (meas_body = R
                                   // * meas_imu).
+  Eigen::Vector3d t_imu2body_;    // Translation vector that brings measurement
+                                  // from IMU frame to body frame.
 
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.

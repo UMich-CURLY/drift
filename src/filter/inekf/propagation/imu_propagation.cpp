@@ -54,7 +54,7 @@ ImuPropagation::ImuPropagation(
             ? config_["settings"]["use_imu_ori_to_init"].as<bool>()
             : false;
 
-  // Set the imu to body rotation
+  // Set the imu to body rotation (bring imu measurements to body frame)
   const std::vector<double> quat_imu2body
       = config_["settings"]["rotation_imu2body"]
             ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
@@ -106,6 +106,14 @@ ImuPropagation::ImuPropagation(
       = config_["settings"]["enable_imu_bias_update"]
             ? config_["settings"]["enable_imu_bias_update"].as<bool>()
             : false;
+
+  // Translation from imu to body (bring imu measurement to body frame)
+  std::vector<double> trans_imu2body
+      = config_["settings"]["translation_imu2body"]
+            ? config_["settings"]["translation_imu2body"]
+                  .as<std::vector<double>>()
+            : std::vector<double>({0, 0, 0});    // meters
+  t_imu2body_ << trans_imu2body[0], trans_imu2body[1], trans_imu2body[2];
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -131,9 +139,10 @@ bool ImuPropagation::Propagate(RobotState& state) {
   // Rotate imu frame to align it with the body frame and remove bias:
   Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
-  Eigen::Vector3d a
-      = R_imu2body_ * imu_measurement->get_lin_acc()
-        - state.get_accelerometer_bias();    // Linear Acceleration
+  Eigen::Vector3d a_compensate = w.cross(w.cross(t_imu2body_));
+  Eigen::Vector3d a = R_imu2body_ * imu_measurement->get_lin_acc()
+                      - state.get_accelerometer_bias()
+                      - a_compensate;    // Linear Acceleration
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -432,7 +441,8 @@ void ImuPropagation::InitImuBias() {
 
     // Rotate imu frame to align it with the body frame:
     w = R_imu2body_ * w;
-    a = R_imu2body_ * a;
+    Eigen::Vector3d a_compensate = w.cross(w.cross(t_imu2body_));
+    a = R_imu2body_ * a - a_compensate;
 
     Eigen::Matrix3d R;
     if (use_imu_ori_to_init_) {
