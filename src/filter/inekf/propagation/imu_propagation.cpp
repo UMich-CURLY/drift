@@ -129,6 +129,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
+
   const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
@@ -178,21 +179,6 @@ bool ImuPropagation::Propagate(RobotState& state) {
       0);    // Computation can be sped up by computing G0,G1,G2 all at once
   Eigen::Matrix3d G1 = Gamma_SO3(phi, 1);
   Eigen::Matrix3d G2 = Gamma_SO3(phi, 2);
-
-  // std::cout << "R: \n" << R << std::endl;
-  // std::cout << "v: \n" << v << std::endl;
-  // std::cout << "a: \n" << a << std::endl;
-  // std::cout << "p: \n" << p << std::endl;
-  // std::cout << "dt: " << dt << std::endl;
-  // std::cout << "P: \n" << P << std::endl;
-  // std::cout << "Phi: \n" << Phi << std::endl;
-  // std::cout << "Qd: \n" << Qd << std::endl;
-  // std::cout << "P_pred: \n" << P_pred << std::endl;
-  // std::cout << "G0: \n" << G0 << std::endl;
-  // std::cout << "G1: \n" << G1 << std::endl;
-  // std::cout << "G2: \n" << G2 << std::endl;
-  // std::cout << "=========================================================="
-  //           << std::endl;
 
   Eigen::MatrixXd X_pred = X;
   if (state.get_state_type() == StateType::WorldCentric) {
@@ -349,11 +335,11 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     Eigen::Matrix3d RG0 = R * G0;
     Eigen::Matrix3d RG1dt = R * G1 * dt;
     Eigen::Matrix3d RG2dt2 = R * G2 * dt2;
-    Phi.block<3, 3>(3, 0) = gx * dt;                             // Phi_21
-    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                      // Phi_31
-    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;    // Phi_32
+    Phi.block<3, 3>(3, 0) = gx * dt;                                  // Phi_21
+    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                           // Phi_31
+    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;         // Phi_32
     if (enable_imu_bias_update_) {
-      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                   // Phi_15
       Phi.block<3, 3>(3, dimP - dimTheta)
           = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
       Phi.block<3, 3>(6, dimP - dimTheta)
@@ -361,7 +347,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
             + RG0 * Phi35L;    // Phi_35
       for (int i = 5; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
+            = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
       }
       Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
       Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36

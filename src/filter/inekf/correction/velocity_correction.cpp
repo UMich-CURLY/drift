@@ -76,10 +76,16 @@ bool VelocityCorrection::Correct(RobotState& state) {
     return false;
   }
   VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
+  double t_diff = measured_velocity->get_time() - state.get_propagate_time();
+  /// TODO: Add another if statement to check if we need imu filter!
+  if (t_diff > 0) {
+    sensor_data_buffer_mutex_ptr_->unlock();
+    return false;
+  }
+
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_->unlock();
 
-  double t_diff = measured_velocity->get_time() - state.get_propagate_time();
   if (t_diff < -t_diff_thres_) {
     while (t_diff < -t_diff_thres_) {
       sensor_data_buffer_mutex_ptr_->lock();

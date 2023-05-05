@@ -162,7 +162,7 @@ int main(int argc, char** argv) {
     gyro_bias_z.push_back(row[20]);
   }
 
-  int max_size = timestamps.size();
+  int max_size = timestamps.size() * 2;    // make sure all the data are used
   int i = 0;
 
   /// TUTORIAL: Run the state estimator. Initialize the bias first, then
@@ -173,43 +173,47 @@ int main(int argc, char** argv) {
 
   while (ros::ok() && i < max_size) {
     // Load the data to measurement
-    // Timestamp:
-    double timestamp = timestamps[i];
-    // IMU measurement:
-    std::shared_ptr<ImuMeasurement<double>> imu_measurement_ptr(
-        new ImuMeasurement<double>);
-    imu_measurement_ptr->set_header(seq[i], timestamp, "");
-    imu_measurement_ptr->set_ang_vel(ang_vel_x[i], ang_vel_y[i], ang_vel_z[i]);
-    imu_measurement_ptr->set_lin_acc(lin_acc_x[i], lin_acc_y[i], lin_acc_z[i]);
+    if (i < timestamps.size()) {
+      // Timestamp:
+      double timestamp = timestamps[i];
+      // IMU measurement:
+      std::shared_ptr<ImuMeasurement<double>> imu_measurement_ptr(
+          new ImuMeasurement<double>);
+      imu_measurement_ptr->set_header(seq[i], timestamp, "");
+      imu_measurement_ptr->set_ang_vel(ang_vel_x[i], ang_vel_y[i],
+                                       ang_vel_z[i]);
+      imu_measurement_ptr->set_lin_acc(lin_acc_x[i], lin_acc_y[i],
+                                       lin_acc_z[i]);
 
+      // Velocity measurement:
+      std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+          new VelocityMeasurement<double>);
+      std::shared_ptr<AngularVelocityMeasurement<double>> ang_vel_measurement(
+          new AngularVelocityMeasurement<double>);
+      vel_measurement->set_header(seq[i], timestamp, "");
+      ang_vel_measurement->set_header(seq[i], timestamp, "");
+      double vr = vel_right[i] * wheel_radius;
+      double vl = vel_left[i] * wheel_radius;
+      double vx = (vr + vl) / 2;
+      double omega_z = (vr - vl) / track_width;
+      vel_measurement->set_velocity(vx, 0, 0);
+      ang_vel_measurement->set_ang_vel(0, 0, omega_z);
 
-    // Velocity measurement:
-    std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
-        new VelocityMeasurement<double>);
-    std::shared_ptr<AngularVelocityMeasurement<double>> ang_vel_measurement(
-        new AngularVelocityMeasurement<double>);
-    vel_measurement->set_header(seq[i], timestamp, "");
-    ang_vel_measurement->set_header(seq[i], timestamp, "");
-    double vr = vel_right[i] * wheel_radius;
-    double vl = vel_left[i] * wheel_radius;
-    double vx = (vr + vl) / 2;
-    double omega_z = (vr - vl) / track_width;
-    vel_measurement->set_velocity(vx, 0, 0);
-    ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+      // Insert the measurement to the queue
+      qimu_mutex->lock();
+      qimu->push(imu_measurement_ptr);
+      qimu_mutex->unlock();
 
-    // Insert the measurement to the queue
-    qimu_mutex->lock();
-    qimu->push(imu_measurement_ptr);
-    qimu_mutex->unlock();
+      qv_mutex->lock();
+      qv->push(vel_measurement);
+      qv_mutex->unlock();
 
-    qv_mutex->lock();
-    qv->push(vel_measurement);
-    qv_mutex->unlock();
+      qangv_mutex->lock();
+      qangv->push(ang_vel_measurement);
+      qangv_mutex->unlock();
+      std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+    }
 
-    qangv_mutex->lock();
-    qangv->push(ang_vel_measurement);
-    qangv_mutex->unlock();
-    std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
     std::cout << "i: " << i << std::endl;
     i++;
 
@@ -223,7 +227,13 @@ int main(int argc, char** argv) {
         inekf_estimator.InitBias();
       }
     }
-    // ros::spinOnce();
+
+    qv_mutex->lock();
+    if (qv->empty() && i >= timestamps.size()) {
+      qv_mutex->unlock();
+      break;
+    }
+    qv_mutex->unlock();
   }
 
   return 0;
