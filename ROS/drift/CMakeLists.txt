@@ -155,3 +155,17 @@ target_link_libraries(fetch_imu_filter
   yaml-cpp
   imu_filter_lib
 )
+
+# # temporary test for deterministic
+rosbuild_add_executable(deterministic_test
+  ${PROJECT_SOURCE_DIR}/examples/deterministic_test.cpp)
+
+target_link_libraries(deterministic_test
+  ${LIBS}
+  ros_communication_lib
+  mini_cheetah_kin_lib
+  measurement_lib
+  filter_lib
+  yaml-cpp
+  imu_filter_lib
+)

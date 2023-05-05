@@ -8,7 +8,7 @@
 
 #include <string>
 #include <vector>
-#include <map>
+#include <memory>
 
 #include <ros/types.h>
 #include <ros/serialization.h>
@@ -40,7 +40,7 @@ struct ContactArray_
    typedef  ::std_msgs::Header_<ContainerAllocator>  _header_type;
   _header_type header;
 
-   typedef std::vector< ::custom_sensor_msgs::Contact_<ContainerAllocator> , typename ContainerAllocator::template rebind< ::custom_sensor_msgs::Contact_<ContainerAllocator> >::other >  _contacts_type;
+   typedef std::vector< ::custom_sensor_msgs::Contact_<ContainerAllocator> , typename std::allocator_traits<ContainerAllocator>::template rebind_alloc< ::custom_sensor_msgs::Contact_<ContainerAllocator> >> _contacts_type;
   _contacts_type contacts;
 
 

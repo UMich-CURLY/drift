@@ -1,0 +1,7 @@
+noises:
+  ang_vel_std: 0.05
+  ang_vel_bias_std: 0.05
+  filter_std: 0.05
+  filter_bias_std: 0.05
+  imu_meas_noise_std: 0.1
+  encoder_meas_noise_std: 0.01

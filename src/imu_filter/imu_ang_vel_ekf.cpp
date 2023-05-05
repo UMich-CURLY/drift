@@ -169,6 +169,7 @@ void ImuAngVelEKF::RunOnce() {
       imu_measurement = nullptr;
     }
   }
+
   // =================== Angular Velocity filter ====================
   AngVelFilterPropagate();
   if (imu_measurement) {
