@@ -12,6 +12,7 @@
  **/
 
 #include "estimator/inekf_estimator.h"
+#include <chrono>
 
 namespace estimator {
 InekfEstimator::InekfEstimator()
@@ -61,11 +62,7 @@ InekfEstimator::~InekfEstimator() {
 }
 
 void InekfEstimator::RunOnce() {
-  // Imu filter
-  if (imu_filter_) {
-    imu_filter_.get()->RunOnce();
-  }
-
+  auto start = std::chrono::high_resolution_clock::now();
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
@@ -78,6 +75,12 @@ void InekfEstimator::RunOnce() {
 
   // Publish when new information is added
   if (new_pose_ready_) {
+    auto end = std::chrono::high_resolution_clock::now();
+    std::cout << "New pose elapsed time: "
+              << std::chrono::duration_cast<std::chrono::microseconds>(end
+                                                                       - start)
+                     .count()
+              << "micro seconds" << std::endl;
     robot_state_queue_mutex_ptr_.get()->lock();
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
@@ -159,7 +162,9 @@ InekfEstimator::add_imu_ang_vel_ekf(
   imu_filter_ = std::make_shared<imu_filter::ImuAngVelEKF>(
       imu_buffer_ptr, imu_buffer_mutex_ptr, ang_vel_buffer_ptr,
       ang_vel_buffer_mutex_ptr, yaml_filepath);
-  // imu_filter_.get()->StartImuFilterThread();
+
+  imu_filter_.get()->StartImuFilterThread();
+
   return {imu_filter_.get()->get_filtered_imu_data_buffer_ptr(),
           imu_filter_.get()->get_filtered_imu_data_buffer_mutex_ptr()};
 }
@@ -197,9 +202,6 @@ const bool InekfEstimator::BiasInitialized() const {
 }
 
 void InekfEstimator::InitBias() {
-  if (imu_filter_) {
-    imu_filter_.get()->RunOnce();
-  }
   if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
     return;
   }
@@ -211,9 +213,6 @@ void InekfEstimator::InitBias() {
 void InekfEstimator::InitState() {
   /// TODO: Implement clear filter
   // Clear filter
-  if (imu_filter_) {
-    imu_filter_.get()->RunOnce();
-  }
   this->clear();
 
   // Initialize state mean

@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Load the data file
   std::string data_file_name
-      = "/home/tingjunl/Downloads/data/fetch/kitchen/synced_js_imu_bias.csv";
+      = "/home/neofelis/Downloads/synced_js_imu_bias.csv";
   std::fstream data_file;
   data_file.open(data_file_name, std::ios::in);
   if (!data_file.is_open()) {
@@ -190,8 +190,8 @@ int main(int argc, char** argv) {
           new VelocityMeasurement<double>);
       std::shared_ptr<AngularVelocityMeasurement<double>> ang_vel_measurement(
           new AngularVelocityMeasurement<double>);
-      vel_measurement->set_header(seq[i], timestamp, "");
-      ang_vel_measurement->set_header(seq[i], timestamp, "");
+      vel_measurement->set_header(seq[i], timestamp + 0.0001, "");
+      ang_vel_measurement->set_header(seq[i], timestamp + 0.0001, "");
       double vr = vel_right[i] * wheel_radius;
       double vl = vel_left[i] * wheel_radius;
       double vx = (vr + vl) / 2;
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
       qangv_mutex->lock();
       qangv->push(ang_vel_measurement);
       qangv_mutex->unlock();
-      std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+      std::this_thread::sleep_for(std::chrono::microseconds(sleep_time));
     }
 
     std::cout << "i: " << i << std::endl;

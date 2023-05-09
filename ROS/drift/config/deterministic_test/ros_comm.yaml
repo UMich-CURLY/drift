@@ -10,9 +10,9 @@ subscribers:
 
 publishers:
   # Define publish rate and topics for publishers
-  pose_publish_rate: 1000 # Hz
+  pose_publish_rate: 10000 # Hz
   pose_publish_topic: "/robot/inekf_estimation_2/pose"
   pose_frame: "/odom"
 
-  path_publish_rate: 100 # Hz
+  path_publish_rate: 1000 # Hz
   path_publish_topic: "/robot/inekf_estimation_2/path"
