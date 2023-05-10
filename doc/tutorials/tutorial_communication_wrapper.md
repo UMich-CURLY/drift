@@ -126,9 +126,8 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
   nh_->param<int>("/curly_state_est_settings/pose_skip", pose_skip_, 1);
   first_pose_ = {0, 0, 0};
 
-  std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
-            << std::endl;
-  std::cout << "path publish rate: " << path_publish_rate_ << std::endl;
+  std::cout << "pose_topic: " << pose_topic << ", pose publish rate: " << pose_publish_rate << std::endl;
+  std::cout << "path_topic: " << path_topic << ", path publish rate: " << path_publish_rate_ << std::endl;
 
   pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
       pose_topic, 1000);

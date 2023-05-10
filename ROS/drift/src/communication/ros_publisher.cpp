@@ -89,7 +89,6 @@ void ROSPublisher::StartPublishingThread() {
 // Publishes pose
 void ROSPublisher::PosePublish() {
   if (robot_state_queue_ptr_->empty()) {
-    // std::cout << "pose queue is empty" << std::endl;
     return;
   }
 
@@ -138,7 +137,6 @@ void ROSPublisher::PosePublish() {
   int pose_skip = pose_publish_rate_
                   / path_publish_rate_;    // Pose publish rate must be faster
                                            // than path publish rate
-  // std::cout << "pose_skip: " << pose_skip << std::endl;
   if (int(pose_seq_) % pose_skip == 0) {
     geometry_msgs::PoseStamped pose_stamped;
     pose_stamped.header = pose_msg.header;
@@ -163,7 +161,6 @@ void ROSPublisher::PosePublishingThread() {
 void ROSPublisher::PathPublish() {
   std::lock_guard<std::mutex> lock(poses_mutex_);
   if (poses_.size() == 0) {
-    // std::cout << "path is empty" << std::endl;
     return;
   }
   nav_msgs::Path path_msg;

@@ -176,7 +176,6 @@ void ImuAngVelEKF::RunOnce() {
     latest_imu_measurement_ = imu_measurement;
     auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
 
-    // std::cout << "IMU filter running..." << std::endl;
     filtered_imu_data_buffer_mutex_ptr_.get()->lock();
     filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
     filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
@@ -198,7 +197,6 @@ void ImuAngVelEKF::RunOnce() {
   if (ang_vel_measurement && latest_imu_measurement_) {
     auto fused_ang_imu = AngVelFilterCorrectEncoder(latest_imu_measurement_,
                                                     ang_vel_measurement);
-    // std::cout << "Encoder filter running..." << std::endl;
     filtered_imu_data_buffer_mutex_ptr_.get()->lock();
     filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
     filtered_imu_data_buffer_mutex_ptr_.get()->unlock();

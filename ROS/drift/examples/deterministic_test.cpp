@@ -132,7 +132,6 @@ int main(int argc, char** argv) {
 
   // Skip the first line
   getline(data_file, line);
-  std::cout << "line 1: " << line << std::endl;
 
   while (getline(data_file, line)) {
     row.clear();

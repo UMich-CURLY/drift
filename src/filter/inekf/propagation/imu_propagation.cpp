@@ -335,11 +335,11 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     Eigen::Matrix3d RG0 = R * G0;
     Eigen::Matrix3d RG1dt = R * G1 * dt;
     Eigen::Matrix3d RG2dt2 = R * G2 * dt2;
-    Phi.block<3, 3>(3, 0) = gx * dt;                                  // Phi_21
-    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                           // Phi_31
-    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;         // Phi_32
+    Phi.block<3, 3>(3, 0) = gx * dt;                             // Phi_21
+    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                      // Phi_31
+    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;    // Phi_32
     if (enable_imu_bias_update_) {
-      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                   // Phi_15
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
       Phi.block<3, 3>(3, dimP - dimTheta)
           = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
       Phi.block<3, 3>(6, dimP - dimTheta)
@@ -347,7 +347,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
             + RG0 * Phi35L;    // Phi_35
       for (int i = 5; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-            = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
+            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
       }
       Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
       Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
@@ -405,8 +405,8 @@ void ImuPropagation::InitImuBias() {
   if (!static_bias_initialization_) {
     bias_initialized_ = true;
     std::cout << "Static bias inialization is set to false." << std::endl;
-    std::cout << "Bias is initialized using prior as: \n" << bg0_ << std::endl;
-    std::cout << ba0_ << std::endl;
+    std::cout << "Bias is initialized using prior as [gyro_bias, acc_bias]: "
+              << bg0_.transpose() << ba0_.transpose() << std::endl;
     return;
   }
 
@@ -449,7 +449,8 @@ void ImuPropagation::InitImuBias() {
       avg = (avg + bias_init_vec_[i]).eval();
     }
     avg = (avg / bias_init_vec_.size()).eval();
-    std::cout << "IMU bias initialized to: " << avg.transpose() << std::endl;
+    std::cout << "IMU bias initialized to [gyro_bias, acc_bias]: "
+              << avg.transpose() << std::endl;
     bg0_ = avg.head<3>();
     ba0_ = avg.tail<3>();
     bias_initialized_ = true;

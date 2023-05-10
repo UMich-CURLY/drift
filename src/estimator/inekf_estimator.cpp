@@ -62,7 +62,9 @@ InekfEstimator::~InekfEstimator() {
 }
 
 void InekfEstimator::RunOnce() {
-  auto start = std::chrono::high_resolution_clock::now();
+  /// TIMER:
+  // auto start = std::chrono::high_resolution_clock::now();
+
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
@@ -75,12 +77,14 @@ void InekfEstimator::RunOnce() {
 
   // Publish when new information is added
   if (new_pose_ready_) {
-    auto end = std::chrono::high_resolution_clock::now();
-    std::cout << "New pose elapsed time: "
-              << std::chrono::duration_cast<std::chrono::microseconds>(end
-                                                                       - start)
-                     .count()
-              << "micro seconds" << std::endl;
+    /// TIMER:
+    // auto end = std::chrono::high_resolution_clock::now();
+    // std::cout << "New pose is generated within: "
+    //           << std::chrono::duration_cast<std::chrono::microseconds>(end
+    //                                                                    -
+    //                                                                    start)
+    //                  .count()
+    //           << " micro seconds" << std::endl;
     robot_state_queue_mutex_ptr_.get()->lock();
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
