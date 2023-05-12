@@ -11,7 +11,7 @@
  *  @date   November 25, 2022
  **/
 
-#include "filter/inekf/correction/velocity_correction.h"
+#include "drift/filter/inekf/correction/velocity_correction.h"
 
 using namespace std;
 using namespace math::lie_group;

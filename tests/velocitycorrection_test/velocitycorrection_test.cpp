@@ -11,14 +11,14 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include "estimator/inekf_estimator.h"
-#include "filter/base_correction.h"
-#include "filter/base_propagation.h"
-#include "filter/inekf/correction/velocity_correction.h"
-#include "filter/inekf/propagation/imu_propagation.h"
-#include "measurement/imu.h"
-#include "measurement/velocity.h"
-#include "state/robot_state.h"
+#include "drift/estimator/inekf_estimator.h"
+#include "drift/filter/base_correction.h"
+#include "drift/filter/base_propagation.h"
+#include "drift/filter/inekf/correction/velocity_correction.h"
+#include "drift/filter/inekf/propagation/imu_propagation.h"
+#include "drift/measurement/imu.h"
+#include "drift/measurement/velocity.h"
+#include "drift/state/robot_state.h"
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -51,8 +51,10 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   measured_velocity_covariance << 0, 0, 0, 0, 0, 0, 0, 0, 0;
 
   inekf::ErrorType error_type = LeftInvariant;
-
-  InekfEstimator inekf_estimator(error_type, "");
+  std::cout << "Loading data..." << std::endl;
+  InekfEstimator inekf_estimator(error_type,
+                                 "../config/test/inekf_estimator.yaml");
+  std::cout << "Finished loading!" << std::endl;
 
   IMUQueue imu_data_buffer;
   IMUQueuePtr imu_data_buffer_ptr = std::make_shared<IMUQueue>(imu_data_buffer);
@@ -116,12 +118,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
 
   // Add propagation and correction methods
-  inekf_estimator.add_imu_propagation(
-      imu_data_buffer_ptr, imu_buffer_mutex_ptr,
-      "../config/filter/inekf/propagation/velocitycorrection_test.yaml");
+  inekf_estimator.add_imu_propagation(imu_data_buffer_ptr, imu_buffer_mutex_ptr,
+                                      "../config/test/imu_propagation.yaml");
   inekf_estimator.add_velocity_correction(
       velocity_data_buffer_ptr, velocity_buffer_mutex_ptr,
-      "../config/filter/inekf/correction/velocitycorrection_test.yaml");
+      "../config/test/velocity_correction.yaml");
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();

@@ -11,7 +11,7 @@
  *  @date   October 5th, 2022
  **/
 
-#include "math/se_k_3.h"
+#include "drift/math/se_k_3.h"
 
 #include <math.h>
 #include <vector>

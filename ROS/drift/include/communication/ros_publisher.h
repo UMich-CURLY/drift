@@ -28,7 +28,7 @@
 #include "ros/ros.h"
 #include "yaml-cpp/yaml.h"
 
-#include "state/robot_state.h"
+#include "drift/state/robot_state.h"
 
 using namespace state;
 

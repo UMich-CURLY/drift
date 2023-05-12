@@ -11,7 +11,7 @@
  *  @date   November 25, 2022
  **/
 
-#include "math/lie_group.h"
+#include "drift/math/lie_group.h"
 
 namespace math::lie_group {
 

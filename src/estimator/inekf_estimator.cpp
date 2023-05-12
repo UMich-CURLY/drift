@@ -11,7 +11,7 @@
  *  @date   December 1, 2022
  **/
 
-#include "estimator/inekf_estimator.h"
+#include "drift/estimator/inekf_estimator.h"
 #include <chrono>
 
 namespace estimator {

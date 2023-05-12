@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "measurement/velocity.h"
+#include "drift/measurement/velocity.h"
 
 using namespace measurement;
 

@@ -17,7 +17,7 @@
  *  @date   November 25, 2022
  **/
 
-#include "filter/inekf/propagation/imu_propagation.h"
+#include "drift/filter/inekf/propagation/imu_propagation.h"
 
 
 using namespace std;

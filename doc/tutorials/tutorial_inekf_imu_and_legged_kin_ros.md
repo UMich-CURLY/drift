@@ -33,7 +33,7 @@ Users can create a new case by following the comments in the `drift/ROS/drift/ex
 
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
-#include "estimator/inekf_estimator.h"
+#include "drift/estimator/inekf_estimator.h"
 
 using namespace std;
 using namespace state;
@@ -132,7 +132,7 @@ The first thing we need to do is to include necessary librarys:
 
 #include "communication/ros_publisher.h"  // ROS wrapper for publisher
 #include "communication/ros_subscriber.h" // ROS wrapper for subscriber
-#include "estimator/inekf_estimator.h"   // InEKF estimator, all the propagation and correction methods are also included in this header file
+#include "drift/estimator/inekf_estimator.h"   // InEKF estimator, all the propagation and correction methods are also included in this header file
 ```
 #### 2.2 Create subscribers to receive sensor data
 The next step is to create subscribers to receive sensor data. To use ROS, we first need to initialize ROS node and a ROS node handler.

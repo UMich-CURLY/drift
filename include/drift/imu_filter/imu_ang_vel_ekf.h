@@ -23,11 +23,11 @@
 #include <vector>
 
 
-#include "filter/base_propagation.h"
-#include "filter/inekf/inekf.h"
-#include "math/lie_group.h"
-#include "measurement/angular_velocity.h"
-#include "measurement/imu.h"
+#include "drift/filter/base_propagation.h"
+#include "drift/filter/inekf/inekf.h"
+#include "drift/math/lie_group.h"
+#include "drift/measurement/angular_velocity.h"
+#include "drift/measurement/imu.h"
 
 using namespace math;
 using namespace state;

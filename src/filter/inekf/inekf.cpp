@@ -16,7 +16,7 @@
  *  @date   November 25, 2022
  **/
 
-#include "filter/inekf/inekf.h"
+#include "drift/filter/inekf/inekf.h"
 
 using namespace std;
 using namespace math;

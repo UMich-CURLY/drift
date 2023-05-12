@@ -13,14 +13,14 @@
 #include <string>
 
 #include "communication/ros_subscriber.h"
-#include "estimator/inekf_estimator.h"
-#include "filter/base_correction.h"
-#include "filter/base_propagation.h"
-#include "filter/inekf/correction/velocity_correction.h"
-#include "filter/inekf/propagation/imu_propagation.h"
-#include "measurement/imu.h"
-#include "measurement/velocity.h"
-#include "state/robot_state.h"
+#include "drift/estimator/inekf_estimator.h"
+#include "drift/filter/base_correction.h"
+#include "drift/filter/base_propagation.h"
+#include "drift/filter/inekf/correction/velocity_correction.h"
+#include "drift/filter/inekf/propagation/imu_propagation.h"
+#include "drift/measurement/imu.h"
+#include "drift/measurement/velocity.h"
+#include "drift/state/robot_state.h"
 
 // Boost
 #include <boost/algorithm/string.hpp>

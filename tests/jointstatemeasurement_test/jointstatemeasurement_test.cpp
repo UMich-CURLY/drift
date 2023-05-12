@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "measurement/joint_state.h"
+#include "drift/measurement/joint_state.h"
 
 #define tol2 1e-9
 

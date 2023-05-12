@@ -23,17 +23,17 @@
 #include <mutex>
 #include <thread>
 
-#include "filter/base_correction.h"
-#include "filter/base_propagation.h"
-#include "filter/inekf/correction/legged_kinematics_correction.h"
-#include "filter/inekf/correction/velocity_correction.h"
-#include "filter/inekf/propagation/imu_propagation.h"
-#include "imu_filter/imu_ang_vel_ekf.h"
-#include "measurement/angular_velocity.h"
-#include "measurement/imu.h"
-#include "measurement/legged_kinematics.h"
-#include "measurement/velocity.h"
-#include "state/robot_state.h"
+#include "drift/filter/base_correction.h"
+#include "drift/filter/base_propagation.h"
+#include "drift/filter/inekf/correction/legged_kinematics_correction.h"
+#include "drift/filter/inekf/correction/velocity_correction.h"
+#include "drift/filter/inekf/propagation/imu_propagation.h"
+#include "drift/imu_filter/imu_ang_vel_ekf.h"
+#include "drift/measurement/angular_velocity.h"
+#include "drift/measurement/imu.h"
+#include "drift/measurement/legged_kinematics.h"
+#include "drift/measurement/velocity.h"
+#include "drift/state/robot_state.h"
 
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
 using namespace filter;

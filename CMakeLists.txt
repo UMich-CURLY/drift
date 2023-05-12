@@ -26,7 +26,7 @@ message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(${YAML_CPP_INCLUDE_DIR})
-include(FetchContent)
+include(FetchContent) # Introduced since CMake 3.11
 
 # #################################################
 # Project Include Dir              #
@@ -37,21 +37,47 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # Create Library                 #
 # #################################################
 add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
+target_include_directories(robot_state PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(inekf_estimator ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp)
+target_include_directories(inekf_estimator PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(math ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
   ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp)
+target_include_directories(math PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
+target_include_directories(base_propagation PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
+target_include_directories(base_correction PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
+target_include_directories(inekf PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(imu_filter ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp)
+target_include_directories(imu_filter PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp)
+target_include_directories(measurement PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
 add_library(robot_kinematics ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
   ${MINI_CHEETAH_KIN_SRC_FILES})
+target_include_directories(robot_kinematics PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 # #################################################
 # Build Examples                 #
@@ -100,55 +126,106 @@ endif(BUILD_DOC)
 # #################################################
 # Add Library                #
 # #################################################
-# set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
+set(CMAKE_INSTALL_PREFIX "/usr/local")
 
-# # declaire a c++ library
-# add_library(drift SHARED
-# ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
-# ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp
-# ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp
-# ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-# ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
-# ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
-# ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
-# ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
-# ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
-# ${MINI_CHEETAH_KIN_SRC_FILES}
-# )
-# target_include_directories(drift PRIVATE ${PROJECT_SOURCE_DIR}/include)
-# set_target_properties(drift PROPERTIES LIBRARY_OUTPUT_NAME drift VERSION ${PACKAGE_VERSION} SOVERSION ${PACKAGE_VERSION_MAJOR})
+set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
 
-# # Add version info to the library
-# include(CMakePackageConfigHelpers)
-# write_basic_package_version_file(
-# driftConfigVersion.cmake
-# VERSION ${PACKAGE_VERSION}
-# COMPATIBILITY AnyNewerVersion
-# )
+# Lista of CPP(source) library files.
+set(INSTALLABLE_LIBS robot_state inekf_estimator math base_propagation base_correction inekf imu_filter measurement robot_kinematics)
 
-# # Install the library
-# install(TARGETS drift
-# EXPORT driftTargets
-# LIBRARY DESTINATION lib
-# ARCHIVE DESTINATION lib
-# RUNTIME DESTINATION bin
-# INCLUDES DESTINATION include
-# PUBLIC_HEADER DESTINATION include
-# )
+# List of H (header) library files.
+file(GLOB ESTIMATOR_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/estimator/*.h)
 
-# install(EXPORT driftTargets
-# FILE driftTargets.cmake
-# NAMESPACE drift::
-# DESTINATION lib/cmake/drift
-# )
+file(GLOB FILTER_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/filter/*.h)
+file(GLOB INEKF_FILTER_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/filter/inekf/*.h)
+file(GLOB INEKF_CORRECTION_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/filter/inekf/correction/*.h)
+file(GLOB INEKF_PROPAGATION_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/filter/inekf/propagation/*.h)
 
-# configure_file(driftConfig.cmake.in driftConfig.cmake @ONLY)
-# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake"
-# "${CMAKE_CURRENT_BINARY_DIR}/driftConfigVersion.cmake"
-# DESTINATION lib/cmake/drift
+file(GLOB IMU_FILTER_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/imu_filter/*.h)
+file(GLOB KINEMATICS_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/kinematics/*.h)
+file(GLOB MATH_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/math/*.h)
+file(GLOB MEASUREMENT_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/measurement/*.h)
+file(GLOB MEASUREMENT_IMPL_FILES ${PROJECT_SOURCE_DIR}/include/drift/measurement/impl/*.cpp)
+file(GLOB STATE_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/state/*.h)
+file(GLOB MINI_CHEETAH_KIN_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/kinematics/robots/mini_cheetah/*.h)
+
+# add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRC})
+# target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
+# "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+# "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
 # )
+# set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
+
+# Install the library
+install(TARGETS ${INSTALLABLE_LIBS}
+  EXPORT ${PROJECT_NAME}Targets
+  LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+  ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
+  RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}"
+  PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}"
+)
+message("CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_LIBDIR}")
+message("PUBLIC_HEADER: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
+
+# Install header files: Copying the header files to desired place
+install(FILES ${ESTIMATOR_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/estimator)
+
+install(FILES ${FILTER_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/filter)
+install(FILES ${INEKF_FILTER_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/filter/inekf)
+install(FILES ${INEKF_CORRECTION_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/filter/inekf/correction)
+install(FILES ${INEKF_PROPAGATION_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/filter/inekf/propagation)
+
+install(FILES ${IMU_FILTER_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/imu_filter)
+install(FILES ${KINEMATICS_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/kinematics)
+install(FILES ${MATH_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/math)
+install(FILES ${MEASUREMENT_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/measurement)
+install(FILES ${MEASUREMENT_IMPL_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/measurement/impl)
+install(FILES ${STATE_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/state)
+
+install(
+
+  # The export we want to save (matches name defined above containing the
+  # install targets)
+  EXPORT ${PROJECT_NAME}Targets
+
+  # CMake file in which to store the export's information
+  FILE ${PROJECT_NAME}Targets.cmake
+
+  NAMESPACE drift::
+
+  # where to place the resulting file (here, we're putting it with the library)
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+)
+
+include(CMakePackageConfigHelpers)
+
+# generate the config file that includes the exports
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/driftConfig.cmake.in
+  "${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake"
+  INSTALL_DESTINATION "lib/cmake/${PROJECT_NAME}"
+  NO_SET_AND_CHECK_MACRO
+  NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/driftConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/driftConfigVersion.cmake
+  DESTINATION lib/cmake/${PROJECT_NAME}
+)
+
+# export(PACKAGE ${PROJECT_NAME})
+export(
+  TARGETS ${INSTALLABLE_LIBS}
+  NAMESPACE drift::
+
+  # EXPORT ${PROJECT_NAME}Targets
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
+)

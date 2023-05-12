@@ -15,10 +15,10 @@
 #define FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 
 #include <unordered_map>
-#include "filter/base_correction.h"
-#include "filter/inekf/inekf.h"
-#include "math/lie_group.h"
-#include "measurement/legged_kinematics.h"
+#include "drift/filter/base_correction.h"
+#include "drift/filter/inekf/inekf.h"
+#include "drift/math/lie_group.h"
+#include "drift/measurement/legged_kinematics.h"
 
 using namespace math;
 using namespace state;

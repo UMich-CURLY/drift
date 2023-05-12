@@ -4,7 +4,7 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
-#include "kinematics/mini_cheetah_kinematics.h"
+#include "drift/kinematics/mini_cheetah_kinematics.h"
 
 #define NLEG 4    // number of legs
 #define NAPL 3    // number of actuators per leg

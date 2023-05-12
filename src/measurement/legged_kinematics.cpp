@@ -4,7 +4,7 @@
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
-#include "measurement/legged_kinematics.h"
+#include "drift/measurement/legged_kinematics.h"
 
 namespace measurement {
 LeggedKinematicsMeasurement::LeggedKinematicsMeasurement()

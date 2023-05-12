@@ -1,6 +1,6 @@
 #include <Eigen/Core>
 
-#include "math/lie_group.h"
+#include "drift/math/lie_group.h"
 
 using namespace math;
 

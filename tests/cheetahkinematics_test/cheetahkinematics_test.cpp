@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <iostream>
-#include "kinematics/mini_cheetah_kinematics.h"
+#include "drift/kinematics/mini_cheetah_kinematics.h"
 
 #define tol3 1e-9
 

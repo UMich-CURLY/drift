@@ -13,10 +13,10 @@
 
 #ifndef FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
 #define FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
-#include "filter/base_correction.h"
-#include "filter/inekf/inekf.h"
-#include "math/lie_group.h"
-#include "measurement/velocity.h"
+#include "drift/filter/base_correction.h"
+#include "drift/filter/inekf/inekf.h"
+#include "drift/math/lie_group.h"
+#include "drift/measurement/velocity.h"
 
 using namespace math;
 using namespace state;

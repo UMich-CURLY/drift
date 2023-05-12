@@ -74,5 +74,5 @@ class VelocityMeasurement : public Measurement {
   Eigen::Matrix<T, 3, 1> vel_;
 };
 }    // namespace measurement
-#include "measurement/impl/velocity_impl.cpp"
+#include "drift/measurement/impl/velocity_impl.cpp"
 #endif

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "measurement/contact.h"
+#include "drift/measurement/contact.h"
 
 using namespace measurement;
 

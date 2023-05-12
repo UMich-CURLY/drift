@@ -19,7 +19,7 @@
 
 #include "communication/ros_publisher.h"
 #include "communication/ros_subscriber.h"
-#include "estimator/inekf_estimator.h"
+#include "drift/estimator/inekf_estimator.h"
 
 using namespace std;
 using namespace state;

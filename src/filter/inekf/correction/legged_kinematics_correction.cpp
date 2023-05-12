@@ -1,4 +1,4 @@
-#include "filter/inekf/correction/legged_kinematics_correction.h"
+#include "drift/filter/inekf/correction/legged_kinematics_correction.h"
 
 using namespace std;
 using namespace math::lie_group;

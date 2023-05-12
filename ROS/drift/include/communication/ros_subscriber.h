@@ -36,13 +36,13 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 
-#include "kinematics/mini_cheetah_kinematics.h"
-#include "measurement/angular_velocity.h"
-#include "measurement/contact.h"
-#include "measurement/imu.h"
-#include "measurement/joint_state.h"
-#include "measurement/legged_kinematics.h"
-#include "measurement/velocity.h"
+#include "drift/kinematics/mini_cheetah_kinematics.h"
+#include "drift/measurement/angular_velocity.h"
+#include "drift/measurement/contact.h"
+#include "drift/measurement/imu.h"
+#include "drift/measurement/joint_state.h"
+#include "drift/measurement/legged_kinematics.h"
+#include "drift/measurement/velocity.h"
 
 using namespace measurement;
 

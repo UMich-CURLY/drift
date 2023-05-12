@@ -1,13 +1,5 @@
-# - Config file for the drift package
-# It defines the following variables
-#  drift_INCLUDE_DIRS - include directories for drift
-#  drift_LIBRARY_DIRS - directories for drift library
- 
-# Compute paths
-get_filename_component(drift_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(drift_INCLUDE_DIRS "@drift_include_dirs@")
-set(drift_LIBRARY_DIRS "@drift_library_dirs@")
-set(drift_LIBRARIES "@drift_libraries@")
+@PACKAGE_INIT@
+include ( "${CMAKE_CURRENT_LIST_DIR}/driftTargets.cmake" )
 
 # This causes catkin_simple to link against these libraries
 set(drift_FOUND_CATKIN_PROJECT true)

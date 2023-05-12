@@ -60,6 +60,6 @@ class ContactMeasurement : public Measurement {
                     // contact, 0 = no contact
 };
 }    // namespace measurement
-#include "measurement/impl/contact_impl.cpp"
+#include "drift/measurement/impl/contact_impl.cpp"
 
 #endif    // CONTACT_H

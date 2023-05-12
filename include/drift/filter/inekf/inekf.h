@@ -24,8 +24,8 @@
 #include <map>
 #include <vector>
 
-#include "math/lie_group.h"
-#include "state/robot_state.h"
+#include "drift/math/lie_group.h"
+#include "drift/state/robot_state.h"
 
 using namespace math;
 using namespace state;

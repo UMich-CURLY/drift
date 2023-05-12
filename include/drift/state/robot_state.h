@@ -20,8 +20,8 @@
 #include <string>
 #include <unordered_map>
 
-#include "math/lie_group.h"
-#include "math/se_k_3.h"
+#include "drift/math/lie_group.h"
+#include "drift/math/se_k_3.h"
 
 
 enum StateType { WorldCentric, BodyCentric };

@@ -23,8 +23,8 @@
 #include <vector>
 #include "yaml-cpp/yaml.h"
 
-#include "measurement/measurement.h"
-#include "state/robot_state.h"
+#include "drift/measurement/measurement.h"
+#include "drift/state/robot_state.h"
 
 
 enum class PropagationType {

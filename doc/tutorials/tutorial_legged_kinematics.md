@@ -13,16 +13,16 @@ Users can create a new derived LeggedKinematicsMeasurement class by following th
 #ifndef MC_KIN_H
 #define MC_KIN_H
 
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_FrontLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
-#include "math/lie_group.h"
-#include "measurement/legged_kinematics.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_FrontLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
+#include "drift/math/lie_group.h"
+#include "drift/measurement/legged_kinematics.h"
 
 namespace mini_cheetah_kinematics {
 enum Leg { FR, FL, HR, HL };
@@ -94,17 +94,17 @@ We need to include necessary libraries along with the header files of kinematic 
 #ifndef MC_KIN_H  //define guards
 #define MC_KIN_H
 
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"  // Jacobian Definitions
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_FrontLeftFoot.h"   // position transforms
-#include "kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
-#include "kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"  // Jacobian Definitions
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_FrontLeftFoot.h"   // position transforms
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
 
-#include "math/lie_group.h"                 // lie group header must be included
-#include "measurement/legged_kinematics.h"  // legged kinematics inherited class header must be included
+#include "drift/math/lie_group.h"                 // lie group header must be included
+#include "drift/measurement/legged_kinematics.h"  // legged kinematics inherited class header must be included
 ```
 
 #### 2.2 Namespace and leg enumerators

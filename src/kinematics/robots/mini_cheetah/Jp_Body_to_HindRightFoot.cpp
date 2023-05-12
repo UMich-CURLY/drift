@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
+#include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindRightFoot.h"
 
 #ifdef _MSC_VER
 #define INLINE __forceinline /* use __forceinline (VC++ specific) */

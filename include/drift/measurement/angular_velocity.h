@@ -74,5 +74,5 @@ class AngularVelocityMeasurement : public Measurement {
   Eigen::Matrix<T, 3, 1> ang_vel_;
 };
 }    // namespace measurement
-#include "measurement/impl/angular_velocity_impl.cpp"
+#include "drift/measurement/impl/angular_velocity_impl.cpp"
 #endif
