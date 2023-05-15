@@ -561,6 +561,11 @@ class RobotState {
    * update
    */
   void set_enable_imu_bias_update(bool enable_imu_bias_update_);
+
+  /**
+   * @brief Clear the state matrix X_, covariance matrices P_, Qc_ etc.
+   */
+  void clear();
   /// @} End of Setters
 
   /// @name Utility functions

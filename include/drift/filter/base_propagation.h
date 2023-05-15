@@ -116,6 +116,12 @@ class Propagation {
    * @return bool: whether the initialization is successful
    */
   virtual bool set_initial_state(RobotState& state);
+
+  /**
+   * @brief Clear the sensor data buffer
+   *
+   */
+  virtual void clear();
   /// @}
 
  protected:

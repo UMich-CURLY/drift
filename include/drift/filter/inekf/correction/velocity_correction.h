@@ -96,6 +96,12 @@ class VelocityCorrection : public Correction {
    * @return bool: whether the initialization is successful
    */
   bool set_initial_velocity(RobotState& state) override;
+
+  /**
+   * @brief Clear the sensor_data_buffer
+   *
+   */
+  void clear() override;
   /// @}
 
 

@@ -121,6 +121,12 @@ class LeggedKinematicsCorrection : public Correction {
    * @return bool: whether the initialization is successful
    */
   bool set_initial_velocity(RobotState& state) override;
+
+  /**
+   * @brief Clear the sensor data buffer
+   *
+   */
+  void clear() override;
   /// @}
 
  private:

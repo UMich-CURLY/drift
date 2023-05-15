@@ -7,12 +7,11 @@
 /**
  *  @file   inekf_estimator.cpp
  *  @author Tzu-Yuan Lin, Tingjun Li
- *  @brief  Source file for state estimator class
- *  @date   December 1, 2022
+ *  @brief  Source file for InEKF estimator class
+ *  @date   May 15, 2023
  **/
 
 #include "drift/estimator/inekf_estimator.h"
-#include <chrono>
 
 namespace estimator {
 InekfEstimator::InekfEstimator()
@@ -62,9 +61,6 @@ InekfEstimator::~InekfEstimator() {
 }
 
 void InekfEstimator::RunOnce() {
-  /// TIMER:
-  // auto start = std::chrono::high_resolution_clock::now();
-
   // Propagate
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
@@ -77,14 +73,6 @@ void InekfEstimator::RunOnce() {
 
   // Publish when new information is added
   if (new_pose_ready_) {
-    /// TIMER:
-    // auto end = std::chrono::high_resolution_clock::now();
-    // std::cout << "New pose is generated within: "
-    //           << std::chrono::duration_cast<std::chrono::microseconds>(end
-    //                                                                    -
-    //                                                                    start)
-    //                  .count()
-    //           << " micro seconds" << std::endl;
     robot_state_queue_mutex_ptr_.get()->lock();
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
@@ -215,10 +203,6 @@ void InekfEstimator::InitBias() {
 }
 
 void InekfEstimator::InitState() {
-  /// TODO: Implement clear filter
-  // Clear filter
-  this->clear();
-
   // Initialize state mean
   bool propagation_initialized = propagation_.get()->set_initial_state(state_);
   if (!propagation_initialized) {
@@ -244,9 +228,37 @@ void InekfEstimator::InitState() {
   std::cout << this->get_state().get_X() << std::endl;
   std::cout << "Robot's state covariance is initialized to: \n";
   std::cout << this->get_state().get_P() << std::endl;
+
+  // Push the initial state to the queue
+  robot_state_queue_mutex_ptr_.get()->lock();
+  robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
+  robot_state_queue_mutex_ptr_.get()->unlock();
+
   // Set enabled flag
   enabled_ = true;
 }
 
-void InekfEstimator::clear() {}
+void InekfEstimator::clear() {
+  // Clear propagation
+  propagation_.get()->clear();
+
+  // // Clear corrections
+  for (auto& correction : corrections_) {
+    correction.get()->clear();
+  }
+
+  // Clear the state
+  state_.clear();
+
+  // Clear state queue
+  robot_state_queue_mutex_ptr_.get()->lock();
+  while (!robot_state_queue_ptr_.get()->empty()) {
+    robot_state_queue_ptr_.get()->pop();
+  }
+  robot_state_queue_mutex_ptr_.get()->unlock();
+
+  new_pose_ready_ = false;
+  // Must init the state first before enabling the filter
+  enabled_ = false;
+}
 }    // namespace estimator

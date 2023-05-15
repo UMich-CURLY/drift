@@ -61,5 +61,7 @@ std::shared_ptr<std::mutex> Propagation::get_mutex_ptr() {
 bool Propagation::set_initial_state(RobotState& state_) {
   // Dummy method
   return true;
-};
+}
+// Clear the sensor data buffer. Dummy method
+void Propagation::clear() {}
 }    // namespace filter

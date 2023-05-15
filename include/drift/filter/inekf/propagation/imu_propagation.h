@@ -151,6 +151,13 @@ class ImuPropagation : public Propagation {
    * @return bool: whether the initialization is successful
    */
   bool set_initial_state(RobotState& state) override;
+
+  /**
+   * @brief Clear the sensor data buffer
+   *
+   */
+  void clear() override;
+
   /// @} End of Setters
 
  private:

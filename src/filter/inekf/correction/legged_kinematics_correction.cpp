@@ -281,4 +281,14 @@ bool LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
   state.set_time(kinematics_measurement->get_time());
   return true;
 }
+
+void LeggedKinematicsCorrection::clear() {
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  while (!sensor_data_buffer_ptr_->empty()) {
+    sensor_data_buffer_ptr_->pop();
+  }
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+
+  aug_id_to_column_id_ptr_.clear();
+}
 }    // namespace filter::inekf

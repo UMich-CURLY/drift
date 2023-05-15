@@ -8,7 +8,7 @@
  *  @file   base_correction.h
  *  @author Tingjun Li
  *  @brief  Header file for base correction method
- *  @date   November 25, 2022
+ *  @date   May 15, 2023
  **/
 
 #ifndef FILTER_BASE_CORRECTION_H
@@ -119,6 +119,13 @@ class Correction {
    * @return bool: whether the initialization is successful
    */
   virtual bool set_initial_velocity(RobotState& state);
+
+  /**
+   * @brief Clear the sensor data buffer
+   *
+   */
+  virtual void clear();
+
 
  protected:
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame

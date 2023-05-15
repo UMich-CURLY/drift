@@ -164,4 +164,12 @@ bool VelocityCorrection::set_initial_velocity(RobotState& state) {
   state.set_time(measured_velocity->get_time());
   return true;
 }
+
+void VelocityCorrection::clear() {
+  sensor_data_buffer_mutex_ptr_->lock();
+  while (!sensor_data_buffer_ptr_->empty()) {
+    sensor_data_buffer_ptr_->pop();
+  }
+  sensor_data_buffer_mutex_ptr_->unlock();
+}
 }    // namespace filter::inekf

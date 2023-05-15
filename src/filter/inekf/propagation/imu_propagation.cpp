@@ -508,4 +508,12 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
   state.set_accelerometer_bias_covariance(accel_bias_cov_);
   return true;
 }
+
+void ImuPropagation::clear() {
+  sensor_data_buffer_mutex_ptr_.get()->lock();
+  while (!sensor_data_buffer_ptr_->empty()) {
+    sensor_data_buffer_ptr_->pop();
+  }
+  sensor_data_buffer_mutex_ptr_.get()->unlock();
+}
 }    // namespace filter::inekf

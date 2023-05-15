@@ -419,4 +419,14 @@ void RobotState::set_enable_imu_bias_update(bool enable_imu_bias_update) {
 const bool RobotState::get_enable_imu_bias_update() const {
   return enable_imu_bias_update_;
 }
+
+void RobotState::clear() {
+  X_ = Eigen::MatrixXd::Identity(5, 5);
+  Theta_ = Eigen::MatrixXd::Zero(6, 1);
+  P_ = Eigen::MatrixXd::Identity(3 * this->dimX() + this->dimTheta() - 6,
+                                 3 * this->dimX() + this->dimTheta() - 6);
+  Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
+  column_id_to_corr_map_
+      = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
+}
 }    // namespace state
