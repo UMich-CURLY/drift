@@ -260,7 +260,8 @@ class InekfEstimator {
 
   // ======================================================================
   /**
-   * @brief Clear and reset the filter. Will be implemented in the future.
+   * @brief Clear and reset the filter. Must call InitState() after calling
+   * this method to enable the filter again!
    *
    */
   void clear();
@@ -300,6 +301,7 @@ class InekfEstimator {
   double position_cov_val_;                  // Covariance value for position
   std::atomic<bool> stop_signal_ = false;    // Stop signal for pose logger
   std::string pose_log_file_ = "";           // Pose log file path
+  int init_count_ = 0;                       // Count for initialization
 
   std::shared_ptr<imu_filter::ImuAngVelEKF> imu_filter_;
 };    // class InekfEstimator

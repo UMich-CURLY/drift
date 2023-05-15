@@ -149,6 +149,15 @@ class ImuAngVelEKF {
   void InitImuBias();
   ///@} End of Initialize IMU bias
 
+  /// @name Setters
+  /// @{
+  // ======================================================================
+  /**
+   * @brief Clear data buffers
+   *
+   */
+  void clear();
+
 
  private:
   /// @name helper functions

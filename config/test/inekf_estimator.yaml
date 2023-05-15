@@ -1,6 +1,6 @@
 logger:
   # This logger will output a txt file in tum style
-  enable_pose_logger: false
+  enable_pose_logger: true
   pose_log_file: "/home/neofelis/Code/drift/log/test.txt"
   pose_log_rate: 10 # Hz
 

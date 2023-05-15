@@ -175,4 +175,11 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
       }
     }
   }
+
+  // Test clear method as well
+  // One should see new logger files with "_<Number>" is generated
+  // under the /log folder
+  inekf_estimator.clear();
+  inekf_estimator.clear();
+  inekf_estimator.clear();
 }

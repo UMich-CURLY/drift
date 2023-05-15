@@ -41,7 +41,17 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
 
   if (enable_pose_logger_) {
     pose_log_file_ = config["logger"]["pose_log_file"].as<std::string>();
+
     outfile_.open(pose_log_file_);
+
+    // Erase the ".txt" or ".csv" from the file name.
+    // This is helpful to make new file names when InekfEstimator::clear() is
+    // called
+    std::string::size_type pos = pose_log_file_.find_last_of(".");
+    if (pos != std::string::npos)
+      pose_log_file_.erase(pos, pose_log_file_.length());
+
+    // Define logger settings
     pose_log_rate_ = config["logger"]["pose_log_rate"]
                          ? config["logger"]["pose_log_rate"].as<double>()
                          : 10.0;
@@ -55,7 +65,8 @@ InekfEstimator::~InekfEstimator() {
     std::cout << "Saving logged path..." << std::endl;
     stop_signal_ = true;
     this->pose_logging_thread_.join();
-    std::cout << "Logged path is saved to " << pose_log_file_ << std::endl;
+    std::cout << "Logged path is saved to " << pose_log_file_ << '*.txt'
+              << std::endl;
     outfile_.close();
   }
 }
@@ -239,10 +250,15 @@ void InekfEstimator::InitState() {
 }
 
 void InekfEstimator::clear() {
+  // Clear IMU filter if it exists
+  if (imu_filter_) {
+    imu_filter_.get()->clear();
+  }
+
   // Clear propagation
   propagation_.get()->clear();
 
-  // // Clear corrections
+  // Clear corrections
   for (auto& correction : corrections_) {
     correction.get()->clear();
   }
@@ -260,5 +276,18 @@ void InekfEstimator::clear() {
   new_pose_ready_ = false;
   // Must init the state first before enabling the filter
   enabled_ = false;
+
+  // Clear current log queue and open a new file for logging
+  robot_state_log_queue_mutex_.lock();
+  while (!robot_state_log_queue_ptr_.get()->empty()) {
+    robot_state_log_queue_ptr_.get()->pop();
+  }
+  robot_state_log_queue_mutex_.unlock();
+  if (enable_pose_logger_) {
+    outfile_.close();
+    outfile_.open(pose_log_file_ + '_' + std::to_string(++init_count_)
+                  + ".txt");
+    outfile_.precision(dbl::max_digits10);
+  }
 }
 }    // namespace estimator

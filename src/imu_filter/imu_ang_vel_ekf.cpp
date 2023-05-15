@@ -305,4 +305,27 @@ std::shared_ptr<std::mutex>
 ImuAngVelEKF::get_filtered_imu_data_buffer_mutex_ptr() {
   return filtered_imu_data_buffer_mutex_ptr_;
 }
+
+void ImuAngVelEKF::clear() {
+  // Clear Imu data buffer
+  imu_data_buffer_mutex_ptr_.get()->lock();
+  while (!imu_data_buffer_ptr_->empty()) {
+    imu_data_buffer_ptr_->pop();
+  }
+  imu_data_buffer_mutex_ptr_.get()->unlock();
+
+  // Clear angular velocity data buffer
+  ang_vel_data_buffer_mutex_ptr_.get()->lock();
+  while (!ang_vel_data_buffer_ptr_->empty()) {
+    ang_vel_data_buffer_ptr_->pop();
+  }
+  ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+
+  // Clear filtered_imu_data_buffer
+  filtered_imu_data_buffer_mutex_ptr_.get()->lock();
+  while (!filtered_imu_data_buffer_ptr_->empty()) {
+    filtered_imu_data_buffer_ptr_->pop();
+  }
+  filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+}
 }    // namespace imu_filter
