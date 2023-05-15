@@ -77,7 +77,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
   }
   VelocityMeasurementPtr measured_velocity = sensor_data_buffer_ptr_->front();
   double t_diff = measured_velocity->get_time() - state.get_propagate_time();
-  /// TODO: Add another if statement to check if we need imu filter!
+  // Only use previous velocity measurement to correct the state
   if (t_diff >= 0) {
     sensor_data_buffer_mutex_ptr_->unlock();
     return false;
@@ -99,18 +99,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
       t_diff = measured_velocity->get_time() - state.get_propagate_time();
     }
-  } else if (t_diff > t_diff_thres_) {
-    std::cerr
-        << std::setprecision(20)
-        << "Measurement received in the velocity correction is way faster than "
-           "the last propagation time. Skipping this correction. Last "
-           "propagation time: "
-        << state.get_propagate_time()
-        << ", this measurement time: " << measured_velocity->get_time()
-        << ", time diff: " << t_diff << ", set threshold: " << t_diff_thres_
-        << std::endl;
   }
-
 
   state.set_time(measured_velocity->get_time());
 

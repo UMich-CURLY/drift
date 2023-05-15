@@ -130,7 +130,8 @@ bool ImuPropagation::Propagate(RobotState& state) {
     return false;
   }
 
-  const ImuMeasurementPtr imu_measurement = sensor_data_buffer_ptr_->front();
+  const ImuMeasurementPtr imu_measurement = prev_imu_measurement_;
+  prev_imu_measurement_ = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
 
@@ -442,6 +443,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Matrix<double, 6, 1> v;
     v << w(0), w(1), w(2), a(0), a(1), a(2);
     bias_init_vec_.push_back(v);    // Store imu data with gravity removed
+    prev_imu_measurement_ = imu_measurement;
   } else {
     // Compute average bias of stored data
     Eigen::Matrix<double, 6, 1> avg = Eigen::Matrix<double, 6, 1>::Zero();
@@ -506,6 +508,9 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
 
   state.set_gyroscope_bias_covariance(gyro_bias_cov_);
   state.set_accelerometer_bias_covariance(accel_bias_cov_);
+
+  prev_imu_measurement_ = imu_measurement;
+
   return true;
 }
 

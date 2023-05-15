@@ -200,6 +200,8 @@ class ImuPropagation : public Propagation {
   const ErrorType error_type_;            // Error type for the propagation.
                                           // LeftInvariant or RightInvariant.
   IMUQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor data buffer.
+  ImuMeasurementPtr prev_imu_measurement_;    // Previous IMU measurement.
+
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
                                   // from IMU frame to body frame (meas_body = R
                                   // * meas_imu).

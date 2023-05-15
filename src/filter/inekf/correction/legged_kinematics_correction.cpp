@@ -106,7 +106,6 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
           + kinematics_additive_std_val_ * kinematics_additive_std_val_
                 * Eigen::Matrix3d::Identity();
 
-    // bool found = aug_id_to_column_id_.count(id);
     bool found = aug_id_to_column_id_ptr_.count(id);
 
     if (!has_contact && found) {

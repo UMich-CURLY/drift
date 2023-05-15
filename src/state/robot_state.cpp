@@ -428,5 +428,6 @@ void RobotState::clear() {
   Qc_ = Eigen::MatrixXd::Zero(this->dimP(), this->dimP());
   column_id_to_corr_map_
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
+  body_ang_vel_ = Eigen::Vector3d::Zero();
 }
 }    // namespace state

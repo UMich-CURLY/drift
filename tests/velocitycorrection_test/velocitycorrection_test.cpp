@@ -12,13 +12,6 @@
 #include <memory>
 #include <string>
 #include "drift/estimator/inekf_estimator.h"
-#include "drift/filter/base_correction.h"
-#include "drift/filter/base_propagation.h"
-#include "drift/filter/inekf/correction/velocity_correction.h"
-#include "drift/filter/inekf/propagation/imu_propagation.h"
-#include "drift/measurement/imu.h"
-#include "drift/measurement/velocity.h"
-#include "drift/state/robot_state.h"
 
 // Boost
 #include <boost/algorithm/string.hpp>
@@ -114,6 +107,19 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   velocity_data_buffer_ptr.get()->push(
       std::make_shared<VelocityMeasurement<double>>(velocity_measurement_3));
 
+  VelocityMeasurement<double> velocity_measurement_dummy;
+  ImuMeasurement<double> imu_measurement_dummy;
+  velocity_measurement_dummy.set_velocity(1, 0, 0);
+  velocity_measurement_dummy.set_time(dt * 3);
+  imu_measurement_dummy.set_ang_vel(0, 0, 0);
+  imu_measurement_dummy.set_lin_acc(1, 0, 9.80);
+  imu_measurement_dummy.set_time(dt * 3);
+  imu_data_buffer_ptr.get()->push(
+      std::make_shared<ImuMeasurement<double>>(imu_measurement_dummy));
+  velocity_data_buffer_ptr.get()->push(
+      std::make_shared<VelocityMeasurement<double>>(
+          velocity_measurement_dummy));
+
   std::shared_ptr<std::mutex> imu_buffer_mutex_ptr(new std::mutex);
   std::shared_ptr<std::mutex> velocity_buffer_mutex_ptr(new std::mutex);
 
@@ -126,6 +132,9 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   std::vector<Eigen::Matrix<double, 5, 5>> expect_X;
   Eigen::Matrix<double, 5, 5> X = Eigen::Matrix<double, 5, 5>::Identity();
+
+  X(0, 3) = 1;
+  expect_X.push_back(X);
 
   X(0, 3) = 1;
   expect_X.push_back(X);
@@ -153,7 +162,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
     }
   }
 
-  for (int i = 1; i < 4; i++) {
+  for (int i = 1; i < 5; i++) {
     // Check propagation and correction:
     if (inekf_estimator.is_enabled()) {
       inekf_estimator.RunOnce();
