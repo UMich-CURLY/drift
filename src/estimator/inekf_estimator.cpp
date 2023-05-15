@@ -65,7 +65,7 @@ InekfEstimator::~InekfEstimator() {
     std::cout << "Saving logged path..." << std::endl;
     stop_signal_ = true;
     this->pose_logging_thread_.join();
-    std::cout << "Logged path is saved to " << pose_log_file_ << '*.txt'
+    std::cout << "Logged path is saved to " << pose_log_file_ << "*.txt"
               << std::endl;
     outfile_.close();
   }

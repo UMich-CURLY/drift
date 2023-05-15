@@ -36,48 +36,31 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # #################################################
 # Create Library                 #
 # #################################################
-add_library(robot_state ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp)
-target_include_directories(robot_state PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+# Source file for mini cheetah robot:
+file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
 
-add_library(inekf_estimator ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp)
-target_include_directories(inekf_estimator PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(math ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
-  ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp)
-target_include_directories(math PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(base_propagation ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp)
-target_include_directories(base_propagation PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(base_correction ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp)
-target_include_directories(base_correction PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(inekf ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
+set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
+add_library(${LIBRARY_TARGET_NAME}
+  ${PROJECT_SOURCE_DIR}/src/state/robot_state.cpp
+  ${PROJECT_SOURCE_DIR}/src/estimator/inekf_estimator.cpp
+  ${PROJECT_SOURCE_DIR}/src/math/lie_group.cpp
+  ${PROJECT_SOURCE_DIR}/src/math/se_k_3.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/base_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
-  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp)
-target_include_directories(inekf PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(imu_filter ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp)
-target_include_directories(imu_filter PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-add_library(measurement ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
-  ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp)
-target_include_directories(measurement PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
-
-file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/src/kinematics/robots/mini_cheetah/*.cpp)
-add_library(robot_kinematics ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
-  ${MINI_CHEETAH_KIN_SRC_FILES})
-target_include_directories(robot_kinematics PUBLIC "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
+  ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
+  ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
+  ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
+  ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
+  ${MINI_CHEETAH_KIN_SRC_FILES}
+)
+target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
+  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+  "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
+)
 
 # #################################################
 # Build Examples                 #
@@ -124,16 +107,10 @@ if(BUILD_DOC)
 endif(BUILD_DOC)
 
 # #################################################
-# Add Library                #
+# INSTALL LIBRARY               #
 # #################################################
-set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_INSTALL_PREFIX "/usr/local")
-
-set(LIBRARY_TARGET_NAME ${PROJECT_NAME})
-
-# Lista of CPP(source) library files.
-set(INSTALLABLE_LIBS robot_state inekf_estimator math base_propagation base_correction inekf imu_filter measurement robot_kinematics)
 
 # List of H (header) library files.
 file(GLOB ESTIMATOR_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/estimator/*.h)
@@ -151,23 +128,14 @@ file(GLOB MEASUREMENT_IMPL_FILES ${PROJECT_SOURCE_DIR}/include/drift/measurement
 file(GLOB STATE_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/state/*.h)
 file(GLOB MINI_CHEETAH_KIN_HEADER_FILES ${PROJECT_SOURCE_DIR}/include/drift/kinematics/robots/mini_cheetah/*.h)
 
-# add_library(${LIBRARY_TARGET_NAME} ${${LIBRARY_TARGET_NAME}_SRC})
-# target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
-# "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-# "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>"
-# )
-# set_target_properties(${LIBRARY_TARGET_NAME} PROPERTIES VERSION ${${PROJECT_NAME}_VERSION})
-
 # Install the library
-install(TARGETS ${INSTALLABLE_LIBS}
+install(TARGETS ${LIBRARY_TARGET_NAME}
   EXPORT ${PROJECT_NAME}Targets
   LIBRARY DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
   ARCHIVE DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}"
   RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}"
   PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}"
 )
-message("CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_LIBDIR}")
-message("PUBLIC_HEADER: ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}")
 
 # Install header files: Copying the header files to desired place
 install(FILES ${ESTIMATOR_HEADER_FILES} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${LIBRARY_TARGET_NAME}/estimator)
