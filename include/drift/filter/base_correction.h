@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -47,7 +47,8 @@ typedef std::shared_ptr<MeasurementQueue>
 namespace filter {
 /**
  * @class Correction
- * @brief Base class for correction method
+ * @brief Base class for correction method. This class just provides a skeleton
+ * for the correction method. It should be implemented in the child class.
  */
 class Correction {
  public:
@@ -113,7 +114,8 @@ class Correction {
   /// @{
   // ======================================================================
   /**
-   * @brief Set the pointer to the sensor data buffer
+   * @brief Set the initial velocity to the state. This is a dummy method and
+   * should be implemented in the child class.
    *
    * @param[in,out] state: the current state estimate, which will be initialized
    * @return bool: whether the initialization is successful
@@ -121,7 +123,7 @@ class Correction {
   virtual bool set_initial_velocity(RobotState& state);
 
   /**
-   * @brief Clear the sensor data buffer
+   * @brief Clear the sensor data buffer. Need to be override in the child class
    *
    */
   virtual void clear();
@@ -129,7 +131,7 @@ class Correction {
 
  protected:
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame
-                               (z-up). Default is 9.81m/s^2 */
+                               (z-up). Default is 9.80 m/s^2 */
   Eigen::Vector3d
       magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
   CorrectionType correction_type_; /**< Correction type. */

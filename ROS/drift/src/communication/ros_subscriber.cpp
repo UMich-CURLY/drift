@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   ros_subsriber.cpp
  *  @author Tzu-Yuan Lin, Tingjun Li, Justin Yu
  *  @brief  Source file for ROS subscriber class
- *  @date   December 6, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "communication/ros_subscriber.h"

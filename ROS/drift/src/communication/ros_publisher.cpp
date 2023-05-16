@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   ros_publisher.cpp
  *  @author Tingjun Li
  *  @brief  Source file for ROS publisher class
- *  @date   December 20, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "communication/ros_publisher.h"
@@ -71,7 +71,7 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
 ROSPublisher::~ROSPublisher() {
   if (thread_started_ == true) {
     pose_publishing_thread_.join();
-    // path_publishing_thread_.join();
+    path_publishing_thread_.join();
   }
   poses_.clear();
 }

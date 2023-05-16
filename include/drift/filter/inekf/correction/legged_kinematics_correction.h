@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   legged_kinematics_correction.h
  *  @author Tingjun Li
  *  @brief  Header file for Invariant EKF kinematic correction method
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
@@ -57,9 +57,9 @@ struct ContactInfo {
  * class handles the correction of the state estimate using the measured forward
  * kinematics between the body frame and a set of contact frames. If contact is
  * indicated but not included in the state, the state is augmented to include
- * include the estimated contact foot position. If contact is not indicated but
- * is included in the robot state, the contact position is marginalized out of
- * the state. Default is a right-invariant measurement model.
+ * the estimated contact foot position. If contact is not indicated but
+ * is included in the robot state, the contact position is then marginalized out
+ * of the state. Default is a right-invariant measurement model.
  **/
 class LeggedKinematicsCorrection : public Correction {
  public:
@@ -75,8 +75,6 @@ class LeggedKinematicsCorrection : public Correction {
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
    * @param[in] yaml_filepath: Path of the yaml file for the correction
-   * @return bool: successfully correct state or not (if we do not receive a
-   * new message and this method is called it'll return false.)
    */
   LeggedKinematicsCorrection(
       LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
@@ -133,7 +131,7 @@ class LeggedKinematicsCorrection : public Correction {
   const ErrorType error_type_; /**> Error type for the correction. LeftInvariant
                                   or RightInvariant */
 
-  /**>
+  /**
    * @var map:
    * key: augmented state id
    * value: pointer to the column idx of augmented state's position in the robot

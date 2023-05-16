@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2018, Ross Hartley
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   lie_group.h
  *  @author Ross Hartley, Tzu-Yuan Lin
  *  @brief  Header file for various Lie Group functions
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef MATH_LIEGROUP_H

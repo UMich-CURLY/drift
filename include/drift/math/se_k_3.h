@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   se_k_3.h
  *  @author Wenzhe Tong
  *  @brief  Header file for various SE(3) functions
- *  @date   October 5th, 2022
+ *  @date   October 16, 2023
  **/
 
 #ifndef MATH_SE_K_3_H

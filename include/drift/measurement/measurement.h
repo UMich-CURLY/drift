@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   measurement.h
  *  @author Justin Yu
  *  @brief  Header file for measurement base class
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef MEASUREMENT_H
-#define MEASUREMENT_H
+#ifndef MEASUREMENT_MEASUREMENT_H
+#define MEASUREMENT_MEASUREMENT_H
 
 #include <iostream>
 #include <string>
@@ -34,7 +34,7 @@ namespace measurement {
  * @class Measurement
  *
  * @brief class for robot-state instantaneous measurement.
- * contact state.
+ *       This class is the base class for all measurements.
  */
 class Measurement {
   struct MeasurementHeader {

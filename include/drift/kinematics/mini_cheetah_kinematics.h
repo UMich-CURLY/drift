@@ -1,22 +1,20 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   mini_cheetah_kinematics.h
- *  @author Justin Yu
+ *  @author Justin Yu, Tingjun Li
  *  @brief  Header file for Mini Cheetah specific kinematics solver and
  *measurement container
- *  @date   January 11, 2023
+ *  @date   May 16, 2023
  **/
 
-#ifndef MC_KIN_H
-#define MC_KIN_H
+#ifndef KINEMATICS_MC_KIN_H
+#define KINEMATICS_MC_KIN_H
 
-#include "drift/math/lie_group.h"
-#include "drift/measurement/legged_kinematics.h"
 #include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontLeftFoot.h"
 #include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_FrontRightFoot.h"
 #include "drift/kinematics/robots/mini_cheetah/Jp_Body_to_HindLeftFoot.h"
@@ -25,6 +23,8 @@
 #include "drift/kinematics/robots/mini_cheetah/p_Body_to_FrontRightFoot.h"
 #include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindLeftFoot.h"
 #include "drift/kinematics/robots/mini_cheetah/p_Body_to_HindRightFoot.h"
+#include "drift/math/lie_group.h"
+#include "drift/measurement/legged_kinematics.h"
 
 namespace mini_cheetah_kinematics {
 enum Leg { FR, FL, HR, HL };
@@ -85,4 +85,4 @@ class MiniCheetahKinematics : public LeggedKinematicsMeasurement {
 };
 }    // namespace measurement::kinematics
 
-#endif    // MC_KIN_H
+#endif    // KINEMATICS_MC_KIN_H

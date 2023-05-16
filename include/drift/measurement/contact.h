@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   contact.h
  *  @author Justin Yu
  *  @brief  Header file for robot ground contact state
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef CONTACT_H
-#define CONTACT_H
+#ifndef MEASUREMENT_CONTACT_H
+#define MEASUREMENT_CONTACT_H
 
 #include "measurement.h"
 
@@ -62,4 +62,4 @@ class ContactMeasurement : public Measurement {
 }    // namespace measurement
 #include "drift/measurement/impl/contact_impl.cpp"
 
-#endif    // CONTACT_H
+#endif    // MEASUREMENT_CONTACT_H

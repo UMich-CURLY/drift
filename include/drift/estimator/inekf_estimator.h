@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -10,6 +10,9 @@
  *  @brief  Header file for state estimator class
  *  @date   December 1, 2022
  **/
+
+#ifndef ESTIMATOR_INEKF_ESTIMATOR_H
+#define ESTIMATOR_INEKF_ESTIMATOR_H
 
 #include <stdlib.h>
 #include <Eigen/Dense>
@@ -306,3 +309,4 @@ class InekfEstimator {
   std::shared_ptr<imu_filter::ImuAngVelEKF> imu_filter_;
 };    // class InekfEstimator
 }    // namespace estimator
+#endif    // ESTIMATOR_INEKF_ESTIMATOR_H

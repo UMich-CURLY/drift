@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   ros_publisher.h
  *  @author Tingjun Li
  *  @brief  Header file for ROS publisher class
- *  @date   December 20, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef ROS_COMMUNICATION_ROS_PUBLISHER_H
@@ -61,7 +61,7 @@ class ROSPublisher {
   ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
                std::shared_ptr<std::mutex> robot_state_queue_mutex);
   /**
-   * @brief Construct a new ROS Publisher object
+   * @brief Construct a new ROS Publisher object with configuration file
    *
    * @param[in] nh: ROS node handle
    * @param[in] robot_state_queue: Robot state queue

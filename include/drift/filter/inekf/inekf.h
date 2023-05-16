@@ -1,23 +1,23 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   inekf.h
- *  @author Tingjun Li, Ross Hartley
+ *  @author Tingjun Li, Tzu-Yuan Lin, Ross Hartley
  *  @brief  Header file for Invariant EKF.
  *  Original paper:
  *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
  *  Original github repo:
  *  https://github.com/RossHartley/invariant-ekf
  *
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef INEKF_INEKF_H
-#define INEKF_INEKF_H
+#ifndef FILTER_INEKF_INEKF_H
+#define FILTER_INEKF_INEKF_H
 #include <Eigen/Dense>
 #include <algorithm>
 #include <iostream>
@@ -70,4 +70,4 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
 
 }    // namespace filter::inekf
-#endif    // end INEKF_INEKF_H
+#endif    // end FILTER_INEKF_INEKF_H

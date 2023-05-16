@@ -1,14 +1,14 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2018, Ross Hartley <m.ross.hartley@gmail.com>
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   lie_group.cpp
- *  @author Ross Hartley
+ *  @author Ross Hartley, Tzu-Yuan Lin
  *  @brief  Source file for various Lie Group functions
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/math/lie_group.h"

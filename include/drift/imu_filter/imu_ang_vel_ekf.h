@@ -9,11 +9,11 @@
  *  @file   imu_ang_vel_ekf.h
  *  @author Tzu-Yuan Lin, Tingjun Li
  *
- *  @date   April 21, 2023
+ *  @date   May 16, 2023
  **/
 
-#ifndef IMU_FILTER_IMU_ANF_VEL_EKF_H
-#define IMU_FILTER_IMU_ANF_VEL_EKF_H
+#ifndef IMU_FILTER_IMU_ANG_VEL_EKF_H
+#define IMU_FILTER_IMU_ANG_VEL_EKF_H
 
 #include <atomic>
 #include <fstream>
@@ -72,7 +72,7 @@ class ImuAngVelEKF {
    * velocity sensor data.
    * @param[in] ang_vel_data_buffer_mutex_ptr: Pointer to the mutex for the
    * angular velocity sensor data buffer.
-   * @param[in] yaml_filepath: Name of the yaml file for the propagation
+   * @param[in] yaml_filepath: Path to the yaml file for the propagation
    */
   ImuAngVelEKF(IMUQueuePtr imu_data_buffer_ptr,
                std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr,
@@ -89,6 +89,7 @@ class ImuAngVelEKF {
    *
    */
   ~ImuAngVelEKF();
+  /// @}
 
   /// @name Filter thread
   /// @{
@@ -101,14 +102,15 @@ class ImuAngVelEKF {
 
   // ======================================================================
   /**
-   * @brief Run IMU filter
+   * @brief Run IMU filter. It runs in a new thread with a while loop.
    *
    */
   void RunFilter();
 
   // ======================================================================
   /**
-   * @brief Run the IMU angular velocity EKF filter for one step.
+   * @brief Run the IMU angular velocity EKF filter for one step. This function
+   * will also push the latest filtered IMU data to the filtered_imu_data_buffer
    *
    */
   void RunOnce();
@@ -157,15 +159,17 @@ class ImuAngVelEKF {
    *
    */
   void clear();
-
+  /// @}
 
  private:
   /// @name helper functions
   /// @{
 
   void AngVelFilterPropagate();
+
   ImuMeasurementPtr AngVelFilterCorrectIMU(
       const ImuMeasurementPtr& imu_measurement);
+
   ImuMeasurementPtr AngVelFilterCorrectEncoder(
       const ImuMeasurementPtr& imu_measurement,
       const AngularVelocityMeasurementPtr& ang_vel_measurement);
@@ -260,12 +264,7 @@ class ImuAngVelEKF {
   std::thread imu_filter_thread_;
   std::shared_ptr<std::mutex> filtered_imu_data_buffer_mutex_ptr_;
   IMUQueuePtr filtered_imu_data_buffer_ptr_;
-
-  // Logger tempero
-  std::ofstream imu_ang_vel_outfile_;
-  std::ofstream encoder_ang_vel_outfile_;
-  std::ofstream filtered_acc_ang_vel_outfile_;
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 
-#endif    // IMU_FILTER_IMU_ANF_VEL_EKF_H
+#endif    // IMU_FILTER_IMU_ANG_VEL_EKF_H

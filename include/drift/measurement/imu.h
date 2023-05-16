@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   imu.h
  *  @author Justin Yu
  *  @brief  Header file for robot imu estimate measurement
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef IMU_H
-#define IMU_H
+#ifndef MEASUREMENT_IMU_H
+#define MEASUREMENT_IMU_H
 
 #include "measurement.h"
 
@@ -113,4 +113,4 @@ class ImuMeasurement : public Measurement {
 }    // namespace measurement
 #include "drift/measurement/impl/imu_impl.cpp"
 
-#endif    // IMU_H
+#endif    // MEASUREMENT_IMU_H

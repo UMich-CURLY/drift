@@ -25,26 +25,25 @@ find_package(catkin REQUIRED COMPONENTS
   message_filters
 )
 
-# catkin_package(
-# INCLUDE_DIRS include
-# CATKIN_DEPENDS roscpp std_msgs geometry_msgs trajectory_msgs message_generation message_filters
-# )
 find_package(Eigen3 REQUIRED)
 find_package(Boost REQUIRED timer chrono)
 find_package(yaml-cpp REQUIRED)
 
 message("Eigen3 include dir: ${EIGEN3_INCLUDE_DIR}")
 message("Boost include dir: ${Boost_INCLUDE_DIRS}")
+message("Drift include dir: ${drift_INCLUDE_DIRS}")
 message("Yaml-cpp include dir: ${YAML_CPP_INCLUDE_DIR}")
 message("catkin include dir: ${catkin_INCLUDE_DIRS}")
 
 include_directories(
+  SYSTEM # suppress warnings from 3rd party libs that we can't control
   ${PROJECT_SOURCE_DIR}/../../include
   ${PROJECT_SOURCE_DIR}/include
   ${EIGEN3_INCLUDE_DIR}
   ${YAML_CPP_INCLUDE_DIR}
   ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+  ${drift_INCLUDE_DIRS}
 )
 
 set(LIBS
@@ -54,47 +53,29 @@ set(LIBS
   ${Boost_GENERAL}
 )
 
-file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp)
+# Kinematic files for mini cheetah robot:
 file(GLOB MINI_CHEETAH_KIN_SRC_FILES ${PROJECT_SOURCE_DIR}/../../src/kinematics/robots/mini_cheetah/*.cpp)
 
-rosbuild_add_library(mini_cheetah_kin_lib
-  ${MINI_CHEETAH_KIN_SRC_FILES}
-  ${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
-)
-
-rosbuild_add_library(filter_lib
-
-  # State Estimator
+rosbuild_add_library(drift
+  ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp
   ${PROJECT_SOURCE_DIR}/../../src/estimator/inekf_estimator.cpp
-
-  # Filter
+  ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
-
-  # State
-  ${PROJECT_SOURCE_DIR}/../../src/state/robot_state.cpp
-
-  # Math
-  ${PROJECT_SOURCE_DIR}/../../src/math/lie_group.cpp
-  ${PROJECT_SOURCE_DIR}/../../src/math/se_k_3.cpp
-)
-
-rosbuild_add_library(imu_filter_lib
   ${PROJECT_SOURCE_DIR}/../../src/imu_filter/imu_ang_vel_ekf.cpp
-)
-
-rosbuild_add_library(measurement_lib
   ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
   ${PROJECT_SOURCE_DIR}/../../src/measurement/legged_kinematics.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/kinematics/mini_cheetah_kinematics.cpp
+  ${MINI_CHEETAH_KIN_SRC_FILES}
 )
 
 set(ros_subscriber ${PROJECT_SOURCE_DIR}/src/communication/ros_subscriber.cpp)
 set(ros_publisher ${PROJECT_SOURCE_DIR}/src/communication/ros_publisher.cpp)
-
 rosbuild_add_library(ros_communication_lib
   ${ros_subscriber}
   ${ros_publisher}
@@ -107,11 +88,8 @@ rosbuild_add_executable(mini_cheetah
 target_link_libraries(mini_cheetah
   ${LIBS}
   ros_communication_lib
-  mini_cheetah_kin_lib
-  measurement_lib
-  filter_lib
+  drift
   yaml-cpp
-  imu_filter_lib
 )
 
 # # temporary test for ros communicator: subscriber + publisher
@@ -121,11 +99,8 @@ rosbuild_add_executable(husky
 target_link_libraries(husky
   ${LIBS}
   ros_communication_lib
-  mini_cheetah_kin_lib
-  measurement_lib
-  filter_lib
+  drift
   yaml-cpp
-  imu_filter_lib
 )
 
 # # temporary test for fetch
@@ -135,11 +110,8 @@ rosbuild_add_executable(fetch
 target_link_libraries(fetch
   ${LIBS}
   ros_communication_lib
-  mini_cheetah_kin_lib
-  measurement_lib
-  filter_lib
+  drift
   yaml-cpp
-  imu_filter_lib
 )
 
 # # temporary test for fetch
@@ -149,11 +121,8 @@ rosbuild_add_executable(fetch_imu_filter
 target_link_libraries(fetch_imu_filter
   ${LIBS}
   ros_communication_lib
-  mini_cheetah_kin_lib
-  measurement_lib
-  filter_lib
+  drift
   yaml-cpp
-  imu_filter_lib
 )
 
 # # temporary test for deterministic
@@ -163,9 +132,6 @@ rosbuild_add_executable(deterministic_test
 target_link_libraries(deterministic_test
   ${LIBS}
   ros_communication_lib
-  mini_cheetah_kin_lib
-  measurement_lib
-  filter_lib
+  drift
   yaml-cpp
-  imu_filter_lib
 )

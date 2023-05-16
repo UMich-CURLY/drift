@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@
  *  Github repo:
  *  https://github.com/RossHartley/invariant-ekf
  *
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
@@ -63,7 +63,7 @@ class ImuPropagation : public Propagation {
    * sensor data buffer.
    * @param[in] error_type: Error type for the propagation. LeftInvariant or
    * RightInvariant
-   * @param[in] yaml_filepath: Name of the yaml file for the propagation
+   * @param[in] yaml_filepath: Path to the yaml file for the propagation
    */
   ImuPropagation(IMUQueuePtr sensor_data_buffer_ptr,
                  std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
@@ -197,16 +197,16 @@ class ImuPropagation : public Propagation {
   /// @} // End of helper functions
 
 
-  const ErrorType error_type_;            // Error type for the propagation.
-                                          // LeftInvariant or RightInvariant.
+  const ErrorType error_type_;            /**< Error type for the propagation.
+                                           LeftInvariant or RightInvariant. */
   IMUQueuePtr sensor_data_buffer_ptr_;    // Pointer to the sensor data buffer.
   ImuMeasurementPtr prev_imu_measurement_;    // Previous IMU measurement.
 
-  Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
-                                  // from IMU frame to body frame (meas_body = R
-                                  // * meas_imu).
-  Eigen::Vector3d t_imu2body_;    // Translation vector that brings measurement
-                                  // from IMU frame to body frame.
+  Eigen::Matrix3d R_imu2body_; /**< Rotation matrix that brings measurement
+                                from IMU frame to body frame (meas_body = R
+                                * meas_imu). */
+  Eigen::Vector3d t_imu2body_; /**< Translation vector that brings measurement
+                                from IMU frame to body frame. */
 
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
@@ -218,25 +218,25 @@ class ImuPropagation : public Propagation {
   Eigen::Matrix3d accel_bias_cov_;    // Accelerometer bias covariance.
 
   bool enable_imu_bias_update_
-      = false;    // Boolean value that allows IMU bias update
-                  // during propagation (true for enabling bias
-                  // update, false for disabling).
+      = false; /**< Boolean value that allows IMU bias update
+                during propagation (true for enabling bias
+                update, false for disabling). */
   bool static_bias_initialization_;    // Flag for static bias initialization
-  bool use_imu_ori_to_init_;           // Flag for using orientation estimated
-                                       // from the imu to perform static bias
-                                       // and robot state initialization. If set
-  // to false, the initial orientation is set
-  // to identity. i.e. assumes the robot is on a
-  // horizontal flat surface.
+  bool use_imu_ori_to_init_;           /**< Flag for using orientation estimated
+                                        from the imu to perform static bias
+                                        and robot state initialization. If set
+                                        to false, the initial orientation is set to
+                                        identity. i.e. assumes the robot is
+                                        on a horizontal flat surface. */
 
-  bool bias_initialized_ = false;    // Indicating whether IMU bias has been
-                                     // initialized using measurements.
-  int init_bias_size_;    // Number of IMU measurements to use for bias
-                          // initialization.
+  bool bias_initialized_ = false; /**< Indicating whether IMU bias has been
+                                  initialized using measurements. */
+  int init_bias_size_; /**< Number of IMU measurements to use for bias
+                        initialization. */
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
-      bias_init_vec_;    // The initialized IMU bias value in the order of
-                         // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
+      bias_init_vec_; /**< The initialized IMU bias value in the order of
+                       [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z]. */
 
 };    // End of class ImuPropagation
 }    // namespace filter::inekf

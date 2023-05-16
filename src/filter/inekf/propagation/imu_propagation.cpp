@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@
  *  Github repo:
  *  https://github.com/RossHartley/invariant-ekf
  *
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/filter/inekf/propagation/imu_propagation.h"
@@ -114,6 +114,8 @@ ImuPropagation::ImuPropagation(
                   .as<std::vector<double>>()
             : std::vector<double>({0, 0, 0});    // meters
   t_imu2body_ << trans_imu2body[0], trans_imu2body[1], trans_imu2body[2];
+  std::cout << "Translation from body center to IMU is set to: ["
+            << t_imu2body_.transpose() << "]" << std::endl;
 }
 
 const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
@@ -124,13 +126,17 @@ const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
 bool ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
+  // Use the previous measurement to propagate the state in the
+  // current time period
+  const ImuMeasurementPtr imu_measurement = prev_imu_measurement_;
+
+  // reset the previous imu measurement
   sensor_data_buffer_mutex_ptr_.get()->lock();
   if (sensor_data_buffer_ptr_->empty()) {
     sensor_data_buffer_mutex_ptr_.get()->unlock();
     return false;
   }
 
-  const ImuMeasurementPtr imu_measurement = prev_imu_measurement_;
   prev_imu_measurement_ = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
@@ -141,6 +147,10 @@ bool ImuPropagation::Propagate(RobotState& state) {
   // Rotate imu frame to align it with the body frame and remove bias:
   Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
                       - state.get_gyroscope_bias();    // Angular Velocity
+
+  // If IMU is not installed in the center of the robot body, we need to make
+  // a compensation. We used formula:
+  // R_imu2body_ * a_meas = a + w x (w x t_imu2body) + bias + <ignored term>
   Eigen::Vector3d a_compensate = w.cross(w.cross(t_imu2body_));
   Eigen::Vector3d a = R_imu2body_ * imu_measurement->get_lin_acc()
                       - state.get_accelerometer_bias()
@@ -443,6 +453,8 @@ void ImuPropagation::InitImuBias() {
     Eigen::Matrix<double, 6, 1> v;
     v << w(0), w(1), w(2), a(0), a(1), a(2);
     bias_init_vec_.push_back(v);    // Store imu data with gravity removed
+
+    // Set this measurement to be the previous measurement
     prev_imu_measurement_ = imu_measurement;
   } else {
     // Compute average bias of stored data
@@ -509,6 +521,7 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
   state.set_gyroscope_bias_covariance(gyro_bias_cov_);
   state.set_accelerometer_bias_covariance(accel_bias_cov_);
 
+  // Set this measurement to be the previous measurement
   prev_imu_measurement_ = imu_measurement;
 
   return true;

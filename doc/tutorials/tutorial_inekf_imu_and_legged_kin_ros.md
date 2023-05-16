@@ -15,7 +15,7 @@ to start with a new set of settings. The second is the `<correction>.yaml` file 
 Users can create a new case by following the comments in the `drift/ROS/drift/examples` directory. Let's take the `mini_cheetah.cpp` as an example. The full file looks like:
 ```cpp
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */

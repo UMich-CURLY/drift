@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   joint_state.h
  *  @author Justin Yu
  *  @brief  Header file for robot joint state measurement
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef JOINT_STATE_H
-#define JOINT_STATE_H
+#ifndef MEASUREMENT_JOINT_STATE_H
+#define MEASUREMENT_JOINT_STATE_H
 
 #include "measurement.h"
 
@@ -88,4 +88,4 @@ class JointStateMeasurement : public Measurement {
 }    // namespace measurement
 #include "drift/measurement/impl/joint_state_impl.cpp"
 
-#endif
+#endif    // MEASUREMENT_JOINT_STATE_H

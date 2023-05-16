@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   base_propagation.h
  *  @author Tingjun Li
  *  @brief  Header file for base propagation method
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef FILTER_BASE_PROPAGATION_H
@@ -118,7 +118,7 @@ class Propagation {
   virtual bool set_initial_state(RobotState& state);
 
   /**
-   * @brief Clear the sensor data buffer
+   * @brief Clear the sensor data buffer. Need to be override in the child class
    *
    */
   virtual void clear();
@@ -126,7 +126,7 @@ class Propagation {
 
  protected:
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
-                               Default is 9.81m/s^2 */
+                               Default is 9.80 m/s^2 */
   Eigen::Vector3d
       magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
   PropagationType propagation_type_; /**< The type of the propagation method. */

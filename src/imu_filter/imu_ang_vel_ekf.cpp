@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -14,7 +14,7 @@
  *  Github repo:
  *  https://github.com/RossHartley/invariant-ekf
  *
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/imu_filter/imu_ang_vel_ekf.h"
@@ -95,33 +95,25 @@ ImuAngVelEKF::ImuAngVelEKF(
   H_enc_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
   H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
 
-  std::string imu_ang_vel_log_file
-      = "/home/neofe/Code/drift/log/imu_ang_vel_log.txt";
-  imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
-  imu_ang_vel_outfile_.precision(dbl::max_digits10);
 
-  std::string encoder_ang_vel_log_file
-      = "/home/neofe/Code/drift/log/encoder_ang_vel_log.txt";
-  encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
-  encoder_ang_vel_outfile_.precision(dbl::max_digits10);
+  // Set the initial bias
+  std::vector<double> ang_vel_bias
+      = config_["priors"]["ang_vel_bias"]
+            ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
+            : std::vector<double>({0, 0, 0});
+  ang_vel_and_bias_est_(3) = ang_vel_bias[0];
+  ang_vel_and_bias_est_(4) = ang_vel_bias[1];
+  ang_vel_and_bias_est_(5) = ang_vel_bias[2];
 
-  std::string filtered_acc_ang_vel_log_file
-      = "/home/neofe/Code/drift/log/filtered_acc_ang_vel_log.txt";
-  filtered_acc_ang_vel_outfile_.open(filtered_acc_ang_vel_log_file);
-  filtered_acc_ang_vel_outfile_.precision(dbl::max_digits10);
-
-  ang_vel_and_bias_est_(3) = -0.011705041719176053;
-  ang_vel_and_bias_est_(4) = 0.02345814130845961;
-  ang_vel_and_bias_est_(5) = -0.011462608480202011;
+  std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
+            << ", " << ang_vel_and_bias_est_(4) << ", "
+            << ang_vel_and_bias_est_(5) << "]" << std::endl;
 }
 
 // IMU filter destructor
 ImuAngVelEKF::~ImuAngVelEKF() {
   stop_thread_ = true;
   imu_filter_thread_.join();
-  imu_ang_vel_outfile_.close();
-  encoder_ang_vel_outfile_.close();
-  filtered_acc_ang_vel_outfile_.close();
 }
 
 // Start IMU filter thread
@@ -235,23 +227,6 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(imu_measurement->get_time());
-
-  imu_ang_vel_outfile_ << imu_measurement->get_time() << ","
-                       << imu_measurement->get_ang_vel()(0) << ","
-                       << imu_measurement->get_ang_vel()(1) << ","
-                       << imu_measurement->get_ang_vel()(2) << std::endl
-                       << std::flush;
-
-  filtered_acc_ang_vel_outfile_
-      << imu_measurement->get_time() << ","
-      << imu_measurement_corrected->get_lin_acc()(0, 0) << ","
-      << imu_measurement_corrected->get_lin_acc()(1, 0) << ","
-      << imu_measurement_corrected->get_lin_acc()(2, 0) << ","
-      << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1) << ","
-      << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3) << ","
-      << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
-      << std::endl
-      << std::flush;
   return imu_measurement_corrected;
 }
 
@@ -275,23 +250,6 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
-
-  encoder_ang_vel_outfile_ << ang_vel_measurement->get_time() << ","
-                           << ang_vel_measurement->get_ang_vel()(0) << ","
-                           << ang_vel_measurement->get_ang_vel()(1) << ","
-                           << ang_vel_measurement->get_ang_vel()(2) << std::endl
-                           << std::flush;
-
-  filtered_acc_ang_vel_outfile_
-      << imu_measurement->get_time() << ","
-      << imu_measurement_corrected->get_lin_acc()(0, 0) << ","
-      << imu_measurement_corrected->get_lin_acc()(1, 0) << ","
-      << imu_measurement_corrected->get_lin_acc()(2, 0) << ","
-      << "," << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1)
-      << "," << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3)
-      << "," << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
-      << std::endl
-      << std::flush;
 
   return imu_measurement_corrected;
 }

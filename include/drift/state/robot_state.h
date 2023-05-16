@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   robot_state.h
  *  @author Wenzhe Tong, Tingjun Li
  *  @brief  Header file for robot state
- *  @date   November 1, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef STATE_ROBOT_STATE_H
@@ -203,9 +203,9 @@ class RobotState {
   const Eigen::Matrix3d get_accelerometer_bias_covariance() const;
 
   /**
-   * @brief Get timestamp of the state.
+   * @brief Get timestamp of the latest modified state.
    *
-   * @return double t: timestamp of the state.
+   * @return double t: timestamp of the latest modified state.
    */
   const double get_time() const;
 
@@ -323,7 +323,7 @@ class RobotState {
   const Eigen::MatrixXd get_continuous_noise_covariance() const;
 
   /**
-   * @brief Get the Gyroscope Bias vector baug according to matrix_idx.
+   * @brief Get the Gyroscope Bias vector b_aug according to matrix_idx.
    *
    * @param[in] matrix_idx: the idx in the state matrix where the aug state is
    * located
@@ -332,7 +332,7 @@ class RobotState {
   const Eigen::Vector3d get_aug_bias(int matrix_idx);
 
   /**
-   * @brief Get the aug cov matrix from the
+   * @brief Get the aug cov matrix according to matrix column idx (matrix_idx).
    *
    * @param[in] matrix_idx: the idx in the state matrix where the aug state is
    * located
@@ -386,7 +386,7 @@ class RobotState {
                     std::shared_ptr<int> col_id_ptr);
 
   /**
-   * @brief Set the augmented to the certain position(matrix_idx-th) in the
+   * @brief Set the augmented to the certain position (matrix_idx-th) in the
    * state vector.
    *
    * @param[in] matrix_idx: index of the augmented state in the state.
@@ -395,7 +395,7 @@ class RobotState {
   void set_aug_state(int matrix_idx, const Eigen::Vector3d& aug);
 
   /**
-   * @brief Delete certain augmented state(matrix_idx-th) from the state
+   * @brief Delete certain augmented state (matrix_idx-th) from the state
    * matrix.
    *
    * @param[in] matrix_idx: index of the augmented state in the state.
@@ -403,7 +403,7 @@ class RobotState {
   void del_aug_state(int matrix_idx);
 
   /**
-   * @brief Delete certain augmented state(matrix_idx-th) from the augmented
+   * @brief Delete certain augmented state (matrix_idx-th) from the augmented
    * noise covariance matrix.
    *
    * @param[in] matrix_idx: index of the augmented state in the state.

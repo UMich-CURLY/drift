@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   velocity.h
  *  @author Justin Yu
  *  @brief  Header file for robot velocity estimate
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef VELOCITY_H
-#define VELOCITY_H
+#ifndef MEASUREMENT_VELOCITY_H
+#define MEASUREMENT_VELOCITY_H
 
 #include "measurement.h"
 
@@ -75,4 +75,4 @@ class VelocityMeasurement : public Measurement {
 };
 }    // namespace measurement
 #include "drift/measurement/impl/velocity_impl.cpp"
-#endif
+#endif    // MEASUREMENT_VELOCITY_H

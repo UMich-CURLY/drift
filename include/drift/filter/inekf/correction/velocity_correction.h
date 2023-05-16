@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   velocity_correction.h
  *  @author Tingjun Li, Tzu-Yuan Lin
  *  @brief  Header file for Invariant EKF velocity correction method
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
@@ -55,7 +55,7 @@ class VelocityCorrection : public Correction {
    * sensor data buffer
    * @param[in] error_type: Error type for the correction. LeftInvariant or
    * RightInvariant
-   * @param[in] yaml_filepath: Name of the yaml file for the correction
+   * @param[in] yaml_filepath: Path to the yaml file for the correction
    */
   VelocityCorrection(VelocityQueuePtr sensor_data_buffer_ptr,
                      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,

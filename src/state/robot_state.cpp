@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   robot_state.cpp
  *  @author Wenzhe Tong, Tingjun Li
  *  @brief  Source file for RobotState
- *  @date   Nov 1st, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/state/robot_state.h"
@@ -102,10 +102,6 @@ const Eigen::Vector3d RobotState::get_position() const {
 const Eigen::Vector3d RobotState::get_vector(int index) const {
   return X_.block<3, 1>(0, index);
 }
-// const Eigen::Vector3d RobotState::getAugState(std::string key) {
-//     int idx = SEK3::get_aug_index(key) - 1;
-//     return X_.block<3,1>(0,idx);
-// }
 
 const Eigen::Vector3d RobotState::get_gyroscope_bias() const {
   return Theta_.block<3, 1>(0, 0);
@@ -113,10 +109,6 @@ const Eigen::Vector3d RobotState::get_gyroscope_bias() const {
 const Eigen::Vector3d RobotState::get_accelerometer_bias() const {
   return Theta_.block<3, 1>(3, 0);
 }
-// const Eigen::Vector3d RobotState::getAugStateBias(std::string key) {
-//     int idx = SEK3::get_aug_index(key) - 1;
-//     return Theta_.block<3,1>(idx,0);
-// }
 
 const Eigen::Matrix3d RobotState::get_rotation_covariance() const {
   return P_.block<3, 3>(0, 0);
@@ -177,8 +169,6 @@ void RobotState::set_body_angular_velocity(const Eigen::Vector3d& w) {
 }
 
 void RobotState::del_aug_state(int matrix_idx) {
-  // update state vector(col_id_ptr)
-
   int dimX = this->dimX();
   for (int i = matrix_idx; i < dimX - 1; i++) {
     column_id_to_corr_map_[i] = column_id_to_corr_map_[i + 1];

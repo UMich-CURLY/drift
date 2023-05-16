@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   base_correction.cpp
  *  @author Tingjun Li
  *  @brief  Source file for base correction method
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/filter/base_correction.h"

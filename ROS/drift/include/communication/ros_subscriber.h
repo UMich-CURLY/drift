@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -36,13 +36,8 @@
 #include "sensor_msgs/Imu.h"
 #include "sensor_msgs/JointState.h"
 
+#include "drift/estimator/inekf_estimator.h"
 #include "drift/kinematics/mini_cheetah_kinematics.h"
-#include "drift/measurement/angular_velocity.h"
-#include "drift/measurement/contact.h"
-#include "drift/measurement/imu.h"
-#include "drift/measurement/joint_state.h"
-#include "drift/measurement/legged_kinematics.h"
-#include "drift/measurement/velocity.h"
 
 using namespace measurement;
 
@@ -145,13 +140,13 @@ class ROSSubscriber {
   IMUQueuePair AddIMUSubscriber(const std::string topic_name);
 
   /**
-   * @brief Add an IMU subscriber for Fetch to the given topci and return a
+   * @brief Add an IMU subscriber for Fetch to the given topic and return a
    * queue pair. The queue pair contains the queue and the mutex for the queue.
    * The queue stores the IMU measurements and the mutex is used to protect the
    * queue.
    *
    * @param[in] imu_topic_name IMU topic name
-   * @param[in] offset_topic_name imu offset topic name
+   * @param[in] offset_topic_name imu offset topic name (imu bias)
    * @return IMUQueuePair IMU queue pair
    */
   IMUQueuePair AddFetchIMUSubscriber(const std::string imu_topic_name,

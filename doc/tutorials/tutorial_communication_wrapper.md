@@ -88,7 +88,7 @@ The publisher class is much simpler than the subscriber class. This class acts a
 ```cpp
 ```cpp
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */

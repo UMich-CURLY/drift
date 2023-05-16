@@ -1,19 +1,19 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
 
 /**
  *  @file   InEKF.cpp
- *  @author Tingjun Li, Ross Hartley
+ *  @author Tingjun Li, Tzu-Yuan Lin, Ross Hartley
  *  @brief  Source file for Invariant EKF
  *  Original paper:
  *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
  *  Original github repo:
  *  https://github.com/RossHartley/invariant-ekf
  *
- *  @date   November 25, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/filter/inekf/inekf.h"
@@ -36,7 +36,6 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   int dimP = state.dimP();
 
   // Remove bias
-  // Theta = Eigen::Matrix<double, 6, 1>::Zero();
   bool enable_imu_bias_update = state.get_enable_imu_bias_update();
   if (!enable_imu_bias_update) {
     P.block<6, 6>(dimP - dimTheta, dimP - dimTheta)

@@ -1,8 +1,16 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   mini_cheetah_kinematics.h
+ *  @author Justin Yu, Tingjun Li
+ *  @brief  Header file for Mini Cheetah specific kinematics solver and
+ *measurement container
+ *  @date   May 16, 2023
+ **/
 
 #include "drift/kinematics/mini_cheetah_kinematics.h"
 

@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,7 +8,7 @@
  *  @file   measurement.cpp
  *  @author Justin Yu
  *  @brief  Source file for measurement base class
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
 #include "drift/measurement/measurement.h"

@@ -1,8 +1,15 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   legged_kinematics.h
+ *  @author Justin Yu
+ *  @brief  Header file for legged robot kinematics state measurement
+ *  @date   May 16, 2023
+ **/
 
 #include "drift/measurement/legged_kinematics.h"
 

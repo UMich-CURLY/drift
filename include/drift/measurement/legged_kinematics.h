@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------------------
- * Copyright 2022, CURLY Lab, University of Michigan
+ * Copyright 2023, CURLY Lab, University of Michigan
  * All Rights Reserved
  * See LICENSE for the license information
  * -------------------------------------------------------------------------- */
@@ -8,11 +8,11 @@
  *  @file   legged_kinematics.h
  *  @author Justin Yu
  *  @brief  Header file for legged robot kinematics state measurement
- *  @date   Nov 16, 2022
+ *  @date   May 16, 2023
  **/
 
-#ifndef LEG_KINEMATICS_H
-#define LEG_KINEMATICS_H
+#ifndef MEASUREMENT_LEG_KINEMATICS_H
+#define MEASUREMENT_LEG_KINEMATICS_H
 
 #include "measurement.h"
 
@@ -122,7 +122,7 @@ class LeggedKinematicsMeasurement : public Measurement {
       const Eigen::Matrix<double, Eigen::Dynamic, 1>& encoders);
 
   /**
-   * @brief Set the encoder position state vector.
+   * @brief Set the encoder velocity state vector.
    *
    * @param[in] encoders Vector of encoder position coefficients (rad)
    */
@@ -148,4 +148,4 @@ class LeggedKinematicsMeasurement : public Measurement {
 };
 }    // namespace measurement
 
-#endif    // LEG_KINEMATICS_H
+#endif    // MEASUREMENT_LEG_KINEMATICS_H
