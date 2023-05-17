@@ -155,9 +155,9 @@ std::shared_ptr<std::mutex> qimu_mutex = qimu_and_mutex.second;
 
 Similarly, to add a velocity subscriber, we can do:
 ```cpp
-LegKinQueuePair qkin_and_mutex
+LeggedKinQueuePair qkin_and_mutex
       = ros_sub.AddMiniCheetahKinematicsSubscriber("/Contacts", "/JointState");
-LegKinQueuePtr qkin = qkin_and_mutex.first;
+LeggedKinQueuePtr qkin = qkin_and_mutex.first;
 std::shared_ptr<std::mutex> qkin_mutex = qkin_and_mutex.second;
 ```
 

@@ -19,21 +19,13 @@
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
 #include "drift/measurement/legged_kinematics.h"
+#include "drift/utils/type_def.h"
 
 using namespace math;
 using namespace state;
 using namespace measurement;
 
 namespace filter::inekf {
-typedef std::shared_ptr<LeggedKinematicsMeasurement>
-    KinematicsMeasurementPtr; /**< Type: Shared pointer to a
-                                 LeggedKinematicsMeasurement object. */
-typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
-    KinematicsQueue; /**< Type: Queue of LeggedKinematicsMeasurementPtr objects.
-                      */
-typedef std::shared_ptr<KinematicsQueue>
-    LeggedKinematicsQueuePtr; /**< Type: Shared pointer
-                                 to a KinematicsQueue object. */
 
 /**
  * @brief A struct for contact information
@@ -77,7 +69,7 @@ class LeggedKinematicsCorrection : public Correction {
    * @param[in] yaml_filepath: Path of the yaml file for the correction
    */
   LeggedKinematicsCorrection(
-      LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
+      LeggedKinQueuePtr sensor_data_buffer_ptr,
       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
       const ErrorType& error_type, const std::string& yaml_filepath);
 
@@ -105,9 +97,9 @@ class LeggedKinematicsCorrection : public Correction {
   /**
    * @brief Return the pointer of the sensor data buffer
    *
-   * @return LeggedKinematicsQueuePtr: pointer of the sensor data buffer
+   * @return LeggedKinQueuePtr: pointer of the sensor data buffer
    */
-  const LeggedKinematicsQueuePtr get_sensor_data_buffer_ptr() const;
+  const LeggedKinQueuePtr get_sensor_data_buffer_ptr() const;
 
   /// @name Setters
   /// @{
@@ -139,7 +131,7 @@ class LeggedKinematicsCorrection : public Correction {
    */
   std::unordered_map<int, std::shared_ptr<int>> aug_id_to_column_id_ptr_;
 
-  LeggedKinematicsQueuePtr sensor_data_buffer_ptr_; /**> Pointer to the sensor
+  LeggedKinQueuePtr sensor_data_buffer_ptr_; /**> Pointer to the sensor
                                                      data buffer. */
   double encoder_std_val_; /**> Encoder noise standard deviation value. It
                               stores the value from config file when the class

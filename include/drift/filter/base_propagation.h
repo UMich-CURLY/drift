@@ -25,6 +25,7 @@
 
 #include "drift/measurement/measurement.h"
 #include "drift/state/robot_state.h"
+#include "drift/utils/type_def.h"
 
 
 enum class PropagationType {
@@ -35,9 +36,6 @@ enum class PropagationType {
 
 using namespace measurement;
 using namespace state;
-
-typedef std::queue<std::shared_ptr<Measurement>> MeasurementQueue;
-typedef std::shared_ptr<MeasurementQueue> MeasurementQueuePtr;
 
 namespace filter {
 /**
@@ -128,7 +126,7 @@ class Propagation {
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
                                Default is 9.80 m/s^2 */
   Eigen::Vector3d
-      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
+      magnetic_field_;      /**< Magnetic field vector in world frame (z-up). */
   PropagationType propagation_type_; /**< The type of the propagation method. */
   std::shared_ptr<std::mutex>
       sensor_data_buffer_mutex_ptr_; /**< The mutex of the sensor data buffer.

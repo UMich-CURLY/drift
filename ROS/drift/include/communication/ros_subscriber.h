@@ -38,67 +38,53 @@
 
 #include "drift/estimator/inekf_estimator.h"
 #include "drift/kinematics/mini_cheetah_kinematics.h"
+#include "drift/utils/type_def.h"
 
 using namespace measurement;
 
-typedef std::queue<std::shared_ptr<ImuMeasurement<double>>> IMUQueue; /**< Queue
-for storing IMU measurements. */
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Pointer to the IMUQueue. */
 typedef std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> IMUQueuePair; /**<
 Pair of IMUQueuePtr and IMUQueue mutex. */
 
-typedef std::queue<std::shared_ptr<VelocityMeasurement<double>>>
-    VelocityQueue; /**< Queue for storing velocity measurements. */
-typedef std::shared_ptr<VelocityQueue> VelocityQueuePtr; /**< Pointer to the
-VelocityQueue. */
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair; /**< Pair of VelocityQueuePtr and VelocityQueue mutex. */
 
-typedef std::queue<std::shared_ptr<AngularVelocityMeasurement<double>>>
-    AngularVelocityQueue; /**< Queue for storing angular velocity measurements.
-                           */
-typedef std::shared_ptr<AngularVelocityQueue> AngularVelocityQueuePtr; /**<
-Pointer to the AngularVelocityQueue. */
 typedef std::pair<AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
     AngularVelocityQueuePair; /**< Pair of AngularVelocityQueuePtr and
                                  VelocityQueue mutex. */
 
 // Legged kinematics sync
-typedef std::queue<std::shared_ptr<LeggedKinematicsMeasurement>>
-    LegKinQueue; /**< Queue for storing legged kinematics measurements. */
-typedef std::shared_ptr<LegKinQueue>
-    LegKinQueuePtr; /**< Pointer to the LegKinQueue. */
-typedef std::pair<LegKinQueuePtr, std::shared_ptr<std::mutex>>
-    LegKinQueuePair; /**< Pair of LegKinQueuePtr and LegKinQueue mutex. */
+typedef std::pair<LeggedKinQueuePtr, std::shared_ptr<std::mutex>>
+    LeggedKinQueuePair; /**< Pair of LeggedKinQueuePtr and LeggedKinQueue mutex.
+                         */
 typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
-    ContactMsgFilterT; /**< Message filter for contact messages. */
+    ContactMsgFilterT;  /**< Message filter for contact messages. */
 typedef message_filters::Subscriber<sensor_msgs::JointState>
     JointStateMsgFilterT; /**< Message filter for joint state messages. */
 typedef std::shared_ptr<
     message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
-    ContactMsgFilterTPtr; /**< Pointer to the ContactMsgFilterT. */
+    ContactMsgFilterTPtr;    /**< Pointer to the ContactMsgFilterT. */
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
     JointStateMsgFilterTPtr; /**< Pointer to the JointStateMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
     LegKinSyncPolicy; /**< Sync policy for legged kinematics. */
 typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
-    LegKinSyncPtr; /**< Pointer to the LegKinSyncPolicy. */
+    LegKinSyncPtr;    /**< Pointer to the LegKinSyncPolicy. */
 
 // IMU sync
 typedef message_filters::Subscriber<sensor_msgs::Imu>
-    IMUMsgFilterT; /**< Message filter for IMU messages. */
+    IMUMsgFilterT;          /**< Message filter for IMU messages. */
 typedef message_filters::Subscriber<geometry_msgs::Vector3Stamped>
-    IMUOffsetMsgFilterT; /**< Message filter for IMU offset messages. */
+    IMUOffsetMsgFilterT;    /**< Message filter for IMU offset messages. */
 typedef std::shared_ptr<IMUMsgFilterT>
-    IMUMsgFilterTPtr; /**< Pointer to the IMUMsgFilterT. */
+    IMUMsgFilterTPtr;       /**< Pointer to the IMUMsgFilterT. */
 typedef std::shared_ptr<IMUOffsetMsgFilterT>
     IMUOffsetMsgFilterTPtr; /**< Pointer to the IMUOffsetMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     sensor_msgs::Imu, geometry_msgs::Vector3Stamped>
     IMUSyncPolicy; /**< Sync policy for IMU. */
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
-    IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
+    IMUSyncPtr;    /**< Pointer to the IMUSyncPolicy. */
 
 namespace ros_wrapper {
 /**
@@ -225,7 +211,7 @@ class ROSSubscriber {
    * @param[in] encoder_topic_name encoder topic name
    * @return VelocityQueuePair velocity queue pair
    */
-  LegKinQueuePair AddMiniCheetahKinematicsSubscriber(
+  LeggedKinQueuePair AddMiniCheetahKinematicsSubscriber(
       const std::string contact_topic_name,
       const std::string encoder_topic_name);
   /// @}
@@ -330,7 +316,7 @@ class ROSSubscriber {
       const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
           contact_msg,
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-      const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue);
+      const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue);
 
   /**
    * @brief fetch imu callback function
@@ -361,11 +347,11 @@ class ROSSubscriber {
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
-      vel_queue_list_;    // List of velocity queue pointers
+      vel_queue_list_;        // List of velocity queue pointers
   std::vector<AngularVelocityQueuePtr>
       ang_vel_queue_list_;    // List of angular velocity queue pointers
-  std::vector<LegKinQueuePtr>
-      kin_queue_list_;    // List of kinematics queue pointers
+  std::vector<LeggedKinQueuePtr>
+      kin_queue_list_;        // List of kinematics queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes

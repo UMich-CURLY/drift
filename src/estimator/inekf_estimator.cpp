@@ -173,7 +173,7 @@ InekfEstimator::add_imu_ang_vel_ekf(
 }
 
 void InekfEstimator::add_legged_kinematics_correction(
-    LeggedKinematicsQueuePtr buffer_ptr,
+    LeggedKinQueuePtr buffer_ptr,
     std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction

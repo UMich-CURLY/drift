@@ -29,13 +29,7 @@
 #include "yaml-cpp/yaml.h"
 
 #include "drift/state/robot_state.h"
-
-using namespace state;
-
-typedef std::queue<std::shared_ptr<RobotState>> RobotStateQueue; /**< Queue for
-storing robot states. */
-typedef std::shared_ptr<RobotStateQueue> RobotStateQueuePtr; /**< Pointer to the
-RobotStateQueue. */
+#include "drift/utils/type_def.h"
 
 using namespace state;
 
@@ -90,15 +84,15 @@ class ROSPublisher {
   void StartPublishingThread();
 
  private:
-  ros::NodeHandle* nh_;    // ROS node handle
+  ros::NodeHandle* nh_;            // ROS node handle
   RobotStateQueuePtr
-      robot_state_queue_ptr_;    // Pointer to the robot state queue
+      robot_state_queue_ptr_;      // Pointer to the robot state queue
   std::shared_ptr<std::mutex>
       robot_state_queue_mutex_;    // Pointer to the robot state queue mutex
 
-  bool thread_started_;    // Flag for thread started
+  bool thread_started_;            // Flag for thread started
 
-  ros::Publisher pose_pub_;    // Pose publisher
+  ros::Publisher pose_pub_;        // Pose publisher
   std::string
       pose_frame_;           // The name of a frame which poses are published in
   uint32_t pose_seq_ = 0;    // Sequence number for pose publisher
@@ -114,8 +108,8 @@ class ROSPublisher {
 
   std::array<float, 3> first_pose_;    // Initial pose of the robot
   std::vector<geometry_msgs::PoseStamped>
-      poses_;                 // Path message in ROS, a list of poses
-  std::mutex poses_mutex_;    // mutex for the path
+      poses_;                          // Path message in ROS, a list of poses
+  std::mutex poses_mutex_;             // mutex for the path
 
   /// @name Publishing methods
   /// @{

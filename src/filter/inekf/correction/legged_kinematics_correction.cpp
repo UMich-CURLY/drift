@@ -6,7 +6,7 @@ using namespace math::lie_group;
 namespace filter::inekf {
 
 LeggedKinematicsCorrection::LeggedKinematicsCorrection(
-    LeggedKinematicsQueuePtr sensor_data_buffer_ptr,
+    LeggedKinQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const std::string& yaml_filepath)
     : Correction::Correction(sensor_data_buffer_mutex_ptr),
@@ -38,8 +38,8 @@ LeggedKinematicsCorrection::LeggedKinematicsCorrection(
             : 0.3;
 }
 
-const LeggedKinematicsQueuePtr
-LeggedKinematicsCorrection::get_sensor_data_buffer_ptr() const {
+const LeggedKinQueuePtr LeggedKinematicsCorrection::get_sensor_data_buffer_ptr()
+    const {
   return sensor_data_buffer_ptr_;
 }
 
@@ -59,7 +59,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
     sensor_data_buffer_mutex_ptr_->unlock();
     return false;
   }
-  KinematicsMeasurementPtr kinematics_measurement
+  LeggedKinMeasurementPtr kinematics_measurement
       = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();
@@ -136,7 +136,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
         H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,
                 3)
-            = Eigen::Matrix3d::Identity();    // I
+            = Eigen::Matrix3d::Identity();                             // I
       } else {
         H.block(startIndex, 6, 3, 3) = Eigen::Matrix3d::Identity();    // I
         H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,
@@ -268,7 +268,7 @@ bool LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
     // std::cout << "Discarding old sensor data..." << std::endl;
     sensor_data_buffer_ptr_->pop();
   }
-  KinematicsMeasurementPtr kinematics_measurement
+  LeggedKinMeasurementPtr kinematics_measurement
       = sensor_data_buffer_ptr_->front();
   sensor_data_buffer_ptr_->pop();
   sensor_data_buffer_mutex_ptr_.get()->unlock();

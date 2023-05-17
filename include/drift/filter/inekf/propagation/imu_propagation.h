@@ -26,19 +26,13 @@
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
 #include "drift/measurement/imu.h"
+#include "drift/utils/type_def.h"
 
 using namespace math;
 using namespace state;
 using namespace measurement;
 
 namespace filter::inekf {
-typedef std::shared_ptr<ImuMeasurement<double>>
-    ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
-typedef std::queue<ImuMeasurementPtr>
-    IMUQueue; /**< Queue of ImuMeasurementPtr objects. */
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Shared pointer to a
-                                                  IMUQueue object. */
-
 /**
  * @class ImuPropagation
  * @brief A class for state propagation using imu measurement data.
@@ -229,8 +223,8 @@ class ImuPropagation : public Propagation {
                                         identity. i.e. assumes the robot is
                                         on a horizontal flat surface. */
 
-  bool bias_initialized_ = false; /**< Indicating whether IMU bias has been
-                                  initialized using measurements. */
+  bool bias_initialized_ = false;      /**< Indicating whether IMU bias has been
+                                       initialized using measurements. */
   int init_bias_size_; /**< Number of IMU measurements to use for bias
                         initialization. */
   std::vector<Eigen::Matrix<double, 6, 1>,
@@ -238,7 +232,7 @@ class ImuPropagation : public Propagation {
       bias_init_vec_; /**< The initialized IMU bias value in the order of
                        [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z]. */
 
-};    // End of class ImuPropagation
+};                    // End of class ImuPropagation
 }    // namespace filter::inekf
 
 #endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H

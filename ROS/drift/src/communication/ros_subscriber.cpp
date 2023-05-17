@@ -83,7 +83,7 @@ IMUQueuePair ROSSubscriber::AddFetchIMUSubscriber(
   return {imu_queue_ptr, mutex_list_.back()};
 }
 
-LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
+LeggedKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
     const std::string contact_topic_name,
     const std::string encoder_topic_name) {
   std::cout << "Subscribing to contact topic: " << contact_topic_name
@@ -91,7 +91,7 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
   std::cout << "Subscribing to encoder topic: " << encoder_topic_name
             << std::endl;
   // Create a new queue for data buffers
-  LegKinQueuePtr kin_queue_ptr(new LegKinQueue);
+  LeggedKinQueuePtr kin_queue_ptr(new LeggedKinQueue);
 
   // Initialize a new mutex for this subscriber
   mutex_list_.emplace_back(new std::mutex);
@@ -400,7 +400,7 @@ void ROSSubscriber::MiniCheetahKinCallBack(
     const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
         contact_msg,
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-    const std::shared_ptr<std::mutex>& mutex, LegKinQueuePtr& kin_queue) {
+    const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
   // Set headers and time stamps
   std::shared_ptr<kinematics::MiniCheetahKinematics> kin_measurement(

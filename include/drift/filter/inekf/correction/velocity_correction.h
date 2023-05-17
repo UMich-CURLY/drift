@@ -17,19 +17,14 @@
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
 #include "drift/measurement/velocity.h"
+#include "drift/utils/type_def.h"
 
 using namespace math;
 using namespace state;
 using namespace measurement;
 
 namespace filter::inekf {
-typedef std::shared_ptr<VelocityMeasurement<double>>
-    VelocityMeasurementPtr; /**< Type: Shared pointer to a VelocityMeasurement
-                               object. */
-typedef std::queue<VelocityMeasurementPtr>
-    VelocityQueue; /**< Type: Queue of VelocityMeasurementPtr objects. */
-typedef std::shared_ptr<VelocityQueue>
-    VelocityQueuePtr; /**< Type: Shared pointer to a VelocityQueue object. */
+
 
 /**
  * @class VelocityCorrection

@@ -28,27 +28,12 @@
 #include "drift/math/lie_group.h"
 #include "drift/measurement/angular_velocity.h"
 #include "drift/measurement/imu.h"
+#include "drift/utils/type_def.h"
 
 using namespace math;
 using namespace state;
 using namespace measurement;
 
-typedef std::numeric_limits<double> dbl;
-
-typedef std::shared_ptr<ImuMeasurement<double>>
-    ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
-typedef std::queue<ImuMeasurementPtr>
-    IMUQueue;          /**< Queue of ImuMeasurementPtr objects. */
-typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Shared pointer to a
-                                                  IMUQueue object. */
-typedef std::queue<std::shared_ptr<AngularVelocityMeasurement<double>>>
-    AngularVelocityQueue; /**< Queue for storing angular velocity measurements.
-                           */
-typedef std::shared_ptr<AngularVelocityQueue> AngularVelocityQueuePtr; /**<
-Pointer to the AngularVelocityQueue. */
-typedef std::shared_ptr<AngularVelocityMeasurement<double>>
-    AngularVelocityMeasurementPtr; /**< Pointer to the
-                                      AngularVelocityMeasurement object. */
 
 namespace imu_filter {
 

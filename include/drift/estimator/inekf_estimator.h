@@ -8,7 +8,7 @@
  *  @file   inekf_estimator.h
  *  @author Tzu-Yuan Lin, Tingjun Li
  *  @brief  Header file for state estimator class
- *  @date   December 1, 2022
+ *  @date   May 16, 2023
  **/
 
 #ifndef ESTIMATOR_INEKF_ESTIMATOR_H
@@ -37,17 +37,13 @@
 #include "drift/measurement/legged_kinematics.h"
 #include "drift/measurement/velocity.h"
 #include "drift/state/robot_state.h"
+#include "drift/utils/type_def.h"
 
 using aug_map_t = std::map<int, int>;    // Augmented state map {id, aug_idx}
 using namespace filter;
 using namespace filter::inekf;
 using namespace state;
 
-typedef std::queue<std::shared_ptr<RobotState>>
-    RobotStateQueue; /**< Queue of pointers to robot state */
-typedef std::shared_ptr<RobotStateQueue>
-    RobotStateQueuePtr; /**< Pointer to the robot state queue */
-typedef std::numeric_limits<double> dbl;
 
 namespace estimator {
 /**
@@ -167,7 +163,7 @@ class InekfEstimator {
    * correction
    */
   void add_legged_kinematics_correction(
-      LeggedKinematicsQueuePtr buffer_ptr,
+      LeggedKinQueuePtr buffer_ptr,
       std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
       = "config/filter/inekf/"
@@ -270,15 +266,15 @@ class InekfEstimator {
   void clear();
 
  private:
-  RobotState state_;    // state of the robot
+  RobotState state_;                  // state of the robot
   ErrorType error_type_
-      = inekf::LeftInvariant;    // Error Type of the InEKF filter
-                                 // (LeftInvariant or RightInvariant)
+      = inekf::LeftInvariant;         // Error Type of the InEKF filter
+                                      // (LeftInvariant or RightInvariant)
   std::vector<std::shared_ptr<Correction>>
       corrections_;                   // List of correction methods
   std::vector<aug_map_t> aug_maps;    // List of augmented states mapping
   std::shared_ptr<Propagation>
-      propagation_;         // Propagation method of the filter
+      propagation_;                   // Propagation method of the filter
   bool enabled_ = false;    // Boolean value indicating whether the filter is
                             // enabled or not
   bool new_pose_ready_
@@ -286,8 +282,8 @@ class InekfEstimator {
   RobotStateQueuePtr robot_state_queue_ptr_;    // Pointer to the filter
                                                 // estimated robot states queue
   std::shared_ptr<std::mutex>
-      robot_state_queue_mutex_ptr_;    // Mutex of the robot
-                                       // state queue
+      robot_state_queue_mutex_ptr_;             // Mutex of the robot
+                                                // state queue
   bool enable_pose_logger_;            // Boolean value indicating whether
                                        // the filter should log the pose
   std::ofstream outfile_;              // Output file stream for pose logger

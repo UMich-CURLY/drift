@@ -28,6 +28,7 @@
 
 #include "drift/measurement/measurement.h"
 #include "drift/state/robot_state.h"
+#include "drift/utils/type_def.h"
 
 enum class CorrectionType {
   BASE,
@@ -37,11 +38,6 @@ enum class CorrectionType {
 
 using namespace measurement;
 using namespace state;
-
-typedef std::queue<std::shared_ptr<Measurement>>
-    MeasurementQueue; /**< Queue for storing sensor data. */
-typedef std::shared_ptr<MeasurementQueue>
-    MeasurementQueuePtr; /**< Pointer to the queue for storing sensor data. */
 
 
 namespace filter {
@@ -133,7 +129,7 @@ class Correction {
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame
                                (z-up). Default is 9.80 m/s^2 */
   Eigen::Vector3d
-      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
+      magnetic_field_;      /**< Magnetic field vector in world frame (z-up). */
   CorrectionType correction_type_; /**< Correction type. */
   double t_diff_thres_; /**< Threshold for time difference between two
                            measurements. It stores the value from config file
