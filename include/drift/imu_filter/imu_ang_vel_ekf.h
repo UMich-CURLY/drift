@@ -38,7 +38,7 @@ typedef std::numeric_limits<double> dbl;
 typedef std::shared_ptr<ImuMeasurement<double>>
     ImuMeasurementPtr; /**< Shared pointer to a ImuMeasurement object. */
 typedef std::queue<ImuMeasurementPtr>
-    IMUQueue; /**< Queue of ImuMeasurementPtr objects. */
+    IMUQueue;          /**< Queue of ImuMeasurementPtr objects. */
 typedef std::shared_ptr<IMUQueue> IMUQueuePtr; /**< Shared pointer to a
                                                   IMUQueue object. */
 typedef std::queue<std::shared_ptr<AngularVelocityMeasurement<double>>>
@@ -164,18 +164,40 @@ class ImuAngVelEKF {
  private:
   /// @name helper functions
   /// @{
-
+  // ======================================================================
+  /**
+   * @brief Propagate the angular velocity filter. We assume the state (anguler
+   * velocity) undergoes a random walk.
+   *
+   */
   void AngVelFilterPropagate();
-
+  // ======================================================================
+  /**
+   * @brief Correct angular velocity with the incoming IMU message.
+   *
+   * @param[in] imu_measurement: Latest IMU message
+   * @return ImuMeasurementPtr: The same IMU measurement with corrected angular
+   * velocity
+   */
   ImuMeasurementPtr AngVelFilterCorrectIMU(
       const ImuMeasurementPtr& imu_measurement);
 
+  // ======================================================================
+  /**
+   * @brief Correct angular velocity with the latest wheel encoder measurements.
+   * We assume a differential drive model. The angular velocity is obtained from
+   * \f$\frac{v_{right_wheel} - v_{left_wheel}}{track_width}\f$
+   *
+   * @param[in] imu_measurement: Latest imu measurement. We need this to obtain
+   * the acceleration information so that we can reconstruct a full imu
+   * measurement for the state estimator.
+   * @param[in] ang_vel_measurement: Latest angular velocity measurement.
+   * @return ImuMeasurementPtr: The same IMU measurement with corrected angular
+   * velocity
+   */
   ImuMeasurementPtr AngVelFilterCorrectEncoder(
       const ImuMeasurementPtr& imu_measurement,
       const AngularVelocityMeasurementPtr& ang_vel_measurement);
-
-  void PropagateInEKF(const ImuMeasurementPtr& imu_measurement,
-                      RobotState& state);
 
 
   // ======================================================================

@@ -44,9 +44,8 @@ long int factorial(int n);
  * @param[in] v: Input vector.
  * @return Eigen::Matrix3d: The skew symmetric matrix.
  */
-
-// ======================================================================
 Eigen::Matrix3d skew(const Eigen::Vector3d& v);
+// ======================================================================
 /**
  * @brief Computes mth integral of the exponential map:
  * \f$ \Gamma_m = \sum_{n=0}^{\infty} \dfrac{1}{(n+m)!} (w^\wedge)^n \f$
@@ -56,10 +55,51 @@ Eigen::Matrix3d skew(const Eigen::Vector3d& v);
  * @return Eigen::Matrix3d: The integral result.
  */
 Eigen::Matrix3d Gamma_SO3(const Eigen::Vector3d& w, int m);
+
+// ======================================================================
+/**
+ * @brief Compute the exponential map for SO(3)
+ *
+ * @param[in] w: \f$\mathfrak{so(3)}\f$ lie algebra in \f$R^3\f$
+ * @return Eigen::Matrix3d: Corresponding SO(3) matrix
+ */
 Eigen::Matrix3d Exp_SO3(const Eigen::Vector3d& w);
+
+// ======================================================================
+/**
+ * @brief Compute the left Jacobian of SO(3)
+ *
+ * @param[in] w: \f$\mathfrak{so(3)}\f$ lie algebra in \f$R^3\f$
+ * @return Eigen::Matrix3d: left Jocobian matrix
+ */
 Eigen::Matrix3d LeftJacobian_SO3(const Eigen::Vector3d& w);
+
+// ======================================================================
+/**
+ * @brief Compute the right Jacobian of SO(3)
+ *
+ * @param[in] w: \f$\mathfrak{so(3)}\f$ lie algebra in \f$R^3\f$
+ * @return Eigen::Matrix3d: right Jocobian matrix
+ */
 Eigen::Matrix3d RightJacobian_SO3(const Eigen::Vector3d& w);
+
+// ======================================================================
+/**
+ * @brief Compute the exponential map for SE_k(3)
+ *
+ * @param[in] v: \f$\mathfrak{se_k(3)}\f$ lie algebra in \f$R^6\f$, in the order
+ * of [omega, v]'
+ * @return Eigen::Matrix3d: Corresponding SO(3) matrix
+ */
 Eigen::MatrixXd Exp_SEK3(const Eigen::VectorXd& v);
+
+// ======================================================================
+/**
+ * @brief Compute the adjoint map of SE_k(3)
+ *
+ * @param[in] X: Input SE_k(3) matrix
+ * @return Eigen::MatrixXd: The adjoint map
+ */
 Eigen::MatrixXd Adjoint_SEK3(const Eigen::MatrixXd& X);
 
 }    // namespace lie_group
