@@ -57,34 +57,34 @@ typedef std::pair<LeggedKinQueuePtr, std::shared_ptr<std::mutex>>
     LeggedKinQueuePair; /**< Pair of LeggedKinQueuePtr and LeggedKinQueue mutex.
                          */
 typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
-    ContactMsgFilterT;  /**< Message filter for contact messages. */
+    ContactMsgFilterT; /**< Message filter for contact messages. */
 typedef message_filters::Subscriber<sensor_msgs::JointState>
     JointStateMsgFilterT; /**< Message filter for joint state messages. */
 typedef std::shared_ptr<
     message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
-    ContactMsgFilterTPtr;    /**< Pointer to the ContactMsgFilterT. */
+    ContactMsgFilterTPtr; /**< Pointer to the ContactMsgFilterT. */
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
     JointStateMsgFilterTPtr; /**< Pointer to the JointStateMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
     LegKinSyncPolicy; /**< Sync policy for legged kinematics. */
 typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
-    LegKinSyncPtr;    /**< Pointer to the LegKinSyncPolicy. */
+    LegKinSyncPtr; /**< Pointer to the LegKinSyncPolicy. */
 
 // IMU sync
 typedef message_filters::Subscriber<sensor_msgs::Imu>
-    IMUMsgFilterT;          /**< Message filter for IMU messages. */
+    IMUMsgFilterT; /**< Message filter for IMU messages. */
 typedef message_filters::Subscriber<geometry_msgs::Vector3Stamped>
-    IMUOffsetMsgFilterT;    /**< Message filter for IMU offset messages. */
+    IMUOffsetMsgFilterT; /**< Message filter for IMU offset messages. */
 typedef std::shared_ptr<IMUMsgFilterT>
-    IMUMsgFilterTPtr;       /**< Pointer to the IMUMsgFilterT. */
+    IMUMsgFilterTPtr; /**< Pointer to the IMUMsgFilterT. */
 typedef std::shared_ptr<IMUOffsetMsgFilterT>
     IMUOffsetMsgFilterTPtr; /**< Pointer to the IMUOffsetMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     sensor_msgs::Imu, geometry_msgs::Vector3Stamped>
     IMUSyncPolicy; /**< Sync policy for IMU. */
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
-    IMUSyncPtr;    /**< Pointer to the IMUSyncPolicy. */
+    IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
 
 namespace ros_wrapper {
 /**
@@ -153,23 +153,26 @@ class ROSSubscriber {
    * @brief Add differential drive velocity subscriber
    *
    * @param[in] topic_name differential drive velocity topic name
-   * @return VelocityQueuePair velocity queue pair
+   * @param[in] wheel_radius radius of the wheel in meters
+   * @return A pair of a pointer to the velocity queue and a mutex to the queue
    */
   VelocityQueuePair AddDifferentialDriveVelocitySubscriber(
-      const std::string topic_name, double wheel_radius, double track_width);
+      const std::string topic_name, double wheel_radius);
 
   /**
-   * @brief Add a differential drive velocity subscriber for Husky (4 driving
-   * wheels) to the given topic and return a queue pair. The queue pair contains
-   * the queue and the mutex for the queue. The queue stores the velocity
-   * measurements and the mutex is used to protect the queue.
+   * @brief Add differential drive velocity subscriber
    *
    * @param[in] topic_name differential drive velocity topic name
-   * @return VelocityQueuePair velocity queue pair
+   * @param[in] wheel_radius radius of the wheel in meters
+   * @param[in] track_width distance between the two wheels in meters
+   * @return A tuple of velocity queue pointer, velocity queue mutex, angular
+   * velocity queue pointer, and annular velocity queue mutex
    */
-  VelocityQueuePair AddDifferentialDriveVelocitySubscriber_Husky(
-      const std::string topic_name);
-
+  std::tuple<VelocityQueuePtr, std::shared_ptr<std::mutex>,
+             AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
+  AddDifferentialDriveVelocitySubscriber(const std::string topic_name,
+                                         double wheel_radius,
+                                         double track_width);
 
   /**
    * @brief Add differential drive linear velocity subscriber (2 driving wheels)
@@ -256,19 +259,25 @@ class ROSSubscriber {
   void DifferentialEncoder2VelocityCallback(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue,
-      double wheel_radius, double track_length);
+      double wheel_radius);
 
   /**
-   * @brief Differential encoder to velocity callback function (Husky version, 4
-   * driving wheels)
+   * @brief Differential encoder to both linear velocity and angular velocity
    *
-   * @param encoder_msg: encoder message
-   * @param mutex: mutex for the buffer queue
-   * @param vel_queue: pointer to the buffer queue
+   * @param[in] encoder_msg: latest encoder message
+   * @param[in] vel_mutex: mutex for the linear velocity buffer queue
+   * @param[in] ang_vel_mutex: mutex for the angular velocity buffer queue
+   * @param[in] vel_queue: pointer to the linear velocity buffer queue
+   * @param[in] ang_vel_queue: pointer to the angular velocity buffer queue
+   * @param[in] wheel_radius: radius of the wheel in meters
+   * @param[in] track_width: distance between the two wheels in meters
    */
-  void DifferentialEncoder2VelocityCallback_Husky(
+  void DifferentialEncoder2VelocityCallback(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
-      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+      const std::shared_ptr<std::mutex>& vel_mutex,
+      const std::shared_ptr<std::mutex>& ang_vel_mutex,
+      VelocityQueuePtr& vel_queue, AngularVelocityQueuePtr& ang_vel_queue,
+      double wheel_radius, double track_width);
 
   /**
    * @brief Differential encoder to linear velocity callback function (Fetch
@@ -294,8 +303,8 @@ class ROSSubscriber {
    * @param ang_vel_mutex: mutex for the linear velocity buffer queue
    * @param vel_queue: pointer to the linear velocity buffer queue
    * @param ang_vel_queue: pointer to the linear velocity buffer queue
-   * @param wheel_radius: wheel radius
-   * @param track_width: track width
+   * @param wheel_radius: radius of the wheel in meters
+   * @param track_width: distance between the two wheels in meters
    */
   void DifferentialEncoder2VelocityCallback_Fetch(
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
@@ -347,11 +356,11 @@ class ROSSubscriber {
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
-      vel_queue_list_;        // List of velocity queue pointers
+      vel_queue_list_;    // List of velocity queue pointers
   std::vector<AngularVelocityQueuePtr>
       ang_vel_queue_list_;    // List of angular velocity queue pointers
   std::vector<LeggedKinQueuePtr>
-      kin_queue_list_;        // List of kinematics queue pointers
+      kin_queue_list_;    // List of kinematics queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes

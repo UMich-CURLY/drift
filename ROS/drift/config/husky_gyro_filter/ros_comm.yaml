@@ -1,17 +1,16 @@
 subscribers:
   # Name all the topics to subscribe from in this section. You may also redefine the variable name
   # as long as you can load the yaml variable in your main file
-  imu_topic: "/vectornav/IMU"
-  # imu_topic: "/imu1/imu"
+  imu_topic: "/gx5_1/imu/data"
   wheel_encoder_topic: "/joint_states"
-  wheel_radius: 0.06033 # meter
-  track_width: 0.37476 # meter
+  wheel_radius: 0.1651 # meter
+  track_width: 0.555 # meter
 
 publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
-  pose_publish_topic: "/robot/inekf_estimation_test_3/pose"
+  pose_publish_topic: "/robot/inekf_estimation/pose"
   pose_frame: "/odom"
 
-  path_publish_rate: 100 # Hz
-  path_publish_topic: "/robot/inekf_estimation_test_3/path"
+  path_publish_rate: 1 # Hz
+  path_publish_topic: "/robot/inekf_estimation/path"

@@ -125,6 +125,17 @@ target_link_libraries(fetch_imu_filter
   yaml-cpp
 )
 
+
+rosbuild_add_executable(husky_gyro_filter
+  ${PROJECT_SOURCE_DIR}/examples/husky_gyro_filter.cpp)
+
+target_link_libraries(husky_gyro_filter
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
 # # temporary test for deterministic
 rosbuild_add_executable(deterministic_test
   ${PROJECT_SOURCE_DIR}/examples/deterministic_test.cpp)

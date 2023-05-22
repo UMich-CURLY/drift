@@ -45,5 +45,6 @@ lib/
 .DS_Store
 
 # logs
+log/
 log/*.txt
 log/*/*.txt
