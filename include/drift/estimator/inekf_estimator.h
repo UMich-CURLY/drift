@@ -31,6 +31,7 @@
 #include "drift/filter/inekf/correction/legged_kinematics_correction.h"
 #include "drift/filter/inekf/correction/velocity_correction.h"
 #include "drift/filter/inekf/propagation/imu_propagation.h"
+#include "drift/filter/inekf/propagation/slip_free_imu_propagation.h"
 #include "drift/imu_filter/imu_ang_vel_ekf.h"
 #include "drift/measurement/angular_velocity.h"
 #include "drift/measurement/imu.h"
@@ -138,6 +139,22 @@ class InekfEstimator {
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
       = "config/filter/inekf/propagation/imu_propagation.yaml");
+
+  /**
+   * @brief Add a propagation method to InekfEstimator object, which uses imu
+   * data to propagate the state of the robot. This propagation method will be
+   * called in the when the filter is running.
+   *
+   * @param[in] buffer_ptr: The imu buffer queue temporarily stores the
+   * message from the subscriber.
+   * @param[in] buffer_mutex_ptr: The imu buffer mutex pointer
+   * @param[in] yaml_filepath: The yaml file path for the imu propagation config
+   */
+  void add_slip_free_imu_propagation(
+      IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+      const std::string& yaml_filepath
+      = "config/filter/inekf/propagation/slip_free_imu_propagation.yaml");
+
 
   std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> add_imu_ang_vel_ekf(
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,

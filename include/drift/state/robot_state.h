@@ -361,6 +361,7 @@ class RobotState {
    * @return const bool: boolean value enable_imu_bias_update_
    */
   const bool get_enable_imu_bias_update() const;
+
   /// @} End of Getters
 
   /// @name Setters
@@ -614,15 +615,15 @@ class RobotState {
   StateType state_type_ = StateType::WorldCentric;
   Eigen::MatrixXd
       X_;    // Matrix of SE or SEk group represents for robot state.
-  Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
-  Eigen::MatrixXd P_;        // Matrix of covariance respect to X.
+  Eigen::VectorXd Theta_;        // Matrix of bias respect to X.
+  Eigen::MatrixXd P_;            // Matrix of covariance respect to X.
   std::vector<std::shared_ptr<int>>
       column_id_to_corr_map_;    // Mapping from
                                  // column index to
                                  // corresponding
                                  // correction map's value
 
-  double t_;              // The latest time when the state X_ is updated
+  double t_;                     // The latest time when the state X_ is updated
   double t_prop_;         // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
   Eigen::Vector3d body_ang_vel_;    // Latest angular velocity

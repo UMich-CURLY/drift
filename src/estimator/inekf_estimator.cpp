@@ -155,6 +155,13 @@ void InekfEstimator::add_imu_propagation(
                                                   error_type_, yaml_filepath);
 }
 
+void InekfEstimator::add_slip_free_imu_propagation(
+    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
+  propagation_ = std::make_shared<SlipFreeImuPropagation>(
+      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+}
+
 std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
 InekfEstimator::add_imu_ang_vel_ekf(
     IMUQueuePtr imu_buffer_ptr,
@@ -173,8 +180,7 @@ InekfEstimator::add_imu_ang_vel_ekf(
 }
 
 void InekfEstimator::add_legged_kinematics_correction(
-    LeggedKinQueuePtr buffer_ptr,
-    std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    LeggedKinQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction
       = std::make_shared<LeggedKinematicsCorrection>(
