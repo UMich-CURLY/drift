@@ -137,3 +137,13 @@ target_link_libraries(deterministic_test
   drift
   yaml-cpp
 )
+
+rosbuild_add_executable(husky_dob
+  ${PROJECT_SOURCE_DIR}/examples/husky_dob.cpp)
+
+target_link_libraries(husky_dob
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)

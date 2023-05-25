@@ -35,7 +35,7 @@ SlipFreeImuPropagation::SlipFreeImuPropagation(
     : Propagation::Propagation(sensor_data_buffer_mutex_ptr),
       sensor_data_buffer_ptr_(sensor_data_buffer_ptr),
       error_type_(error_type) {
-  propagation_type_ = PropagationType::IMU;
+  propagation_type_ = PropagationType::IMU_DOB;
 
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
@@ -188,6 +188,7 @@ bool SlipFreeImuPropagation::Propagate(RobotState& state) {
   Eigen::Matrix3d R = state.get_rotation();
   Eigen::Vector3d v = state.get_velocity();
   Eigen::Vector3d p = state.get_position();
+  /// TODO: Add get disturbance to the state
   Eigen::VectorXd disturbance = state.get_aug_state(state.dimX() - 1);
 
   Eigen::Vector3d phi = w * dt;
@@ -206,6 +207,7 @@ bool SlipFreeImuPropagation::Propagate(RobotState& state) {
     X_pred.block<3, 1>(0, 5) = disturbance * exp(-decaying_rate_ * dt);
 
   } else {
+    /// TODO: add disturbance term for body-centric state
     // Propagate body-centric state estimate
     Eigen::MatrixXd X_pred = X;
     Eigen::Matrix3d G0t = G0.transpose();
@@ -368,7 +370,7 @@ Eigen::MatrixXd SlipFreeImuPropagation::StateTransitionMatrix(
       Phi.block<3, 3>(6, dimP - dimTheta)
           = -skew(p + v * dt + RG2dt2 * a + 0.5 * g_ * dt2) * RG1dt
             + RG0 * Phi35L;    // Phi_35
-      for (int i = 5; i < dimX; ++i) {
+      for (int i = 6; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
             = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
       }

@@ -11,8 +11,8 @@
  *  @date   May 16, 2023
  **/
 
-#ifndef FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
-#define FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
+#ifndef FILTER_INEKF_CORRECTION_VELOCITY_DOB_CORRECTION_H
+#define FILTER_INEKF_CORRECTION_VELOCITY_DOB_CORRECTION_H
 #include "drift/filter/base_correction.h"
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
@@ -109,8 +109,8 @@ class SlipFreeVelocityCorrection : public Correction {
   Eigen::Matrix3d R_vel2body_; /**> Rotation matrix from velocity frame to body
                                   frame. It stores the value from config file
                                   when the class object is created.*/
-  double dist_noise_std_;
-  double dist_contact_vel_std_;
+  double disturbance_noise_std_;
+  double disturbance_std_;
 };
 
 }    // namespace filter::inekf

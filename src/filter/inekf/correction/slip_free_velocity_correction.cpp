@@ -36,13 +36,14 @@ SlipFreeVelocityCorrection::SlipFreeVelocityCorrection(
                    : 0.1;
   covariance_ = std * std * Eigen::Matrix<double, 3, 3>::Identity();
 
-  dist_contact_vel_std_
+  disturbance_std_
       = config_["noises"]["disturbance_contact_vel_std"]
             ? config_["noises"]["disturbance_contact_vel_std"].as<double>()
             : 0.1;
-  dist_noise_std_ = config_["noises"]["disturbance_std"]
-                        ? config_["noises"]["disturbance_std"].as<double>()
-                        : 5.0;
+  disturbance_noise_std_
+      = config_["noises"]["disturbance_std"]
+            ? config_["noises"]["disturbance_std"].as<double>()
+            : 5.0;
 
   // Set thresholds:
   t_diff_thres_
@@ -116,6 +117,7 @@ bool SlipFreeVelocityCorrection::Correct(RobotState& state) {
   H.conservativeResize(3, dimP);
   H.block(0, 0, 3, dimP) = Eigen::MatrixXd::Zero(3, dimP);
   H.block(0, 3, 3, 3) = Eigen::Matrix3d::Identity();
+  H.block(0, 9, 3, 3) = Eigen::Matrix3d::Identity();
 
   // Fill out N
   N.conservativeResize(3, 3);
@@ -123,14 +125,14 @@ bool SlipFreeVelocityCorrection::Correct(RobotState& state) {
 
   Eigen::Matrix3d R = state.get_rotation();
   Eigen::Vector3d v = state.get_velocity();
-  Eigen::Vector3d disturbance = state.get_aug_state(0);
+  /// TODO: add a get_disturbance function in RobotState
+  Eigen::Vector3d disturbance = state.get_aug_state(state.dimX() - 1);
 
   int startIndex = Z.rows();
   Z.conservativeResize(startIndex + 3, Eigen::NoChange);
   // Rotate the velocity from sensor frame to body frame, then to world frame
   Z.segment(0, 3)
       = R * R_vel2body_ * measured_velocity->get_velocity() - v - disturbance;
-
   // Correct state using stacked observation
   if (Z.rows() > 0) {
     CorrectRightInvariant(Z, H, N, state, error_type_);
@@ -164,15 +166,32 @@ bool SlipFreeVelocityCorrection::set_initial_velocity(RobotState& state) {
   state.set_time(measured_velocity->get_time());
 
   // Add disturbance aug state:
-  Eigen::Vector3d dist_mean = Eigen::Vector3d::Zero();
-  Eigen::Matrix3d dist_contact_vel_cov = dist_contact_vel_std_
-                                         * dist_contact_vel_std_
-                                         * Eigen::Matrix3d::Identity();
-  Eigen::Matrix3d dist_noise_cov
-      = dist_noise_std_ * dist_noise_std_ * Eigen::Matrix3d::Identity();
-  std::shared_ptr<int> dist_index_ptr = std::make_shared<int>(state.dimX());
-  state.add_aug_state(dist_mean, dist_contact_vel_cov, dist_noise_cov,
-                      dist_index_ptr);
+  Eigen::Vector3d disturbance = Eigen::Vector3d::Zero();
+  Eigen::Matrix3d disturbance_cov
+      = disturbance_std_ * disturbance_std_ * Eigen::Matrix3d::Identity();
+
+  int dimP = state.dimP();
+  int dimTheta = state.dimTheta();
+  Eigen::MatrixXd P_aug = Eigen::MatrixXd::Zero(dimP + 3, dimP + 3);
+  int new_dimP = state.dimP();
+  P_aug.topLeftCorner(state.dimX(), state.dimX())
+      = state.get_P().topLeftCorner(state.dimX(), state.dimX());
+  P_aug.bottomLeftCorner(dimTheta, state.dimX())
+      = state.get_P().bottomLeftCorner(dimTheta, state.dimX());
+  P_aug.topRightCorner(state.dimX(), dimTheta)
+      = state.get_P().topRightCorner(state.dimX(), dimTheta);
+  P_aug.bottomRightCorner(dimTheta, dimTheta)
+      = state.get_P().bottomRightCorner(dimTheta, dimTheta);
+  P_aug.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = disturbance_cov;
+
+
+  Eigen::Matrix3d disturbance_noise_cov = disturbance_noise_std_
+                                          * disturbance_noise_std_
+                                          * Eigen::Matrix3d::Identity();
+  std::shared_ptr<int> disturbance_index_ptr_
+      = std::make_shared<int>(state.dimX());
+  state.add_aug_state(disturbance, P_aug, disturbance_noise_cov,
+                      disturbance_index_ptr_);
   return true;
 }
 

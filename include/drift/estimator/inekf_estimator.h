@@ -29,6 +29,7 @@
 #include "drift/filter/base_correction.h"
 #include "drift/filter/base_propagation.h"
 #include "drift/filter/inekf/correction/legged_kinematics_correction.h"
+#include "drift/filter/inekf/correction/slip_free_velocity_correction.h"
 #include "drift/filter/inekf/correction/velocity_correction.h"
 #include "drift/filter/inekf/propagation/imu_propagation.h"
 #include "drift/filter/inekf/propagation/slip_free_imu_propagation.h"
@@ -203,6 +204,23 @@ class InekfEstimator {
                                const std::string& yaml_filepath
                                = "config/filter/inekf/"
                                  "correction/velocity_correction.yaml");
+
+  /**
+   * @brief Add a velocity correction method to the InekfEstimator object, which
+   * uses velocity data to correct the state of the robot. This correction
+   * method will be called in the when the filter is running.
+   *
+   * @param[in] buffer_ptr: The velocity buffer queue temporarily stores the
+   * message from the subscriber.
+   * @param[in] buffer_mutex_ptr: The velocity buffer mutex pointer
+   * @param[in] yaml_filepath: The yaml file path for the velocity correction
+   * config
+   */
+  void add_slip_free_velocity_correction(
+      VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+      const std::string& yaml_filepath
+      = "config/filter/inekf/"
+        "correction/velocity_correction.yaml");
   /// @}
 
   /// @name Utility functions
@@ -281,6 +299,10 @@ class InekfEstimator {
    *
    */
   void clear();
+
+  // ======================================================================
+  void SlipEstimatorStep();
+
 
  private:
   RobotState state_;                  // state of the robot
