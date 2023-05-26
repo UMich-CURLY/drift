@@ -338,6 +338,7 @@ class InekfEstimator {
   double velocity_cov_val_;                  // Covariance value for velocity
   double position_cov_val_;                  // Covariance value for position
   std::atomic<bool> stop_signal_ = false;    // Stop signal for pose logger
+  bool enabled_slip_estimator_ = false;      // Slip estimator enabled
   std::string pose_log_file_ = "";           // Pose log file path
   int init_count_ = 0;                       // Count for initialization
 

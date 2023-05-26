@@ -88,7 +88,7 @@ void InekfEstimator::RunOnce() {
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
 
-    if (state_.dimP() > 15)
+    if (enabled_slip_estimator_)
       this->SlipEstimatorStep();
 
     if (enable_pose_logger_) {
@@ -163,6 +163,7 @@ void InekfEstimator::add_imu_dob_propagation(
     const std::string& yaml_filepath) {
   propagation_ = std::make_shared<ImuDOBPropagation>(
       buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+  enabled_slip_estimator_ = true;
 }
 
 std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
@@ -206,6 +207,7 @@ void InekfEstimator::add_velocity_dob_correction(
       = std::make_shared<VelocityDOBCorrection>(buffer_ptr, buffer_mutex_ptr,
                                                 error_type_, yaml_filepath);
   corrections_.push_back(correction);
+  enabled_slip_estimator_ = true;
 }
 
 const bool InekfEstimator::is_enabled() const { return enabled_; }
