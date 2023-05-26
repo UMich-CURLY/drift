@@ -320,8 +320,10 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
           + encoder_msg->header.stamp.nsec / 1000000000.0,
       encoder_msg->header.frame_id);
 
-  double vr = encoder_msg->velocity[1] * wheel_radius;
-  double vl = encoder_msg->velocity[0] * wheel_radius;
+  double vr = (encoder_msg->velocity[1] + encoder_msg->velocity[3]) / 2.0
+              * wheel_radius;
+  double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
+              * wheel_radius;
   double vx = (vr + vl) / 2.0;
   double omega_z = (vr - vl) / track_width;
 
