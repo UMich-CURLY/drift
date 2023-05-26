@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Add a subscriber for velocity data and get its queue and mutex
   auto qv_and_mutex = ros_sub.AddDifferentialDriveVelocitySubscriber(
-      wheel_encoder_topic, wheel_radius, track_width);
+      wheel_encoder_topic, wheel_radius);
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 
