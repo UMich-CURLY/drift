@@ -65,7 +65,9 @@ rosbuild_add_library(drift
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_dob_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_dob_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
   ${PROJECT_SOURCE_DIR}/../../src/imu_filter/imu_ang_vel_ekf.cpp
   ${PROJECT_SOURCE_DIR}/../../src/measurement/measurement.cpp
@@ -141,6 +143,16 @@ rosbuild_add_executable(deterministic_test
   ${PROJECT_SOURCE_DIR}/examples/deterministic_test.cpp)
 
 target_link_libraries(deterministic_test
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+rosbuild_add_executable(husky_dob
+  ${PROJECT_SOURCE_DIR}/examples/husky_dob.cpp)
+
+target_link_libraries(husky_dob
   ${LIBS}
   ros_communication_lib
   drift

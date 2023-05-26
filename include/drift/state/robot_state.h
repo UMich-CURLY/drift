@@ -361,6 +361,14 @@ class RobotState {
    * @return const bool: boolean value enable_imu_bias_update_
    */
   const bool get_enable_imu_bias_update() const;
+
+  /**
+   * @brief Get the slip flag object
+   *
+   * @return const int slip_flag
+   */
+  const int get_slip_flag() const;
+
   /// @} End of Getters
 
   /// @name Setters
@@ -563,6 +571,13 @@ class RobotState {
   void set_enable_imu_bias_update(bool enable_imu_bias_update_);
 
   /**
+   * @brief set slip flag to given status
+   *
+   * @param[in] slip_flag: slip status
+   */
+  void set_slip_flag(int slip_flag);
+
+  /**
    * @brief Clear the state matrix X_, covariance matrices P_, Qc_ etc.
    */
   void clear();
@@ -614,19 +629,20 @@ class RobotState {
   StateType state_type_ = StateType::WorldCentric;
   Eigen::MatrixXd
       X_;    // Matrix of SE or SEk group represents for robot state.
-  Eigen::VectorXd Theta_;    // Matrix of bias respect to X.
-  Eigen::MatrixXd P_;        // Matrix of covariance respect to X.
+  Eigen::VectorXd Theta_;        // Matrix of bias respect to X.
+  Eigen::MatrixXd P_;            // Matrix of covariance respect to X.
   std::vector<std::shared_ptr<int>>
       column_id_to_corr_map_;    // Mapping from
                                  // column index to
                                  // corresponding
                                  // correction map's value
 
-  double t_;              // The latest time when the state X_ is updated
+  double t_;                     // The latest time when the state X_ is updated
   double t_prop_;         // The latest time when the state X_ is propagated
   Eigen::MatrixXd Qc_;    // Continuous noise covariance matrix
   Eigen::Vector3d body_ang_vel_;    // Latest angular velocity
   bool enable_imu_bias_update_ = false;
+  int slip_flag_ = 0;               // 0: no slip, 1: slip;
 };
 }    // namespace state
 

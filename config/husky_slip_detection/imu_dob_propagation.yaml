@@ -15,7 +15,8 @@ settings:
                                                   # downwards) to initialize the filter.   
   enable_imu_bias_update: false # Enable imu bias update or not.
   use_imu_ori_to_init: false # Use the orientation estimated from the imu to initialize robot state and bias.
-
+  decaying_rate: 2.5
+  
   ########################
   # Orientation Settings #
   ########################

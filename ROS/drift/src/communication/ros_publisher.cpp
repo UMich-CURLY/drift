@@ -17,7 +17,8 @@
 namespace ros_wrapper {
 ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
                            RobotStateQueuePtr& robot_state_queue_ptr,
-                           std::shared_ptr<std::mutex> robot_state_queue_mutex)
+                           std::shared_ptr<std::mutex> robot_state_queue_mutex,
+                           bool enable_slip_publisher_)
     : nh_(nh),
       robot_state_queue_ptr_(robot_state_queue_ptr),
       robot_state_queue_mutex_(robot_state_queue_mutex),
@@ -56,6 +57,11 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
 
   pose_publish_rate_ = config["publishers"]["pose_publish_rate"].as<double>();
   path_publish_rate_ = config["publishers"]["path_publish_rate"].as<double>();
+
+  enable_slip_publisher_
+      = config["publishers"]["enable_slip_publisher"]
+            ? config["publishers"]["enable_slip_publisher"].as<bool>()
+            : false;
 
   first_pose_ = {0, 0, 0};
 
@@ -152,6 +158,10 @@ void ROSPublisher::PosePublishingThread() {
   // Loop and publish data
   ros::Rate loop_rate(pose_publish_rate_);
   while (ros::ok()) {
+    if (enable_slip_publisher_) {
+      SlipPublish();
+      SlipFlagPublish();
+    }
     PosePublish();
     loop_rate.sleep();
   }
@@ -182,6 +192,45 @@ void ROSPublisher::PathPublishingThread() {
     PathPublish();
     loop_rate.sleep();
   }
+}
+
+void ROSPublisher::SlipPublish() {
+  // if (robot_state_queue_ptr_->empty()) {
+  //   return;
+  // }
+  // robot_state_queue_mutex_.get()->lock();
+  // const std::shared_ptr<RobotState> state_ptr =
+  // robot_state_queue_ptr_->front(); robot_state_queue_mutex_.get()->unlock();
+  // const RobotState& state = *state_ptr.get();
+
+  // geometry_msgs::Vector3Stamped slip_msg;
+  // slip_msg.header.stamp = ros::Time().fromSec(state.get_time());
+  // slip_msg.header.frame_id = pose_frame_;
+  // auto dist = state.get_aug_state(state.dimX() - 1);
+  // slip_msg.vector.x = dist(0);
+  // slip_msg.vector.y = dist(1);
+  // slip_msg.vector.z = dist(2);
+  // slip_pub_.publish(slip_msg);
+}
+
+void ROSPublisher::SlipFlagPublish() {
+  // Get state
+  // if (robot_state_queue_ptr_->empty()) {
+  //   return;
+  // }
+  // robot_state_queue_mutex_.get()->lock();
+  // const std::shared_ptr<RobotState> state_ptr =
+  // robot_state_queue_ptr_->front(); robot_state_queue_mutex_.get()->unlock();
+  // const RobotState& state = *state_ptr.get();
+
+  // geometry_msgs::Vector3Stamped slip_flag_msg;
+  // slip_flag_msg.header.stamp = ros::Time().fromSec(state.get_time());
+  // slip_flag_msg.header.frame_id = pose_frame_;
+  // int slip_flag = state.get_slip_flag();
+  // slip_flag_msg.vector.x = (double) slip_flag;
+  // slip_flag_msg.vector.y = (double) slip_flag;
+  // slip_flag_msg.vector.z = (double) slip_flag;
+  // slip_flag_pub_.publish(slip_flag_msg);
 }
 
 }    // namespace ros_wrapper

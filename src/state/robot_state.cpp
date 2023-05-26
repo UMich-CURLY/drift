@@ -146,15 +146,18 @@ int RobotState::add_aug_state(const Eigen::Vector3d& aug,
 
   int dimQc = this->dimQc();
   int dimTheta = this->dimTheta();
-  Qc_.conservativeResizeLike(Eigen::MatrixXd::Zero(dimQc + 3, dimQc + 3));
-  int new_dimQc = this->dimQc();
-  Qc_.block<6, 6>(new_dimQc - dimTheta, new_dimQc - dimTheta)
-      = Qc_.block<6, 6>(dimQc - dimTheta, dimQc - dimTheta);
-  Qc_.block<3, 3>(dimQc - dimTheta, dimQc - dimTheta) = noise_cov;
-  Qc_.block<3, 3>(new_dimQc - dimTheta, dimQc - dimTheta)
-      = Eigen::Matrix3d::Zero();
-  Qc_.block<3, 3>(dimQc - dimTheta, new_dimQc - dimTheta)
-      = Eigen::Matrix3d::Zero();
+  Eigen::MatrixXd Qc_aug = Eigen::MatrixXd::Zero(dimQc + 3, dimQc + 3);
+
+  Qc_aug.topLeftCorner(this->dimX(), this->dimX())
+      = this->Qc_.topLeftCorner(this->dimX(), this->dimX());
+  Qc_aug.bottomLeftCorner(dimTheta, this->dimX())
+      = this->Qc_.bottomLeftCorner(dimTheta, this->dimX());
+  Qc_aug.topRightCorner(this->dimX(), dimTheta)
+      = this->Qc_.topRightCorner(this->dimX(), dimTheta);
+  Qc_aug.bottomRightCorner(dimTheta, dimTheta)
+      = this->Qc_.bottomRightCorner(dimTheta, dimTheta);
+  Qc_aug.block<3, 3>(dimQc - dimTheta, dimQc - dimTheta) = noise_cov;
+  Qc_ = Qc_aug;
 
   column_id_to_corr_map_.push_back(col_id_ptr);
   return this->dimX() - 1;
@@ -420,4 +423,8 @@ void RobotState::clear() {
       = std::vector<std::shared_ptr<int>>(this->dimX(), nullptr);
   body_ang_vel_ = Eigen::Vector3d::Zero();
 }
+
+void RobotState::set_slip_flag(int slip_flag) { slip_flag_ = slip_flag; }
+
+const int RobotState::get_slip_flag() const { return slip_flag_; }
 }    // namespace state

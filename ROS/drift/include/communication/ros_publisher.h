@@ -25,6 +25,7 @@
 #include "boost/bind.hpp"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Vector3Stamped.h"
 #include "ros/ros.h"
 #include "yaml-cpp/yaml.h"
 
@@ -53,7 +54,8 @@ class ROSPublisher {
    * @param[in] robot_state_queue_mutex: Robot state queue mutex
    */
   ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
-               std::shared_ptr<std::mutex> robot_state_queue_mutex);
+               std::shared_ptr<std::mutex> robot_state_queue_mutex,
+               bool enable_slip_publisher_ = false);
   /**
    * @brief Construct a new ROS Publisher object with configuration file
    *
@@ -111,6 +113,8 @@ class ROSPublisher {
       poses_;                          // Path message in ROS, a list of poses
   std::mutex poses_mutex_;             // mutex for the path
 
+  bool enable_slip_publisher_;         // Flag for slip publisher
+
   /// @name Publishing methods
   /// @{
   /**
@@ -132,6 +136,17 @@ class ROSPublisher {
    * @brief Publish a pose message
    */
   void PosePublish();
+
+  /**
+   * @brief Publish slip velocity
+   */
+  void SlipPublish();
+
+  /**
+   * @brief Publish slip flag
+   */
+  void SlipFlagPublish();
+
   /// @}
 };
 

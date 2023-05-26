@@ -81,6 +81,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
                           + K * N * K.transpose();    // Joseph update form
 
   // Don't update yaw covariance
+  /// TODO: Add a flag to enable yaw covariance update
   P_new.row(dimP - dimTheta + 2).setZero();
   P_new.col(dimP - dimTheta + 2).setZero();
   P_new(dimP - dimTheta + 2, dimP - dimTheta + 2) = 0.0001 * 1;

@@ -88,6 +88,9 @@ void InekfEstimator::RunOnce() {
     robot_state_queue_ptr_.get()->push(std::make_shared<RobotState>(state_));
     robot_state_queue_mutex_ptr_.get()->unlock();
 
+    if (enabled_slip_estimator_)
+      this->SlipEstimatorStep();
+
     if (enable_pose_logger_) {
       robot_state_log_queue_mutex_.lock();
       robot_state_log_queue_ptr_.get()->push(
@@ -155,6 +158,14 @@ void InekfEstimator::add_imu_propagation(
                                                   error_type_, yaml_filepath);
 }
 
+void InekfEstimator::add_imu_dob_propagation(
+    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
+  propagation_ = std::make_shared<ImuDOBPropagation>(
+      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+  enabled_slip_estimator_ = true;
+}
+
 std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
 InekfEstimator::add_imu_ang_vel_ekf(
     IMUQueuePtr imu_buffer_ptr,
@@ -173,8 +184,7 @@ InekfEstimator::add_imu_ang_vel_ekf(
 }
 
 void InekfEstimator::add_legged_kinematics_correction(
-    LeggedKinQueuePtr buffer_ptr,
-    std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    LeggedKinQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction
       = std::make_shared<LeggedKinematicsCorrection>(
@@ -190,27 +200,44 @@ void InekfEstimator::add_velocity_correction(
   corrections_.push_back(correction);
 }
 
+void InekfEstimator::add_velocity_dob_correction(
+    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
+  std::shared_ptr<Correction> correction
+      = std::make_shared<VelocityDOBCorrection>(buffer_ptr, buffer_mutex_ptr,
+                                                error_type_, yaml_filepath);
+  corrections_.push_back(correction);
+  enabled_slip_estimator_ = true;
+}
+
 const bool InekfEstimator::is_enabled() const { return enabled_; }
 
 void InekfEstimator::EnableFilter() { enabled_ = true; }
 
 const bool InekfEstimator::BiasInitialized() const {
-  if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
-    return true;
+  if (propagation_.get()->get_propagation_type() == PropagationType::IMU) {
+    std::shared_ptr<ImuPropagation> imu_propagation_ptr
+        = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
+    return imu_propagation_ptr.get()->get_bias_initialized();
+  } else if (propagation_.get()->get_propagation_type()
+             == PropagationType::IMU_DOB) {
+    std::shared_ptr<ImuDOBPropagation> imu_propagation_ptr
+        = std::dynamic_pointer_cast<ImuDOBPropagation>(propagation_);
+    return imu_propagation_ptr.get()->get_bias_initialized();
   }
-
-  std::shared_ptr<ImuPropagation> imu_propagation_ptr
-      = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
-  return imu_propagation_ptr.get()->get_bias_initialized();
 }
 
 void InekfEstimator::InitBias() {
-  if (propagation_.get()->get_propagation_type() != PropagationType::IMU) {
-    return;
+  if (propagation_.get()->get_propagation_type() == PropagationType::IMU) {
+    std::shared_ptr<ImuPropagation> imu_propagation_ptr
+        = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
+    imu_propagation_ptr.get()->InitImuBias();
+  } else if (propagation_.get()->get_propagation_type()
+             == PropagationType::IMU_DOB) {
+    std::shared_ptr<ImuDOBPropagation> imu_propagation_ptr
+        = std::dynamic_pointer_cast<ImuDOBPropagation>(propagation_);
+    imu_propagation_ptr.get()->InitImuBias();
   }
-  std::shared_ptr<ImuPropagation> imu_propagation_ptr
-      = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
-  imu_propagation_ptr.get()->InitImuBias();
 }
 
 void InekfEstimator::InitState() {
@@ -290,4 +317,35 @@ void InekfEstimator::clear() {
     outfile_.precision(dbl::max_digits10);
   }
 }
+
+void InekfEstimator::SlipEstimatorStep() {
+  Eigen::MatrixXd P = state_.get_P();
+  Eigen::Matrix3d R = state_.get_rotation();
+  auto disturbance_est = state_.get_aug_state(state_.dimX() - 1);
+
+  Eigen::MatrixXd G;
+  G.conservativeResize(3, 6);
+  G.block(0, 0, 3, 3) = lie_group::skew(disturbance_est);
+  G.block(0, 3, 3, 3) = -Eigen::MatrixXd::Identity(3, 3);
+
+  Eigen::MatrixXd Cov;
+  Cov.conservativeResize(6, 6);
+  Cov.block(0, 0, 3, 3) = P.block(0, 0, 3, 3);
+  Cov.block(0, 3, 3, 3) = P.block(0, 9, 3, 3);
+  Cov.block(3, 0, 3, 3) = P.block(9, 0, 3, 3);
+  Cov.block(3, 3, 3, 3) = P.block(9, 9, 3, 3);
+
+  Eigen::Matrix3d Sigma = G * Cov * G.transpose();
+  Eigen::Matrix3d Sigma1 = 0.001 * Eigen::MatrixXd::Identity(3, 3);
+
+  double chi
+      = (disturbance_est).transpose() * (Sigma1).inverse() * (disturbance_est);
+
+  if (chi > 4.642) {
+    state_.set_slip_flag(1);
+  } else {
+    state_.set_slip_flag(0);
+  }
+}
+
 }    // namespace estimator

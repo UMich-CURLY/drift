@@ -29,9 +29,9 @@
 
 
 enum class PropagationType {
-  BASE,        /**< Base propagation method. */
-  IMU,         /**< IMU propagation method. */
-  FILTERED_IMU /**< Filtered IMU propagation method. */
+  BASE,   /**< Base propagation method. */
+  IMU,    /**< IMU propagation method. */
+  IMU_DOB /**< IMU propagation with DOB method. */
 };
 
 using namespace measurement;
