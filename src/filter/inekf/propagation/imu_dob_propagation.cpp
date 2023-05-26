@@ -17,7 +17,7 @@
  *  @date   May 16, 2023
  **/
 
-#include "drift/filter/inekf/propagation/slip_free_imu_propagation.h"
+#include "drift/filter/inekf/propagation/imu_dob_propagation.h"
 
 
 using namespace std;
@@ -28,7 +28,7 @@ namespace filter::inekf {
 // IMU propagation child class
 // ==============================================================================
 // IMU propagation constructor
-SlipFreeImuPropagation::SlipFreeImuPropagation(
+ImuDOBPropagation::ImuDOBPropagation(
     IMUQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const std::string& yaml_filepath)
@@ -123,12 +123,12 @@ SlipFreeImuPropagation::SlipFreeImuPropagation(
                        : 2.5;
 }
 
-const IMUQueuePtr SlipFreeImuPropagation::get_sensor_data_buffer_ptr() const {
+const IMUQueuePtr ImuDOBPropagation::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
 }
 
 // IMU propagation method
-bool SlipFreeImuPropagation::Propagate(RobotState& state) {
+bool ImuDOBPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
 
   // Use the previous measurement to propagate the state in the
@@ -228,7 +228,7 @@ bool SlipFreeImuPropagation::Propagate(RobotState& state) {
 }
 
 // Compute Analytical state transition matrix
-Eigen::MatrixXd SlipFreeImuPropagation::StateTransitionMatrix(
+Eigen::MatrixXd ImuDOBPropagation::StateTransitionMatrix(
     const Eigen::Vector3d& w, const Eigen::Vector3d& a, const double dt,
     RobotState& state) {
   Eigen::Vector3d phi = w * dt;
@@ -385,7 +385,7 @@ Eigen::MatrixXd SlipFreeImuPropagation::StateTransitionMatrix(
 }
 
 // Compute Discrete noise matrix
-Eigen::MatrixXd SlipFreeImuPropagation::DiscreteNoiseMatrix(
+Eigen::MatrixXd ImuDOBPropagation::DiscreteNoiseMatrix(
     const Eigen::MatrixXd& Phi, const double dt, const RobotState& state) {
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
@@ -425,7 +425,7 @@ Eigen::MatrixXd SlipFreeImuPropagation::DiscreteNoiseMatrix(
   return Qd;
 }
 
-void SlipFreeImuPropagation::InitImuBias() {
+void ImuDOBPropagation::InitImuBias() {
   if (!static_bias_initialization_) {
     bias_initialized_ = true;
     std::cout << "Static bias inialization is set to false." << std::endl;
@@ -484,20 +484,20 @@ void SlipFreeImuPropagation::InitImuBias() {
   }
 }
 
-const Eigen::Vector3d SlipFreeImuPropagation::get_estimate_gyro_bias() const {
+const Eigen::Vector3d ImuDOBPropagation::get_estimate_gyro_bias() const {
   return bg0_;
 }
 
-const Eigen::Vector3d SlipFreeImuPropagation::get_estimate_accel_bias() const {
+const Eigen::Vector3d ImuDOBPropagation::get_estimate_accel_bias() const {
   return ba0_;
 }
 
-const bool SlipFreeImuPropagation::get_bias_initialized() const {
+const bool ImuDOBPropagation::get_bias_initialized() const {
   return bias_initialized_;
 }
 
 // IMU propagation initialization for robot state
-bool SlipFreeImuPropagation::set_initial_state(RobotState& state) {
+bool ImuDOBPropagation::set_initial_state(RobotState& state) {
   // Do not initialize if the buffer is emptys
   if (sensor_data_buffer_ptr_->empty()) {
     return false;
@@ -540,7 +540,7 @@ bool SlipFreeImuPropagation::set_initial_state(RobotState& state) {
   return true;
 }
 
-void SlipFreeImuPropagation::clear() {
+void ImuDOBPropagation::clear() {
   sensor_data_buffer_mutex_ptr_.get()->lock();
   while (!sensor_data_buffer_ptr_->empty()) {
     sensor_data_buffer_ptr_->pop();

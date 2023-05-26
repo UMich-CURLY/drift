@@ -17,8 +17,8 @@
  *  @date   May 16, 2023
  **/
 
-#ifndef FILTER_INEKF_PROPAGATION_SLIP_FREE_IMU_PROPAGATION_H
-#define FILTER_INEKF_PROPAGATION_SLIP_FREE_IMU_PROPAGATION_H
+#ifndef FILTER_INEKF_PROPAGATION_IMU_DOB_PROPAGATION_H
+#define FILTER_INEKF_PROPAGATION_IMU_DOB_PROPAGATION_H
 
 #include <vector>
 
@@ -34,7 +34,7 @@ using namespace measurement;
 
 namespace filter::inekf {
 /**
- * @class SlipFreeImuPropagation
+ * @class ImuDOBPropagation
  * @brief A class for state propagation using imu measurement data.
  *
  * A class for state propagation using imu measurement data. This propagation
@@ -42,7 +42,7 @@ namespace filter::inekf {
  * IMU data. The model is based on the paper:
  * https://journals.sagepub.com/doi/full/10.1177/0278364919894385
  */
-class SlipFreeImuPropagation : public Propagation {
+class ImuDOBPropagation : public Propagation {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -59,10 +59,10 @@ class SlipFreeImuPropagation : public Propagation {
    * RightInvariant
    * @param[in] yaml_filepath: Path to the yaml file for the propagation
    */
-  SlipFreeImuPropagation(
-      IMUQueuePtr sensor_data_buffer_ptr,
-      std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
-      const ErrorType& error_type, const std::string& yaml_filepath);
+  ImuDOBPropagation(IMUQueuePtr sensor_data_buffer_ptr,
+                    std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
+                    const ErrorType& error_type,
+                    const std::string& yaml_filepath);
   /// @}
 
   /// @name Propagation
@@ -234,7 +234,7 @@ class SlipFreeImuPropagation : public Propagation {
                        [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z]. */
   double decaying_rate_;
 
-};    // End of class SlipFreeImuPropagation
+};    // End of class ImuDOBPropagation
 }    // namespace filter::inekf
 
-#endif    // FILTER_INEKF_PROPAGATION_IMU_PROPAGATION_H
+#endif    // FILTER_INEKF_PROPAGATION_IMU_DOB_PROPAGATION_H

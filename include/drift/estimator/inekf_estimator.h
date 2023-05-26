@@ -29,10 +29,10 @@
 #include "drift/filter/base_correction.h"
 #include "drift/filter/base_propagation.h"
 #include "drift/filter/inekf/correction/legged_kinematics_correction.h"
-#include "drift/filter/inekf/correction/slip_free_velocity_correction.h"
 #include "drift/filter/inekf/correction/velocity_correction.h"
+#include "drift/filter/inekf/correction/velocity_dob_correction.h"
+#include "drift/filter/inekf/propagation/imu_dob_propagation.h"
 #include "drift/filter/inekf/propagation/imu_propagation.h"
-#include "drift/filter/inekf/propagation/slip_free_imu_propagation.h"
 #include "drift/imu_filter/imu_ang_vel_ekf.h"
 #include "drift/measurement/angular_velocity.h"
 #include "drift/measurement/imu.h"
@@ -151,10 +151,10 @@ class InekfEstimator {
    * @param[in] buffer_mutex_ptr: The imu buffer mutex pointer
    * @param[in] yaml_filepath: The yaml file path for the imu propagation config
    */
-  void add_slip_free_imu_propagation(
+  void add_imu_dob_propagation(
       IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
       const std::string& yaml_filepath
-      = "config/filter/inekf/propagation/slip_free_imu_propagation.yaml");
+      = "config/filter/inekf/propagation/imu_dob_propagation.yaml");
 
 
   std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>> add_imu_ang_vel_ekf(
@@ -216,11 +216,11 @@ class InekfEstimator {
    * @param[in] yaml_filepath: The yaml file path for the velocity correction
    * config
    */
-  void add_slip_free_velocity_correction(
-      VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-      const std::string& yaml_filepath
-      = "config/filter/inekf/"
-        "correction/velocity_correction.yaml");
+  void add_velocity_dob_correction(VelocityQueuePtr buffer_ptr,
+                                   std::shared_ptr<std::mutex> buffer_mutex_ptr,
+                                   const std::string& yaml_filepath
+                                   = "config/filter/inekf/"
+                                     "correction/velocity_dob_correction.yaml");
   /// @}
 
   /// @name Utility functions

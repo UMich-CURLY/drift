@@ -27,16 +27,22 @@ namespace filter::inekf {
 
 
 /**
- * @class SlipFreeVelocityCorrection
- * @brief A class for state correction using velocity measurement data.
+ * @class VelocityDOBCorrection
+ * @brief A class for state correction using velocity measurement data with
+ * disturbance observer(DOB)
  *
  * A class for state correction using velocity measurement data. This class
  * handles the correction of the state estimate using the measured velocity
- * between the body frame and the world frame. Default is a right-invariant
+ * between the body frame and the world frame. The difference between this class
+ * and VelocityCorrection is that this class will augment the state matrix and
+ * covariance matrix with a column of disturbance velocity. We used the
+ * following formula to explain the relationship between true body velocity,
+ * measured velocity and disturbance velocity: measured_velocity =
+ * true_body_velocity + disturbance_velocity. Default is a right-invariant
  * measurement model.
  *
  **/
-class SlipFreeVelocityCorrection : public Correction {
+class VelocityDOBCorrection : public Correction {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -52,7 +58,7 @@ class SlipFreeVelocityCorrection : public Correction {
    * RightInvariant
    * @param[in] yaml_filepath: Path to the yaml file for the correction
    */
-  SlipFreeVelocityCorrection(
+  VelocityDOBCorrection(
       VelocityQueuePtr sensor_data_buffer_ptr,
       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
       const ErrorType& error_type, const std::string& yaml_filepath);

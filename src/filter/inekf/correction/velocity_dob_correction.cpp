@@ -11,14 +11,14 @@
  *  @date   November 25, 2022
  **/
 
-#include "drift/filter/inekf/correction/slip_free_velocity_correction.h"
+#include "drift/filter/inekf/correction/velocity_dob_correction.h"
 
 using namespace std;
 using namespace math::lie_group;
 
 namespace filter::inekf {
 
-SlipFreeVelocityCorrection::SlipFreeVelocityCorrection(
+VelocityDOBCorrection::VelocityDOBCorrection(
     VelocityQueuePtr sensor_data_buffer_ptr,
     std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
     const ErrorType& error_type, const string& yaml_filepath)
@@ -64,13 +64,13 @@ SlipFreeVelocityCorrection::SlipFreeVelocityCorrection(
 }
 
 
-const VelocityQueuePtr SlipFreeVelocityCorrection::get_sensor_data_buffer_ptr()
+const VelocityQueuePtr VelocityDOBCorrection::get_sensor_data_buffer_ptr()
     const {
   return sensor_data_buffer_ptr_;
 }
 
 // Correct using measured body velocity with the estimated velocity
-bool SlipFreeVelocityCorrection::Correct(RobotState& state) {
+bool VelocityDOBCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
@@ -141,7 +141,7 @@ bool SlipFreeVelocityCorrection::Correct(RobotState& state) {
   return true;
 }
 
-bool SlipFreeVelocityCorrection::set_initial_velocity(RobotState& state) {
+bool VelocityDOBCorrection::set_initial_velocity(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
 
   // Get measurement from sensor data buffer
@@ -195,7 +195,7 @@ bool SlipFreeVelocityCorrection::set_initial_velocity(RobotState& state) {
   return true;
 }
 
-void SlipFreeVelocityCorrection::clear() {
+void VelocityDOBCorrection::clear() {
   sensor_data_buffer_mutex_ptr_->lock();
   while (!sensor_data_buffer_ptr_->empty()) {
     sensor_data_buffer_ptr_->pop();

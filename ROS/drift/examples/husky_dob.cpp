@@ -78,12 +78,13 @@ int main(int argc, char** argv) {
   /// TUTORIAL: Add a propagation and correction(s) methods to the state
   /// estimator. Here is an example of IMU propagation and velocity correction
   /// for Husky robot
-  inekf_estimator.add_slip_free_imu_propagation(
+  inekf_estimator.add_imu_dob_propagation(
       qimu, qimu_mutex,
-      project_dir + "/config/husky_slip_detection/imu_propagation.yaml");
-  inekf_estimator.add_slip_free_velocity_correction(
+      project_dir + "/config/husky_slip_detection/imu_dob_propagation.yaml");
+  inekf_estimator.add_velocity_dob_correction(
       qv, qv_mutex,
-      project_dir + "/config/husky_slip_detection/velocity_correction.yaml");
+      project_dir
+          + "/config/husky_slip_detection/velocity_dob_correction.yaml");
 
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
