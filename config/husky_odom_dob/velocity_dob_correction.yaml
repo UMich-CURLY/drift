@@ -9,4 +9,4 @@ settings:
 noises:
   velocity_std: 0.1
   disturbance_contact_vel_std: 0.1
-  disturbance_std: 0.5
+  disturbance_std: 0.01

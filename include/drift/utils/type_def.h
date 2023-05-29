@@ -19,6 +19,7 @@
 #include "drift/measurement/angular_velocity.h"
 #include "drift/measurement/imu.h"
 #include "drift/measurement/legged_kinematics.h"
+#include "drift/measurement/odom.h"
 #include "drift/measurement/velocity.h"
 #include "drift/state/robot_state.h"
 
@@ -80,6 +81,15 @@ typedef std::queue<AngularVelocityMeasurementPtr>
                            */
 typedef std::shared_ptr<AngularVelocityQueue> AngularVelocityQueuePtr; /**<
 Pointer to the AngularVelocityQueue. */
+
+// Odom:
+typedef std::shared_ptr<OdomMeasurement> OdomMeasurementPtr; /**< Pointer to the
+                                                                OdomMeasurement
+                                                                object. */
+typedef std::queue<OdomMeasurementPtr> OdomQueue; /**< Queue for storing
+                                                     odometry measurements. */
+typedef std::shared_ptr<OdomQueue> OdomQueuePtr;  /**< Pointer to the
+                                                       OdomQueue. */
 
 
 // #endif    // UTILS_TYPE_DEF_H

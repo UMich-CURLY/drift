@@ -37,6 +37,7 @@
 #include "drift/measurement/angular_velocity.h"
 #include "drift/measurement/imu.h"
 #include "drift/measurement/legged_kinematics.h"
+#include "drift/measurement/odom.h"
 #include "drift/measurement/velocity.h"
 #include "drift/state/robot_state.h"
 #include "drift/utils/type_def.h"

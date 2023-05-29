@@ -26,7 +26,8 @@ enum MeasurementType {
   VELOCITY,
   ANGULAR_VELOCITY,
   JOINT_STATE,
-  CONTACT
+  CONTACT,
+  ODOM
 };
 
 namespace measurement {

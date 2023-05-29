@@ -196,6 +196,46 @@ ROSSubscriber::AddDifferentialDriveLinearVelocitySubscriber_Fetch(
   return {vel_queue_ptr, mutex_list_.back()};
 };
 
+VelocityQueuePair ROSSubscriber::AddOdom2VelocityCallback(
+    const std::string topic_name,
+    const std::vector<double>& translation_odomsrc2body,
+    const std::vector<double>& rotation_odomsrc2body) {
+  std::cout << "Subscribing to odometry topic: " << topic_name << std::endl;
+  // Create a new queue for data buffers
+  VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Calculate the transformation from odometry source to body
+  odom_src_to_body_ = Eigen::Matrix4d::Identity();
+  Eigen::Quaternion<double> orientation_quat(
+      rotation_odomsrc2body[0], rotation_odomsrc2body[1],
+      rotation_odomsrc2body[2], rotation_odomsrc2body[3]);
+  odom_src_to_body_.block<3, 3>(0, 0) = orientation_quat.toRotationMatrix();
+  odom_src_to_body_.block<3, 1>(0, 3) = Eigen::Vector3d(
+      {translation_odomsrc2body[0], translation_odomsrc2body[1],
+       translation_odomsrc2body[2]});
+
+  // Create a new pair of Odometry queue and its mutex
+  OdomQueuePtr odom_queue_ptr(new OdomQueue);
+  odom_queue_map_[odom_src_id_]
+      = {odom_queue_ptr, std::make_shared<std::mutex>()};
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<nav_msgs::Odometry>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::Odom2VelocityCallback, this, _1,
+                  mutex_list_.back(), vel_queue_ptr, odom_src_id_)));
+
+  odom_src_id_ += 1;
+
+  // Keep the ownership of the data queue in this class
+  vel_queue_list_.push_back(vel_queue_ptr);
+
+  return {vel_queue_ptr, mutex_list_.back()};
+};
+
 std::tuple<VelocityQueuePtr, std::shared_ptr<std::mutex>,
            AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
 ROSSubscriber::AddDifferentialDriveVelocitySubscriber_Fetch(
@@ -498,6 +538,69 @@ void ROSSubscriber::FetchIMUCallBack(
   mutex.get()->lock();
   imu_queue->push(imu_measurement);
   mutex.get()->unlock();
+}
+
+void ROSSubscriber::Odom2VelocityCallback(
+    const boost::shared_ptr<const nav_msgs::Odometry>& odom_msg,
+    const std::shared_ptr<std::mutex>& vel_mutex, VelocityQueuePtr& vel_queue,
+    int odom_src_id) {
+  Eigen::Vector3d translation(odom_msg->pose.pose.position.x,
+                              odom_msg->pose.pose.position.y,
+                              odom_msg->pose.pose.position.z);
+  Eigen::Quaterniond quat(
+      odom_msg->pose.pose.orientation.w, odom_msg->pose.pose.orientation.x,
+      odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z);
+  auto odom_ptr = std::make_shared<OdomMeasurement>(
+      translation, quat, odom_msg->header.seq, odom_msg->header.stamp.toSec(),
+      odom_msg->header.frame_id);
+
+  // We need two odometry data to calculate the velocity
+  auto& odom_queue = odom_queue_map_[odom_src_id].first;
+  auto& odom_mutex = odom_queue_map_[odom_src_id].second;
+  odom_mutex->lock();
+  if (odom_queue->empty()) {
+    odom_queue->push(odom_ptr);
+    odom_mutex->unlock();
+    return;
+  }
+
+  // When we have at least two odometry data, we can calculate the velocity
+  auto prev_odom = odom_queue.get()->front();
+  odom_queue.get()->pop();
+  // Insert the current camera odometry:
+  odom_queue.get()->push(odom_ptr);
+  odom_mutex->unlock();
+
+  auto prev_transformation = prev_odom->get_transformation();
+  double prev_time = prev_odom->get_time();
+  auto curr_transformation = odom_ptr->get_transformation();
+  double curr_time = odom_ptr->get_time();
+
+  double time_diff = curr_time - prev_time;
+
+  Eigen::Matrix4d transformation = odom_src_to_body_.inverse()
+                                   * prev_transformation.inverse()
+                                   * curr_transformation * odom_src_to_body_;
+  Eigen::Matrix4d twist_se3 = transformation.log();
+
+  std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  vel_measurement->set_header(
+      odom_msg->header.seq,
+      odom_msg->header.stamp.sec + odom_msg->header.stamp.nsec / 1000000000.0,
+      odom_msg->header.frame_id);
+
+  double vx = twist_se3(0, 3) / time_diff;
+  double vy = twist_se3(1, 3) / time_diff;
+  double vz = twist_se3(2, 3) / time_diff;
+
+  vel_measurement->set_velocity(vx, vy, vz);
+
+  vel_mutex.get()->lock();
+  vel_queue->push(vel_measurement);
+  vel_mutex.get()->unlock();
 }
 
 

@@ -27,7 +27,7 @@ using namespace estimator;
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
-  ros::init(argc, argv, "husky_dob");
+  ros::init(argc, argv, "husky_odom_dob");
 
   std::cout << "The subscriber is on!" << std::endl;
 
@@ -45,13 +45,17 @@ int main(int argc, char** argv) {
   std::cout << "Project directory: " << project_dir << std::endl;
 
   std::string ros_config_file
-      = project_dir + "/ROS/drift/config/husky_dob/ros_comm.yaml";
+      = project_dir + "/ROS/drift/config/husky_odom_dob/ros_comm.yaml";
   YAML::Node config = YAML::LoadFile(ros_config_file);
   std::string imu_topic = config["subscribers"]["imu_topic"].as<std::string>();
-  std::string wheel_encoder_topic
-      = config["subscribers"]["wheel_encoder_topic"].as<std::string>();
-  double wheel_radius = config["subscribers"]["wheel_radius"].as<double>();
-  double track_width = config["subscribers"]["track_width"].as<double>();
+  std::string odom_topic
+      = config["subscribers"]["odom_topic"].as<std::string>();
+  std::vector<double> translation_odomsrc2body
+      = config["subscribers"]["translation_odom_source_to_body"]
+            .as<std::vector<double>>();
+  std::vector<double> rotation_odomsrc2body
+      = config["subscribers"]["rotation_odom_source_to_body"]
+            .as<std::vector<double>>();
 
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
   auto qimu_and_mutex = ros_sub.AddIMUSubscriber(imu_topic);
@@ -59,8 +63,8 @@ int main(int argc, char** argv) {
   auto qimu_mutex = qimu_and_mutex.second;
 
   /// TUTORIAL: Add a subscriber for velocity data and get its queue and mutex
-  auto qv_and_mutex = ros_sub.AddDifferentialDriveVelocitySubscriber(
-      wheel_encoder_topic, wheel_radius);
+  auto qv_and_mutex = ros_sub.AddOdom2VelocityCallback(
+      odom_topic, translation_odomsrc2body, rotation_odomsrc2body);
   auto qv = qv_and_mutex.first;
   auto qv_mutex = qv_and_mutex.second;
 
@@ -72,19 +76,17 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Create a state estimator
   InekfEstimator inekf_estimator(
-      error_type,
-      project_dir + "/config/husky_slip_detection/inekf_estimator.yaml");
+      error_type, project_dir + "/config/husky_odom_dob/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) methods to the state
   /// estimator. Here is an example of IMU propagation and velocity correction
   /// for Husky robot
   inekf_estimator.add_imu_dob_propagation(
       qimu, qimu_mutex,
-      project_dir + "/config/husky_slip_detection/imu_dob_propagation.yaml");
+      project_dir + "/config/husky_odom_dob/imu_dob_propagation.yaml");
   inekf_estimator.add_velocity_dob_correction(
       qv, qv_mutex,
-      project_dir
-          + "/config/husky_slip_detection/velocity_dob_correction.yaml");
+      project_dir + "/config/husky_odom_dob/velocity_dob_correction.yaml");
 
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator

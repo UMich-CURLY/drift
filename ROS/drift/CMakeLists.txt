@@ -149,10 +149,20 @@ target_link_libraries(deterministic_test
   yaml-cpp
 )
 
-rosbuild_add_executable(husky_dob
-  ${PROJECT_SOURCE_DIR}/examples/husky_dob.cpp)
+rosbuild_add_executable(husky_odom
+  ${PROJECT_SOURCE_DIR}/examples/husky_odom.cpp)
 
-target_link_libraries(husky_dob
+target_link_libraries(husky_odom
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+rosbuild_add_executable(husky_odom_dob
+  ${PROJECT_SOURCE_DIR}/examples/husky_odom_dob.cpp)
+
+target_link_libraries(husky_odom_dob
   ${LIBS}
   ros_communication_lib
   drift
