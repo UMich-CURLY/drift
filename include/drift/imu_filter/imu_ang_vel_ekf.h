@@ -225,7 +225,7 @@ class ImuAngVelEKF {
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
                                   // from IMU frame to body frame (meas_body = R
                                   // * meas_imu).
-
+  Eigen::Matrix3d R_imu2body_inverse_;
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
   Eigen::Vector3d ba0_
