@@ -271,6 +271,13 @@ class ImuAngVelEKF {
   std::thread imu_filter_thread_;
   std::shared_ptr<std::mutex> filtered_imu_data_buffer_mutex_ptr_;
   IMUQueuePtr filtered_imu_data_buffer_ptr_;
+
+
+  // Debugging related:
+  std::ofstream imu_ang_vel_outfile_;
+  std::ofstream encoder_ang_vel_outfile_;
+  std::ofstream filtered_ang_vel_outfile_;
+
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 

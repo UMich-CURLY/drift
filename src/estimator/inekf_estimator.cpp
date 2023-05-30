@@ -42,8 +42,6 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
   if (enable_pose_logger_) {
     pose_log_file_ = config["logger"]["pose_log_file"].as<std::string>();
 
-    outfile_.open(pose_log_file_);
-
     // Erase the ".txt" or ".csv" from the file name.
     // This is helpful to make new file names when InekfEstimator::clear() is
     // called

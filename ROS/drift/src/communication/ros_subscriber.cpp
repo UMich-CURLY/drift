@@ -325,10 +325,11 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   double vl = (encoder_msg->velocity[0] + encoder_msg->velocity[2]) / 2.0
               * wheel_radius;
   double vx = (vr + vl) / 2.0;
-  double omega_z = (vr - vl) / track_width;
+  double omega_z = (vl - vr) / track_width;
 
   vel_measurement->set_velocity(vx, 0, 0);
   ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+
   vel_mutex.get()->lock();
   vel_queue->push(vel_measurement);
   vel_mutex.get()->unlock();

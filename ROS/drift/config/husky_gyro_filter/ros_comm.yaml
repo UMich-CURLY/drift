@@ -3,14 +3,15 @@ subscribers:
   # as long as you can load the yaml variable in your main file
   imu_topic: "/gx5_1/imu/data"
   wheel_encoder_topic: "/joint_states"
-  wheel_radius: 0.1651 # meter
+  # wheel_radius: 0.1651 # meter
+  wheel_radius: 0.1521 # meter
   track_width: 0.555 # meter
 
 publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
-  pose_publish_topic: "/robot/inekf_estimation/pose"
+  pose_publish_topic: "/husky/gyro_inekf/pose"
   pose_frame: "/odom"
 
-  path_publish_rate: 1 # Hz
-  path_publish_topic: "/robot/inekf_estimation/path"
+  path_publish_rate: 100 # Hz
+  path_publish_topic: "/husky/gyro_inekf/path"

@@ -108,12 +108,32 @@ ImuAngVelEKF::ImuAngVelEKF(
   std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
             << ", " << ang_vel_and_bias_est_(4) << ", "
             << ang_vel_and_bias_est_(5) << "]" << std::endl;
+
+
+  // Temp logger
+  std::string imu_ang_vel_log_file
+      = "/home/justin/code/drift/log/imu_ang_vel_log.txt";
+  imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
+  imu_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string encoder_ang_vel_log_file
+      = "/home/justin/code/drift/log/encoder_ang_vel_log.txt";
+  encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
+  encoder_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string filtered_ang_vel_log_file
+      = "/home/justin/code/drift/log/filtered_ang_vel_log.txt";
+  filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
+  filtered_ang_vel_outfile_.precision(dbl::max_digits10);
 }
 
 // IMU filter destructor
 ImuAngVelEKF::~ImuAngVelEKF() {
   stop_thread_ = true;
   imu_filter_thread_.join();
+  imu_ang_vel_outfile_.close();
+  encoder_ang_vel_outfile_.close();
+  filtered_ang_vel_outfile_.close();
 }
 
 // Start IMU filter thread
@@ -227,6 +247,21 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(imu_measurement->get_time());
+
+
+  imu_ang_vel_outfile_ << imu_measurement->get_time() << ","
+                       << imu_measurement->get_ang_vel()(0) << ","
+                       << imu_measurement->get_ang_vel()(1) << ","
+                       << imu_measurement->get_ang_vel()(2) << std::endl
+                       << std::flush;
+
+  filtered_ang_vel_outfile_
+      << imu_measurement->get_time() << "," << ang_vel_and_bias_est_(0) << ","
+      << ang_vel_and_bias_est_(1) << "," << ang_vel_and_bias_est_(2) << ","
+      << ang_vel_and_bias_est_(3) << "," << ang_vel_and_bias_est_(4) << ","
+      << ang_vel_and_bias_est_(5) << std::endl
+      << std::flush;
+
   return imu_measurement_corrected;
 }
 
@@ -250,6 +285,19 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
+
+  encoder_ang_vel_outfile_ << ang_vel_measurement->get_time() << ","
+                           << ang_vel_measurement->get_ang_vel()(0) << ","
+                           << ang_vel_measurement->get_ang_vel()(1) << ","
+                           << ang_vel_measurement->get_ang_vel()(2) << std::endl
+                           << std::flush;
+
+  filtered_ang_vel_outfile_
+      << imu_measurement->get_time() << "," << ang_vel_and_bias_est_(0) << ","
+      << ang_vel_and_bias_est_(1) << "," << ang_vel_and_bias_est_(2) << ","
+      << ang_vel_and_bias_est_(3) << "," << ang_vel_and_bias_est_(4) << ","
+      << ang_vel_and_bias_est_(5) << std::endl
+      << std::flush;
 
   return imu_measurement_corrected;
 }
