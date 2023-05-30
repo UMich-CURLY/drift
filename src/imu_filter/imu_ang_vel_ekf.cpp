@@ -44,6 +44,17 @@ ImuAngVelEKF::ImuAngVelEKF(
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
 
+
+  // Set the imu to body rotation (bring imu measurements to body frame)
+  const std::vector<double> quat_imu2body
+      = config_["settings"]["rotation_imu2body"]
+            ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
+            : std::vector<double>({1, 0, 0, 0});
+
+  Eigen::Quaternion<double> quarternion_imu2body(
+      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
+  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
+
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
                            ? config_["noises"]["ang_vel_std"].as<double>()
@@ -231,8 +242,8 @@ void ImuAngVelEKF::AngVelFilterPropagate() {
 
 ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
     const ImuMeasurementPtr& imu_measurement) {
-  Eigen::VectorXd z
-      = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_and_bias_est_;
+  Eigen::VectorXd z = R_imu2body_ * imu_measurement->get_ang_vel()
+                      - H_imu_ * ang_vel_and_bias_est_;
   auto S_inv
       = (H_imu_ * ang_vel_and_bias_P_ * H_imu_.transpose() + ang_vel_imu_R_)
             .inverse();
@@ -248,11 +259,10 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(imu_measurement->get_time());
 
-
-  imu_ang_vel_outfile_ << imu_measurement->get_time() << ","
-                       << imu_measurement->get_ang_vel()(0) << ","
-                       << imu_measurement->get_ang_vel()(1) << ","
-                       << imu_measurement->get_ang_vel()(2) << std::endl
+  Eigen::VectorXd imu_ang_vel = R_imu2body_ * imu_measurement->get_ang_vel();
+  imu_ang_vel_outfile_ << imu_measurement->get_time() << "," << imu_ang_vel(0)
+                       << "," << imu_ang_vel(1) << "," << imu_ang_vel(2)
+                       << std::endl
                        << std::flush;
 
   filtered_ang_vel_outfile_

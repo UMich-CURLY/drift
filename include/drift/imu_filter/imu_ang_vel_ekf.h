@@ -255,7 +255,6 @@ class ImuAngVelEKF {
       bias_init_vec_;    // The initialized IMU bias value in the order of
                          // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
 
-
   // Variables for the angular velocity filter
   ImuMeasurementPtr latest_imu_measurement_ = nullptr;
   Eigen::VectorXd ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
