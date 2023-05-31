@@ -225,7 +225,7 @@ class ImuAngVelEKF {
   Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
                                   // from IMU frame to body frame (meas_body = R
                                   // * meas_imu).
-
+  Eigen::Matrix3d R_imu2body_inverse_;
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
   Eigen::Vector3d ba0_
@@ -255,7 +255,6 @@ class ImuAngVelEKF {
       bias_init_vec_;    // The initialized IMU bias value in the order of
                          // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
 
-
   // Variables for the angular velocity filter
   ImuMeasurementPtr latest_imu_measurement_ = nullptr;
   Eigen::VectorXd ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
@@ -271,6 +270,13 @@ class ImuAngVelEKF {
   std::thread imu_filter_thread_;
   std::shared_ptr<std::mutex> filtered_imu_data_buffer_mutex_ptr_;
   IMUQueuePtr filtered_imu_data_buffer_ptr_;
+
+
+  // Debugging related:
+  std::ofstream imu_ang_vel_outfile_;
+  std::ofstream encoder_ang_vel_outfile_;
+  std::ofstream filtered_ang_vel_outfile_;
+
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 

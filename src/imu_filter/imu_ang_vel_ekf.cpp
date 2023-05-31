@@ -44,6 +44,18 @@ ImuAngVelEKF::ImuAngVelEKF(
   cout << "Loading imu propagation config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
 
+
+  // Set the imu to body rotation (bring imu measurements to body frame)
+  const std::vector<double> quat_imu2body
+      = config_["settings"]["rotation_imu2body"]
+            ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
+            : std::vector<double>({1, 0, 0, 0});
+
+  Eigen::Quaternion<double> quarternion_imu2body(
+      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
+  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
+  R_imu2body_inverse_ = R_imu2body_.transpose();
+
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
                            ? config_["noises"]["ang_vel_std"].as<double>()
@@ -108,12 +120,32 @@ ImuAngVelEKF::ImuAngVelEKF(
   std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
             << ", " << ang_vel_and_bias_est_(4) << ", "
             << ang_vel_and_bias_est_(5) << "]" << std::endl;
+
+
+  // Temp logger
+  std::string imu_ang_vel_log_file
+      = "/home/justin/code/drift/log/imu_ang_vel_log.txt";
+  imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
+  imu_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string encoder_ang_vel_log_file
+      = "/home/justin/code/drift/log/encoder_ang_vel_log.txt";
+  encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
+  encoder_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string filtered_ang_vel_log_file
+      = "/home/justin/code/drift/log/filtered_ang_vel_log.txt";
+  filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
+  filtered_ang_vel_outfile_.precision(dbl::max_digits10);
 }
 
 // IMU filter destructor
 ImuAngVelEKF::~ImuAngVelEKF() {
   stop_thread_ = true;
   imu_filter_thread_.join();
+  imu_ang_vel_outfile_.close();
+  encoder_ang_vel_outfile_.close();
+  filtered_ang_vel_outfile_.close();
 }
 
 // Start IMU filter thread
@@ -227,14 +259,29 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(imu_measurement->get_time());
+
+  Eigen::VectorXd imu_ang_vel = imu_measurement->get_ang_vel();
+  imu_ang_vel_outfile_ << imu_measurement->get_time() << "," << imu_ang_vel(0)
+                       << "," << imu_ang_vel(1) << "," << imu_ang_vel(2)
+                       << std::endl
+                       << std::flush;
+
+  filtered_ang_vel_outfile_
+      << imu_measurement_corrected->get_time() << ","
+      << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1) << ","
+      << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3) << ","
+      << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
+      << std::endl
+      << std::flush;
+
   return imu_measurement_corrected;
 }
 
 ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
     const ImuMeasurementPtr& imu_measurement,
     const AngularVelocityMeasurementPtr& ang_vel_measurement) {
-  Eigen::VectorXd z
-      = ang_vel_measurement->get_ang_vel() - H_enc_ * ang_vel_and_bias_est_;
+  Eigen::VectorXd z = R_imu2body_inverse_ * ang_vel_measurement->get_ang_vel()
+                      - H_enc_ * ang_vel_and_bias_est_;
 
   auto S_inv
       = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose() + ang_vel_enc_R_)
@@ -250,6 +297,22 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
                                          ang_vel_and_bias_est_(1),
                                          ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
+
+  Eigen::VectorXd enc_ang_vel
+      = R_imu2body_inverse_ * ang_vel_measurement->get_ang_vel();
+
+  encoder_ang_vel_outfile_ << ang_vel_measurement->get_time() << ","
+                           << enc_ang_vel(0) << "," << enc_ang_vel(1) << ","
+                           << enc_ang_vel(2) << std::endl
+                           << std::flush;
+
+  filtered_ang_vel_outfile_
+      << imu_measurement_corrected->get_time() << ","
+      << ang_vel_and_bias_est_(0) << "," << ang_vel_and_bias_est_(1) << ","
+      << ang_vel_and_bias_est_(2) << "," << ang_vel_and_bias_est_(3) << ","
+      << ang_vel_and_bias_est_(4) << "," << ang_vel_and_bias_est_(5)
+      << std::endl
+      << std::flush;
 
   return imu_measurement_corrected;
 }

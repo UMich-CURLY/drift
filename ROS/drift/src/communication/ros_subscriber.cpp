@@ -369,6 +369,7 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
 
   vel_measurement->set_velocity(vx, 0, 0);
   ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+
   vel_mutex.get()->lock();
   vel_queue->push(vel_measurement);
   vel_mutex.get()->unlock();

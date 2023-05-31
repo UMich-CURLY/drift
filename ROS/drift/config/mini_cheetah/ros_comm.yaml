@@ -11,5 +11,5 @@ publishers:
   pose_publish_topic: "/robot/inekf_estimation/pose"
   pose_frame: "/odom"
 
-  path_publish_rate: 10 # Hz
+  path_publish_rate: 100 # Hz
   path_publish_topic: "/robot/inekf_estimation/path"
