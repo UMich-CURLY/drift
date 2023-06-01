@@ -119,6 +119,26 @@ LeggedKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
   return {kin_queue_ptr, mutex_list_.back()};
 }
 
+VelocityQueuePair ROSSubscriber::AddVelocitySubscriber(
+    const std::string topic_name) {
+  // Create a new queue for data buffers
+  VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<geometry_msgs::TwistStamped>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::VelocityCallback, this, _1,
+                  mutex_list_.back(), vel_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  vel_queue_list_.push_back(vel_queue_ptr);
+
+  return {vel_queue_ptr, mutex_list_.back()};
+}
+
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
     const std::string topic_name, double wheel_radius) {
   std::cout << "Subscribing to wheel encoder topic: " << topic_name
@@ -307,6 +327,28 @@ void ROSSubscriber::IMUCallback(
   imu_queue->push(imu_measurement);
   mutex.get()->unlock();
 }
+
+void ROSSubscriber::VelocityCallback(
+    const boost::shared_ptr<const geometry_msgs::TwistStamped>& vel_msg,
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+  // Create an velocity measurement object
+  std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  vel_measurement->set_header(
+      vel_msg->header.seq,
+      vel_msg->header.stamp.sec + vel_msg->header.stamp.nsec / 1000000000.0,
+      vel_msg->header.frame_id);
+
+  vel_measurement->set_velocity(vel_msg->twist.linear.x,
+                                vel_msg->twist.linear.y,
+                                vel_msg->twist.linear.z);
+  mutex.get()->lock();
+  vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
+}
+
 
 void ROSSubscriber::DifferentialEncoder2VelocityCallback(
     const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,

@@ -31,7 +31,7 @@
 #include "boost/bind.hpp"
 #include "custom_sensor_msgs/Contact.h"
 #include "custom_sensor_msgs/ContactArray.h"
-#include "geometry_msgs/Twist.h"
+#include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "nav_msgs/Odometry.h"
 #include "ros/ros.h"
@@ -62,34 +62,34 @@ typedef std::pair<LeggedKinQueuePtr, std::shared_ptr<std::mutex>>
     LeggedKinQueuePair; /**< Pair of LeggedKinQueuePtr and LeggedKinQueue mutex.
                          */
 typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
-    ContactMsgFilterT;  /**< Message filter for contact messages. */
+    ContactMsgFilterT; /**< Message filter for contact messages. */
 typedef message_filters::Subscriber<sensor_msgs::JointState>
     JointStateMsgFilterT; /**< Message filter for joint state messages. */
 typedef std::shared_ptr<
     message_filters::Subscriber<custom_sensor_msgs::ContactArray>>
-    ContactMsgFilterTPtr;    /**< Pointer to the ContactMsgFilterT. */
+    ContactMsgFilterTPtr; /**< Pointer to the ContactMsgFilterT. */
 typedef std::shared_ptr<message_filters::Subscriber<sensor_msgs::JointState>>
     JointStateMsgFilterTPtr; /**< Pointer to the JointStateMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     custom_sensor_msgs::ContactArray, sensor_msgs::JointState>
     LegKinSyncPolicy; /**< Sync policy for legged kinematics. */
 typedef std::shared_ptr<message_filters::Synchronizer<LegKinSyncPolicy>>
-    LegKinSyncPtr;    /**< Pointer to the LegKinSyncPolicy. */
+    LegKinSyncPtr; /**< Pointer to the LegKinSyncPolicy. */
 
 // IMU sync
 typedef message_filters::Subscriber<sensor_msgs::Imu>
-    IMUMsgFilterT;          /**< Message filter for IMU messages. */
+    IMUMsgFilterT; /**< Message filter for IMU messages. */
 typedef message_filters::Subscriber<geometry_msgs::Vector3Stamped>
-    IMUOffsetMsgFilterT;    /**< Message filter for IMU offset messages. */
+    IMUOffsetMsgFilterT; /**< Message filter for IMU offset messages. */
 typedef std::shared_ptr<IMUMsgFilterT>
-    IMUMsgFilterTPtr;       /**< Pointer to the IMUMsgFilterT. */
+    IMUMsgFilterTPtr; /**< Pointer to the IMUMsgFilterT. */
 typedef std::shared_ptr<IMUOffsetMsgFilterT>
     IMUOffsetMsgFilterTPtr; /**< Pointer to the IMUOffsetMsgFilterT. */
 typedef message_filters::sync_policies::ApproximateTime<
     sensor_msgs::Imu, geometry_msgs::Vector3Stamped>
     IMUSyncPolicy; /**< Sync policy for IMU. */
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
-    IMUSyncPtr;    /**< Pointer to the IMUSyncPolicy. */
+    IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
 
 namespace ros_wrapper {
 /**
@@ -119,6 +119,7 @@ class ROSSubscriber {
   /// @}
 
   /// @name ROS subscriber adders
+  /// TODO: Detail what message type each subscribers subscribe to.
   /**
    * @brief Add an IMU subscriber to the given topic and return a queue pair.
    * The queue pair contains the queue and the mutex for the queue. The queue
@@ -261,7 +262,7 @@ class ROSSubscriber {
    * @param[in] vel_queue: pointer to the buffer queue
    */
   void VelocityCallback(
-      const boost::shared_ptr<const geometry_msgs::Twist>& vel_msg,
+      const boost::shared_ptr<const geometry_msgs::TwistStamped>& vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**
@@ -385,11 +386,11 @@ class ROSSubscriber {
   // measurement queue list
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
-      vel_queue_list_;        // List of velocity queue pointers
+      vel_queue_list_;    // List of velocity queue pointers
   std::vector<AngularVelocityQueuePtr>
       ang_vel_queue_list_;    // List of angular velocity queue pointers
   std::vector<LeggedKinQueuePtr>
-      kin_queue_list_;        // List of kinematics queue pointers
+      kin_queue_list_;    // List of kinematics queue pointers
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes

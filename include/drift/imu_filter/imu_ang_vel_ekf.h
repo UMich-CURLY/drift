@@ -17,6 +17,7 @@
 
 #include <atomic>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <thread>
@@ -222,10 +223,10 @@ class ImuAngVelEKF {
   std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr_;
   AngularVelocityQueuePtr ang_vel_data_buffer_ptr_;
   std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr_;
-  Eigen::Matrix3d R_imu2body_;    // Rotation matrix that brings measurement
-                                  // from IMU frame to body frame (meas_body = R
-                                  // * meas_imu).
-  Eigen::Matrix3d R_imu2body_inverse_;
+  Eigen::Matrix3d
+      R_imu2body_inverse_;    // Inverse of rotation matrix that brings
+                              // measurement from IMU frame to body frame. i.e.
+                              // takes measurements in body frame to imu frame.
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
   Eigen::Vector3d ba0_

@@ -53,8 +53,7 @@ ImuAngVelEKF::ImuAngVelEKF(
 
   Eigen::Quaternion<double> quarternion_imu2body(
       quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
-  R_imu2body_ = quarternion_imu2body.toRotationMatrix();
-  R_imu2body_inverse_ = R_imu2body_.transpose();
+  R_imu2body_inverse_ = quarternion_imu2body.toRotationMatrix().transpose();
 
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
