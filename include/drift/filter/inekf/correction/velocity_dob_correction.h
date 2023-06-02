@@ -13,6 +13,12 @@
 
 #ifndef FILTER_INEKF_CORRECTION_VELOCITY_DOB_CORRECTION_H
 #define FILTER_INEKF_CORRECTION_VELOCITY_DOB_CORRECTION_H
+
+
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
 #include "drift/filter/base_correction.h"
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
@@ -64,13 +70,18 @@ class VelocityDOBCorrection : public Correction {
       const ErrorType& error_type, const std::string& yaml_filepath);
   /// @}
 
+  /// @name Destructors
+  /// @{
+  ~VelocityDOBCorrection();
+  /// @}
+
   /// @name Correction Methods
   /// @{
   // ======================================================================
   /**
-   * @brief Corrects the state estimate using measured velocity [m/s] that is
-   * measured and covarinace of the velocity. Measurements are taken in body
-   * frame. This is a right-invariant measurement model.
+   * @brief Corrects the state estimate using measured velocity [m/s] that
+   * is measured and covarinace of the velocity. Measurements are taken in
+   * body frame. This is a right-invariant measurement model.
    *
    * @param[in,out] state: the current state estimate
    * @return bool: successfully correct state or not (if we do not receive a
@@ -117,6 +128,11 @@ class VelocityDOBCorrection : public Correction {
                                   when the class object is created.*/
   double disturbance_noise_std_;
   double disturbance_std_;
+
+
+  std::ofstream input_vel_outfile_;
+  std::ofstream est_vel_outfile_;
+  std::ofstream dist_vel_outfile_;
 };
 
 }    // namespace filter::inekf

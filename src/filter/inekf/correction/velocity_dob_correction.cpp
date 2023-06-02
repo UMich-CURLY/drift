@@ -61,8 +61,26 @@ VelocityDOBCorrection::VelocityDOBCorrection(
   Eigen::Quaternion<double> quarternion_vel2body(
       quat_vel2body[0], quat_vel2body[1], quat_vel2body[2], quat_vel2body[3]);
   R_vel2body_ = quarternion_vel2body.toRotationMatrix();
+
+
+  std::string input_vel_file = "/home/justin/code/drift/log/input_vel_log.txt";
+  input_vel_outfile_.open(input_vel_file);
+  input_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string est_vel_file = "/home/justin/code/drift/log/est_vel_log.txt";
+  est_vel_outfile_.open(est_vel_file);
+  est_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string dist_vel_file = "/home/justin/code/drift/log/dist_vel_log.txt";
+  dist_vel_outfile_.open(dist_vel_file);
+  dist_vel_outfile_.precision(dbl::max_digits10);
 }
 
+VelocityDOBCorrection::~VelocityDOBCorrection() {
+  input_vel_outfile_.close();
+  est_vel_outfile_.close();
+  dist_vel_outfile_.close();
+}
 
 const VelocityQueuePtr VelocityDOBCorrection::get_sensor_data_buffer_ptr()
     const {
@@ -137,6 +155,27 @@ bool VelocityDOBCorrection::Correct(RobotState& state) {
   if (Z.rows() > 0) {
     CorrectRightInvariant(Z, H, N, state, error_type_);
   }
+
+  // Log data
+  // auto measured_v_world = R * R_vel2body_ *
+  // measured_velocity->get_velocity();
+  v = (R * R_vel2body_).inverse() * state.get_velocity();
+  disturbance
+      = (R * R_vel2body_).inverse() * state.get_aug_state(state.dimX() - 1);
+
+  input_vel_outfile_ << measured_velocity->get_time() << ","
+                     << measured_velocity->get_velocity()(0) << ","
+                     << measured_velocity->get_velocity()(1) << ","
+                     << measured_velocity->get_velocity()(2) << std::endl
+                     << std::flush;
+  est_vel_outfile_ << measured_velocity->get_time() << "," << v(0) << ","
+                   << v(1) << "," << v(2) << std::endl
+                   << std::flush;
+
+  dist_vel_outfile_ << measured_velocity->get_time() << "," << disturbance(0)
+                    << "," << disturbance(1) << "," << disturbance(2)
+                    << std::endl
+                    << std::flush;
 
   return true;
 }

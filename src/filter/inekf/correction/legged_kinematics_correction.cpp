@@ -1,3 +1,5 @@
+// TODO add description
+
 #include "drift/filter/inekf/correction/legged_kinematics_correction.h"
 
 using namespace std;
@@ -136,7 +138,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
         H.block(startIndex, 6, 3, 3) = -Eigen::Matrix3d::Identity();    // -I
         H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,
                 3)
-            = Eigen::Matrix3d::Identity();                             // I
+            = Eigen::Matrix3d::Identity();    // I
       } else {
         H.block(startIndex, 6, 3, 3) = Eigen::Matrix3d::Identity();    // I
         H.block(startIndex, 3 * (*(aug_id_to_column_id_ptr_[id])) - dimTheta, 3,

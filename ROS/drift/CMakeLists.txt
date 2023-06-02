@@ -169,6 +169,17 @@ target_link_libraries(husky_odom_dob
   yaml-cpp
 )
 
+rosbuild_add_executable(husky_dob
+  ${PROJECT_SOURCE_DIR}/examples/husky_dob.cpp)
+
+target_link_libraries(husky_dob
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+
 rosbuild_add_executable(girona500
   ${PROJECT_SOURCE_DIR}/examples/girona500.cpp)
 
