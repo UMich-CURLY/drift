@@ -394,8 +394,8 @@ class ROSSubscriber {
   std::vector<LegKinSyncPtr> leg_kin_sync_list_;
   std::vector<IMUSyncPtr> imu_sync_list_;
   std::vector<std::shared_ptr<std::mutex>> mutex_list_;    // List of mutexes
-  std::unordered_map<int, OdomQueuePair>
-      odom_queue_map_;                  // odom_src_id -> odom_queue
+  std::unordered_map<int, OdomMeasurementPtr>
+      prev_odom_map_;                   // odom_src_id -> prev_odom_measurement
   Eigen::Matrix4d odom_src_to_body_;    // Camera to body transformation matrix
 
 

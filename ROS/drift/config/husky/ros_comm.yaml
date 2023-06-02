@@ -3,7 +3,8 @@ subscribers:
   # as long as you can load the yaml variable in your main file
   imu_topic: "/gx5_1/imu/data"
   wheel_encoder_topic: "/joint_states"
-  wheel_radius: 0.1651 # meter
+  # wheel_radius: 0.1651 # meter
+  wheel_radius: 0.1600 # meter
   track_width: 0.555 # meter
 
 publishers:

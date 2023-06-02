@@ -237,10 +237,10 @@ VelocityQueuePair ROSSubscriber::AddOdom2VelocityCallback(
       {translation_odomsrc2body[0], translation_odomsrc2body[1],
        translation_odomsrc2body[2]});
 
-  // Create a new pair of Odometry queue and its mutex
-  OdomQueuePtr odom_queue_ptr(new OdomQueue);
-  odom_queue_map_[odom_src_id_]
-      = {odom_queue_ptr, std::make_shared<std::mutex>()};
+  // Create a new pair of Odometry queue and its mutex in case we have multiple
+  // odometry sources
+  //   OdomMeasurementPtr odom_ptr(new OdomMeasurement);
+  prev_odom_map_[odom_src_id_] = nullptr;
 
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<nav_msgs::Odometry>(
@@ -593,33 +593,34 @@ void ROSSubscriber::Odom2VelocityCallback(
   Eigen::Quaterniond quat(
       odom_msg->pose.pose.orientation.w, odom_msg->pose.pose.orientation.x,
       odom_msg->pose.pose.orientation.y, odom_msg->pose.pose.orientation.z);
+
   auto odom_ptr = std::make_shared<OdomMeasurement>(
       translation, quat, odom_msg->header.seq, odom_msg->header.stamp.toSec(),
       odom_msg->header.frame_id);
-
   // We need two odometry data to calculate the velocity
-  auto& odom_queue = odom_queue_map_[odom_src_id].first;
-  auto& odom_mutex = odom_queue_map_[odom_src_id].second;
-  odom_mutex->lock();
-  if (odom_queue->empty()) {
-    odom_queue->push(odom_ptr);
-    odom_mutex->unlock();
+
+  auto& prev_odom_ptr = prev_odom_map_[odom_src_id];
+
+  if (prev_odom_ptr == nullptr) {
+    prev_odom_map_[odom_src_id] = odom_ptr;
     return;
   }
 
   // When we have at least two odometry data, we can calculate the velocity
-  auto prev_odom = odom_queue.get()->front();
-  odom_queue.get()->pop();
-  // Insert the current camera odometry:
-  odom_queue.get()->push(odom_ptr);
-  odom_mutex->unlock();
+  //   auto prev_odom = odom_queue.get()->front();
+  //   odom_queue.get()->pop();
+  //   // Insert the current camera odometry:
+  //   odom_queue.get()->push(odom_ptr);
 
-  auto prev_transformation = prev_odom->get_transformation();
-  double prev_time = prev_odom->get_time();
+  auto prev_transformation = prev_odom_ptr->get_transformation();
+  double prev_time = prev_odom_ptr->get_time();
   auto curr_transformation = odom_ptr->get_transformation();
   double curr_time = odom_ptr->get_time();
 
   double time_diff = curr_time - prev_time;
+
+  // Set current odometry as previous odometry
+  prev_odom_map_[odom_src_id] = odom_ptr;
 
   Eigen::Matrix4d transformation = odom_src_to_body_.inverse()
                                    * prev_transformation.inverse()
