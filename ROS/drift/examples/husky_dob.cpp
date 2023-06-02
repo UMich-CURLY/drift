@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
   ros_sub.StartSubscribingThread();
 
   /// TUTORIAL: Define some configurations for the state estimator
-  inekf::ErrorType error_type = LeftInvariant;
+  inekf::ErrorType error_type = RightInvariant;
 
   /// TUTORIAL: Create a state estimator
   InekfEstimator inekf_estimator(
