@@ -90,7 +90,7 @@ class VelocityCorrection : public Correction {
    * @param[in,out] state: the current state estimate, which will be initialized
    * @return bool: whether the initialization is successful
    */
-  bool set_initial_velocity(RobotState& state) override;
+  bool initialize(RobotState& state) override;
 
   /**
    * @brief Clear the sensor_data_buffer

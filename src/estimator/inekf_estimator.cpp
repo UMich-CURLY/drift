@@ -248,8 +248,7 @@ void InekfEstimator::InitState() {
   for (auto& correction_ : corrections_) {
     bool current_correction_initialized = false;
     while (!current_correction_initialized)
-      current_correction_initialized
-          = correction_.get()->set_initial_velocity(state_);
+      current_correction_initialized = correction_.get()->initialize(state_);
   }
 
   // Initialize state covariance

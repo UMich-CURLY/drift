@@ -180,7 +180,7 @@ bool VelocityDOBCorrection::Correct(RobotState& state) {
   return true;
 }
 
-bool VelocityDOBCorrection::set_initial_velocity(RobotState& state) {
+bool VelocityDOBCorrection::initialize(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
 
   // Get measurement from sensor data buffer
@@ -223,7 +223,7 @@ bool VelocityDOBCorrection::set_initial_velocity(RobotState& state) {
       = state.get_P().bottomRightCorner(dimTheta, dimTheta);
   P_aug.block<3, 3>(dimP - dimTheta, dimP - dimTheta) = disturbance_cov;
 
-
+  // Covariance for continuous process noise
   Eigen::Matrix3d disturbance_noise_cov = disturbance_noise_std_
                                           * disturbance_noise_std_
                                           * Eigen::Matrix3d::Identity();

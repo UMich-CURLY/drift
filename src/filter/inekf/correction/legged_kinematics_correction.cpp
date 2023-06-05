@@ -254,7 +254,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   return true;
 }
 
-bool LeggedKinematicsCorrection::set_initial_velocity(RobotState& state) {
+bool LeggedKinematicsCorrection::initialize(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
 
   // Get measurement from sensor data buffer

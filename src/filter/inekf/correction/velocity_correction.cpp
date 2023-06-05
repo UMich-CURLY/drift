@@ -128,7 +128,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
   return true;
 }
 
-bool VelocityCorrection::set_initial_velocity(RobotState& state) {
+bool VelocityCorrection::initialize(RobotState& state) {
   Eigen::Vector3d velocity = Eigen::Vector3d::Zero();
 
   // Get measurement from sensor data buffer

@@ -112,7 +112,7 @@ class Correction {
    * @param[in,out] state: the current state estimate, which will be initialized
    * @return bool: whether the initialization is successful
    */
-  virtual bool set_initial_velocity(RobotState& state);
+  virtual bool initialize(RobotState& state);
 
   /**
    * @brief Clear the sensor data buffer. Need to be override in the child class
@@ -125,7 +125,7 @@ class Correction {
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame
                                (z-up). Default is 9.80 m/s^2 */
   Eigen::Vector3d
-      magnetic_field_;      /**< Magnetic field vector in world frame (z-up). */
+      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
   CorrectionType correction_type_; /**< Correction type. */
   double t_diff_thres_; /**< Threshold for time difference between two
                            measurements. It stores the value from config file

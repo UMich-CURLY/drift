@@ -48,7 +48,7 @@ std::shared_ptr<std::mutex> Correction::get_mutex_ptr() {
 }
 
 // Set initial velocity to the state. Dummy method
-bool Correction::set_initial_velocity(RobotState& state_) { return true; }
+bool Correction::initialize(RobotState& state_) { return true; }
 
 // Clear the sensor data buffer. Dummy method
 void Correction::clear() {}
