@@ -53,6 +53,7 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
     pose_log_rate_ = config["logger"]["pose_log_rate"]
                          ? config["logger"]["pose_log_rate"].as<double>()
                          : 10.0;
+    outfile_.open(pose_log_file_ + ".txt");
     outfile_.precision(dbl::max_digits10);
     this->StartLoggingThread();
   }

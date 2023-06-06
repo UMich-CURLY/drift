@@ -1,3 +1,17 @@
+
+settings:
+  ########################
+  # Orientation Settings #
+  ########################
+  # We assume the body frame to be at the imu position.
+  # X pointing forward, Y to the left, Z pointing up.
+  rotation_imu2body: [1, 0, 0, 0] # Orientation from IMU to the body frame. [w, x, y, z]
+
+  ### Setting for filter dimension ###
+  # if flat_ground is true, the angular velocity filter would enforce the roll and pitch velocity to be zero
+  # if flat_ground is false, the filter would only update the yaw velocity
+  flat_ground: false
+
 noises:
   ang_vel_std: 0.1
   ang_vel_bias_std: 0.1

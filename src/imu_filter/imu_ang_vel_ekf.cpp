@@ -51,6 +51,10 @@ ImuAngVelEKF::ImuAngVelEKF(
             ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
             : std::vector<double>({1, 0, 0, 0});
 
+  bool flat_ground = config_["settings"]["flat_ground"]
+                         ? config_["settings"]["flat_ground"].as<bool>()
+                         : false;
+
   Eigen::Quaternion<double> quarternion_imu2body(
       quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
   R_imu2body_inverse_ = quarternion_imu2body.toRotationMatrix().transpose();
@@ -101,10 +105,20 @@ ImuAngVelEKF::ImuAngVelEKF(
                    * Eigen::Matrix3d::Identity();
 
   // Set the parameters for the angular velocity filter
-  H_imu_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
-  H_imu_.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
-  H_enc_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
-  H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
+  if (flat_ground == true) {
+    H_imu_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+    H_imu_.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
+    H_enc_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+    H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
+  } else {
+    // 1D imu filter
+    /// TODO: Add a switch for 1D or 3D filter
+    H_imu_ = Eigen::MatrixXd::Zero(3, 6);
+    H_enc_ = Eigen::MatrixXd::Zero(3, 6);
+    H_imu_(2, 2) = 1;
+    H_imu_(2, 5) = 1;
+    H_enc_(2, 2) = 1;
+  }
 
 
   // Set the initial bias

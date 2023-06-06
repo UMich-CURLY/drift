@@ -20,6 +20,9 @@
 #ifndef FILTER_INEKF_PROPAGATION_IMU_DOB_PROPAGATION_H
 #define FILTER_INEKF_PROPAGATION_IMU_DOB_PROPAGATION_H
 
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <vector>
 
 #include "drift/filter/base_propagation.h"
@@ -65,19 +68,21 @@ class ImuDOBPropagation : public Propagation {
                     const std::string& yaml_filepath);
   /// @}
 
+  ~ImuDOBPropagation();
+
   /// @name Propagation
   /// @{
   // ======================================================================
   /**
    * @brief Propagates the estimated state mean and covariance forward using
-   * inertial measurements. All landmarks positions are assumed to be static.
-   * All contacts' velocities are assumed to be zero + Gaussian noise.
-   * The propagation model currently assumes that the covariance is for the
-   * right invariant error.
+   * inertial measurements. All landmarks positions are assumed to be
+   * static. All contacts' velocities are assumed to be zero + Gaussian
+   * noise. The propagation model currently assumes that the covariance is
+   * for the right invariant error.
    *
    * @param[in,out] state: state of the robot.
-   * @return bool: successfully propagate state or not (if we do not receive a
-   * new message and this method is called it'll return false.)
+   * @return bool: successfully propagate state or not (if we do not receive
+   * a new message and this method is called it'll return false.)
    */
   bool Propagate(RobotState& state) override;
   /// @} End of Propagation
@@ -224,8 +229,8 @@ class ImuDOBPropagation : public Propagation {
                                         identity. i.e. assumes the robot is
                                         on a horizontal flat surface. */
 
-  bool bias_initialized_ = false;      /**< Indicating whether IMU bias has been
-                                       initialized using measurements. */
+  bool bias_initialized_ = false; /**< Indicating whether IMU bias has been
+                                  initialized using measurements. */
   int init_bias_size_; /**< Number of IMU measurements to use for bias
                         initialization. */
   std::vector<Eigen::Matrix<double, 6, 1>,
@@ -233,6 +238,8 @@ class ImuDOBPropagation : public Propagation {
       bias_init_vec_; /**< The initialized IMU bias value in the order of
                        [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z]. */
   double decaying_rate_;
+
+  std::ofstream imu_outfile_;
 
 };    // End of class ImuDOBPropagation
 }    // namespace filter::inekf

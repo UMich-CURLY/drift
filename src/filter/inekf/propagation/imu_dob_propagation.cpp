@@ -121,7 +121,15 @@ ImuDOBPropagation::ImuDOBPropagation(
   decaying_rate_ = config_["settings"]["decaying_rate"]
                        ? config_["settings"]["decaying_rate"].as<double>()
                        : 2.5;
+
+
+  std::string imu_log_path = "/home/justin/code/drift/log/imu_log.txt";
+  imu_outfile_.open(imu_log_path);
+  imu_outfile_.precision(dbl::max_digits10);
 }
+
+
+ImuDOBPropagation::~ImuDOBPropagation() { imu_outfile_.close(); }
 
 const IMUQueuePtr ImuDOBPropagation::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
@@ -160,6 +168,10 @@ bool ImuDOBPropagation::Propagate(RobotState& state) {
   Eigen::Vector3d a = R_imu2body_ * imu_measurement->get_lin_acc()
                       - state.get_accelerometer_bias()
                       - a_compensate;    // Linear Acceleration
+  imu_outfile_ << imu_measurement->get_time() << "," << w(0) << "," << w(1)
+               << "," << w(2) << "," << a(0) << "," << a(1) << "," << a(2)
+               << std::endl
+               << std::flush;
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -364,7 +376,7 @@ Eigen::MatrixXd ImuDOBPropagation::StateTransitionMatrix(
               -decaying_rate_
               * dt);    // (1-decaying_rate*dt+0.5*decaying_rate*decaying_rate*dt2);
     if (enable_imu_bias_update_) {
-      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                   // Phi_15
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
       Phi.block<3, 3>(3, dimP - dimTheta)
           = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
       Phi.block<3, 3>(6, dimP - dimTheta)
@@ -372,7 +384,7 @@ Eigen::MatrixXd ImuDOBPropagation::StateTransitionMatrix(
             + RG0 * Phi35L;    // Phi_35
       for (int i = 6; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-            = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
+            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
       }
       Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
       Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36

@@ -1,7 +1,7 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/home/neofelis/Code/drift/log/husky.txt"
+  pose_log_file: "/home/justin/code/drift/log/husky_gyro_filter.txt"
   pose_log_rate: 10 # Hz
 
 state:
