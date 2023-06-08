@@ -52,8 +52,15 @@ VelocityCorrection::VelocityCorrection(
   Eigen::Quaternion<double> quarternion_vel2body(
       quat_vel2body[0], quat_vel2body[1], quat_vel2body[2], quat_vel2body[3]);
   R_vel2body_ = quarternion_vel2body.toRotationMatrix();
+
+
+  std::string est_vel_file
+      = "/home/justin/code/drift/log/vanila_est_vel_log.txt";
+  est_vel_outfile_.open(est_vel_file);
+  est_vel_outfile_.precision(dbl::max_digits10);
 }
 
+VelocityCorrection::~VelocityCorrection() { est_vel_outfile_.close(); }
 
 const VelocityQueuePtr VelocityCorrection::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
@@ -124,6 +131,12 @@ bool VelocityCorrection::Correct(RobotState& state) {
   if (Z.rows() > 0) {
     CorrectRightInvariant(Z, H, N, state, error_type_);
   }
+
+  v = (R * R_vel2body_).inverse() * state.get_velocity();
+
+  est_vel_outfile_ << measured_velocity->get_time() << "," << v(0) << ","
+                   << v(1) << "," << v(2) << std::endl
+                   << std::flush;
 
   return true;
 }

@@ -13,6 +13,11 @@
 
 #ifndef FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
 #define FILTER_INEKF_CORRECTION_VELOCITY_CORRECTION_H
+
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+
 #include "drift/filter/base_correction.h"
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
@@ -58,13 +63,15 @@ class VelocityCorrection : public Correction {
                      const std::string& yaml_filepath);
   /// @}
 
+  ~VelocityCorrection();
+
   /// @name Correction Methods
   /// @{
   // ======================================================================
   /**
-   * @brief Corrects the state estimate using measured velocity [m/s] that is
-   * measured and covarinace of the velocity. Measurements are taken in body
-   * frame. This is a right-invariant measurement model.
+   * @brief Corrects the state estimate using measured velocity [m/s] that
+   * is measured and covarinace of the velocity. Measurements are taken in
+   * body frame. This is a right-invariant measurement model.
    *
    * @param[in,out] state: the current state estimate
    * @return bool: successfully correct state or not (if we do not receive a
@@ -109,6 +116,9 @@ class VelocityCorrection : public Correction {
   Eigen::Matrix3d R_vel2body_; /**> Rotation matrix from velocity frame to body
                                   frame. It stores the value from config file
                                   when the class object is created.*/
+
+
+  std::ofstream est_vel_outfile_;
 };
 
 }    // namespace filter::inekf

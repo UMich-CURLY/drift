@@ -6,8 +6,8 @@ subscribers:
   # wheel_radius: 0.1651 # meter
   wheel_radius: 0.1600 # meter
   # wheel_radius: 0.1521 # meter
-  # track_width: 0.555 # meter
-  track_width: 0.999 # meter
+  track_width: 0.555 # meter
+  # track_width: 0.999 # meter
 
 publishers:
   # Define publish rate and topics for publishers

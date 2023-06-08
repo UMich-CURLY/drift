@@ -27,6 +27,7 @@ settings:
 
 # IMU bias prior:
 priors:
+  # dob experiment
   # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
   # accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
 
@@ -34,7 +35,11 @@ priors:
   # northwood, imu orient init
   gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
   accelerometer_bias: [0.120438,-0.170559,-0.00045046]
-  
+
+  # MAir experiment
+  # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058]
+  # accelerometer_bias: [0.453028, -0.0670238,  -0.00260372]
+       
 
   # gx0
   # northwood, identity init

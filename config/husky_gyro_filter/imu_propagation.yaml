@@ -27,13 +27,13 @@ settings:
 
 # IMU bias prior:
 priors:
-  # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
-  # accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
+  gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
+  accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
 
   # gx1
   # northwood, imu orient init
-  gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
-  accelerometer_bias: [0.120438,-0.170559,-0.00045046]
+  # gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
+  # accelerometer_bias: [0.120438,-0.170559,-0.00045046]
   
 
   # gx0
