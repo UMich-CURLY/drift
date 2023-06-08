@@ -14,35 +14,34 @@
 #include "communication/ros_publisher.h"
 
 namespace ros_wrapper {
-ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
+ROSPublisher::ROSPublisher(rclcpp::Node::SharedPtr node,
                            RobotStateQueuePtr& robot_state_queue_ptr,
                            std::shared_ptr<std::mutex> robot_state_queue_mutex)
-    : nh_(nh),
+    : node_(node),
       robot_state_queue_ptr_(robot_state_queue_ptr),
       robot_state_queue_mutex_(robot_state_queue_mutex),
       thread_started_(false) {
   std::string pose_topic;
   std::string path_topic;
-  nh_->param<std::string>("/curly_state_est_settings/pose_topic", pose_topic,
-                          "/robot/inekf_estimation/pose");
-  nh_->param<std::string>("/curly_state_est_settings/map_frame_id", pose_frame_,
-                          "/odom");
-  nh->param<std::string>("/curly_state_est_settings/path_topic", path_topic,
-                         "/robot/inekf_estimation/path");
-  nh_->param<double>("/curly_state_est_settings/pose_publish_rate",
-                     pose_publish_rate_, 1000);
-  nh_->param<double>("/curly_state_est_settings/path_publish_rate",
-                     path_publish_rate_, 1000);
-  nh_->param<int>("/curly_state_est_settings/pose_skip", pose_skip_, 1);
+  node_->param<std::string>("/curly_state_est_settings/pose_topic", pose_topic,
+                            "/robot/inekf_estimation/pose");
+  node_->param<std::string>("/curly_state_est_settings/map_frame_id",
+                            pose_frame_, "/odom");
+  node_->param<std::string>("/curly_state_est_settings/path_topic", path_topic,
+                            "/robot/inekf_estimation/path");
+  node_->param<double>("/curly_state_est_settings/pose_publish_rate",
+                       pose_publish_rate_, 1000);
+  node_->param<double>("/curly_state_est_settings/path_publish_rate",
+                       path_publish_rate_, 1000);
+  node_->param<int>("/curly_state_est_settings/pose_skip", pose_skip_, 1);
   first_pose_ = {0, 0, 0};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
             << std::endl;
   std::cout << "path publish rate: " << path_publish_rate_ << std::endl;
 
-  pose_pub_ = nh_->advertise<geometry_msgs::PoseWithCovarianceStamped>(
-      pose_topic, 1000);
-  path_pub_ = nh_->advertise<nav_msgs::Path>(path_topic, 1000);
+  pose_pub_ = node_->create_publisher<geometry_msgs::PoseWithCovarianceStamped>(pose_topic, 1000);
+  path_pub_ = node_->create_publisher<nav_msgs::Path>(path_topic, 1000);
 }
 
 ROSPublisher::~ROSPublisher() {
@@ -112,7 +111,7 @@ void ROSPublisher::PosePublish() {
     }
   }
 
-  pose_pub_.publish(pose_msg);
+  pose_pub_->publish(pose_msg);
   pose_seq_++;
 
   if (int(pose_seq_) % pose_skip_ == 0) {
@@ -152,7 +151,7 @@ void ROSPublisher::PathPublish() {
   //           << path_msg.poses.back().pose.position.y << ","
   //           << path_msg.poses.back().pose.position.z << std::endl;
 
-  path_pub_.publish(path_msg);
+  path_pub_->publish(path_msg);
   path_seq_++;
 }
 

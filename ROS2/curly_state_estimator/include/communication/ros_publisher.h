@@ -6,13 +6,13 @@
 
 /**
  *  @file   ros_publisher.h
- *  @author Tingjun Li
- *  @brief  Header file for ROS publisher class
- *  @date   December 20, 2022
+ *  @author Wenzhe Tong, Tingjun Li
+ *  @brief  Header file for ROS2 publisher class
+ *  @date   Feburary 16, 2023
  **/
 
-#ifndef ROS_COMMUNICATION_ROS_PUBLISHER_H
-#define ROS_COMMUNICATION_ROS_PUBLISHER_H
+#ifndef ROS2_COMMUNICATION_ROS_PUBLISHER_H
+#define ROS2_COMMUNICATION_ROS_PUBLISHER_H
 
 #include <memory>
 #include <mutex>
@@ -21,11 +21,11 @@
 #include <thread>
 #include <vector>
 
-#include <nav_msgs/Path.h>
+#include <nav_msgs/msg/path.hpp>
 #include "boost/bind.hpp"
-#include "geometry_msgs/PoseWithCovarianceStamped.h"
-#include "geometry_msgs/Twist.h"
-#include "ros/ros.h"
+#include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "state/robot_state.h"
 
@@ -40,11 +40,12 @@ class ROSPublisher {
   /**
    * @brief Construct a new ROS Publisher object
    *
-   * @param[in] nh: ROS node handle
+   * @param[in] node: ROS2 node pointer
    * @param[in] robot_state_queue: Robot state queue
    * @param[in] robot_state_queue_mutex: Robot state queue mutex
    */
-  ROSPublisher(ros::NodeHandle* nh, RobotStateQueuePtr& robot_state_queue,
+  ROSPublisher(rclcpp::Node::SharedPtr node,
+               RobotStateQueuePtr& robot_state_queue,
                std::shared_ptr<std::mutex> robot_state_queue_mutex);
   /// @}
 
@@ -64,7 +65,7 @@ class ROSPublisher {
   void StartPublishingThread();
 
  private:
-  ros::NodeHandle* nh_;    // ROS node handle
+  rclcpp::Node::SharedPtr node_;    // ROS node handle
   RobotStateQueuePtr
       robot_state_queue_ptr_;    // Pointer to the robot state queue
   std::shared_ptr<std::mutex>
@@ -72,14 +73,15 @@ class ROSPublisher {
 
   bool thread_started_;    // Flag for thread started
 
-  ros::Publisher pose_pub_;    // Pose publisher
+  rclcpp::Publisher<geometry_msgs::PoseWithCovarianceStamped>::SharedPtr
+      pose_pub_;    // Pose publisher
   std::string
       pose_frame_;           // The name of a frame which poses are published in
   uint32_t pose_seq_ = 0;    // Sequence number for pose publisher
   double pose_publish_rate_;              // Pose publishing rate
   std::thread pose_publishing_thread_;    // Thread for pose publishing
 
-  ros::Publisher path_pub_;               // Path publisher
+  rclcpp::Publisher<nav_msgs::Path>::SharedPtr path_pub_;    // Path publisher
   uint32_t path_seq_ = 0;                 // Sequence number for path publisher
   double path_publish_rate_;              // Path publishing rate
   std::thread path_publishing_thread_;    // Thread for path publishing

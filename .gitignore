@@ -39,3 +39,7 @@ lib/
 
 # VS Code
 .vscode
+
+# ROS2
+install/
+log/

@@ -6,13 +6,13 @@
 
 /**
  *  @file   ros_subsriber.h
- *  @author Tzu-Yuan Lin
- *  @brief  Header file for ROS subscriber class
+ *  @author Wenzhe Tong Tzu-Yuan Lin
+ *  @brief  Header file for ROS2 subscriber class
  *  @date   December 6, 2022
  **/
 
-#ifndef ROS_COMMUNICATION_ROS_SUBSCRIBER_H
-#define ROS_COMMUNICATION_ROS_SUBSCRIBER_H
+#ifndef ROS2_COMMUNICATION_ROS_SUBSCRIBER_H
+#define ROS2_COMMUNICATION_ROS_SUBSCRIBER_H
 
 #include <memory>
 #include <mutex>
@@ -29,9 +29,9 @@
 #include "custom_sensor_msgs/Contact.h"
 #include "custom_sensor_msgs/ContactArray.h"
 #include "geometry_msgs/Twist.h"
-#include "ros/ros.h"
-#include "sensor_msgs/Imu.h"
-#include "sensor_msgs/JointState.h"
+#include "rclcpp/rclcpp.hpp"
+#include "sensor_msgs/msg/Imu.h"    //TODO: need to check if we need to change this
+#include "sensor_msgs/msg/JointState.h"
 
 #include "kinematics/mini_cheetah_kinematics.h"
 #include "measurement/contact.h"
@@ -70,6 +70,7 @@ typedef std::pair<JointStateQueuePtr, std::shared_ptr<std::mutex>>
 typedef std::queue<std::shared_ptr<LeggedKinematics>> LegKinQueue;
 typedef std::shared_ptr<LegKinQueue> LegKinQueuePtr;
 typedef std::pair<LegKinQueuePtr, std::shared_ptr<std::mutex>> LegKinQueuePair;
+
 typedef message_filters::Subscriber<custom_sensor_msgs::ContactArray>
     ContactMsgFilterT;
 typedef message_filters::Subscriber<sensor_msgs::JointState>
@@ -94,9 +95,9 @@ class ROSSubscriber {
   /**
    * @brief Construct a new ROSSubscriber object
    *
-   * @param[in] nh ROS node handle
+   * @param[in] node ROS node handle
    */
-  ROSSubscriber(ros::NodeHandle* nh);
+  ROSSubscriber(rclcpp::Node::SharedPtr node);
   /// @}
 
   /// @name Destructors
@@ -220,8 +221,8 @@ class ROSSubscriber {
 
   void RosSpin();
 
-  ros::NodeHandle* nh_;                             // The ROS handle
-  std::vector<ros::Subscriber> subscriber_list_;    // List of subscribers
+  rclcpp::Node::SharedPtr node_;                         // The ROS handle
+  std::vector<rclcpp::Subscription> subscriber_list_;    // List of subscribers
 
   std::vector<ContactMsgFilterTPtr> contact_subscriber_list_;
   std::vector<JointStateMsgFilterTPtr> joint_state_subscriber_list_;

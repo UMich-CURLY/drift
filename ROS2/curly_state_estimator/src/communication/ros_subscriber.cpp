@@ -16,8 +16,8 @@
 namespace ros_wrapper {
 
 
-ROSSubscriber::ROSSubscriber(ros::NodeHandle* nh)
-    : nh_(nh), thread_started_(false) {}
+ROSSubscriber::ROSSubscriber(rclcpp::Node::SharedPtr node)
+    : node_(node), thread_started_(false) {}
 
 
 ROSSubscriber::~ROSSubscriber() {
@@ -39,7 +39,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
+  subscriber_list_.push_back(node_->create_subscription<sensor_msgs::Imu>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::IMUCallback, this, _1, mutex_list_.back(),
                   imu_queue_ptr)));
@@ -59,7 +59,7 @@ GPSVelQueuePair ROSSubscriber::AddGPSVelocitySubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
+  subscriber_list_.push_back(node_->create_subscription<sensor_msgs::Imu>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::GPSVelCallback, this, _1, mutex_list_.back(),
                   gps_vel_queue_ptr)));
@@ -80,9 +80,9 @@ LegKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   contact_subscriber_list_.push_back(
-      std::make_shared<ContactMsgFilterT>(*nh_, contact_topic_name, 1));
+      std::make_shared<ContactMsgFilterT>(*node_, contact_topic_name, 1));
   joint_state_subscriber_list_.push_back(
-      std::make_shared<JointStateMsgFilterT>(*nh_, encoder_topic_name, 1));
+      std::make_shared<JointStateMsgFilterT>(*node_, encoder_topic_name, 1));
 
 
   // ApproximateTime takes a queue size as its constructor argument, hence
@@ -111,7 +111,7 @@ VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<sensor_msgs::JointState>(
+  subscriber_list_.push_back(node_->create_subscription<sensor_msgs::JointState>(
       topic_name, 1000,
       boost::bind(&ROSSubscriber::DifferentialEncoder2VelocityCallback, this,
                   _1, mutex_list_.back(), vel_queue_ptr)));

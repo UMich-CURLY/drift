@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
 
 #include "communication/ros_subscriber.h"
 #include "measurement/contact.h"
@@ -28,18 +29,20 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/thread.hpp>
 
+#include "rclcpp/rclcpp.hpp"
 
 int main(int argc, char** argv) {
-  ros::init(argc, argv, "robot_state_est");
+  rclcpp::init(argc, argv);
+  rclcpp::Node::SharedPtr node = rclcpp::Node::make_shared("robot_state_est");
 
-
-  // ros handle handles the start/shutdown for us
-  ros::NodeHandle nh;
-
-  ros_wrapper::ROSSubscriber ros_sub(&nh);
+  ros_wrapper::ROSSubscriber ros_sub(node);
 
   auto kin_data_buffer_ptr
       = ros_sub.AddKinematicsSubscriber("contact", "/joint_states");
 
   ros_sub.StartSubscribingThread();
+
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+  return 0;
 }

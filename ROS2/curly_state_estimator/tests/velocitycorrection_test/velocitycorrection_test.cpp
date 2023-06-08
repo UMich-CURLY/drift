@@ -12,6 +12,7 @@
 #include <memory>
 #include <string>
 
+#include "rclcpp/rclcpp.hpp"
 #include "communication/ros_subscriber.h"
 #include "filter/base_correction.h"
 #include "filter/base_propagation.h"
@@ -32,13 +33,11 @@
 
 
 int main(int argc, char** argv) {
-  ros::init(argc, argv, "robot_state_est");
+  rclcpp::init(argc, argv);
 
+  auto node = rclcpp::Node::make_shared("robot_state_est");
 
-  // ros handle handles the start/shutdown for us
-  ros::NodeHandle nh;
-
-  ros_wrapper::ROSSubscriber ros_sub(&nh);
+  ros_wrapper::ROSSubscriber ros_sub(node);
 
   inekf::ErrorType error_type = RightInvariant;
   StateEstimator state_estimator(params, error_type);
@@ -85,4 +84,7 @@ int main(int argc, char** argv) {
       }
     }
   }
+
+  rclcpp::shundown();
+  return 0;
 }
