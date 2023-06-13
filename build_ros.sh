@@ -25,4 +25,4 @@ cd ROS/drift
 mkdir build
 cd build
 cmake .. -DROS_BUILD_TYPE=Release -Wno-dev 
-make -j6
+make -j2

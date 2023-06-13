@@ -38,6 +38,13 @@ using namespace measurement;
 
 namespace imu_filter {
 
+enum CORRECTION_METHOD {
+  SINGLE_IMU_PLUS_ANG_VEL = 0,
+  SINGLE_IMU = 1,
+  MULTI_IMU = 2,
+  ANG_VEL = 3,
+};
+
 /**
  * @class ImuAngVelEKF
  */
@@ -147,13 +154,99 @@ class ImuAngVelEKF {
   void clear();
   /// @}
 
+  /// @name Adders
+  /// @{
+  // =======================================================================
+  /**
+   * @brief Change filter setting to use gyro data from imu meausrement to
+   * perform EKF propagation
+   *
+   * @param[in] imu_data_buffer_ptr: Pointer to the source of gyro / imu
+   * measurement
+   */
+  void add_gyro_propagate(
+      IMUQueuePtr imu_data_buffer_ptr,
+      std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr);
+
+  /**
+   * @brief add an imu correction
+   *
+   * @param[in] imu_data_buffer_ptr: Pointer to the buffer of IMU sensor
+   * data.
+   * @param[in] imu_data_buffer_mutex_ptr: Pointer to the mutex for the.
+   * IMU sensor data buffer.
+   */
+  void add_imu_correction(
+      IMUQueuePtr imu_data_buffer_ptr,
+      std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr);
+
+  /**
+   * @brief add an angular velocity correction
+   *
+   * @param[in] ang_vel_data_buffer_ptr: Pointer to the buffer of angular
+   * velocity sensor data.
+   * @param[in] ang_vel_data_buffer_mutex_ptr: Pointer to the mutex for the
+   * angular velocity sensor data buffer.
+   */
+  void add_ang_vel_correction(
+      AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
+      std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr);
+
+  /**
+   * @brief name a correction method to be used in this filter. Note: please
+   * ensure the number of IMU matches the method you use.
+   *
+   * @param[in] correction_method: SINGLE_IMU_PLUS_ANG_VEL, SINGLE_IMU,
+   * MULTI_IMU, ANG_VEL
+   */
+  void add_correction_method(CORRECTION_METHOD correction_method) {
+    correction_method_ = correction_method;
+  }
+  /// @}
+
+  /// @name Macro Correction Methods
+  // ======================================================================
+  /// @{
+  /**
+   * @brief
+   */
+  void SingleImuCorrection();
+
+  /**
+   * @brief
+   */
+  void MultiImuCorrection();
+
+  /**
+   * @brief
+   */
+  void SingleImuAngVelCorrection();
+
+  /**
+   * @brief
+   */
+  void AngVelCorrection();
+  /// @}
+
+  /// @name Propagation methods
+  // =====================================================================
+  /**
+   * @brief
+   */
+  void GyroPropagate();
+
+  /**
+   * @brief
+   */
+  void RandomWalkPropagate();
+
  private:
   /// @name helper functions
   /// @{
   // ======================================================================
   /**
-   * @brief Propagate the angular velocity filter. We assume the state (anguler
-   * velocity) undergoes a random walk.
+   * @brief Propagate the angular velocity filter. We assume the state
+   * (anguler velocity) undergoes a random walk.
    *
    */
   void AngVelFilterPropagate();
@@ -219,14 +312,35 @@ class ImuAngVelEKF {
                                       const double dt, const RobotState& state);
   /// @} // End of helper functions
 
+  IMUQueuePtr
+      gyro_prop_data_buffer_ptr_;    // Pointer to gyro / IMU sensor data buffer
+  std::shared_ptr<std::mutex> gyro_prop_data_buffer_mutex_ptr_;
+
+  // These are pointer to measurements that will be used in correction step
   IMUQueuePtr imu_data_buffer_ptr_;    // Pointer to the sensor data buffer.
   std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr_;
+  std::vector<IMUQueuePtr>
+      imu_data_buffer_ptrs_;    // Vector of imu data buffer pointers
+  std::vector<std::shared_ptr<std::mutex>> imu_data_buffer_mutex_ptrs_;
+
   AngularVelocityQueuePtr ang_vel_data_buffer_ptr_;
   std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr_;
+
+  bool enable_gyro_propagate_ = false;
+
+  double last_propagate_time_
+      = -1;    // This will only be modified if user uses GyroPropagte method.
+  double t_thres_;    // Threshold between correction time and propagation time
+
+  CORRECTION_METHOD correction_method_ = SINGLE_IMU_PLUS_ANG_VEL;
+
+  Eigen::Vector3d prev_ang_vel_measurement_ = Eigen::Vector3d::Zero();
+
   Eigen::Matrix3d
       R_imu2body_inverse_;    // Inverse of rotation matrix that brings
-                              // measurement from IMU frame to body frame. i.e.
-                              // takes measurements in body frame to imu frame.
+                              // measurement from IMU frame to body frame.
+                              // i.e. takes measurements in body frame to
+                              // imu frame.
   // IMU bias initialization related variables:
   Eigen::Vector3d bg0_ = Eigen::Vector3d::Zero();    // Gyroscope bias prior.
   Eigen::Vector3d ba0_

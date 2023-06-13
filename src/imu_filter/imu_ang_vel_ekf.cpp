@@ -59,6 +59,11 @@ ImuAngVelEKF::ImuAngVelEKF(
       quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
   R_imu2body_inverse_ = quarternion_imu2body.toRotationMatrix().transpose();
 
+  // Set time threshold between propagation and correction
+  t_thres_ = config_["settings"]["t_threshold"]
+                 ? config_["settings"]["t_threshold"].as<double>()
+                 : 0.03;
+
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
                            ? config_["noises"]["ang_vel_std"].as<double>()
@@ -161,6 +166,34 @@ ImuAngVelEKF::~ImuAngVelEKF() {
   filtered_ang_vel_outfile_.close();
 }
 
+void ImuAngVelEKF::add_gyro_propagate(
+    IMUQueuePtr imu_data_buffer_ptr,
+    std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr) {
+  gyro_prop_data_buffer_ptr_ = imu_data_buffer_ptr;
+  gyro_prop_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
+  enable_gyro_propagate_ = true;
+}
+
+void ImuAngVelEKF::add_imu_correction(
+    IMUQueuePtr imu_data_buffer_ptr,
+    std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr) {
+  // For single imu version:
+  imu_data_buffer_ptr_ = imu_data_buffer_ptr;
+  imu_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
+
+  // For all versions:
+  imu_data_buffer_ptrs_.push_back(imu_data_buffer_ptr);
+  imu_data_buffer_mutex_ptrs_.push_back(imu_data_buffer_mutex_ptr);
+}
+
+void ImuAngVelEKF::add_ang_vel_correction(
+    AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
+    std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr) {
+  ang_vel_data_buffer_ptr_ = ang_vel_data_buffer_ptr;
+  ang_vel_data_buffer_mutex_ptr_ = ang_vel_data_buffer_mutex_ptr;
+}
+
+
 // Start IMU filter thread
 void ImuAngVelEKF::StartImuFilterThread() {
   std::cout << "Starting IMU filter thread..." << std::endl;
@@ -175,6 +208,82 @@ void ImuAngVelEKF::RunFilter() {
 
 // IMU propagation method
 void ImuAngVelEKF::RunOnce() {
+  AngVelFilterPropagate();
+
+  switch (correction_method_) {
+    case SINGLE_IMU_PLUS_ANG_VEL:
+      SingleImuAngVelCorrection();
+      break;
+    case SINGLE_IMU:
+      SingleImuCorrection();
+      break;
+    case MULTI_IMU:
+      MultiImuCorrection();
+      break;
+    case ANG_VEL:
+      AngVelCorrection();
+      break;
+    default:
+      std::cerr << "Please name a correction enumeration" << std::endl;
+      break;
+  }
+}
+
+void ImuAngVelEKF::SingleImuCorrection() {
+  // Bias corrected IMU measurements
+  imu_data_buffer_mutex_ptr_.get()->lock();
+  if (imu_data_buffer_ptr_->empty()) {
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  ImuMeasurementPtr imu_measurement = imu_data_buffer_ptr_.get()->front();
+  imu_data_buffer_ptr_.get()->pop();
+  imu_data_buffer_mutex_ptr_.get()->unlock();
+
+  // Only perform correction step if with data prior to the propagation time
+  // and the time gap is smaller than a threshold
+  if (last_propagate_time_ == -1
+      || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
+    auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
+    filtered_imu_data_buffer_mutex_ptr_.get()->lock();
+    filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
+    filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+  }
+}
+
+void ImuAngVelEKF::MultiImuCorrection() {
+  ImuMeasurementPtr imu_measurement = nullptr;
+  ImuMeasurementPtr fused_ang_imu = nullptr;
+
+  // Bias corrected IMU measurements
+  for (int i = 0; i < imu_data_buffer_ptrs_.size(); i++) {
+    imu_data_buffer_mutex_ptrs_[i].get()->lock();
+    if (imu_data_buffer_ptrs_[i]->empty()) {
+      imu_data_buffer_mutex_ptrs_[i].get()->unlock();
+      continue;
+    }
+
+    imu_measurement = imu_data_buffer_ptrs_[i].get()->front();
+    imu_data_buffer_ptrs_[i].get()->pop();
+    imu_data_buffer_mutex_ptrs_[i].get()->unlock();
+
+    // Only perform correction step if with data prior to the propagation time
+    // and the time gap is smaller than a threshold
+    if (last_propagate_time_ == -1
+        || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
+      fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
+    }
+
+    if (fused_ang_imu) {
+      filtered_imu_data_buffer_mutex_ptr_.get()->lock();
+      filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
+      filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+    }
+  }
+}
+
+void ImuAngVelEKF::SingleImuAngVelCorrection() {
   ImuMeasurementPtr imu_measurement = nullptr;
   AngularVelocityMeasurementPtr ang_vel_measurement = nullptr;
   // Bias corrected IMU measurements
@@ -208,20 +317,59 @@ void ImuAngVelEKF::RunOnce() {
   }
 
   // =================== Angular Velocity filter ====================
-  AngVelFilterPropagate();
   if (imu_measurement) {
     latest_imu_measurement_ = imu_measurement;
-    auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
-
-    filtered_imu_data_buffer_mutex_ptr_.get()->lock();
-    filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
-    filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+    if (last_propagate_time_ == -1
+        || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
+      auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
+      filtered_imu_data_buffer_mutex_ptr_.get()->lock();
+      filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
+      filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+    }
 
     imu_data_buffer_mutex_ptr_.get()->lock();
-    imu_data_buffer_ptr_->pop();
+    imu_data_buffer_ptr_.get()->pop();
     imu_data_buffer_mutex_ptr_.get()->unlock();
     return;
   }
+
+  if (ang_vel_measurement && !latest_imu_measurement_) {
+    ang_vel_data_buffer_mutex_ptr_.get()->lock();
+    ang_vel_data_buffer_ptr_.get()->pop();
+    ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  // only execute the following code if we have a latest_imu_measurement_
+  if (ang_vel_measurement && latest_imu_measurement_) {
+    if (last_propagate_time_ == -1
+        || last_propagate_time_ - ang_vel_measurement->get_time() <= t_thres_) {
+      auto fused_ang_imu = AngVelFilterCorrectEncoder(latest_imu_measurement_,
+                                                      ang_vel_measurement);
+      filtered_imu_data_buffer_mutex_ptr_.get()->lock();
+      filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
+      filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+    }
+
+    ang_vel_data_buffer_mutex_ptr_.get()->lock();
+    ang_vel_data_buffer_ptr_->pop();
+    ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+}
+
+void ImuAngVelEKF::AngVelCorrection() {
+  // Angular velocity measurements
+  ang_vel_data_buffer_mutex_ptr_.get()->lock();
+  if (ang_vel_data_buffer_ptr_->empty()) {
+    ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  AngularVelocityMeasurementPtr ang_vel_measurement
+      = ang_vel_data_buffer_ptr_->front();
+  ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+
 
   if (ang_vel_measurement && !latest_imu_measurement_) {
     ang_vel_data_buffer_mutex_ptr_.get()->lock();
@@ -245,8 +393,42 @@ void ImuAngVelEKF::RunOnce() {
   }
 }
 
-
 void ImuAngVelEKF::AngVelFilterPropagate() {
+  if (enable_gyro_propagate_) {
+    this->GyroPropagate();
+  } else {
+    this->RandomWalkPropagate();
+  }
+}
+
+void ImuAngVelEKF::GyroPropagate() {
+  // Take Gyro data:
+  gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+  if (gyro_prop_data_buffer_ptr_->empty()) {
+    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  ImuMeasurementPtr imu_measurement = gyro_prop_data_buffer_ptr_->front();
+  gyro_prop_data_buffer_ptr_->pop();
+  gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+
+  last_propagate_time_ = imu_measurement->get_time();
+
+  // Use gyro measurement data to perform propagation
+  // w_(k+1) = w_(t+1) - w_t + w_k
+  Eigen::VectorXd measurement_diff = Eigen::VectorXd::Zero(6);
+  measurement_diff.block<3, 1>(0, 0)
+      = imu_measurement->get_ang_vel() - prev_ang_vel_measurement_;
+  prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
+
+  ang_vel_and_bias_est_ = measurement_diff + ang_vel_and_bias_est_;
+
+  // Covariance propagation
+  ang_vel_and_bias_P_ = ang_vel_and_bias_P_ + ang_vel_and_bias_Q_;
+}
+
+void ImuAngVelEKF::RandomWalkPropagate() {
   // Random walk
   // X = X, so we don't need to do anything for mean propagation
 

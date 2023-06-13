@@ -12,6 +12,9 @@ settings:
   # if flat_ground is false, the filter would only update the yaw velocity
   flat_ground: false
 
+  # Time threshold between propagation and correction:
+  t_threshold: 0.03
+
 noises:
   ang_vel_std: 0.1
   ang_vel_bias_std: 0.1

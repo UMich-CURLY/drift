@@ -224,6 +224,7 @@ const bool InekfEstimator::BiasInitialized() const {
         = std::dynamic_pointer_cast<ImuDOBPropagation>(propagation_);
     return imu_propagation_ptr.get()->get_bias_initialized();
   }
+  return false;
 }
 
 void InekfEstimator::InitBias() {
