@@ -94,12 +94,13 @@ ImuAngVelEKF::ImuAngVelEKF(
       = config_["noises"]["encoder_meas_noise_std"]
             ? config_["noises"]["encoder_meas_noise_std"].as<double>()
             : 0.1;
-
+  ang_vel_and_bias_P_ = Eigen::MatrixXd::Zero(6, 6);
   ang_vel_and_bias_P_.block<3, 3>(0, 0)
       = ang_vel_std * ang_vel_std * Eigen::Matrix3d::Identity();
   ang_vel_and_bias_P_.block<3, 3>(3, 3)
       = ang_vel_bias_std * ang_vel_bias_std * Eigen::Matrix3d::Identity();
 
+  ang_vel_and_bias_Q_ = Eigen::MatrixXd::Zero(6, 6);
   ang_vel_and_bias_Q_.block<3, 3>(0, 0)
       = filter_std * filter_std
         * Eigen::Matrix3d::Identity();    // Process noise
@@ -221,11 +222,14 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
             ? config_["noises"]["encoder_meas_noise_std"].as<double>()
             : 0.1;
 
+  ang_vel_and_bias_P_ = Eigen::MatrixXd::Zero(6, 6);
   ang_vel_and_bias_P_.block<3, 3>(0, 0)
       = ang_vel_std * ang_vel_std * Eigen::Matrix3d::Identity();
   ang_vel_and_bias_P_.block<3, 3>(3, 3)
       = ang_vel_bias_std * ang_vel_bias_std * Eigen::Matrix3d::Identity();
 
+
+  ang_vel_and_bias_Q_ = Eigen::MatrixXd::Zero(6, 6);
   ang_vel_and_bias_Q_.block<3, 3>(0, 0)
       = filter_std * filter_std
         * Eigen::Matrix3d::Identity();    // Process noise
@@ -259,6 +263,7 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
 
 
   // Set the initial bias
+  ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
   std::vector<double> ang_vel_bias
       = config_["priors"]["ang_vel_bias"]
             ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
@@ -343,6 +348,8 @@ void ImuAngVelEKF::RunFilter() {
 
 // IMU propagation method
 void ImuAngVelEKF::RunOnce() {
+  /// TODO: make the switch statement dependent on the add_ functions instead of
+  /// configs
   AngVelFilterPropagate();
 
   switch (correction_method_) {

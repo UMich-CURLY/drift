@@ -1,8 +1,8 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/home/ubuntu/code/data/husky/husky_gyro_filter.txt"
-  pose_log_rate: 10 # Hz
+  pose_log_file: "/home/justin/code/drift/log/husky_double_imu.txt"
+  pose_log_rate: 100 # Hz
 
 state:
   rotation_std_value: 0.1
