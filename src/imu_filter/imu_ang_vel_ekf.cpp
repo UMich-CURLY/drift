@@ -64,6 +64,138 @@ ImuAngVelEKF::ImuAngVelEKF(
                  ? config_["settings"]["t_threshold"].as<double>()
                  : 0.03;
 
+  // Set correction method:
+  correction_method_ = CORRECTION_METHOD(
+      config_["settings"]["correction_method"]
+          ? config_["settings"]["correction_method"].as<int>()
+          : 0);
+
+  // Set the noise parameters
+  double ang_vel_std = config_["noises"]["ang_vel_std"]
+                           ? config_["noises"]["ang_vel_std"].as<double>()
+                           : 0.01;
+
+  double ang_vel_bias_std
+      = config_["noises"]["ang_vel_bias_std"]
+            ? config_["noises"]["ang_vel_bias_std"].as<double>()
+            : 0.01;
+  double filter_std = config_["noises"]["filter_std"]
+                          ? config_["noises"]["filter_std"].as<double>()
+                          : 0.01;
+  double filter_bias_std
+      = config_["noises"]["filter_bias_std"]
+            ? config_["noises"]["filter_bias_std"].as<double>()
+            : 0.01;
+  double imu_meas_noise_std
+      = config_["noises"]["imu_meas_noise_std"]
+            ? config_["noises"]["imu_meas_noise_std"].as<double>()
+            : 0.1;
+  double encoder_meas_noise_std
+      = config_["noises"]["encoder_meas_noise_std"]
+            ? config_["noises"]["encoder_meas_noise_std"].as<double>()
+            : 0.1;
+
+  ang_vel_and_bias_P_.block<3, 3>(0, 0)
+      = ang_vel_std * ang_vel_std * Eigen::Matrix3d::Identity();
+  ang_vel_and_bias_P_.block<3, 3>(3, 3)
+      = ang_vel_bias_std * ang_vel_bias_std * Eigen::Matrix3d::Identity();
+
+  ang_vel_and_bias_Q_.block<3, 3>(0, 0)
+      = filter_std * filter_std
+        * Eigen::Matrix3d::Identity();    // Process noise
+  ang_vel_and_bias_Q_.block<3, 3>(3, 3)
+      = filter_bias_std * filter_bias_std
+        * Eigen::Matrix3d::Identity();    // Process noise for bias
+
+  // IMU measurement ang vel noise
+  ang_vel_imu_R_
+      = imu_meas_noise_std * imu_meas_noise_std * Eigen::Matrix3d::Identity();
+
+  // Encoder measurement ang vel noise
+  ang_vel_enc_R_ = encoder_meas_noise_std * encoder_meas_noise_std
+                   * Eigen::Matrix3d::Identity();
+
+  // Set the parameters for the angular velocity filter
+  if (flat_ground == true) {
+    H_imu_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+    H_imu_.block<3, 3>(0, 3) = Eigen::MatrixXd::Identity(3, 3);
+    H_enc_.block<3, 3>(0, 0) = Eigen::MatrixXd::Identity(3, 3);
+    H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
+  } else {
+    // 1D imu filter
+    /// TODO: Add a switch for 1D or 3D filter
+    H_imu_ = Eigen::MatrixXd::Zero(3, 6);
+    H_enc_ = Eigen::MatrixXd::Zero(3, 6);
+    H_imu_(2, 2) = 1;
+    H_imu_(2, 5) = 1;
+    H_enc_(2, 2) = 1;
+  }
+
+
+  // Set the initial bias
+  std::vector<double> ang_vel_bias
+      = config_["priors"]["ang_vel_bias"]
+            ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
+            : std::vector<double>({0, 0, 0});
+  ang_vel_and_bias_est_(3) = ang_vel_bias[0];
+  ang_vel_and_bias_est_(4) = ang_vel_bias[1];
+  ang_vel_and_bias_est_(5) = ang_vel_bias[2];
+
+  std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
+            << ", " << ang_vel_and_bias_est_(4) << ", "
+            << ang_vel_and_bias_est_(5) << "]" << std::endl;
+
+
+  // Temp logger
+  std::string imu_ang_vel_log_file
+      = "/home/justin/code/drift/log/imu_ang_vel_log.txt";
+  imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
+  imu_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string encoder_ang_vel_log_file
+      = "/home/justin/code/drift/log/encoder_ang_vel_log.txt";
+  encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
+  encoder_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string filtered_ang_vel_log_file
+      = "/home/justin/code/drift/log/filtered_ang_vel_log.txt";
+  filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
+  filtered_ang_vel_outfile_.precision(dbl::max_digits10);
+}
+
+ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
+    : filtered_imu_data_buffer_ptr_(new IMUQueue),
+      filtered_imu_data_buffer_mutex_ptr_(new std::mutex) {
+  // Load configs
+  cout << "Loading imu propagation config from " << yaml_filepath << endl;
+  YAML::Node config_ = YAML::LoadFile(yaml_filepath);
+
+
+  // Set the imu to body rotation (bring imu measurements to body frame)
+  const std::vector<double> quat_imu2body
+      = config_["settings"]["rotation_imu2body"]
+            ? config_["settings"]["rotation_imu2body"].as<std::vector<double>>()
+            : std::vector<double>({1, 0, 0, 0});
+
+  bool flat_ground = config_["settings"]["flat_ground"]
+                         ? config_["settings"]["flat_ground"].as<bool>()
+                         : false;
+
+  Eigen::Quaternion<double> quarternion_imu2body(
+      quat_imu2body[0], quat_imu2body[1], quat_imu2body[2], quat_imu2body[3]);
+  R_imu2body_inverse_ = quarternion_imu2body.toRotationMatrix().transpose();
+
+  // Set time threshold between propagation and correction
+  t_thres_ = config_["settings"]["t_threshold"]
+                 ? config_["settings"]["t_threshold"].as<double>()
+                 : 0.03;
+
+  // Set correction method:
+  correction_method_ = CORRECTION_METHOD(
+      config_["settings"]["correction_method"]
+          ? config_["settings"]["correction_method"].as<int>()
+          : 0);
+
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
                            ? config_["noises"]["ang_vel_std"].as<double>()
@@ -177,13 +309,16 @@ void ImuAngVelEKF::add_gyro_propagate(
 void ImuAngVelEKF::add_imu_correction(
     IMUQueuePtr imu_data_buffer_ptr,
     std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr) {
-  // For single imu version:
-  imu_data_buffer_ptr_ = imu_data_buffer_ptr;
-  imu_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
-
-  // For all versions:
-  imu_data_buffer_ptrs_.push_back(imu_data_buffer_ptr);
-  imu_data_buffer_mutex_ptrs_.push_back(imu_data_buffer_mutex_ptr);
+  if (correction_method_ == SINGLE_IMU
+      || correction_method_ == SINGLE_IMU_PLUS_ANG_VEL) {
+    // For single imu version:
+    imu_data_buffer_ptr_ = imu_data_buffer_ptr;
+    imu_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
+  } else {
+    // For all other versions:
+    imu_data_buffer_ptrs_.push_back(imu_data_buffer_ptr);
+    imu_data_buffer_mutex_ptrs_.push_back(imu_data_buffer_mutex_ptr);
+  }
 }
 
 void ImuAngVelEKF::add_ang_vel_correction(

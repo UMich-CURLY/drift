@@ -15,6 +15,13 @@ settings:
   # Time threshold between propagation and correction:
   t_threshold: 0.03
 
+  # Type of correction method:
+  # SINGLE_IMU_PLUS_ANG_VEL: 0
+  # SINGLE_IMU: 1
+  # MULTI_IMU: 2
+  # ANG_VEL: 3
+  correction_method: 0
+
 noises:
   ang_vel_std: 0.1
   ang_vel_bias_std: 0.1

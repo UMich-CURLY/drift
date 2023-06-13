@@ -72,6 +72,11 @@ class ImuAngVelEKF {
                AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
                std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr,
                const std::string& yaml_filepath);
+  /**
+   * @brief Constructor for the propagation class
+   * @param[in] yaml_filepath: Path to the yaml file for the propagation
+   */
+  ImuAngVelEKF(const std::string& yaml_filepath);
   /// @}
 
   /// @name Destructor
@@ -191,39 +196,29 @@ class ImuAngVelEKF {
   void add_ang_vel_correction(
       AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
       std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr);
-
-  /**
-   * @brief name a correction method to be used in this filter. Note: please
-   * ensure the number of IMU matches the method you use.
-   *
-   * @param[in] correction_method: SINGLE_IMU_PLUS_ANG_VEL, SINGLE_IMU,
-   * MULTI_IMU, ANG_VEL
-   */
-  void add_correction_method(CORRECTION_METHOD correction_method) {
-    correction_method_ = correction_method;
-  }
   /// @}
 
   /// @name Macro Correction Methods
   // ======================================================================
   /// @{
   /**
-   * @brief
+   * @brief Perform correction with one imu measurement
    */
   void SingleImuCorrection();
 
   /**
-   * @brief
+   * @brief Perform correction with two or more imu measurements
    */
   void MultiImuCorrection();
 
   /**
-   * @brief
+   * @brief Perform correction with one imu measurement and one angular velocity
+   * measurement
    */
   void SingleImuAngVelCorrection();
 
   /**
-   * @brief
+   * @brief Perform correction with one angular velocity
    */
   void AngVelCorrection();
   /// @}
@@ -231,12 +226,12 @@ class ImuAngVelEKF {
   /// @name Propagation methods
   // =====================================================================
   /**
-   * @brief
+   * @brief Perform propagation with imu / gyro measurement
    */
   void GyroPropagate();
 
   /**
-   * @brief
+   * @brief Perform propagation with random walk method
    */
   void RandomWalkPropagate();
 
@@ -278,38 +273,6 @@ class ImuAngVelEKF {
       const ImuMeasurementPtr& imu_measurement,
       const AngularVelocityMeasurementPtr& ang_vel_measurement);
 
-
-  // ======================================================================
-  /**
-   * @brief computes the discretized state transition matrix in Equation 55 and
-   * 58 from Ross Hartley's paper:
-   * https://journals.sagepub.com/doi/10.1177/0278364919894385
-   *
-   * @param[in] w: The unbiased angular velocity measured from an imu (rad/s)
-   * @param[in] a: The unbiased linear acceleration measured from an imu (m/s)
-   * @param[in] dt: Time step
-   * @param[in,out] state: the current state estimate
-   *
-   * @return Eigen::MatrixXd: the discretized state transition matrix
-   */
-  Eigen::MatrixXd StateTransitionMatrix(const Eigen::Vector3d& w,
-                                        const Eigen::Vector3d& a,
-                                        const double dt, RobotState& state);
-
-  // ======================================================================
-  /**
-   * @brief computes the discretized noise matrix. Details are presented in
-   * Equation (52) and (59) to (61) from Ross Hartley's paper:
-   * https://journals.sagepub.com/doi/10.1177/0278364919894385
-   *
-   * @param[in] Phi: The state transition matrix.
-   * @param[in] dt: Time step.
-   * @param[in,out] state: The robot state.
-   *
-   * @return Eigen::MatrixXd: The discretized noise matrix
-   */
-  Eigen::MatrixXd DiscreteNoiseMatrix(const Eigen::MatrixXd& Phi,
-                                      const double dt, const RobotState& state);
   /// @} // End of helper functions
 
   IMUQueuePtr
