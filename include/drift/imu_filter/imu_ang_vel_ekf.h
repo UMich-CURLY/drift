@@ -132,6 +132,9 @@ class ImuAngVelEKF {
    * buffer mutex pointer
    */
   std::shared_ptr<std::mutex> get_filtered_imu_data_buffer_mutex_ptr();
+
+  std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
+  get_filtered_imu_data_buffer_and_mutex_ptr();
   /// @}
 
 
@@ -331,7 +334,9 @@ class ImuAngVelEKF {
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
       bias_init_vec_;    // The initialized IMU bias value in the order of
-                         // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
+  // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
+
+  bool filter_initialized_ = false;
 
   // Variables for the angular velocity filter
   ImuMeasurementPtr latest_imu_measurement_ = nullptr;

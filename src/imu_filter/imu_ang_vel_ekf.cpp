@@ -378,6 +378,7 @@ void ImuAngVelEKF::SingleImuCorrection() {
 
   // Only perform correction step if with data prior to the propagation time
   // and the time gap is smaller than a threshold
+  /// TODO: double check if we need absolute here?
   if (last_propagate_time_ == -1
       || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
     auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
@@ -548,6 +549,12 @@ void ImuAngVelEKF::GyroPropagate() {
   gyro_prop_data_buffer_ptr_->pop();
   gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
 
+  if (!filter_initialized_) {
+    prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
+    filter_initialized_ = true;
+    return;
+  }
+
   last_propagate_time_ = imu_measurement->get_time();
 
   // Use gyro measurement data to perform propagation
@@ -656,6 +663,11 @@ std::shared_ptr<std::mutex>
 ImuAngVelEKF::get_filtered_imu_data_buffer_mutex_ptr() {
   return filtered_imu_data_buffer_mutex_ptr_;
 }
+
+std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
+ImuAngVelEKF::get_filtered_imu_data_buffer_and_mutex_ptr() {
+  return {filtered_imu_data_buffer_ptr_, filtered_imu_data_buffer_mutex_ptr_};
+};
 
 void ImuAngVelEKF::clear() {
   // Clear Imu data buffer

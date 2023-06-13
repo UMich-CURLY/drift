@@ -189,3 +189,13 @@ target_link_libraries(girona500
   drift
   yaml-cpp
 )
+
+rosbuild_add_executable(husky_double_imu_filter
+  ${PROJECT_SOURCE_DIR}/examples/husky_double_imu_filter.cpp)
+
+target_link_libraries(husky_double_imu_filter
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
