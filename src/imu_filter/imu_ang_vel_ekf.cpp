@@ -278,18 +278,29 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
 
 
   // Temp logger
+
+  std::string imu_propagate_input_file
+      = "/home/justin/code/drift/log/imu_propagate_input_log.txt";
+  imu_propagate_input_outfile_.open(imu_propagate_input_file);
+  imu_propagate_input_outfile_.precision(dbl::max_digits10);
+
+  std::string imu_propagate_file
+      = "/home/justin/code/drift/log/imu_propagate_log_.txt";
+  imu_propagate_outfile_.open(imu_propagate_file);
+  imu_propagate_outfile_.precision(dbl::max_digits10);
+
   std::string imu_ang_vel_log_file
-      = "/home/justin/code/drift/log/imu_ang_vel_log.txt";
+      = "/home/justin/code/drift/log/imu_correction_input_log.txt";
   imu_ang_vel_outfile_.open(imu_ang_vel_log_file);
   imu_ang_vel_outfile_.precision(dbl::max_digits10);
 
   std::string encoder_ang_vel_log_file
-      = "/home/justin/code/drift/log/encoder_ang_vel_log.txt";
+      = "/home/justin/code/drift/log/encoder_input_log.txt";
   encoder_ang_vel_outfile_.open(encoder_ang_vel_log_file);
   encoder_ang_vel_outfile_.precision(dbl::max_digits10);
 
   std::string filtered_ang_vel_log_file
-      = "/home/justin/code/drift/log/filtered_ang_vel_log.txt";
+      = "/home/justin/code/drift/log/filtered_output_log.txt";
   filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
   filtered_ang_vel_outfile_.precision(dbl::max_digits10);
 }
@@ -298,6 +309,8 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
 ImuAngVelEKF::~ImuAngVelEKF() {
   stop_thread_ = true;
   imu_filter_thread_.join();
+  imu_propagate_input_outfile_.close();
+  imu_propagate_outfile_.close();
   imu_ang_vel_outfile_.close();
   encoder_ang_vel_outfile_.close();
   filtered_ang_vel_outfile_.close();
@@ -350,25 +363,61 @@ void ImuAngVelEKF::RunFilter() {
 void ImuAngVelEKF::RunOnce() {
   /// TODO: make the switch statement dependent on the add_ functions instead of
   /// configs
-  AngVelFilterPropagate();
+  if (filter_initialized_) {
+    AngVelFilterPropagate();
 
-  switch (correction_method_) {
-    case SINGLE_IMU_PLUS_ANG_VEL:
-      SingleImuAngVelCorrection();
-      break;
-    case SINGLE_IMU:
-      SingleImuCorrection();
-      break;
-    case MULTI_IMU:
-      MultiImuCorrection();
-      break;
-    case ANG_VEL:
-      AngVelCorrection();
-      break;
-    default:
-      std::cerr << "Please name a correction enumeration" << std::endl;
-      break;
+    switch (correction_method_) {
+      case SINGLE_IMU_PLUS_ANG_VEL:
+        SingleImuAngVelCorrection();
+        break;
+      case SINGLE_IMU:
+        SingleImuCorrection();
+        break;
+      case MULTI_IMU:
+        MultiImuCorrection();
+        break;
+      case ANG_VEL:
+        AngVelCorrection();
+        break;
+      default:
+        std::cerr << "Please name a correction enumeration" << std::endl;
+        break;
+    }
+  } else {
+    // Initialize filter
+    InitializeFilter();
   }
+}
+
+void ImuAngVelEKF::InitializeFilter() {
+  /// TODO: Currently only support single imu correction
+  imu_data_buffer_mutex_ptr_.get()->lock();
+  if (imu_data_buffer_ptr_->empty()) {
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  ImuMeasurementPtr imu1_measurement = imu_data_buffer_ptr_.get()->front();
+  imu_data_buffer_ptr_.get()->pop();
+  imu_data_buffer_mutex_ptr_.get()->unlock();
+
+  // ang_vel_and_bias_est_.head(3) = imu1_measurement->get_ang_vel();
+
+  gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+  if (gyro_prop_data_buffer_ptr_->empty()) {
+    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+    return;
+  }
+
+  /// TODO: use multiple measurements to get better initialization
+  ImuMeasurementPtr imu0_measurement = gyro_prop_data_buffer_ptr_->front();
+  gyro_prop_data_buffer_ptr_->pop();
+  gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+
+  ang_vel_and_bias_est_.head(3) = imu0_measurement->get_ang_vel();
+  prev_ang_vel_measurement_ = imu0_measurement->get_ang_vel();
+
+  filter_initialized_ = true;
 }
 
 void ImuAngVelEKF::SingleImuCorrection() {
@@ -556,11 +605,11 @@ void ImuAngVelEKF::GyroPropagate() {
   gyro_prop_data_buffer_ptr_->pop();
   gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
 
-  if (!filter_initialized_) {
-    prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
-    filter_initialized_ = true;
-    return;
-  }
+  // if (!filter_initialized_) {
+  //   prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
+  //   // filter_initialized_ = true;
+  //   return;
+  // }
 
   last_propagate_time_ = imu_measurement->get_time();
 
@@ -575,6 +624,22 @@ void ImuAngVelEKF::GyroPropagate() {
 
   // Covariance propagation
   ang_vel_and_bias_P_ = ang_vel_and_bias_P_ + ang_vel_and_bias_Q_;
+
+
+  Eigen::VectorXd imu_ang_vel = imu_measurement->get_ang_vel();
+  imu_propagate_input_outfile_ << imu_measurement->get_time() << ","
+                               << imu_ang_vel(0) << "," << imu_ang_vel(1) << ","
+                               << imu_ang_vel(2) << std::endl
+                               << std::flush;
+
+  imu_propagate_outfile_ << imu_measurement->get_time() << ","
+                         << ang_vel_and_bias_est_(0) << ","
+                         << ang_vel_and_bias_est_(1) << ","
+                         << ang_vel_and_bias_est_(2) << ","
+                         << ang_vel_and_bias_est_(3) << ","
+                         << ang_vel_and_bias_est_(4) << ","
+                         << ang_vel_and_bias_est_(5) << std::endl
+                         << std::flush;
 }
 
 void ImuAngVelEKF::RandomWalkPropagate() {

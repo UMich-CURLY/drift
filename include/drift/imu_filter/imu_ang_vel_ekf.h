@@ -137,14 +137,15 @@ class ImuAngVelEKF {
   get_filtered_imu_data_buffer_and_mutex_ptr();
   /// @}
 
+  void InitializeFilter();
 
   /// @name Initialze IMU bias
   //{
   // ======================================================================
   /**
-   * @brief Initialize IMU bias using the static assumption. This assumes the
-   * robot is static at a horizontal surface. (i.e. The gravity = /f$9.80
-   * m/s^2/f$ is pointing downward.)
+   * @brief Initialize IMU bias using the static assumption. This assumes
+   * the robot is static at a horizontal surface. (i.e. The gravity =
+   * /f$9.80 m/s^2/f$ is pointing downward.)
    *
    * The function takes the first n data points, average their value, and
    * subtract the gravity to get the initial bias.
@@ -237,6 +238,7 @@ class ImuAngVelEKF {
    * @brief Perform propagation with random walk method
    */
   void RandomWalkPropagate();
+
 
  private:
   /// @name helper functions
@@ -356,6 +358,9 @@ class ImuAngVelEKF {
 
 
   // Debugging related:
+
+  std::ofstream imu_propagate_input_outfile_;
+  std::ofstream imu_propagate_outfile_;
   std::ofstream imu_ang_vel_outfile_;
   std::ofstream encoder_ang_vel_outfile_;
   std::ofstream filtered_ang_vel_outfile_;
