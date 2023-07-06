@@ -32,6 +32,7 @@
 #include "custom_sensor_msgs/Contact.h"
 #include "custom_sensor_msgs/ContactArray.h"
 #include "geometry_msgs/TwistStamped.h"
+#include "geometry_msgs/TwistWithCovarianceStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "nav_msgs/Odometry.h"
 #include "ros/ros.h"
@@ -156,6 +157,18 @@ class ROSSubscriber {
   VelocityQueuePair AddVelocitySubscriber(const std::string topic_name);
 
   /**
+   * @brief Add velocity with covariance subscriber to the given topic and
+   * return a queue pair.The queue pair contains the queue and the mutex for the
+   * queue. The queue stores the velocity measurements and the mutex is used to
+   * protect the queue.
+   *
+   * @param[in] topic_name velocity topic name
+   * @return VelocityQueuePair velocity queue pair
+   */
+  VelocityQueuePair AddVelocityWithCovarianceSubscriber(
+      const std::string topic_name);
+
+  /**
    * @brief Add differential drive velocity subscriber
    *
    * @param[in] topic_name differential drive velocity topic name
@@ -263,6 +276,17 @@ class ROSSubscriber {
    */
   void VelocityCallback(
       const boost::shared_ptr<const geometry_msgs::TwistStamped>& vel_msg,
+      const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
+
+  /**
+   * @brief Velocity callback function
+   *
+   * @param[in] vel_msg: velocity with covariance message
+   * @param[in] mutex: mutex for the buffer queue
+   * @param[in] vel_queue: pointer to the buffer queue
+   */
+  void VelocityWithCovarianceCallback(
+      const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>& vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**

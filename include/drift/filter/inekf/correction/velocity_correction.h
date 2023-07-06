@@ -116,7 +116,7 @@ class VelocityCorrection : public Correction {
   Eigen::Matrix3d R_vel2body_; /**> Rotation matrix from velocity frame to body
                                   frame. It stores the value from config file
                                   when the class object is created.*/
-
+  double velocity_scale_;
 
   std::ofstream est_vel_outfile_;
 };

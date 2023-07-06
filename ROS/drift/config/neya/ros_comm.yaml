@@ -1,0 +1,14 @@
+subscribers:
+  # Name all the topics to subscribe from in this section. You may also redefine the variable name
+  # as long as you can load the yaml variable in your main file
+  imu_topic: "/mrzr/localization/imu/imu"
+  velocity_topic: "/mrzr/localization/wheel_encoder/twist"
+
+publishers:
+  # Define publish rate and topics for publishers
+  pose_publish_rate: 1000 # Hz
+  pose_publish_topic: "/neya/vanila_inekf/pose"
+  pose_frame: "odom"
+
+  path_publish_rate: 100 # Hz
+  path_publish_topic: "/neya/vanila_inekf/path"

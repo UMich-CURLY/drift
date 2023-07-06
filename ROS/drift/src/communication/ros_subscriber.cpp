@@ -139,6 +139,26 @@ VelocityQueuePair ROSSubscriber::AddVelocitySubscriber(
   return {vel_queue_ptr, mutex_list_.back()};
 }
 
+VelocityQueuePair ROSSubscriber::AddVelocityWithCovarianceSubscriber(
+    const std::string topic_name) {
+  // Create a new queue for data buffers
+  VelocityQueuePtr vel_queue_ptr(new VelocityQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  // Create the subscriber
+  subscriber_list_.push_back(nh_->subscribe<geometry_msgs::TwistWithCovarianceStamped>(
+      topic_name, 1000,
+      boost::bind(&ROSSubscriber::VelocityWithCovarianceCallback, this, _1,
+                  mutex_list_.back(), vel_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  vel_queue_list_.push_back(vel_queue_ptr);
+
+  return {vel_queue_ptr, mutex_list_.back()};
+}
+
 VelocityQueuePair ROSSubscriber::AddDifferentialDriveVelocitySubscriber(
     const std::string topic_name, double wheel_radius) {
   std::cout << "Subscribing to wheel encoder topic: " << topic_name
@@ -344,6 +364,27 @@ void ROSSubscriber::VelocityCallback(
   vel_measurement->set_velocity(vel_msg->twist.linear.x,
                                 vel_msg->twist.linear.y,
                                 vel_msg->twist.linear.z);
+  mutex.get()->lock();
+  vel_queue->push(vel_measurement);
+  mutex.get()->unlock();
+}
+
+void ROSSubscriber::VelocityWithCovarianceCallback(
+    const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>& vel_msg,
+    const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
+  // Create an velocity measurement object
+  std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
+      new VelocityMeasurement<double>);
+
+  // Set headers and time stamps
+  vel_measurement->set_header(
+      vel_msg->header.seq,
+      vel_msg->header.stamp.sec + vel_msg->header.stamp.nsec / 1000000000.0,
+      vel_msg->header.frame_id);
+
+  vel_measurement->set_velocity(vel_msg->twist.twist.linear.x,
+                                vel_msg->twist.twist.linear.y,
+                                vel_msg->twist.twist.linear.z);
   mutex.get()->lock();
   vel_queue->push(vel_measurement);
   mutex.get()->unlock();

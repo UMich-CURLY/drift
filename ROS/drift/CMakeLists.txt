@@ -199,3 +199,13 @@ target_link_libraries(husky_double_imu_filter
   drift
   yaml-cpp
 )
+
+rosbuild_add_executable(neya
+  ${PROJECT_SOURCE_DIR}/examples/neya.cpp)
+
+target_link_libraries(neya
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)

@@ -48,6 +48,10 @@ VelocityCorrection::VelocityCorrection(
             ? config_["settings"]["rotation_vel2body"].as<std::vector<double>>()
             : std::vector<double>({1, 0, 0, 0});
 
+  velocity_scale_ = config_["settings"]["velocity_scale"]
+                   ? config_["settings"]["velocity_scale"].as<double>()
+                   : 1.0;
+
   // Convert quaternion to rotation matrix for frame transformation
   Eigen::Quaternion<double> quarternion_vel2body(
       quat_vel2body[0], quat_vel2body[1], quat_vel2body[2], quat_vel2body[3]);
@@ -125,7 +129,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
   int startIndex = Z.rows();
   Z.conservativeResize(startIndex + 3, Eigen::NoChange);
   // Rotate the velocity from sensor frame to body frame, then to world frame
-  Z.segment(0, 3) = R * R_vel2body_ * measured_velocity->get_velocity() - v;
+  Z.segment(0, 3) = R * R_vel2body_ * velocity_scale_ * measured_velocity->get_velocity() - v;
 
   // Correct state using stacked observation
   if (Z.rows() > 0) {
