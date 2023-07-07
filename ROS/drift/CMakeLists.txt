@@ -209,3 +209,13 @@ target_link_libraries(neya
   drift
   yaml-cpp
 )
+
+rosbuild_add_executable(neya_gyro_filter
+  ${PROJECT_SOURCE_DIR}/examples/neya_gyro_filter.cpp)
+
+target_link_libraries(neya_gyro_filter
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)

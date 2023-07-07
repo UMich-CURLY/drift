@@ -328,15 +328,14 @@ class ImuAngVelEKF {
   // initial orientation is set to identity.
   // i.e. assumes the robot is on a
   // horizontal flat surface.
-
   bool bias_initialized_ = false;    // Indicating whether IMU bias has been
                                      // initialized using measurements.
   int init_bias_size_;    // Number of IMU measurements to use for bias
                           // initialization.
-  std::vector<Eigen::Matrix<double, 6, 1>,
-              Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
-      bias_init_vec_;    // The initialized IMU bias value in the order of
-  // [gyro_x, gyro_y, gyro_z, accel_x, accel_y, accel_z].
+  std::vector<Eigen::Matrix<double, 3, 1>,
+              Eigen::aligned_allocator<Eigen::Matrix<double, 3, 1>>>
+      bias_init_vec_;    // The initialized gyro bias value in the order of
+  // [gyro_x, gyro_y, gyro_z].
 
   bool filter_initialized_ = false;
 
@@ -349,7 +348,9 @@ class ImuAngVelEKF {
   Eigen::Matrix<double, 3, 3> ang_vel_enc_R_;    // Encoder measurement noise
   Eigen::Matrix<double, 3, 6> H_imu_;
   Eigen::Matrix<double, 3, 6> H_enc_;
-
+  std::vector<Eigen::Matrix<double, 3, 1>,
+              Eigen::aligned_allocator<Eigen::Matrix<double, 3, 1>>>
+      init_vec_;
   // Thread related:
   std::atomic<bool> stop_thread_ = false;
   std::thread imu_filter_thread_;

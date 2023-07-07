@@ -41,7 +41,7 @@ ImuAngVelEKF::ImuAngVelEKF(
       filtered_imu_data_buffer_ptr_(new IMUQueue),
       filtered_imu_data_buffer_mutex_ptr_(new std::mutex) {
   // Load configs
-  cout << "Loading imu propagation config from " << yaml_filepath << endl;
+  cout << "Loading gyro filter config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
 
 
@@ -69,6 +69,28 @@ ImuAngVelEKF::ImuAngVelEKF(
       config_["settings"]["correction_method"]
           ? config_["settings"]["correction_method"].as<int>()
           : 0);
+
+  // Set the initial bias
+  static_bias_initialization_
+      = config_["settings"]["static_bias_initialization"]
+            ? config_["settings"]["static_bias_initialization"].as<bool>()
+            : false;
+  if (static_bias_initialization_ == false) {
+    std::vector<double> ang_vel_bias
+        = config_["priors"]["ang_vel_bias"]
+              ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
+              : std::vector<double>({0, 0, 0});
+    ang_vel_and_bias_est_(3) = ang_vel_bias[0];
+    ang_vel_and_bias_est_(4) = ang_vel_bias[1];
+    ang_vel_and_bias_est_(5) = ang_vel_bias[2];
+
+    std::cout
+        << "Static bias initialization is set to false for the gyro filter. \n "
+           "The biases in the gyro filter are initialized using prior as: ["
+        << ang_vel_and_bias_est_(3) << ", " << ang_vel_and_bias_est_(4) << ", "
+        << ang_vel_and_bias_est_(5) << "]" << std::endl;
+  }
+
 
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
@@ -134,17 +156,25 @@ ImuAngVelEKF::ImuAngVelEKF(
 
 
   // Set the initial bias
-  std::vector<double> ang_vel_bias
-      = config_["priors"]["ang_vel_bias"]
-            ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
-            : std::vector<double>({0, 0, 0});
-  ang_vel_and_bias_est_(3) = ang_vel_bias[0];
-  ang_vel_and_bias_est_(4) = ang_vel_bias[1];
-  ang_vel_and_bias_est_(5) = ang_vel_bias[2];
+  static_bias_initialization_
+      = config_["settings"]["static_bias_initialization"]
+            ? config_["settings"]["static_bias_initialization"].as<bool>()
+            : false;
+  if (static_bias_initialization_ == false) {
+    std::vector<double> ang_vel_bias
+        = config_["priors"]["ang_vel_bias"]
+              ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
+              : std::vector<double>({0, 0, 0});
+    ang_vel_and_bias_est_(3) = ang_vel_bias[0];
+    ang_vel_and_bias_est_(4) = ang_vel_bias[1];
+    ang_vel_and_bias_est_(5) = ang_vel_bias[2];
 
-  std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
-            << ", " << ang_vel_and_bias_est_(4) << ", "
-            << ang_vel_and_bias_est_(5) << "]" << std::endl;
+    std::cout
+        << "Static bias initialization is set to false for the gyro filter. \n "
+           "The biases in the gyro filter are initialized using prior as: ["
+        << ang_vel_and_bias_est_(3) << ", " << ang_vel_and_bias_est_(4) << ", "
+        << ang_vel_and_bias_est_(5) << "]" << std::endl;
+  }
 
 
   // Temp logger
@@ -168,7 +198,7 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
     : filtered_imu_data_buffer_ptr_(new IMUQueue),
       filtered_imu_data_buffer_mutex_ptr_(new std::mutex) {
   // Load configs
-  cout << "Loading imu propagation config from " << yaml_filepath << endl;
+  cout << "Loading gyro filter config from " << yaml_filepath << endl;
   YAML::Node config_ = YAML::LoadFile(yaml_filepath);
 
 
@@ -196,6 +226,10 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
       config_["settings"]["correction_method"]
           ? config_["settings"]["correction_method"].as<int>()
           : 0);
+
+  init_bias_size_ = config_["settings"]["init_bias_size"]
+                        ? config_["settings"]["init_bias_size"].as<int>()
+                        : 250;
 
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
@@ -253,7 +287,6 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
     H_enc_.block<3, 3>(0, 3) = Eigen::MatrixXd::Zero(3, 3);
   } else {
     // 1D imu filter
-    /// TODO: Add a switch for 1D or 3D filter
     H_imu_ = Eigen::MatrixXd::Zero(3, 6);
     H_enc_ = Eigen::MatrixXd::Zero(3, 6);
     H_imu_(2, 2) = 1;
@@ -361,8 +394,6 @@ void ImuAngVelEKF::RunFilter() {
 
 // IMU propagation method
 void ImuAngVelEKF::RunOnce() {
-  /// TODO: make the switch statement dependent on the add_ functions instead of
-  /// configs
   if (filter_initialized_) {
     AngVelFilterPropagate();
 
@@ -401,23 +432,36 @@ void ImuAngVelEKF::InitializeFilter() {
   imu_data_buffer_ptr_.get()->pop();
   imu_data_buffer_mutex_ptr_.get()->unlock();
 
-  // ang_vel_and_bias_est_.head(3) = imu1_measurement->get_ang_vel();
+  if (bias_init_vec_.size() < init_bias_size_ && static_bias_initialization_) {
+    bias_init_vec_.push_back(imu1_measurement->get_ang_vel());
 
-  gyro_prop_data_buffer_mutex_ptr_.get()->lock();
-  if (gyro_prop_data_buffer_ptr_->empty()) {
-    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
-    return;
+    if (enable_gyro_propagate_) {
+      gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+      if (gyro_prop_data_buffer_ptr_->empty()) {
+        gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+        return;
+      }
+
+      ImuMeasurementPtr imu0_measurement = gyro_prop_data_buffer_ptr_->front();
+      gyro_prop_data_buffer_ptr_->pop();
+      gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+
+      prev_ang_vel_measurement_ = imu0_measurement->get_ang_vel();
+    }
+  } else {
+    Eigen::Matrix<double, 3, 1> avg = Eigen::Matrix<double, 3, 1>::Zero();
+    for (int i = 0; i < bias_init_vec_.size(); ++i) {
+      avg = (avg + bias_init_vec_[i]).eval();
+    }
+    avg = (avg / bias_init_vec_.size()).eval();
+    std::cout << "Biases in the gyro filter are initialized to: "
+              << avg.transpose() << std::endl;
+
+    ang_vel_and_bias_est_.head(3) = Eigen::Matrix<double, 3, 1>::Zero();
+    ang_vel_and_bias_est_.tail(3) = avg;
+
+    filter_initialized_ = true;
   }
-
-  /// TODO: use multiple measurements to get better initialization
-  ImuMeasurementPtr imu0_measurement = gyro_prop_data_buffer_ptr_->front();
-  gyro_prop_data_buffer_ptr_->pop();
-  gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
-
-  ang_vel_and_bias_est_.head(3) = imu0_measurement->get_ang_vel();
-  prev_ang_vel_measurement_ = imu0_measurement->get_ang_vel();
-
-  filter_initialized_ = true;
 }
 
 void ImuAngVelEKF::SingleImuCorrection() {
@@ -604,12 +648,6 @@ void ImuAngVelEKF::GyroPropagate() {
   ImuMeasurementPtr imu_measurement = gyro_prop_data_buffer_ptr_->front();
   gyro_prop_data_buffer_ptr_->pop();
   gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
-
-  // if (!filter_initialized_) {
-  //   prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
-  //   // filter_initialized_ = true;
-  //   return;
-  // }
 
   last_propagate_time_ = imu_measurement->get_time();
 

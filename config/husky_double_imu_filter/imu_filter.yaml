@@ -22,6 +22,11 @@ settings:
   # ANG_VEL: 3
   correction_method: 1
 
+
+  static_bias_initialization: false
+  init_bias_size: 250
+
+
 noises:
   ang_vel_std: 0.1
   ang_vel_bias_std: 0.1

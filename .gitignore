@@ -42,6 +42,7 @@ ROS/drift/husky_odom_dob
 ROS/drift/girona500
 ROS/drift/husky_double_imu_filter
 ROS/drift/neya
+ROS/drift/neya_gyro_filter
 
 build/
 lib/
