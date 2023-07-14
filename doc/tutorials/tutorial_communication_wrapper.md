@@ -56,7 +56,7 @@ void ROSSubscriber::IMUCallback(
       imu_msg->header.stamp.sec + imu_msg->header.stamp.nsec / 1000000000.0,
       imu_msg->header.frame_id);
   // Set angular velocity
-  imu_measurement->set_ang_vel(imu_msg->angular_velocity.x,
+  imu_measurement->set_angular_velocity(imu_msg->angular_velocity.x,
                                imu_msg->angular_velocity.y,
                                imu_msg->angular_velocity.z);
   // Set linear acceleration

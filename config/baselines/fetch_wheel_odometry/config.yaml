@@ -1,0 +1,4 @@
+logger:
+  enable_pose_logger: true
+  pose_log_file: "/home/justin/code/drift/log/fetch_wheel_odom.txt"
+  pose_log_rate: 100 # Hz

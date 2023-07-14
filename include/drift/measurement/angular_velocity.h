@@ -5,8 +5,8 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   velocity.h
- *  @author Justin Yu
+ *  @file   angular_velocity.h
+ *  @author Tzu-Yuan Lin
  *  @brief  Header file for robot velocity estimate
  *  @date   May 16, 2023
  **/
@@ -43,7 +43,7 @@ class AngularVelocityMeasurement : public Measurement {
    * @param[in] vy: y velocity coefficient.
    * @param[in] vz: z velocity coefficient.
    */
-  void set_ang_vel(T vx, T vy, T vz);
+  void set_angular_velocity(T vx, T vy, T vz);
   /// @}
 
   /// @name Getter
@@ -53,14 +53,14 @@ class AngularVelocityMeasurement : public Measurement {
    *
    * @return 3-vector cotaining the robot-frame velocity (m/s).
    */
-  Eigen::Matrix<T, 3, 1> get_ang_vel() const;
+  Eigen::Matrix<T, 3, 1> get_angular_velocity() const;
 
   /**
    * @brief Get the velocity vector magnitude.
    *
    * @return magnitude of robot-frame velocity vector (m/s).
    */
-  double get_ang_vel_mag() const;
+  double get_angular_velocity_magnitude() const;
 
   /**
    * @brief Get the velocity unit vector.

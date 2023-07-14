@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
       std::shared_ptr<ImuMeasurement<double>> imu_measurement_ptr(
           new ImuMeasurement<double>);
       imu_measurement_ptr->set_header(seq[i], timestamp, "");
-      imu_measurement_ptr->set_ang_vel(ang_vel_x[i], ang_vel_y[i],
+      imu_measurement_ptr->set_angular_velocity(ang_vel_x[i], ang_vel_y[i],
                                        ang_vel_z[i]);
       imu_measurement_ptr->set_lin_acc(lin_acc_x[i], lin_acc_y[i],
                                        lin_acc_z[i]);
@@ -196,7 +196,7 @@ int main(int argc, char** argv) {
       double vx = (vr + vl) / 2;
       double omega_z = (vr - vl) / track_width;
       vel_measurement->set_velocity(vx, 0, 0);
-      ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+      ang_vel_measurement->set_angular_velocity(0, 0, omega_z);
 
       // Insert the measurement to the queue
       qimu_mutex->lock();

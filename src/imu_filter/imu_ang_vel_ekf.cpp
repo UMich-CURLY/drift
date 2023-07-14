@@ -433,7 +433,7 @@ void ImuAngVelEKF::InitializeFilter() {
   imu_data_buffer_mutex_ptr_.get()->unlock();
 
   if (bias_init_vec_.size() < init_bias_size_ && static_bias_initialization_) {
-    bias_init_vec_.push_back(imu1_measurement->get_ang_vel());
+    bias_init_vec_.push_back(imu1_measurement->get_angular_velocity());
 
     if (enable_gyro_propagate_) {
       gyro_prop_data_buffer_mutex_ptr_.get()->lock();
@@ -446,7 +446,7 @@ void ImuAngVelEKF::InitializeFilter() {
       gyro_prop_data_buffer_ptr_->pop();
       gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
 
-      prev_ang_vel_measurement_ = imu0_measurement->get_ang_vel();
+      prev_ang_vel_measurement_ = imu0_measurement->get_angular_velocity();
     }
   } else {
     Eigen::Matrix<double, 3, 1> avg = Eigen::Matrix<double, 3, 1>::Zero();
@@ -655,8 +655,8 @@ void ImuAngVelEKF::GyroPropagate() {
   // w_(k+1) = w_(t+1) - w_t + w_k
   Eigen::VectorXd measurement_diff = Eigen::VectorXd::Zero(6);
   measurement_diff.block<3, 1>(0, 0)
-      = imu_measurement->get_ang_vel() - prev_ang_vel_measurement_;
-  prev_ang_vel_measurement_ = imu_measurement->get_ang_vel();
+      = imu_measurement->get_angular_velocity() - prev_ang_vel_measurement_;
+  prev_ang_vel_measurement_ = imu_measurement->get_angular_velocity();
 
   ang_vel_and_bias_est_ = measurement_diff + ang_vel_and_bias_est_;
 
@@ -664,7 +664,7 @@ void ImuAngVelEKF::GyroPropagate() {
   ang_vel_and_bias_P_ = ang_vel_and_bias_P_ + ang_vel_and_bias_Q_;
 
 
-  Eigen::VectorXd imu_ang_vel = imu_measurement->get_ang_vel();
+  Eigen::VectorXd imu_ang_vel = imu_measurement->get_angular_velocity();
   imu_propagate_input_outfile_ << imu_measurement->get_time() << ","
                                << imu_ang_vel(0) << "," << imu_ang_vel(1) << ","
                                << imu_ang_vel(2) << std::endl
@@ -690,8 +690,8 @@ void ImuAngVelEKF::RandomWalkPropagate() {
 
 ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
     const ImuMeasurementPtr& imu_measurement) {
-  Eigen::VectorXd z
-      = imu_measurement->get_ang_vel() - H_imu_ * ang_vel_and_bias_est_;
+  Eigen::VectorXd z = imu_measurement->get_angular_velocity()
+                      - H_imu_ * ang_vel_and_bias_est_;
   auto S_inv
       = (H_imu_ * ang_vel_and_bias_P_ * H_imu_.transpose() + ang_vel_imu_R_)
             .inverse();
@@ -702,12 +702,12 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
 
   ImuMeasurementPtr imu_measurement_corrected
       = std::make_shared<ImuMeasurement<double>>(*imu_measurement);
-  imu_measurement_corrected->set_ang_vel(ang_vel_and_bias_est_(0),
-                                         ang_vel_and_bias_est_(1),
-                                         ang_vel_and_bias_est_(2));
+  imu_measurement_corrected->set_angular_velocity(ang_vel_and_bias_est_(0),
+                                                  ang_vel_and_bias_est_(1),
+                                                  ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(imu_measurement->get_time());
 
-  Eigen::VectorXd imu_ang_vel = imu_measurement->get_ang_vel();
+  Eigen::VectorXd imu_ang_vel = imu_measurement->get_angular_velocity();
   imu_ang_vel_outfile_ << imu_measurement->get_time() << "," << imu_ang_vel(0)
                        << "," << imu_ang_vel(1) << "," << imu_ang_vel(2)
                        << std::endl
@@ -727,8 +727,9 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectIMU(
 ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
     const ImuMeasurementPtr& imu_measurement,
     const AngularVelocityMeasurementPtr& ang_vel_measurement) {
-  Eigen::VectorXd z = R_imu2body_inverse_ * ang_vel_measurement->get_ang_vel()
-                      - H_enc_ * ang_vel_and_bias_est_;
+  Eigen::VectorXd z
+      = R_imu2body_inverse_ * ang_vel_measurement->get_angular_velocity()
+        - H_enc_ * ang_vel_and_bias_est_;
 
   auto S_inv
       = (H_enc_ * ang_vel_and_bias_P_ * H_enc_.transpose() + ang_vel_enc_R_)
@@ -740,13 +741,13 @@ ImuMeasurementPtr ImuAngVelEKF::AngVelFilterCorrectEncoder(
 
   ImuMeasurementPtr imu_measurement_corrected
       = std::make_shared<ImuMeasurement<double>>(*imu_measurement);
-  imu_measurement_corrected->set_ang_vel(ang_vel_and_bias_est_(0),
-                                         ang_vel_and_bias_est_(1),
-                                         ang_vel_and_bias_est_(2));
+  imu_measurement_corrected->set_angular_velocity(ang_vel_and_bias_est_(0),
+                                                  ang_vel_and_bias_est_(1),
+                                                  ang_vel_and_bias_est_(2));
   imu_measurement_corrected->set_time(ang_vel_measurement->get_time());
 
   Eigen::VectorXd enc_ang_vel
-      = R_imu2body_inverse_ * ang_vel_measurement->get_ang_vel();
+      = R_imu2body_inverse_ * ang_vel_measurement->get_angular_velocity();
 
   encoder_ang_vel_outfile_ << ang_vel_measurement->get_time() << ","
                            << enc_ang_vel(0) << "," << enc_ang_vel(1) << ","

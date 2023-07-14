@@ -46,6 +46,8 @@ include_directories(
   ${drift_INCLUDE_DIRS}
 )
 
+message("baseline include dir: ${PROJECT_SOURCE_DIR}/../../../baselines/include")
+
 set(LIBS
   ${EIGEN3_LIBS}
   ${catkin_LIBRARIES}
@@ -82,6 +84,13 @@ rosbuild_add_library(ros_communication_lib
   ${ros_subscriber}
   ${ros_publisher}
 )
+
+## baselines
+include_directories(
+  ${PROJECT_SOURCE_DIR}/../../baselines/include)
+rosbuild_add_library(baselines
+  ${PROJECT_SOURCE_DIR}/../../baselines/src/wheel_odometry/wheel_odometry.cpp)
+
 
 # example for legged robot kinemtaics correction:
 rosbuild_add_executable(mini_cheetah
@@ -218,4 +227,17 @@ target_link_libraries(neya_gyro_filter
   ros_communication_lib
   drift
   yaml-cpp
+)
+
+
+### baselines ###
+rosbuild_add_executable(fetch_wheel_odom
+  ${PROJECT_SOURCE_DIR}/baselines/fetch_wheel_odom.cpp)
+
+target_link_libraries(fetch_wheel_odom
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+  baselines
 )

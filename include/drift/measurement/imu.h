@@ -53,7 +53,7 @@ class ImuMeasurement : public Measurement {
    * @param[in] y: axis coefficient.
    * @param[in] z: axis coefficient.
    */
-  void set_ang_vel(T x, T y, T z);
+  void set_angular_velocity(T x, T y, T z);
 
   /**
    * @brief Set the imu measurement linear acceleration (m/s^2).
@@ -87,7 +87,7 @@ class ImuMeasurement : public Measurement {
    *
    * @return The angular velocity (x, y, z).
    */
-  Eigen::Matrix<T, 3, 1> get_ang_vel() const;
+  Eigen::Matrix<T, 3, 1> get_angular_velocity() const;
 
   /**
    * @brief Get the imu measurement linear acceleration coefficients (m/s^2).

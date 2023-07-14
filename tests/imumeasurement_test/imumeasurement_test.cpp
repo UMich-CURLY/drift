@@ -92,9 +92,9 @@ TEST(ImuMeasurementTest, QuaternionRepresentationInvariant) {
 
 TEST(ImuMeasurementTest, AngularVelocitySetGetBasic) {
   ImuMeasurement<double> imu_data;
-  imu_data.set_ang_vel(1, 2, 3);
-  EXPECT_EQ(imu_data.get_ang_vel().x(), 1);
-  EXPECT_EQ(imu_data.get_ang_vel().z(), 3);
+  imu_data.set_angular_velocity(1, 2, 3);
+  EXPECT_EQ(imu_data.get_angular_velocity().x(), 1);
+  EXPECT_EQ(imu_data.get_angular_velocity().z(), 3);
 }
 
 TEST(ImuMeasurementTest, LinearAccelerationSetGetBasic) {

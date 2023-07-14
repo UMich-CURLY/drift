@@ -43,6 +43,7 @@ ROS/drift/girona500
 ROS/drift/husky_double_imu_filter
 ROS/drift/neya
 ROS/drift/neya_gyro_filter
+ROS/drift/fetch_wheel_odom
 
 build/
 lib/

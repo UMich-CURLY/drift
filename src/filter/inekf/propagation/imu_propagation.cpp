@@ -145,7 +145,7 @@ bool ImuPropagation::Propagate(RobotState& state) {
   state.set_time(imu_measurement->get_time());
   state.set_propagate_time(imu_measurement->get_time());
   // Rotate imu frame to align it with the body frame and remove bias:
-  Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
+  Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_angular_velocity()
                       - state.get_gyroscope_bias();    // Angular Velocity
 
   // If IMU is not installed in the center of the robot body, we need to make
@@ -346,11 +346,11 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     Eigen::Matrix3d RG0 = R * G0;
     Eigen::Matrix3d RG1dt = R * G1 * dt;
     Eigen::Matrix3d RG2dt2 = R * G2 * dt2;
-    Phi.block<3, 3>(3, 0) = gx * dt;                             // Phi_21
-    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                      // Phi_31
-    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;    // Phi_32
+    Phi.block<3, 3>(3, 0) = gx * dt;                                  // Phi_21
+    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                           // Phi_31
+    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;         // Phi_32
     if (enable_imu_bias_update_) {
-      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                   // Phi_15
       Phi.block<3, 3>(3, dimP - dimTheta)
           = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
       Phi.block<3, 3>(6, dimP - dimTheta)
@@ -358,7 +358,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
             + RG0 * Phi35L;    // Phi_35
       for (int i = 5; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
+            = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
       }
       Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
       Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
@@ -432,15 +432,18 @@ void ImuPropagation::InitImuBias() {
     sensor_data_buffer_ptr_->pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-    Eigen::Vector3d w = imu_measurement->get_ang_vel();    // Angular Velocity
+    Eigen::Vector3d w
+        = imu_measurement->get_angular_velocity();    // Angular Velocity
     Eigen::Vector3d a
-        = imu_measurement->get_lin_acc();    // Linear Acceleration
+        = imu_measurement->get_lin_acc();             // Linear Acceleration
 
     // Rotate imu frame to align it with the body frame:
     w = R_imu2body_ * w;
     Eigen::Vector3d a_compensate = w.cross(w.cross(t_imu2body_));
     a = R_imu2body_ * a - a_compensate;
 
+
+    // TODO: double check and fix this
     Eigen::Matrix3d R;
     if (use_imu_ori_to_init_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
@@ -505,7 +508,7 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
 
   state.set_rotation(R0);
   state.set_position(p0);
-  state.set_body_angular_velocity(imu_measurement->get_ang_vel());
+  state.set_body_angular_velocity(imu_measurement->get_angular_velocity());
 
   // Set the initial bias
   state.set_gyroscope_bias(bg0_);

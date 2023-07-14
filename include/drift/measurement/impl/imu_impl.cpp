@@ -30,7 +30,7 @@ void ImuMeasurement<T>::set_quaternion(T w, T x, T y, T z) {
 }
 
 template<typename T>
-void ImuMeasurement<T>::set_ang_vel(T x, T y, T z) {
+void ImuMeasurement<T>::set_angular_velocity(T x, T y, T z) {
   angular_velocity_.x() = x;
   angular_velocity_.y() = y;
   angular_velocity_.z() = z;
@@ -54,7 +54,7 @@ Eigen::Quaternion<T> ImuMeasurement<T>::get_quaternion() const {
 }
 
 template<typename T>
-Eigen::Matrix<T, 3, 1> ImuMeasurement<T>::get_ang_vel() const {
+Eigen::Matrix<T, 3, 1> ImuMeasurement<T>::get_angular_velocity() const {
   return angular_velocity_;
 }
 

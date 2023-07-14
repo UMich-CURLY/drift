@@ -148,10 +148,11 @@ VelocityQueuePair ROSSubscriber::AddVelocityWithCovarianceSubscriber(
   mutex_list_.emplace_back(new std::mutex);
 
   // Create the subscriber
-  subscriber_list_.push_back(nh_->subscribe<geometry_msgs::TwistWithCovarianceStamped>(
-      topic_name, 1000,
-      boost::bind(&ROSSubscriber::VelocityWithCovarianceCallback, this, _1,
-                  mutex_list_.back(), vel_queue_ptr)));
+  subscriber_list_.push_back(
+      nh_->subscribe<geometry_msgs::TwistWithCovarianceStamped>(
+          topic_name, 1000,
+          boost::bind(&ROSSubscriber::VelocityWithCovarianceCallback, this, _1,
+                      mutex_list_.back(), vel_queue_ptr)));
 
   // Keep the ownership of the data queue in this class
   vel_queue_list_.push_back(vel_queue_ptr);
@@ -325,9 +326,9 @@ void ROSSubscriber::IMUCallback(
       imu_msg->header.stamp.sec + imu_msg->header.stamp.nsec / 1000000000.0,
       imu_msg->header.frame_id);
   // Set angular velocity
-  imu_measurement->set_ang_vel(imu_msg->angular_velocity.x,
-                               imu_msg->angular_velocity.y,
-                               imu_msg->angular_velocity.z);
+  imu_measurement->set_angular_velocity(imu_msg->angular_velocity.x,
+                                        imu_msg->angular_velocity.y,
+                                        imu_msg->angular_velocity.z);
   // Set linear acceleration
   imu_measurement->set_lin_acc(imu_msg->linear_acceleration.x,
                                imu_msg->linear_acceleration.y,
@@ -370,7 +371,8 @@ void ROSSubscriber::VelocityCallback(
 }
 
 void ROSSubscriber::VelocityWithCovarianceCallback(
-    const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>& vel_msg,
+    const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>&
+        vel_msg,
     const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue) {
   // Create an velocity measurement object
   std::shared_ptr<VelocityMeasurement<double>> vel_measurement(
@@ -451,7 +453,7 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback(
   double omega_z = (vr - vl) / track_width;
 
   vel_measurement->set_velocity(vx, 0, 0);
-  ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+  ang_vel_measurement->set_angular_velocity(0, 0, omega_z);
 
   vel_mutex.get()->lock();
   vel_queue->push(vel_measurement);
@@ -530,7 +532,7 @@ void ROSSubscriber::DifferentialEncoder2VelocityCallback_Fetch(
   double omega_z = (vr - vl) / track_width;
 
   vel_measurement->set_velocity(vx, 0, 0);
-  ang_vel_measurement->set_ang_vel(0, 0, omega_z);
+  ang_vel_measurement->set_angular_velocity(0, 0, omega_z);
   vel_mutex.get()->lock();
   vel_queue->push(vel_measurement);
   vel_mutex.get()->unlock();
@@ -599,7 +601,7 @@ void ROSSubscriber::FetchIMUCallBack(
       imu_msg->header.stamp.sec + imu_msg->header.stamp.nsec / 1000000000.0,
       imu_msg->header.frame_id);
   // Set angular velocity
-  imu_measurement->set_ang_vel(
+  imu_measurement->set_angular_velocity(
       imu_msg->angular_velocity.x + imu_offset_msg->vector.x,
       imu_msg->angular_velocity.y + imu_offset_msg->vector.y,
       imu_msg->angular_velocity.z + imu_offset_msg->vector.z);

@@ -158,7 +158,7 @@ bool ImuDOBPropagation::Propagate(RobotState& state) {
   state.set_time(imu_measurement->get_time());
   state.set_propagate_time(imu_measurement->get_time());
   // Rotate imu frame to align it with the body frame and remove bias:
-  Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_ang_vel()
+  Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_angular_velocity()
                       - state.get_gyroscope_bias();    // Angular Velocity
 
   // If IMU is not installed in the center of the robot body, we need to make
@@ -457,7 +457,7 @@ void ImuDOBPropagation::InitImuBias() {
     sensor_data_buffer_ptr_->pop();
     sensor_data_buffer_mutex_ptr_.get()->unlock();
 
-    Eigen::Vector3d w = imu_measurement->get_ang_vel();    // Angular Velocity
+    Eigen::Vector3d w = imu_measurement->get_angular_velocity();    // Angular Velocity
     Eigen::Vector3d a
         = imu_measurement->get_lin_acc();    // Linear Acceleration
 
@@ -530,7 +530,7 @@ bool ImuDOBPropagation::set_initial_state(RobotState& state) {
 
   state.set_rotation(R0);
   state.set_position(p0);
-  state.set_body_angular_velocity(imu_measurement->get_ang_vel());
+  state.set_body_angular_velocity(imu_measurement->get_angular_velocity());
 
   // Set the initial bias
   state.set_gyroscope_bias(bg0_);

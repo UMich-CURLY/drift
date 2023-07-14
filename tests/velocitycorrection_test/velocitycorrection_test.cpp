@@ -62,7 +62,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   velocity_measurement_0.set_velocity(1, 0, 0);
   velocity_measurement_0.set_time(0);
-  imu_measurement_0.set_ang_vel(0, 0, 0);
+  imu_measurement_0.set_angular_velocity(0, 0, 0);
   imu_measurement_0.set_lin_acc(0, 0, 9.80);
   imu_measurement_0.set_time(0);
   imu_data_buffer_ptr.get()->push(
@@ -75,7 +75,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
 
   velocity_measurement_1.set_velocity(0, 0, 0);
   velocity_measurement_1.set_time(dt);
-  imu_measurement_1.set_ang_vel(0, 0, 0);
+  imu_measurement_1.set_angular_velocity(0, 0, 0);
   imu_measurement_1.set_lin_acc(-1, 0, 9.80);
   imu_measurement_1.set_time(dt);
   imu_data_buffer_ptr.get()->push(
@@ -87,7 +87,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   ImuMeasurement<double> imu_measurement_2;
   velocity_measurement_2.set_velocity(0, 0, 0);
   velocity_measurement_2.set_time(dt * 2);
-  imu_measurement_2.set_ang_vel(0, 0, 90.0 / 180.0 * M_PI);
+  imu_measurement_2.set_angular_velocity(0, 0, 90.0 / 180.0 * M_PI);
   imu_measurement_2.set_lin_acc(0, 0, 9.80);
   imu_measurement_2.set_time(dt * 2);
   imu_data_buffer_ptr.get()->push(
@@ -99,7 +99,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   ImuMeasurement<double> imu_measurement_3;
   velocity_measurement_3.set_velocity(1, 0, 0);
   velocity_measurement_3.set_time(dt * 3);
-  imu_measurement_3.set_ang_vel(0, 0, 0);
+  imu_measurement_3.set_angular_velocity(0, 0, 0);
   imu_measurement_3.set_lin_acc(1, 0, 9.80);
   imu_measurement_3.set_time(dt * 3);
   imu_data_buffer_ptr.get()->push(
@@ -111,7 +111,7 @@ TEST(VelocityCorrection, ImuPropVelCorr) {
   ImuMeasurement<double> imu_measurement_dummy;
   velocity_measurement_dummy.set_velocity(1, 0, 0);
   velocity_measurement_dummy.set_time(dt * 3);
-  imu_measurement_dummy.set_ang_vel(0, 0, 0);
+  imu_measurement_dummy.set_angular_velocity(0, 0, 0);
   imu_measurement_dummy.set_lin_acc(1, 0, 9.80);
   imu_measurement_dummy.set_time(dt * 3);
   imu_data_buffer_ptr.get()->push(
