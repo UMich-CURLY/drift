@@ -241,3 +241,14 @@ target_link_libraries(fetch_wheel_odom
   yaml-cpp
   baselines
 )
+
+rosbuild_add_executable(husky_wheel_odom
+  ${PROJECT_SOURCE_DIR}/baselines/husky_wheel_odom.cpp)
+
+target_link_libraries(husky_wheel_odom
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+  baselines
+)

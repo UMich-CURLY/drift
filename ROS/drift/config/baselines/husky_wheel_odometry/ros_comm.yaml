@@ -6,13 +6,14 @@ subscribers:
   # wheel_radius: 0.1651 # meter
   # wheel_radius: 0.1600 # meter
   wheel_radius: 0.1580 # meter
-  track_width: 0.555 # meter
+  # track_width: 0.555 # meter
+  track_width: 0.688 # meter
 
 publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
-  pose_publish_topic: "/husky/vanila_inekf/pose"
+  pose_publish_topic: "/husky/wheel_odometry/pose"
   pose_frame: "/odom"
 
   path_publish_rate: 100 # Hz
-  path_publish_topic: "/husky/vanila_inekf/path"
+  path_publish_topic: "/husky/wheel_odometry/path"
