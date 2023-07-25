@@ -473,18 +473,23 @@ void ImuAngVelEKF::SingleImuCorrection() {
   }
 
   ImuMeasurementPtr imu_measurement = imu_data_buffer_ptr_.get()->front();
-  imu_data_buffer_ptr_.get()->pop();
-  imu_data_buffer_mutex_ptr_.get()->unlock();
 
   // Only perform correction step if with data prior to the propagation time
   // and the time gap is smaller than a threshold
   /// TODO: double check if we need absolute here?
-  if (last_propagate_time_ == -1
-      || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
+  // if (last_propagate_time_ == -1
+  // || last_propagate_time_ - imu_measurement->get_time() <= t_thres_) {
+  if (last_propagate_time_ - imu_measurement->get_time() <= t_thres_
+      && last_propagate_time_ >= imu_measurement->get_time()) {
+    imu_data_buffer_ptr_.get()->pop();
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+
     auto fused_ang_imu = AngVelFilterCorrectIMU(imu_measurement);
     filtered_imu_data_buffer_mutex_ptr_.get()->lock();
     filtered_imu_data_buffer_ptr_->push(fused_ang_imu);
     filtered_imu_data_buffer_mutex_ptr_.get()->unlock();
+  } else {
+    imu_data_buffer_mutex_ptr_.get()->unlock();
   }
 }
 

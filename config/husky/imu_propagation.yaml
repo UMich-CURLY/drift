@@ -33,12 +33,18 @@ priors:
 
   # gx1
   # northwood, imu orient init
-  gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
-  accelerometer_bias: [0.120438,-0.170559,-0.00045046]
+  # gyroscope_bias: [0.00124314,-0.00037725,-0.00254523]
+  # accelerometer_bias: [0.120438,-0.170559,-0.00045046]
+
 
   # MAir experiment
   # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058]
-  # accelerometer_bias: [0.453028, -0.0670238,  -0.00260372]
+  # accelerometer_bias: [0.453028, -0.0670238,  -0.00260372
+  
+  
+  gyroscope_bias: [0.000970942,  1.06411e-05, -0.000576862]
+  accelerometer_bias: [0.205394,  -0.00540402,   0.00511515]
+       
        
 
   # gx0
