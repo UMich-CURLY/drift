@@ -690,6 +690,10 @@ void ROSSubscriber::RosSpin() {
     ros::spinOnce();
   }
   // spinner_.spin();
+
+  //   ros::AsyncSpinner spinner(4);    // Use 4 threads
+  //   spinner.start();
+  //   ros::waitForShutdown();
 }
 
 }    // namespace ros_wrapper

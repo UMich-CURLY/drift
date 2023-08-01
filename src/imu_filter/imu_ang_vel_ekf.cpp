@@ -422,17 +422,17 @@ void ImuAngVelEKF::RunOnce() {
 
 void ImuAngVelEKF::InitializeFilter() {
   /// TODO: Currently only support single imu correction
-  imu_data_buffer_mutex_ptr_.get()->lock();
-  if (imu_data_buffer_ptr_->empty()) {
-    imu_data_buffer_mutex_ptr_.get()->unlock();
-    return;
-  }
 
-  ImuMeasurementPtr imu1_measurement = imu_data_buffer_ptr_.get()->front();
-  imu_data_buffer_ptr_.get()->pop();
-  imu_data_buffer_mutex_ptr_.get()->unlock();
 
   if (bias_init_vec_.size() < init_bias_size_ && static_bias_initialization_) {
+    imu_data_buffer_mutex_ptr_.get()->lock();
+    if (imu_data_buffer_ptr_->empty()) {
+      imu_data_buffer_mutex_ptr_.get()->unlock();
+      return;
+    }
+    ImuMeasurementPtr imu1_measurement = imu_data_buffer_ptr_.get()->front();
+    imu_data_buffer_ptr_.get()->pop();
+    imu_data_buffer_mutex_ptr_.get()->unlock();
     bias_init_vec_.push_back(imu1_measurement->get_angular_velocity());
 
     if (enable_gyro_propagate_) {
@@ -448,7 +448,7 @@ void ImuAngVelEKF::InitializeFilter() {
 
       prev_ang_vel_measurement_ = imu0_measurement->get_angular_velocity();
     }
-  } else {
+  } else if (static_bias_initialization_) {
     Eigen::Matrix<double, 3, 1> avg = Eigen::Matrix<double, 3, 1>::Zero();
     for (int i = 0; i < bias_init_vec_.size(); ++i) {
       avg = (avg + bias_init_vec_[i]).eval();
@@ -460,6 +460,8 @@ void ImuAngVelEKF::InitializeFilter() {
     ang_vel_and_bias_est_.head(3) = Eigen::Matrix<double, 3, 1>::Zero();
     ang_vel_and_bias_est_.tail(3) = avg;
 
+    filter_initialized_ = true;
+  } else {
     filter_initialized_ = true;
   }
 }

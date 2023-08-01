@@ -1,8 +1,10 @@
 subscribers:
   # Name all the topics to subscribe from in this section. You may also redefine the variable name
   # as long as you can load the yaml variable in your main file
-  imu_topic: "/gx5_1/imu/data"
-  second_imu_topic: "/gx5_0/imu/data"
+  imu_topic: "/gx5_0/imu/data"
+  second_imu_topic: "/gx5_1/imu/data"
+  # imu_topic: "/vectornav/IMU"
+  # second_imu_topic: "/imu1/imu"
   wheel_encoder_topic: "/joint_states"
   # wheel_radius: 0.1651 # meter
   wheel_radius: 0.1600 # meter

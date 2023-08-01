@@ -327,6 +327,7 @@ class InekfEstimator {
   bool enable_pose_logger_;            // Boolean value indicating whether
                                        // the filter should log the pose
   std::ofstream outfile_;              // Output file stream for pose logger
+  std::ofstream vel_outfile_;          // Output file stream for velocity logger
   double pose_log_rate_;               // Pose logger rate
   double last_pub_t_ = 0.0;            // Last published time for pose logger
   std::thread pose_logging_thread_;    // Pose logging thread
@@ -341,6 +342,7 @@ class InekfEstimator {
   std::atomic<bool> stop_signal_ = false;    // Stop signal for pose logger
   bool enabled_slip_estimator_ = false;      // Slip estimator enabled
   std::string pose_log_file_ = "";           // Pose log file path
+  std::string vel_log_file_ = "";            // Velocity log file path
   int init_count_ = 0;                       // Count for initialization
 
   std::shared_ptr<imu_filter::ImuAngVelEKF> imu_filter_;

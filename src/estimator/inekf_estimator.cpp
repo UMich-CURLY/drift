@@ -40,8 +40,12 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
                                                             : 0.00001;
 
   if (enable_pose_logger_) {
-    pose_log_file_ = config["logger"]["pose_log_file"].as<std::string>();
-
+    pose_log_file_ = config["logger"]["pose_log_file"]
+                         ? config["logger"]["pose_log_file"].as<std::string>()
+                         : "inekf_pose";
+    vel_log_file_ = config["logger"]["vel_log_file"]
+                        ? config["logger"]["vel_log_file"].as<std::string>()
+                        : "inekf_vel";
     // Erase the ".txt" or ".csv" from the file name.
     // This is helpful to make new file names when InekfEstimator::clear() is
     // called
@@ -55,6 +59,10 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
                          : 10.0;
     outfile_.open(pose_log_file_ + ".txt");
     outfile_.precision(dbl::max_digits10);
+
+    vel_outfile_.open(vel_log_file_ + ".txt");
+    vel_outfile_.precision(dbl::max_digits10);
+
     this->StartLoggingThread();
   }
 }
@@ -64,9 +72,12 @@ InekfEstimator::~InekfEstimator() {
     std::cout << "Saving logged path..." << std::endl;
     stop_signal_ = true;
     this->pose_logging_thread_.join();
-    std::cout << "Logged path is saved to " << pose_log_file_ << "*.txt"
+    std::cout << "Logged pose is saved to " << pose_log_file_ << "*.txt"
+              << std::endl;
+    std::cout << "Logged velocity is saved to " << vel_log_file_ << ".txt"
               << std::endl;
     outfile_.close();
+    vel_outfile_.close();
   }
 }
 
@@ -133,6 +144,12 @@ void InekfEstimator::PoseLoggingThread() {
                << state_quat.x() << " " << state_quat.y() << " "
                << state_quat.z() << " " << state_quat.w() << std::endl
                << std::flush;
+
+      vel_outfile_ << state_log_ptr->get_time() << " "
+                   << state_log_ptr->get_world_velocity()(0) << " "
+                   << state_log_ptr->get_world_velocity()(1) << " "
+                   << state_log_ptr->get_world_velocity()(2) << " " << std::endl
+                   << std::flush;
       last_pub_t_ = state_log_ptr->get_time();
     }
   }
@@ -314,6 +331,10 @@ void InekfEstimator::clear() {
     outfile_.open(pose_log_file_ + '_' + std::to_string(++init_count_)
                   + ".txt");
     outfile_.precision(dbl::max_digits10);
+    vel_outfile_.close();
+    vel_outfile_.open(vel_log_file_ + '_' + std::to_string(++init_count_)
+                      + ".txt");
+    vel_outfile_.precision(dbl::max_digits10);
   }
 }
 
