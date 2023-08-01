@@ -246,7 +246,7 @@ const Eigen::Vector3d RobotState::get_body_velocity() const {
   if (state_type_ == StateType::BodyCentric) {
     return this->get_velocity();
   } else {
-    return -this->get_rotation().transpose() * this->get_velocity();
+    return this->get_rotation().transpose() * this->get_velocity();
   }
 }
 
@@ -254,7 +254,7 @@ const Eigen::Vector3d RobotState::get_body_position() const {
   if (state_type_ == StateType::BodyCentric) {
     return this->get_position();
   } else {
-    return -this->get_rotation().transpose() * this->get_position();
+    return this->get_rotation().transpose() * this->get_position();
   }
 }
 
