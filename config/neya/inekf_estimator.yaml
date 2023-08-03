@@ -1,7 +1,8 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/home/justin/code/drift/log/neya_test_low_speed.txt"
+  pose_log_file: "/home/justin/code/drift/log/neya_test.txt"
+  vel_log_file: "/home/justin/code/drift/log/neya_vel_log.txt"
   pose_log_rate: 100 # Hz
 
 state:

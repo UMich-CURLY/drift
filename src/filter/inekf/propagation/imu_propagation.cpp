@@ -437,6 +437,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Vector3d a
         = imu_measurement->get_lin_acc();             // Linear Acceleration
 
+    // TODO: We should model bias in the imu frame instead of the body frame
     // Rotate imu frame to align it with the body frame:
     w = R_imu2body_ * w;
     Eigen::Vector3d a_compensate = w.cross(w.cross(t_imu2body_));
