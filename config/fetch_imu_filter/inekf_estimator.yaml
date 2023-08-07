@@ -2,6 +2,7 @@ logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
   pose_log_file: "/home/justin/code/drift/log/fetch_imu_gyro_filter_3.txt"
+  vel_log_file: "/home/justin/code/drift/log/fetch_imu_gyro_vel_log.txt"
   pose_log_rate: 100 # Hz
 
 state:

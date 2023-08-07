@@ -4,7 +4,6 @@ logger:
   pose_log_file: "/home/justin/code/drift/log/husky.txt"
   vel_log_file: "/home/justin/code/drift/log/husky_vel_log.txt"
   pose_log_rate: 100 # Hz
-
 state:
   rotation_std_value: 0.1
   velocity_std_value: 0.1

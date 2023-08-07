@@ -59,3 +59,7 @@ lib/
 log/
 log/*.txt
 log/*/*.txt
+
+
+# python 
+__pycache__/

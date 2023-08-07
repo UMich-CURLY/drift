@@ -1,3 +1,18 @@
+'''
+/* ----------------------------------------------------------------------------
+ * Copyright 2023, CURLY Lab, University of Michigan
+ * All Rights Reserved
+ * See LICENSE for the license information
+ * -------------------------------------------------------------------------- */
+
+/**
+ *  @file   MEKF.py
+ *  @author Wenzhe Tong
+ *  @brief  Multiplicative EKF
+ *  @date   August 4, 2023
+ **/
+'''
+
 import rosbag
 import numpy as np
 import time
@@ -44,7 +59,7 @@ def quat2rot(quaternion):
         quaternion = np.array(quaternion)
     elif type(quaternion) == np.ndarray and (quaternion.shape == (1, 4) or quaternion.shape == (4, 1)):
         quaternion = quaternion.flatten()
-        
+
     if quaternion.shape != (4,):
         raise ValueError("Input quaternion must be a 4-element numpy array or list.")
 
@@ -102,14 +117,125 @@ def read_husky(bag, topic_name):
     radius = 0.158
     for topic, msg, t in bag.read_messages(topics=[topic_name]):
         v = (msg.velocity[0] + msg.velocity[1] + msg.velocity[2] + msg.velocity[3]) / 4. * radius
-        
+
         vel_data.append([t.to_sec(), v, 0, 0])
     vel_data = np.array(vel_data)
     freq = (vel_data.shape[0] - 1) / (vel_data[-1, 0] - vel_data[0, 0])
     print('vel data shape: ', vel_data.shape)
     print('vel data frequency: ', freq)
     return vel_data
-    
+
+def init_bias(imu_data, R_imu2body, window_size=250):
+    gyro_bias = R_imu2body@(np.mean(imu_data[:window_size, 1:4], axis=0)).T
+    accel_bias = R_imu2body@(np.mean(imu_data[:window_size, 4:7], axis=0)-np.array([0, 0, 9.8]).reshape(3)).T
+    return gyro_bias, accel_bias
+
+def save_pose_to_tum(t, p, q, filename='tum_traj.txt'):
+    # t = data[:, 0]
+    # x = data[:, 1]
+    # y = data[:, 2]
+    # z = data[:, 3]
+    # qw = np.ones(t.shape[0])
+    # qx = np.zeros(t.shape[0])
+    # qy = np.zeros(t.shape[0])
+    # qz = np.zeros(t.shape[0])
+    # t = data[:, 0]
+    # x = data[:, 1]
+    # y = data[:, 2]
+    # z = data[:, 3]
+    # qw = np.ones(t.shape[0])
+    # qx = np.zeros(t.shape[0])
+    # qy = np.zeros(t.shape[0])
+    # qz = np.zeros(t.shape[0])
+    s = 1
+    if t.shape[0] > 15000:
+        s = 5
+    t = t[::s]
+    x = p[::s, 0]
+    y = p[::s, 1]
+    z = p[::s, 2]
+    qw = q[::s, 0]
+    qx = q[::s, 1]
+    qy = q[::s, 2]
+    qz = q[::s, 3]
+    # print(t.shape, x.shape, y.shape, z.shape, qw.shape, qx.shape, qy.shape, qz.shape)
+    tum_data = np.stack((t, x, y, z, qx, qy, qz, qw), axis=1)
+
+    # save to txt file
+    np.savetxt(filename, tum_data, delimiter=' ')
+
+def propoagate(t_imu, acc_data, gyro_data, acc_bias, gyro_bias, p_est, v_est, q_est, g, R_imu2body):
+    g = np.array([0, 0, 9.81]).reshape(3)
+    dt = t_imu[k] - t_imu[k-1]
+
+    R_ns = quat2rot(q_est[k-1, :])
+    f_ns = (R_ns @ (R_imu2body @ acc_data[k]-acc_bias).reshape((3,1))) - g.reshape((3,1)) # acc_bias in body frame
+    assert f_ns.shape == (3,1)
+
+    p_ = p_est[k-1, :].reshape((3,1)) + (v_est[k-1, :]*dt).reshape((3,1)) + 0.5*f_ns*dt**2 
+    v_ = v_est[k-1, :].reshape((3,1)) + f_ns*dt
+    # q_ = q_prev.quat_mult_left(q_curr).reshape((4,1))
+    R_predict = R_ns @ expm(skew_symmetric((R_imu2body@gyro_data[k]-gyro_bias)*dt))
+    # print(gyro_data[k])
+    # print("---")
+    q_ = rot2quat(R_predict).reshape((4,1))
+
+    zero = np.zeros((3,3))
+    I = np.eye(3)
+    F = expm( np.block([[ zero ,   I,                                            zero],
+                        [ zero ,   zero, -R_predict @ skew_symmetric(R_imu2body@acc_data[k] - acc_bias)],
+                        [ zero ,   zero,      -skew_symmetric(R_imu2body@gyro_data[k]-gyro_bias)]])*dt )
+
+    # 1.2 uncertainty propagation
+    q_cov = np.zeros([9, 9]) # IMU noise covariance
+    q_cov[0:3, 0:3] = 0.000001*np.eye(3)
+    q_cov[3:6, 3:6] = acc_cov * np.eye(3) *dt**2
+    q_cov[6:9, 6:9] = gyro_cov * np.eye(3) *dt**2
+
+    l_jac = np.zeros((9,6))
+    l_jac[3:, :] = np.eye(6) # motion model noise jacobian
+    p_cov_ = F @ p_cov[k-1, :, :] @ F.T + q_cov 
+
+    return p_, v_, q_, p_cov_
+
+def measurement_update(sensor_var, y, p_cov, p, v, q):
+    assert y.shape == (3,1)
+    assert p.shape == (3,1)
+    assert v.shape == (3,1)
+    assert q.shape == (4,1)
+    assert p_cov.shape == (9,9)    # q_curr = Quaternion(axis_angle=(gyro_data[k]-gyro_bias)*dt)
+
+
+    # 2.1 Compute Kalman Gain
+    r_cov = sensor_var * np.eye(3)
+    H = np.zeros([3, 9])
+    R = quat2rot(q)
+    H[:, 3:6] = R.T# measurement model jacobian
+    H[:, 6:9] = skew_symmetric(R.T@v)  # measurement model jacobian
+
+    K = p_cov @ H.T @ np.linalg.inv(H@p_cov@H.T + r_cov)
+    # 2.2 Compute error state
+    delta_x = K @ (y - R.T@v)
+    assert delta_x.shape == (9,1)
+
+    # 2.3 Correct predicted state
+    p_hat = p + delta_x[0:3]
+    v_hat = v + delta_x[3:6]
+    # q_hat = Quaternion(axis_angle=delta_x[6:9]).quat_mult_right(Quaternion(*q))
+    q_hat = rot2quat(R@expm(skew_symmetric(delta_x[6:9]))).reshape((4,1))
+
+    # 2.4 Compute corrected covariance
+    p_cov_hat = (np.eye(9) - K@H) @ p_cov
+    quat2rot
+    assert p_hat.shape == (3,1)
+    assert v_hat.shape == (3,1)
+    assert q_hat.shape == (4,1)
+    assert p_cov_hat.shape == (9,9)
+
+    return p_hat, v_hat, q_hat, p_cov_hat
+
+
+
 
 # t0 = time.time()
 # # bag = rosbag.Bag('/media/jonathan/SamsungSSD1/tro_data/neya/neya_data/follow_general_2022-12-01-15-44-43_0.bag')
@@ -151,7 +277,7 @@ def read_husky(bag, topic_name):
 
 # acc_bias = np.array([ 0.361971,     0.249837,  -0.00240915]) # husky nw
 # gyro_bias = np.array([0.0011879, -2.55878e-05,  -0.00049881  ]) # husky nw
-  
+
 # # acc_cov = 
 # # gyro_cov =
 # # wheel_encoder_cov = 
@@ -170,53 +296,19 @@ def read_husky(bag, topic_name):
 # # q_est[0] = np.array([ 0.9990482, 0.0436194, 0, 0 ])
 # p_cov[0] = np.zeros([9, 9])
 
-# define measurement update for wheel encoder
-def measurement_update(sensor_var, y, p_cov, p, v, q):
-    assert y.shape == (3,1)
-    assert p.shape == (3,1)
-    assert v.shape == (3,1)
-    assert q.shape == (4,1)
-    assert p_cov.shape == (9,9)    # q_curr = Quaternion(axis_angle=(gyro_data[k]-gyro_bias)*dt)
-
-    
-    # 2.1 Compute Kalman Gain
-    r_cov = sensor_var * np.eye(3)
-    H = np.zeros([3, 9])
-    R = quat2rot(q)
-    H[:, 3:6] = R.T# measurement model jacobian
-    H[:, 6:9] = skew_symmetric(R.T@v)  # measurement model jacobian
-    
-    K = p_cov @ H.T @ np.linalg.inv(H@p_cov@H.T + r_cov)
-    # 2.2 Compute error state
-    delta_x = K @ (y - R.T@v)
-    assert delta_x.shape == (9,1)
-    
-    # 2.3 Correct predicted state
-    p_hat = p + delta_x[0:3]
-    v_hat = v + delta_x[3:6]
-    # q_hat = Quaternion(axis_angle=delta_x[6:9]).quat_mult_right(Quaternion(*q))
-    q_hat = rot2quat(R@expm(skew_symmetric(delta_x[6:9]))).reshape((4,1))
-    
-    # 2.4 Compute corrected covariance
-    p_cov_hat = (np.eye(9) - K@H) @ p_cov
-    quat2rot
-    assert p_hat.shape == (3,1)
-    assert v_hat.shape == (3,1)
-    assert q_hat.shape == (4,1)
-    assert p_cov_hat.shape == (9,9)
-    
-    return p_hat, v_hat, q_hat, p_cov_hat
+# # define measurement update for wheel encoder
 
 
-##################################################################
-################################################################## 
+
+# ##################################################################
+# ################################################################## 
 
 # i = 0
 # for k in tqdm(range(1, t_imu.shape[0])): # start at 1 because we have initial state
 #     # Time difference
 
 #     dt = t_imu[k] - t_imu[k-1]
-    
+
 #     # 1. Update state with IMU inputs
 #     # q_prev = Quaternion(*q_est[k-1, :])
 #     # q_curr = Quaternion(axis_angle=(gyro_data[k]-gyro_bias)*dt)
@@ -227,7 +319,7 @@ def measurement_update(sensor_var, y, p_cov, p, v, q):
 #     # print(f_ns)
 #     # print("-------")    
 #     assert f_ns.shape == (3,1)
-    
+
 #     p_ = p_est[k-1, :].reshape((3,1)) + (v_est[k-1, :]*dt).reshape((3,1)) + 0.5*f_ns*dt**2 
 #     v_ = v_est[k-1, :].reshape((3,1)) + f_ns*dt
 #     # q_ = q_prev.quat_mult_left(q_curr).reshape((4,1))
@@ -235,13 +327,13 @@ def measurement_update(sensor_var, y, p_cov, p, v, q):
 #     # print(gyro_data[k])
 #     # print("---")
 #     q_ = rot2quat(R_predict).reshape((4,1))
-    
+
 #     # 1.1 get motion model Jacobian
 #     # F = np.eye(9)
 #     # F[0:3, 3:6] = np.eye(3)*dt
 #     # F[3:6, 6:9] = -R_ns @ skew_symmetric((acc_data[k]-acc_bias))*dt
 #     # F[6:9, 6:9] = Quaternion(aq_xis_angle=(gyro_data[k]-gyro_bias)*dt).to_mat().T
-    
+
 #     zero = np.zeros((3,3))
 #     I = np.eye(3)
 #     F = expm( np.block([[ zero ,   I,                                            zero],
@@ -253,11 +345,11 @@ def measurement_update(sensor_var, y, p_cov, p, v, q):
 #     q_cov[0:3, 0:3] = 0.000001*np.eye(3)
 #     q_cov[3:6, 3:6] = acc_cov * np.eye(3) *dt**2
 #     q_cov[6:9, 6:9] = gyro_cov * np.eye(3) *dt**2
-    
+
 #     l_jac = np.zeros((9,6))
 #     l_jac[3:, :] = np.eye(6) # motion model noise jacobian
 #     p_cov_ = F @ p_cov[k-1, :, :] @ F.T + q_cov 
-    
+
 #     # # 1.3 velocity update
 #     # if(k<t_vel.shape[0] and abs(t_imu[k]-t_vel[i]) <= abs(t_imu[k+1]-t_vel[i]) and i<vel_data.shape[0]):
 #     #     p_, v_, q_, p_cov_ = measurement_update(wheel_encoder_cov, vel_data[i, :].reshape((3,1)), p_cov_, p_, v_, q_)
@@ -265,140 +357,16 @@ def measurement_update(sensor_var, y, p_cov, p, v, q):
 #     if i<vel_data.shape[0] and t_imu[k] >= t_vel[i]:
 #         p_, v_, q_, p_cov_ = measurement_update(wheel_encoder_cov, vel_data[i, :].reshape((3,1)), p_cov_, p_, v_, q_)
 #         i+=1
-    
+
+
 #     # 1.4 update states
 #     p_est[k, :] = p_.T
 #     v_est[k, :] = v_.T
 #     q_est[k, :] = q_.T
 #     p_cov[k, :, :] = p_cov_.T
 
-    
-def save_pose_to_tum(t, p, q, filename='tum_traj.txt'):
-    # t = data[:, 0]
-    # x = data[:, 1]
-    # y = data[:, 2]
-    # z = data[:, 3]
-    # qw = np.ones(t.shape[0])
-    # qx = np.zeros(t.shape[0])
-    # qy = np.zeros(t.shape[0])
-    # qz = np.zeros(t.shape[0])
-    s = 1
-    if t.shape[0] > 10000:
-        s = 10
-    t = t[::s]
-    x = p[::s, 0]
-    y = p[::s, 1]
-    z = p[::s, 2]
-    qw = q[::s, 0]
-    qx = q[::s, 1]
-    qy = q[::s, 2]
-    qz = q[::s, 3]
-    tum_data = np.stack((t, x, y, z, qx, qy, qz, qw), axis=1)
+# # print(i)   
 
-    # save to txt file
-    np.savetxt(filename, tum_data, delimiter=' ')
-    
+
 # save_pose_to_tum(t_imu, p_est, q_est, filename='tum_estimated.txt')
-#### 6. Results and Analysis ###################################################################
 
-################################################################################################
-# Now that we have state estimates for all of our sensor data, let's plot the results. This plot
-# will show the ground truth and the estimated trajectories on the same plot. Notice that the
-# estimated trajectory continues past the ground truth. This is because we will be evaluating
-# your estimated poses from the part of the trajectory where you don't have ground truth!
-################################################################################################
-# est_traj_fig = plt.figure()
-# ax = est_traj_fig.add_subplot(111, projection='3d')
-# ax.plot(p_est[:,0], p_est[:,1], p_est[:,2], label='Estimated')
-# # ax.plot(gt.p[:,0], gt.p[:,1], gt.p[:,2], label='Ground Truth')
-# ax.set_xlabel('Easting [m]')
-# ax.set_ylabel('Northing [m]')
-# ax.set_zlabel('Up [m]')
-# ax.set_title('Ground Truth and Estimated Trajectory')
-# # ax.set_xlim(0, 200)
-# # ax.set_ylim(0, 200)
-# # ax.set_zlim(-2, 2)
-# # ax.set_xticks([0, 50, 100, 150, 200])
-# # ax.set_yticks([0, 50, 100, 150, 200])
-# # ax.set_zticks([-2, -1, 0, 1, 2])
-# ax.legend(loc=(0.62,0.77))
-# ax.view_init(elev=45, azim=-50)
-# plt.show()
-
-################################################################################################
-# We can also plot the error for each of the 6 DOF, with estimates for our uncertainty
-# included. The error estimates are in blue, and the uncertainty bounds are red and dashed.
-# The uncertainty bounds are +/- 3 standard deviations based on our uncertainty (covariance).
-################################################################################################
-# error_fig, ax = plt.subplots(2, 3)
-# error_fig.suptitle('Error Plots')
-# num_gt = gt.p.shape[0]
-# p_est_euler = []
-# p_cov_euler_std = []
-
-# # Convert estimated quaternions to euler angles
-# for i in range(len(q_est)):
-#     qc = Quaternion(*q_est[i, :])
-#     p_est_euler.append(qc.to_euler())
-
-#     # First-order approximation of RPY covariance
-#     J = rpy_jacobian_axis_angle(qc.to_axis_angle())
-#     p_cov_euler_std.append(np.sqrt(np.diagonal(J @ p_cov[i, 6:, 6:] @ J.T)))
-
-# p_est_euler = np.array(p_est_euler)
-# p_cov_euler_std = np.array(p_cov_euler_std)
-
-# # Get uncertainty estimates from P matrix
-# p_cov_std = np.sqrt(np.diagonal(p_cov[:, :6, :6], axis1=1, axis2=2))
-
-# titles = ['Easting', 'Northing', 'Up', 'Roll', 'Pitch', 'Yaw']
-# for i in range(3):
-#     ax[0, i].plot(range(num_gt), gt.p[:, i] - p_est[:num_gt, i])
-#     ax[0, i].plot(range(num_gt),  3 * p_cov_std[:num_gt, i], 'r--')
-#     ax[0, i].plot(range(num_gt), -3 * p_cov_std[:num_gt, i], 'r--')
-#     ax[0, i].set_title(titles[i])
-# ax[0,0].set_ylabel('Meters')
-
-# for i in range(3):
-#     ax[1, i].plot(range(num_gt), \
-#         angle_normalize(gt.r[:, i] - p_est_euler[:num_gt, i]))
-#     ax[1, i].plot(range(num_gt),  3 * p_cov_euler_simu_datatd[:num_gt, i], 'r--')
-#     ax[1, i].plot(range(num_gt), -3 * p_cov_euler_std[:num_gt, i], 'r--')
-#     ax[1, i].set_title(titles[i+3])
-# ax[1,0].set_ylabel('Radians')
-# plt.show()
-
-# #### 7. Submission #############################################################################
-
-# ################################################################################################
-# # Now we can prepare your results for submission to the Coursera platform. Uncomment the
-# # corresponding lines to prepare a file that will save your position estimates in a format
-# # that corresponds to what we're expecting on Coursera.
-# ################################################################################################
-
-# # Pt. 1 submission
-# p1_indices = [9000, 9400, 9800, 10200, 10600]
-# p1_str = ''
-# for val in p1_indices:
-#     for i in range(3):
-#         p1_str += '%.3f ' % (p_est[val, i])
-# with open('output/pt1_submission.txt', 'w') as file:
-#     file.write(p1_str)
-
-# # Pt. 2 submission
-# # p2_indices = [9000, 9400, 9800, 10200, 10600]
-# # p2_str = ''
-# # for val in p2_indices:
-# #     for i in range(3):
-# #         p2_str += '%.3f ' % (p_est[val, i])
-# # with open('output/pt2_submission.txt', 'w') as file:
-# #     file.write(p2_str)
-
-# # Pt. 3 submission
-# # p3_indices = [6800, 7600, 8400, 9200, 10000]
-# # p3_str = ''
-# # for val in p3_indices:
-# #     for i in range(3):
-# #         p3_str += '%.3f ' % (p_est[val, i])
-# # with open('output/pt3_submission.txt', 'w') as file:
-# #     file.write(p3_str)
