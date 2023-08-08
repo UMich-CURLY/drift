@@ -91,7 +91,6 @@ ImuAngVelEKF::ImuAngVelEKF(
         << ang_vel_and_bias_est_(5) << "]" << std::endl;
   }
 
-
   // Set the noise parameters
   double ang_vel_std = config_["noises"]["ang_vel_std"]
                            ? config_["noises"]["ang_vel_std"].as<double>()
@@ -354,14 +353,14 @@ void ImuAngVelEKF::add_gyro_propagate(
     std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr) {
   gyro_prop_data_buffer_ptr_ = imu_data_buffer_ptr;
   gyro_prop_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
-  enable_gyro_propagate_ = true;
+  propagation_method_ = GYRO;
 }
 
 void ImuAngVelEKF::add_imu_correction(
     IMUQueuePtr imu_data_buffer_ptr,
     std::shared_ptr<std::mutex> imu_data_buffer_mutex_ptr) {
-  if (correction_method_ == SINGLE_IMU
-      || correction_method_ == SINGLE_IMU_PLUS_ANG_VEL) {
+  num_imu_++;
+  if (num_imu_ == 1) {
     // For single imu version:
     imu_data_buffer_ptr_ = imu_data_buffer_ptr;
     imu_data_buffer_mutex_ptr_ = imu_data_buffer_mutex_ptr;
@@ -375,6 +374,7 @@ void ImuAngVelEKF::add_imu_correction(
 void ImuAngVelEKF::add_ang_vel_correction(
     AngularVelocityQueuePtr ang_vel_data_buffer_ptr,
     std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr) {
+  num_ang_vel_++;
   ang_vel_data_buffer_ptr_ = ang_vel_data_buffer_ptr;
   ang_vel_data_buffer_mutex_ptr_ = ang_vel_data_buffer_mutex_ptr;
 }
@@ -395,9 +395,17 @@ void ImuAngVelEKF::RunFilter() {
 // IMU propagation method
 void ImuAngVelEKF::RunOnce() {
   if (filter_initialized_) {
-    AngVelFilterPropagate();
+    switch (propagation_method_) {
+      case GYRO:
+        GyroPropagate();
+        break;
+      case RANDOM_WALK:
+        RandomWalkPropagate();
+        break;
+    }
 
     switch (correction_method_) {
+      //
       case SINGLE_IMU_PLUS_ANG_VEL:
         SingleImuAngVelCorrection();
         break;
@@ -415,9 +423,24 @@ void ImuAngVelEKF::RunOnce() {
         break;
     }
   } else {
+    if (num_imu_ == 0 && num_ang_vel_ == 1) {
+      correction_method_ = ANG_VEL;
+    } else if (num_imu_ == 1 && num_ang_vel_ == 0) {
+      correction_method_ = SINGLE_IMU;
+    } else if (num_imu_ == 1 && num_ang_vel_ == 1) {
+      correction_method_ = SINGLE_IMU_PLUS_ANG_VEL;
+    } else if (num_imu_ > 1 && num_ang_vel_ == 0) {
+      correction_method_ = MULTI_IMU;
+    } else {
+      std::cerr << "Incorrect correction method in the gyro filter. "
+                << std::endl;
+      std::cerr << "Number of imu correction: " << num_imu_
+                << ", number of ang vel correction: " << num_ang_vel_
+                << std::endl;
+    }
+
     // Initialize filter
     InitializeFilter();
-    // filter_initialized_ = true;
   }
   // LogInputIMU();
 }
@@ -471,7 +494,7 @@ void ImuAngVelEKF::InitializeFilter() {
     imu_data_buffer_mutex_ptr_.get()->unlock();
     bias_init_vec_.push_back(imu1_measurement->get_angular_velocity());
 
-    if (enable_gyro_propagate_) {
+    if (propagation_method_ == GYRO) {
       gyro_prop_data_buffer_mutex_ptr_.get()->lock();
       if (gyro_prop_data_buffer_ptr_->empty()) {
         gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
@@ -496,17 +519,36 @@ void ImuAngVelEKF::InitializeFilter() {
     ang_vel_and_bias_est_.head(3) = Eigen::Matrix<double, 3, 1>::Zero();
     ang_vel_and_bias_est_.tail(3) = avg;
 
+    // Clear the queue
+    if (propagation_method_ == GYRO) {
+      gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+      std::queue<ImuMeasurementPtr> empty;
+      std::swap(*gyro_prop_data_buffer_ptr_, empty);
+      gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+    }
 
-    gyro_prop_data_buffer_mutex_ptr_.get()->lock();
-    std::queue<ImuMeasurementPtr> empty;
-    std::swap(*gyro_prop_data_buffer_ptr_, empty);
-    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+    if (correction_method_ == SINGLE_IMU_PLUS_ANG_VEL
+        || correction_method_ == SINGLE_IMU) {
+      imu_data_buffer_mutex_ptr_.get()->lock();
+      std::queue<ImuMeasurementPtr> empty;
+      std::swap(*imu_data_buffer_ptr_, empty);
+      imu_data_buffer_mutex_ptr_.get()->unlock();
+    } else if (correction_method_ == MULTI_IMU) {
+      for (int i = 0; i < imu_data_buffer_mutex_ptrs_.size(); i++) {
+        imu_data_buffer_mutex_ptrs_[i].get()->lock();
+        std::queue<ImuMeasurementPtr> empty;
+        std::swap(*imu_data_buffer_ptrs_[i], empty);
+        imu_data_buffer_mutex_ptrs_[i].get()->unlock();
+      }
+    }
 
-    imu_data_buffer_mutex_ptr_.get()->lock();
-    std::queue<ImuMeasurementPtr> empty2;
-    std::swap(*imu_data_buffer_ptr_, empty2);
-    imu_data_buffer_mutex_ptr_.get()->unlock();
-
+    if (correction_method_ == SINGLE_IMU_PLUS_ANG_VEL
+        || correction_method_ == ANG_VEL) {
+      ang_vel_data_buffer_mutex_ptr_.get()->lock();
+      std::queue<AngularVelocityMeasurementPtr> empty;
+      std::swap(*ang_vel_data_buffer_ptr_, empty);
+      ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+    }
     filter_initialized_ = true;
   } else {
     filter_initialized_ = true;
@@ -547,7 +589,7 @@ void ImuAngVelEKF::MultiImuCorrection() {
   ImuMeasurementPtr fused_ang_imu = nullptr;
 
   // Bias corrected IMU measurements
-  for (int i = 0; i < imu_data_buffer_ptrs_.size(); i++) {
+  for (int i = 0; i < imu_data_buffer_mutex_ptrs_.size(); i++) {
     imu_data_buffer_mutex_ptrs_[i].get()->lock();
     if (imu_data_buffer_ptrs_[i]->empty()) {
       imu_data_buffer_mutex_ptrs_[i].get()->unlock();
@@ -684,11 +726,11 @@ void ImuAngVelEKF::AngVelCorrection() {
 }
 
 void ImuAngVelEKF::AngVelFilterPropagate() {
-  if (enable_gyro_propagate_) {
-    this->GyroPropagate();
-  } else {
-    this->RandomWalkPropagate();
-  }
+  // if (enable_gyro_propagate_) {
+  //   this->GyroPropagate();
+  // } else {
+  //   this->RandomWalkPropagate();
+  // }
 }
 
 void ImuAngVelEKF::GyroPropagate() {

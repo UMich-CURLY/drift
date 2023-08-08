@@ -38,6 +38,11 @@ using namespace measurement;
 
 namespace imu_filter {
 
+enum PROPAGATION_METHOD {
+  RANDOM_WALK = 0,
+  GYRO = 1,
+};
+
 enum CORRECTION_METHOD {
   SINGLE_IMU_PLUS_ANG_VEL = 0,
   SINGLE_IMU = 1,
@@ -296,13 +301,15 @@ class ImuAngVelEKF {
   AngularVelocityQueuePtr ang_vel_data_buffer_ptr_;
   std::shared_ptr<std::mutex> ang_vel_data_buffer_mutex_ptr_;
 
-  bool enable_gyro_propagate_ = false;
-
   double last_propagate_time_
       = -1;    // This will only be modified if user uses GyroPropagte method.
   double t_thres_;    // Threshold between correction time and propagation time
 
+  PROPAGATION_METHOD propagation_method_ = RANDOM_WALK;
   CORRECTION_METHOD correction_method_ = SINGLE_IMU_PLUS_ANG_VEL;
+
+  int num_imu_ = 0;
+  int num_ang_vel_ = 0;
 
   Eigen::Vector3d prev_ang_vel_measurement_ = Eigen::Vector3d::Zero();
 
