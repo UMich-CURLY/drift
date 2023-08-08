@@ -27,7 +27,7 @@ using namespace estimator;
 
 int main(int argc, char** argv) {
   /// TUTORIAL: Initialize ROS node
-  ros::init(argc, argv, "fetch_imu_filtered");
+  ros::init(argc, argv, "fetch_gyro_filter");
 
   std::cout << "The subscriber is on!" << std::endl;
 

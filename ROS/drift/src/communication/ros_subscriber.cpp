@@ -41,7 +41,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
 
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
-      topic_name, 10000,
+      topic_name, 1000,
       boost::bind(&ROSSubscriber::IMUCallback, this, _1, mutex_list_.back(),
                   imu_queue_ptr)));
 
@@ -686,9 +686,9 @@ void ROSSubscriber::Odom2VelocityCallback(
 
 
 void ROSSubscriber::RosSpin() {
-  while (ros::ok()) {
-    ros::spinOnce();
-  }
+  //   while (ros::ok()) {
+  //     ros::spinOnce();
+  //   }
   // spinner_.spin();
 
   ros::AsyncSpinner spinner(4);    // Use 4 threads

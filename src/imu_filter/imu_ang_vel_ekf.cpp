@@ -521,22 +521,22 @@ void ImuAngVelEKF::InitializeFilter() {
 
     // Clear the queue
     if (propagation_method_ == GYRO) {
-      gyro_prop_data_buffer_mutex_ptr_.get()->lock();
       std::queue<ImuMeasurementPtr> empty;
+      gyro_prop_data_buffer_mutex_ptr_.get()->lock();
       std::swap(*gyro_prop_data_buffer_ptr_, empty);
       gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
     }
 
     if (correction_method_ == SINGLE_IMU_PLUS_ANG_VEL
         || correction_method_ == SINGLE_IMU) {
-      imu_data_buffer_mutex_ptr_.get()->lock();
       std::queue<ImuMeasurementPtr> empty;
+      imu_data_buffer_mutex_ptr_.get()->lock();
       std::swap(*imu_data_buffer_ptr_, empty);
       imu_data_buffer_mutex_ptr_.get()->unlock();
     } else if (correction_method_ == MULTI_IMU) {
       for (int i = 0; i < imu_data_buffer_mutex_ptrs_.size(); i++) {
-        imu_data_buffer_mutex_ptrs_[i].get()->lock();
         std::queue<ImuMeasurementPtr> empty;
+        imu_data_buffer_mutex_ptrs_[i].get()->lock();
         std::swap(*imu_data_buffer_ptrs_[i], empty);
         imu_data_buffer_mutex_ptrs_[i].get()->unlock();
       }
@@ -544,8 +544,8 @@ void ImuAngVelEKF::InitializeFilter() {
 
     if (correction_method_ == SINGLE_IMU_PLUS_ANG_VEL
         || correction_method_ == ANG_VEL) {
-      ang_vel_data_buffer_mutex_ptr_.get()->lock();
       std::queue<AngularVelocityMeasurementPtr> empty;
+      ang_vel_data_buffer_mutex_ptr_.get()->lock();
       std::swap(*ang_vel_data_buffer_ptr_, empty);
       ang_vel_data_buffer_mutex_ptr_.get()->unlock();
     }
