@@ -33,7 +33,7 @@
 ROS/drift/fetch
 ROS/drift/husky
 ROS/drift/mini_cheetah
-ROS/drift/fetch_imu_filter
+ROS/drift/fetch_gyro_filter
 ROS/drift/husky_dob
 ROS/drift/deterministic_test
 ROS/drift/husky_gyro_filter

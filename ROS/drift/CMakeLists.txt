@@ -126,10 +126,10 @@ target_link_libraries(fetch
 )
 
 # # temporary test for fetch
-rosbuild_add_executable(fetch_imu_filter
-  ${PROJECT_SOURCE_DIR}/examples/fetch_imu_filter.cpp)
+rosbuild_add_executable(fetch_gyro_filter
+  ${PROJECT_SOURCE_DIR}/examples/fetch_gyro_filter.cpp)
 
-target_link_libraries(fetch_imu_filter
+target_link_libraries(fetch_gyro_filter
   ${LIBS}
   ros_communication_lib
   drift

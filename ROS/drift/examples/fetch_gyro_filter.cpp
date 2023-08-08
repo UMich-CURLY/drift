@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
   std::cout << "Project directory: " << project_dir << std::endl;
 
   std::string config_file
-      = project_dir + "/ROS/drift/config/fetch_imu_filter/ros_comm.yaml";
+      = project_dir + "/ROS/drift/config/fetch_gyro_filter/ros_comm.yaml";
   YAML::Node config = YAML::LoadFile(config_file);
   std::string imu_topic = config["subscribers"]["imu_topic"].as<std::string>();
   std::string wheel_encoder_topic
@@ -78,12 +78,12 @@ int main(int argc, char** argv) {
   /// TUTORIAL: Create a state estimator
   InekfEstimator inekf_estimator(
       error_type,
-      project_dir + "/config/fetch_imu_filter/inekf_estimator.yaml");
+      project_dir + "/config/fetch_gyro_filter/inekf_estimator.yaml");
 
   /// TUTORIAL: Add a propagation and correction(s) to the state estimator:
 
   imu_filter::ImuAngVelEKF gyro_filter(
-      project_dir + "/config/fetch_imu_filter/imu_filter.yaml");
+      project_dir + "/config/fetch_gyro_filter/imu_filter.yaml");
 
   gyro_filter.add_imu_correction(qimu, qimu_mutex);
   gyro_filter.add_ang_vel_correction(qangv, qangv_mutex);
@@ -95,12 +95,12 @@ int main(int argc, char** argv) {
   inekf_estimator.add_imu_propagation(
       q_filtered_imu, q_filtered_imu_mutex,
       project_dir
-          + "/config/fetch_imu_filter/imu_propagation.yaml");    // Insert the
-                                                                 // filtered IMU
-                                                                 // data
+          + "/config/fetch_gyro_filter/imu_propagation.yaml");    // Insert the
+                                                                  // filtered
+                                                                  // IMU data
   inekf_estimator.add_velocity_correction(
       qv, qv_mutex,
-      project_dir + "/config/fetch_imu_filter/velocity_correction.yaml");
+      project_dir + "/config/fetch_gyro_filter/velocity_correction.yaml");
 
   /// TUTORIAL: Get the robot state queue and mutex from the state estimator
   RobotStateQueuePtr robot_state_queue_ptr
