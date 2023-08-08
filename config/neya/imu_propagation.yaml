@@ -35,9 +35,12 @@ priors:
   # accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
 
   # gx1
-  # northwood, imu orient init
-  gyroscope_bias: [-7.49327e-05,  0.000315891,   0.00032303]
-  accelerometer_bias: [0.01,   -0.0642287,    -0.155932]
+  # gyroscope_bias: [-7.49327e-05,  0.000315891,   0.00032303]
+  # accelerometer_bias: [0.01,   -0.0642287,    -0.155932]
+
+  # paintball follow
+  gyroscope_bias: [1.57418e-05, -0.000109696, -0.000728956]
+  accelerometer_bias: [0.0638591,    -0.145765,    -0.176106]
 
   # MAir experiment
   # gyroscope_bias: [0.00104398, 0.000137212, -0.000153058]
@@ -54,7 +57,7 @@ priors:
 
 # IMU noise parameters:
 noises:
-  gyroscope_std: 0.05  # 0.000061087, 0.1, 0.04
+  gyroscope_std: 0.01  # 0.000061087, 0.1, 0.04
   accelerometer_std: 0.1 # 0.0013734, 0.1, 0.65
   gyroscope_bias_std: 0.5 # 0.1, 0.04
   accelerometer_bias_std: 0.5 # 0.1, 0.65

@@ -15,8 +15,8 @@
 ## This can be down by `brew install yq` on mac or `sudo snap install yq` on linux
 data_path="/media/justin/DATA/data/neya/"
 output_path="/media/justin/DATA/result/DRIFT_TRO/neya"
-config_path="../config/neya/"
-rosnode_name="neya"
+config_path="../config/neya_gyro_filter/"
+rosnode_name="neya_gyro_filter"
 sleep_time=10
 
 GREEN='\033[0;32m'
@@ -47,10 +47,10 @@ for subfolder in paintball pelenor; do
     export cur_output_path
 
     # modify the config file
-    yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF.txt"'  $config_path"inekf_estimator.yaml"
-    yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_velocity.txt"'  $config_path"inekf_estimator.yaml"
+    yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF_gyro_filter.txt"'  $config_path"inekf_estimator.yaml"
+    yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_gyro_filter_velocity.txt"'  $config_path"inekf_estimator.yaml"
 
-    rosrun drift neya & 
+    rosrun drift neya_gyro_filter & 
     
     drift_pid=$!& 
     

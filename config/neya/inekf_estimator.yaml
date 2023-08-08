@@ -1,8 +1,8 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/follow/InEKF.txt"
-  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/follow/InEKF_velocity.txt"
+  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/follow/InEKF_gyro_filter.txt"
+  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/follow/InEKF_gyro_filter_velocity.txt"
   pose_log_rate: 100 # Hz
 state:
   rotation_std_value: 0.1

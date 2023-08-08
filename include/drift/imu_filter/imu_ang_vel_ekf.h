@@ -114,6 +114,8 @@ class ImuAngVelEKF {
   void RunOnce();
   /// @} End of Filter thread
 
+  void LogInputIMU();
+
   /// @name Getters
   /// @{
   // ======================================================================

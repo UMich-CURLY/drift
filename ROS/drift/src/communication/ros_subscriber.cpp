@@ -41,7 +41,7 @@ IMUQueuePair ROSSubscriber::AddIMUSubscriber(const std::string topic_name) {
 
   // Create the subscriber
   subscriber_list_.push_back(nh_->subscribe<sensor_msgs::Imu>(
-      topic_name, 1000,
+      topic_name, 10000,
       boost::bind(&ROSSubscriber::IMUCallback, this, _1, mutex_list_.back(),
                   imu_queue_ptr)));
 
@@ -691,9 +691,9 @@ void ROSSubscriber::RosSpin() {
   }
   // spinner_.spin();
 
-  //   ros::AsyncSpinner spinner(4);    // Use 4 threads
-  //   spinner.start();
-  //   ros::waitForShutdown();
+  ros::AsyncSpinner spinner(4);    // Use 4 threads
+  spinner.start();
+  ros::waitForShutdown();
 }
 
 }    // namespace ros_wrapper

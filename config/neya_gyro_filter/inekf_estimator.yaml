@@ -1,10 +1,9 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/home/justin/code/drift/log/neya_test_gyro_filter.txt"
-  vel_log_file: "/home/justin/code/drift/log/neya_gyro_filter_vel_log.txt"
+  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/test/InEKF_gyro_filter.txt"
+  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/neya/test/InEKF_gyro_filter_velocity.txt"
   pose_log_rate: 100 # Hz
-
 state:
   rotation_std_value: 0.1
   velocity_std_value: 0.1

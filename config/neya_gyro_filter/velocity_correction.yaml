@@ -9,4 +9,4 @@ settings:
 
 # Velocity noise parameters:
 noises:
-  velocity_std: 10.0
+  velocity_std: 0.5

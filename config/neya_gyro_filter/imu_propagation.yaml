@@ -32,7 +32,7 @@ priors:
 
 # IMU noise parameters:
 noises:
-  gyroscope_std: 0.1  # 0.000061087, 0.1, 0.04
+  gyroscope_std: 0.01  # 0.000061087, 0.1, 0.04
   accelerometer_std: 0.1 # 0.0013734, 0.1, 0.65
   gyroscope_bias_std: 0.5 # 0.1, 0.04
   accelerometer_bias_std: 0.5 # 0.1, 0.65

@@ -417,6 +417,42 @@ void ImuAngVelEKF::RunOnce() {
   } else {
     // Initialize filter
     InitializeFilter();
+    // filter_initialized_ = true;
+  }
+  // LogInputIMU();
+}
+
+void ImuAngVelEKF::LogInputIMU() {
+  ImuMeasurementPtr imu1_measurement;
+  imu_data_buffer_mutex_ptr_.get()->lock();
+  if (imu_data_buffer_ptr_->empty()) {
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+  } else {
+    imu1_measurement = imu_data_buffer_ptr_.get()->front();
+    imu_data_buffer_ptr_.get()->pop();
+    imu_data_buffer_mutex_ptr_.get()->unlock();
+    imu_propagate_input_outfile_
+        << imu1_measurement->get_time() << ","
+        << imu1_measurement->get_angular_velocity()(0) << ","
+        << imu1_measurement->get_angular_velocity()(1) << ","
+        << imu1_measurement->get_angular_velocity()(2) << std::endl
+        << std::flush;
+  }
+
+  ImuMeasurementPtr imu0_measurement;
+  gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+  if (gyro_prop_data_buffer_ptr_->empty()) {
+    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+  } else {
+    imu0_measurement = gyro_prop_data_buffer_ptr_->front();
+    gyro_prop_data_buffer_ptr_->pop();
+    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+    imu_ang_vel_outfile_ << imu0_measurement->get_time() << ","
+                         << imu0_measurement->get_angular_velocity()(0) << ","
+                         << imu0_measurement->get_angular_velocity()(1) << ","
+                         << imu0_measurement->get_angular_velocity()(2)
+                         << std::endl
+                         << std::flush;
   }
 }
 
@@ -459,6 +495,17 @@ void ImuAngVelEKF::InitializeFilter() {
 
     ang_vel_and_bias_est_.head(3) = Eigen::Matrix<double, 3, 1>::Zero();
     ang_vel_and_bias_est_.tail(3) = avg;
+
+
+    gyro_prop_data_buffer_mutex_ptr_.get()->lock();
+    std::queue<ImuMeasurementPtr> empty;
+    std::swap(*gyro_prop_data_buffer_ptr_, empty);
+    gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
+
+    imu_data_buffer_mutex_ptr_.get()->lock();
+    std::queue<ImuMeasurementPtr> empty2;
+    std::swap(*imu_data_buffer_ptr_, empty2);
+    imu_data_buffer_mutex_ptr_.get()->unlock();
 
     filter_initialized_ = true;
   } else {

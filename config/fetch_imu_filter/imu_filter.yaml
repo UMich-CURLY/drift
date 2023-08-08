@@ -11,6 +11,13 @@ settings:
   # if flat_ground is true, the angular velocity filter would enforce the roll and pitch velocity to be zero
   # if flat_ground is false, the filter would only update the yaw velocity
   flat_ground: false
+  
+  # Type of correction method:
+  # SINGLE_IMU_PLUS_ANG_VEL: 0
+  # SINGLE_IMU: 1
+  # MULTI_IMU: 2
+  # ANG_VEL: 3
+  correction_method: 0
 
 noises:
   ang_vel_std: 0.1

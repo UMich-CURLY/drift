@@ -3,6 +3,8 @@ subscribers:
   # as long as you can load the yaml variable in your main file
   imu_topic: "/mrzr/localization/imu/imu"
   gyro_topic: "/mrzr/localization/gyro/gyro"
+  # imu_topic: "/mrzr/localization/gyro/gyro"
+  # gyro_topic: "/mrzr/localization/imu/imu"
   velocity_topic: "/mrzr/localization/wheel_encoder/twist"
 
 publishers:
