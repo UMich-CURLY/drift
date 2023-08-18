@@ -120,7 +120,6 @@ void WheelOdometry::Integrate(Eigen::Vector3d v_mea, Eigen::Vector3d w,
   Eigen::Matrix3d exp_omega = Gamma_SO3(phi, 0);
 
   Eigen::MatrixXd X = Eigen::MatrixXd::Ones(5, 5);
-  // Propagate world-centric state estimate
   X.block<3, 3>(0, 0) = R * exp_omega;
   X.block<3, 1>(0, 3) = R * v_mea;
   X.block<3, 1>(0, 4) = p + R * v_mea * dt;

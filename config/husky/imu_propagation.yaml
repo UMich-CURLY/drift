@@ -42,9 +42,11 @@ priors:
   # accelerometer_bias: [0.453028, -0.0670238,  -0.00260372
   
   
-  gyroscope_bias: [0.000970942,  1.06411e-05, -0.000576862]
-  accelerometer_bias: [0.205394,  -0.00540402,   0.00511515]
+  # gyroscope_bias: [0.000970942,  1.06411e-05, -0.000576862]
+  # accelerometer_bias: [0.205394,  -0.00540402,   0.00511515]
        
+  gyroscope_bias: [0.0,  0, 0.0]
+  accelerometer_bias: [0.,  0.,   0.0]
        
 
   # gx0

@@ -10,7 +10,7 @@ settings:
   ### Setting for filter dimension ###
   # if flat_ground is true, the angular velocity filter would enforce the roll and pitch velocity to be zero
   # if flat_ground is false, the filter would only update the yaw velocity
-  flat_ground: false
+  flat_ground: true
   
   # Type of correction method:
   # SINGLE_IMU_PLUS_ANG_VEL: 0
@@ -18,14 +18,17 @@ settings:
   # MULTI_IMU: 2
   # ANG_VEL: 3
   correction_method: 0
+  
+  static_bias_initialization: false
+  init_bias_size: 250
 
 noises:
   ang_vel_std: 0.1
   ang_vel_bias_std: 0.1
-  filter_std: 0.05
-  filter_bias_std: 0.05
-  imu_meas_noise_std: 0.01
-  encoder_meas_noise_std: 0.01
+  filter_std: 0.1
+  filter_bias_std: 0.1
+  imu_meas_noise_std: 0.1
+  encoder_meas_noise_std: 0.1
 
 priors:
-  ang_vel_bias: [-0.011705041719176053, 0.02345814130845961, -0.011462608480202011]
+  ang_vel_bias: [0,0,0]

@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
   imu_filter::ImuAngVelEKF gyro_filter(
       project_dir + "/config/fetch_gyro_filter/imu_filter.yaml");
 
-  gyro_filter.add_imu_correction(qimu, qimu_mutex);
+  gyro_filter.add_gyro_propagate(qimu, qimu_mutex);
   gyro_filter.add_ang_vel_correction(qangv, qangv_mutex);
 
   auto [q_filtered_imu, q_filtered_imu_mutex]

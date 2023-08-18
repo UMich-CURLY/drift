@@ -48,8 +48,8 @@ for bag in $data_path"/"*.bag; do
     mkdir $cur_output_path
   fi
   # modify the config file
-  yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF.txt"'  $config_path"inekf_estimator.yaml"
-  yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_velocity.txt"'  $config_path"inekf_estimator.yaml"
+  yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF_cheap_imu.txt"'  $config_path"inekf_estimator.yaml"
+  yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_cheap_imu_velocity.txt"'  $config_path"inekf_estimator.yaml"
 
   rosrun drift fetch & 
   

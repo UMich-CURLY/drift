@@ -3,7 +3,7 @@ logger:
   enable_pose_logger: true
   pose_log_file: "/home/justin/code/drift/log/husky_double_imu_test.txt"
   vel_log_file: "/home/justin/code/drift/log/husky_double_imu_vel_log.txt"
-  pose_log_rate: 100 # Hz
+  pose_log_rate: 10 # Hz
 
 state:
   rotation_std_value: 0.1

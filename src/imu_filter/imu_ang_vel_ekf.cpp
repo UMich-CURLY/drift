@@ -5,14 +5,9 @@
  * -------------------------------------------------------------------------- */
 
 /**
- *  @file   filtered_imu_propagation.cpp
+ *  @file   gyro_filter.cpp
  *  @author Tzu-Yuan Lin, Tingjun Li
- *  @brief  Source file for Invariant EKF imu propagation method
- *  Part of the code is modified from Ross Hartley's work:
- *  Paper:
- *  https://journals.sagepub.com/doi/full/10.1177/0278364919894385
- *  Github repo:
- *  https://github.com/RossHartley/invariant-ekf
+ *  @brief
  *
  *  @date   May 16, 2023
  **/
@@ -75,6 +70,7 @@ ImuAngVelEKF::ImuAngVelEKF(
       = config_["settings"]["static_bias_initialization"]
             ? config_["settings"]["static_bias_initialization"].as<bool>()
             : false;
+
   if (static_bias_initialization_ == false) {
     std::vector<double> ang_vel_bias
         = config_["priors"]["ang_vel_bias"]
@@ -152,29 +148,6 @@ ImuAngVelEKF::ImuAngVelEKF(
     H_imu_(2, 5) = 1;
     H_enc_(2, 2) = 1;
   }
-
-
-  // Set the initial bias
-  static_bias_initialization_
-      = config_["settings"]["static_bias_initialization"]
-            ? config_["settings"]["static_bias_initialization"].as<bool>()
-            : false;
-  if (static_bias_initialization_ == false) {
-    std::vector<double> ang_vel_bias
-        = config_["priors"]["ang_vel_bias"]
-              ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
-              : std::vector<double>({0, 0, 0});
-    ang_vel_and_bias_est_(3) = ang_vel_bias[0];
-    ang_vel_and_bias_est_(4) = ang_vel_bias[1];
-    ang_vel_and_bias_est_(5) = ang_vel_bias[2];
-
-    std::cout
-        << "Static bias initialization is set to false for the gyro filter. \n "
-           "The biases in the gyro filter are initialized using prior as: ["
-        << ang_vel_and_bias_est_(3) << ", " << ang_vel_and_bias_est_(4) << ", "
-        << ang_vel_and_bias_est_(5) << "]" << std::endl;
-  }
-
 
   // Temp logger
   std::string imu_ang_vel_log_file
@@ -295,22 +268,29 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
 
 
   // Set the initial bias
-  ang_vel_and_bias_est_ = Eigen::VectorXd::Zero(6);
-  std::vector<double> ang_vel_bias
-      = config_["priors"]["ang_vel_bias"]
-            ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
-            : std::vector<double>({0, 0, 0});
-  ang_vel_and_bias_est_(3) = ang_vel_bias[0];
-  ang_vel_and_bias_est_(4) = ang_vel_bias[1];
-  ang_vel_and_bias_est_(5) = ang_vel_bias[2];
+  static_bias_initialization_
+      = config_["settings"]["static_bias_initialization"]
+            ? config_["settings"]["static_bias_initialization"].as<bool>()
+            : false;
 
-  std::cout << "Initial angular velocity bias: [" << ang_vel_and_bias_est_(3)
-            << ", " << ang_vel_and_bias_est_(4) << ", "
-            << ang_vel_and_bias_est_(5) << "]" << std::endl;
+  if (static_bias_initialization_ == false) {
+    std::vector<double> ang_vel_bias
+        = config_["priors"]["ang_vel_bias"]
+              ? config_["priors"]["ang_vel_bias"].as<std::vector<double>>()
+              : std::vector<double>({0, 0, 0});
+    ang_vel_and_bias_est_(3) = ang_vel_bias[0];
+    ang_vel_and_bias_est_(4) = ang_vel_bias[1];
+    ang_vel_and_bias_est_(5) = ang_vel_bias[2];
+
+    std::cout
+        << "Static bias initialization is set to false for the gyro filter. \n "
+           "The biases in the gyro filter are initialized using prior as: ["
+        << ang_vel_and_bias_est_(3) << ", " << ang_vel_and_bias_est_(4) << ", "
+        << ang_vel_and_bias_est_(5) << "]" << std::endl;
+  }
 
 
   // Temp logger
-
   std::string imu_propagate_input_file
       = "/home/justin/code/drift/log/imu_propagate_input_log.txt";
   imu_propagate_input_outfile_.open(imu_propagate_input_file);
@@ -482,7 +462,7 @@ void ImuAngVelEKF::LogInputIMU() {
 void ImuAngVelEKF::InitializeFilter() {
   /// TODO: Currently only support single imu correction
 
-
+  std::cout << "bias_init set to " << static_bias_initialization_ << std::endl;
   if (bias_init_vec_.size() < init_bias_size_ && static_bias_initialization_) {
     imu_data_buffer_mutex_ptr_.get()->lock();
     if (imu_data_buffer_ptr_->empty()) {
@@ -746,6 +726,10 @@ void ImuAngVelEKF::GyroPropagate() {
   gyro_prop_data_buffer_mutex_ptr_.get()->unlock();
 
   last_propagate_time_ = imu_measurement->get_time();
+
+  if (correction_method_ == ANG_VEL) {
+    latest_imu_measurement_ = imu_measurement;
+  }
 
   // Use gyro measurement data to perform propagation
   // w_(k+1) = w_(t+1) - w_t + w_k
