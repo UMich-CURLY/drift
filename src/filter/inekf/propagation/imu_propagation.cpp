@@ -18,7 +18,8 @@
  **/
 
 #include "drift/filter/inekf/propagation/imu_propagation.h"
-
+#include <fstream>
+#include <chrono>
 
 using namespace std;
 using namespace math::lie_group;
@@ -125,7 +126,7 @@ const IMUQueuePtr ImuPropagation::get_sensor_data_buffer_ptr() const {
 // IMU propagation method
 bool ImuPropagation::Propagate(RobotState& state) {
   // Bias corrected IMU measurements
-
+  std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();
   // Use the previous measurement to propagate the state in the
   // current time period
   const ImuMeasurementPtr imu_measurement = prev_imu_measurement_;
@@ -214,6 +215,17 @@ bool ImuPropagation::Propagate(RobotState& state) {
   state.set_X(X_pred);
   state.set_P(P_pred);
 
+  std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();                        
+  auto duration = ( t_end - t_start ).count(); // time in ns
+  std::ofstream file ("propagation_time.txt", std::ios::app);
+  if (!file.is_open())
+  {
+    std::cerr << "Unable to open file" << std::endl;
+    exit(1); // terminate with error
+  } else {
+    file << duration << std::endl;
+    file.close();
+  }
   return true;
 }
 

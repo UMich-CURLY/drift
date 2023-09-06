@@ -12,6 +12,8 @@
  **/
 
 #include "drift/filter/inekf/correction/velocity_correction.h"
+#include <fstream>
+#include <chrono>
 
 using namespace std;
 using namespace math::lie_group;
@@ -75,6 +77,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
 
+  std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();    
   // Fill out observation data
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
@@ -142,6 +145,17 @@ bool VelocityCorrection::Correct(RobotState& state) {
                    << v(1) << "," << v(2) << std::endl
                    << std::flush;
 
+  std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();                        
+  auto duration = ( t_end - t_start ).count(); // time in ns
+  std::ofstream file ("correction_time.txt", std::ios::app);
+  if (!file.is_open())
+  {
+    std::cerr << "Unable to open file" << std::endl;
+    exit(1); // terminate with error
+  } else {
+    file << duration << std::endl;
+    file.close();
+  }
   return true;
 }
 

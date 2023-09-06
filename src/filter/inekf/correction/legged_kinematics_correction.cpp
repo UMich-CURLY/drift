@@ -1,6 +1,8 @@
 // TODO add description
 
 #include "drift/filter/inekf/correction/legged_kinematics_correction.h"
+#include <fstream>
+#include <chrono>
 
 using namespace std;
 using namespace math::lie_group;
@@ -49,6 +51,7 @@ const LeggedKinQueuePtr LeggedKinematicsCorrection::get_sensor_data_buffer_ptr()
 bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   Eigen::VectorXd Z, Y, b;
   Eigen::MatrixXd H, N, PI;
+  std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();    
 
   // Initialize containers to store contacts that will be removed or augmented
   // after correction
@@ -251,6 +254,17 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
     }
   }
 
+  std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();                        
+  auto duration = ( t_end - t_start ).count(); // time in ns
+  std::ofstream file ("correction_time.txt", std::ios::app);
+  if (!file.is_open())
+  {
+    std::cerr << "Unable to open file" << std::endl;
+    exit(1); // terminate with error
+  } else {
+    file << duration << std::endl;
+    file.close();
+  }
   return true;
 }
 
