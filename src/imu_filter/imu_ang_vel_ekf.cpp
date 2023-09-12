@@ -315,6 +315,12 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
       = "/home/justin/code/drift/log/filtered_output_log.txt";
   filtered_ang_vel_outfile_.open(filtered_ang_vel_log_file);
   filtered_ang_vel_outfile_.precision(dbl::max_digits10);
+
+  std::string vel_corr_time_file = "gyro_correction_time.txt";
+  vel_corr_time_file_.open(vel_corr_time_file, std::ios::app);
+
+  std::string vel_prop_time_file = "gyro_propagation_time.txt";
+  vel_prop_time_file_.open(vel_prop_time_file, std::ios::app);
 }
 
 // IMU filter destructor
@@ -326,6 +332,7 @@ ImuAngVelEKF::~ImuAngVelEKF() {
   imu_ang_vel_outfile_.close();
   encoder_ang_vel_outfile_.close();
   filtered_ang_vel_outfile_.close();
+  vel_corr_time_file_.close();
 }
 
 void ImuAngVelEKF::add_gyro_propagate(
@@ -671,6 +678,7 @@ void ImuAngVelEKF::SingleImuAngVelCorrection() {
 }
 
 void ImuAngVelEKF::AngVelCorrection() {
+  std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();    
   // Angular velocity measurements
   ang_vel_data_buffer_mutex_ptr_.get()->lock();
   if (ang_vel_data_buffer_ptr_->empty()) {
@@ -701,6 +709,16 @@ void ImuAngVelEKF::AngVelCorrection() {
     ang_vel_data_buffer_mutex_ptr_.get()->lock();
     ang_vel_data_buffer_ptr_->pop();
     ang_vel_data_buffer_mutex_ptr_.get()->unlock();
+
+    // counting running time
+    std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();
+    auto duration = (t_end - t_start).count();
+    if (!vel_corr_time_file_.is_open()) {
+      std::cerr << "Unable to open file" << std::endl;
+      exit(1);    
+    } else {
+      vel_corr_time_file_ << duration << std::endl;
+    }
     return;
   }
 }
@@ -714,6 +732,9 @@ void ImuAngVelEKF::AngVelFilterPropagate() {
 }
 
 void ImuAngVelEKF::GyroPropagate() {
+
+  std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();    
+
   // Take Gyro data:
   gyro_prop_data_buffer_mutex_ptr_.get()->lock();
   if (gyro_prop_data_buffer_ptr_->empty()) {
@@ -758,6 +779,16 @@ void ImuAngVelEKF::GyroPropagate() {
                          << ang_vel_and_bias_est_(4) << ","
                          << ang_vel_and_bias_est_(5) << std::endl
                          << std::flush;
+
+  // counting running time
+  std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();
+  auto duration = (t_end - t_start).count();
+  if (!vel_prop_time_file_.is_open()) {
+    std::cerr << "Unable to open file" << std::endl;
+    exit(1);    
+  } else {
+    vel_prop_time_file_ << duration << std::endl;
+  }
 }
 
 void ImuAngVelEKF::RandomWalkPropagate() {

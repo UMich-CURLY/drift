@@ -40,6 +40,12 @@ LeggedKinematicsCorrection::LeggedKinematicsCorrection(
       = config_["settings"]["correction_time_threshold"]
             ? config_["settings"]["correction_time_threshold"].as<double>()
             : 0.3;
+  std::string corr_time_file="legged_correction_time.txt";
+  corr_time_file_.open(corr_time_file, std::ios::app);
+}
+
+LeggedKinematicsCorrection::~LeggedKinematicsCorrection() {
+  corr_time_file_.close();
 }
 
 const LeggedKinQueuePtr LeggedKinematicsCorrection::get_sensor_data_buffer_ptr()
@@ -256,14 +262,12 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
 
   std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();                        
   auto duration = ( t_end - t_start ).count(); // time in ns
-  std::ofstream file ("correction_time.txt", std::ios::app);
-  if (!file.is_open())
+  if (!corr_time_file_.is_open())
   {
     std::cerr << "Unable to open file" << std::endl;
     exit(1); // terminate with error
   } else {
-    file << duration << std::endl;
-    file.close();
+    corr_time_file_ << duration << std::endl;
   }
   return true;
 }

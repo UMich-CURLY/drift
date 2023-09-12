@@ -119,6 +119,7 @@ class VelocityCorrection : public Correction {
   double velocity_scale_;
 
   std::ofstream est_vel_outfile_;
+  std::ofstream corr_time_file_;
 };
 
 }    // namespace filter::inekf

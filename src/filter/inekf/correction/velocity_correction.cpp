@@ -64,9 +64,14 @@ VelocityCorrection::VelocityCorrection(
       = "/home/justin/code/drift/log/vanila_est_vel_log.txt";
   est_vel_outfile_.open(est_vel_file);
   est_vel_outfile_.precision(dbl::max_digits10);
+  std::string corr_time_file = "correction_time.txt";
+  corr_time_file_.open(corr_time_file, std::ios::app);
 }
 
-VelocityCorrection::~VelocityCorrection() { est_vel_outfile_.close(); }
+VelocityCorrection::~VelocityCorrection() { 
+  est_vel_outfile_.close();
+  corr_time_file_.close();
+}
 
 const VelocityQueuePtr VelocityCorrection::get_sensor_data_buffer_ptr() const {
   return sensor_data_buffer_ptr_;
@@ -115,6 +120,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
     }
   }
 
+  // std::chrono::_V2::system_clock::time_point t_start = std::chrono::high_resolution_clock::now();    
   state.set_time(measured_velocity->get_time());
 
   // Fill out H
@@ -147,14 +153,13 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   std::chrono::_V2::system_clock::time_point t_end = std::chrono::high_resolution_clock::now();                        
   auto duration = ( t_end - t_start ).count(); // time in ns
-  std::ofstream file ("correction_time.txt", std::ios::app);
-  if (!file.is_open())
+  if (!corr_time_file_.is_open())
   {
     std::cerr << "Unable to open file" << std::endl;
     exit(1); // terminate with error
   } else {
-    file << duration << std::endl;
-    file.close();
+    corr_time_file_ << duration << std::endl;
+    // file.close();
   }
   return true;
 }

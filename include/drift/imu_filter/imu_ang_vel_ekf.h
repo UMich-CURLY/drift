@@ -375,6 +375,9 @@ class ImuAngVelEKF {
   std::ofstream encoder_ang_vel_outfile_;
   std::ofstream filtered_ang_vel_outfile_;
 
+  std::ofstream vel_corr_time_file_;
+  std::ofstream vel_prop_time_file_;
+
 };    // End of class FilteredImuPropagation
 }    // namespace imu_filter
 

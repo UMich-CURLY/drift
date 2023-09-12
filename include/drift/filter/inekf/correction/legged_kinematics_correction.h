@@ -15,6 +15,7 @@
 #define FILTER_INEKF_CORRECTION_KINEMATIC_CORRECTION_H
 
 #include <unordered_map>
+#include <fstream>
 #include "drift/filter/base_correction.h"
 #include "drift/filter/inekf/inekf.h"
 #include "drift/math/lie_group.h"
@@ -72,6 +73,8 @@ class LeggedKinematicsCorrection : public Correction {
       LeggedKinQueuePtr sensor_data_buffer_ptr,
       std::shared_ptr<std::mutex> sensor_data_buffer_mutex_ptr,
       const ErrorType& error_type, const std::string& yaml_filepath);
+
+  ~LeggedKinematicsCorrection();
 
   /// @name Correction Methods
   /// @{
@@ -141,6 +144,7 @@ class LeggedKinematicsCorrection : public Correction {
                                           value from config file when the class
                                           object is created. */
   Eigen::Matrix3d contact_noise_cov_;  /**> Contact noise covariance. */
+  std::ofstream corr_time_file_;
 };                                     // class LeggedKinematicsCorrection
 }    // namespace filter::inekf
 
