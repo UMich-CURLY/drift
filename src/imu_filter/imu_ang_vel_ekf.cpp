@@ -71,6 +71,9 @@ ImuAngVelEKF::ImuAngVelEKF(
             ? config_["settings"]["static_bias_initialization"].as<bool>()
             : false;
 
+
+  std::cout << "static bias init: " << static_bias_initialization_ << std::endl;
+
   if (static_bias_initialization_ == false) {
     std::vector<double> ang_vel_bias
         = config_["priors"]["ang_vel_bias"]
@@ -273,6 +276,8 @@ ImuAngVelEKF::ImuAngVelEKF(const std::string& yaml_filepath)
             ? config_["settings"]["static_bias_initialization"].as<bool>()
             : false;
 
+  std::cout << "static bias init: " << static_bias_initialization_ << std::endl;
+
   if (static_bias_initialization_ == false) {
     std::vector<double> ang_vel_bias
         = config_["priors"]["ang_vel_bias"]
@@ -419,6 +424,7 @@ void ImuAngVelEKF::RunOnce() {
                 << std::endl;
     }
 
+    // std::cout << "initializing filter" << std::endl;
     // Initialize filter
     InitializeFilter();
   }
@@ -462,7 +468,8 @@ void ImuAngVelEKF::LogInputIMU() {
 void ImuAngVelEKF::InitializeFilter() {
   /// TODO: Currently only support single imu correction
 
-  std::cout << "bias_init set to " << static_bias_initialization_ << std::endl;
+  // std::cout << "bias_init set to " << static_bias_initialization_ <<
+  // std::endl;
   if (bias_init_vec_.size() < init_bias_size_ && static_bias_initialization_) {
     imu_data_buffer_mutex_ptr_.get()->lock();
     if (imu_data_buffer_ptr_->empty()) {

@@ -7,7 +7,7 @@ subscribers:
   # second_imu_topic: "/imu1/imu"
   wheel_encoder_topic: "/joint_states"
   # wheel_radius: 0.1651 # meter
-  wheel_radius: 0.1600 # meter
+  wheel_radius: 0.1580 # meter
   # wheel_radius: 0.1521 # meter
   track_width: 0.555 # meter
   # track_width: 0.999 # meter

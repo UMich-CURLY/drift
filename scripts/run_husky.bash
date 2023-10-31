@@ -5,7 +5,7 @@
 # -------------------------------------------------------------------------- */
 
 #
-#  @file   run_neya.bash
+#  @file   run_husky.bash
 #  @author Tzu-Yuan Lin
 #  @brief  bash file to run the neya dataset (full-size vehicle)
 #  @date   August 7, 2023
@@ -13,17 +13,17 @@
 
 ## This file requires yq to be installed: https://github.com/mikefarah/yq
 ## This can be down by `brew install yq` on mac or `sudo snap install yq` on linux
-data_path="/media/justin/DATA/data/fetch_data/fetch_mocap/"
-output_path="/media/justin/DATA/result/DRIFT_TRO/fetch/"
-config_path="../config/fetch_gyro_filter/"
-rosnode_name="fetch_gyro_filter"
-sleep_time=0.5
+data_path="/media/justin/DATA/data/husky_data/2022-05-11_MAir/"
+output_path="/media/justin/DATA/result/DRIFT_TRO/husky/"
+config_path="../config/husky/"
+rosnode_name="husky"
+sleep_time=3
 
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'
 NC='\033[0m' # No Color
 
-echo -e "${ORANGE} Start running the fetch data set!! All the best!! ^_^ ${NC}"
+echo -e "${ORANGE} Start running the husky data set!! All the best!! ^_^ ${NC}"
 
 for bag in $data_path"/"*.bag; do
   
@@ -48,10 +48,10 @@ for bag in $data_path"/"*.bag; do
     mkdir $cur_output_path
   fi
   # modify the config file
-  yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF_gyro_filter.txt"'  $config_path"inekf_estimator.yaml"
-  yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_gyro_filter_velocity.txt"'  $config_path"inekf_estimator.yaml"
+  yq e -i '.logger.pose_log_file = strenv(cur_output_path)+"InEKF.txt"'  $config_path"inekf_estimator.yaml"
+  yq e -i '.logger.vel_log_file = strenv(cur_output_path)+"InEKF_velocity.txt"'  $config_path"inekf_estimator.yaml"
 
-  rosrun drift fetch_gyro_filter & 
+  rosrun drift husky & 
   
   drift_pid=$!& 
   

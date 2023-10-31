@@ -17,7 +17,7 @@ data_path="/media/justin/DATA/data/neya/"
 output_path="/media/justin/DATA/result/DRIFT_TRO/neya"
 config_path="../config/neya/"
 rosnode_name="neya"
-sleep_time=10
+sleep_time=0.5
 
 GREEN='\033[0;32m'
 ORANGE='\033[0;33m'

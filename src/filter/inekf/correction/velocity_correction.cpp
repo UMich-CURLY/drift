@@ -121,7 +121,7 @@ bool VelocityCorrection::Correct(RobotState& state) {
 
   // Fill out N
   N.conservativeResize(3, 3);
-  N = covariance_;
+  N = state.get_world_rotation()*covariance_*state.get_world_rotation().transpose();
 
   Eigen::Matrix3d R = state.get_rotation();
   Eigen::Vector3d v = state.get_velocity();

@@ -1,11 +1,11 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/home/justin/code/drift/log/girona500.txt"
-  vel_log_file: "/home/justin/code/drift/log/girona500_vel_log.txt"
+  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/underwater/test.txt"
+  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/underwater/test_vel.txt"
   pose_log_rate: 100 # Hz
 
 state:
   rotation_std_value: 0.1
   velocity_std_value: 0.1
-  position_std_value: 0.001
+  position_std_value: 0.1
