@@ -1,8 +1,7 @@
 # DRIFT
-**Authors: Tzu-Yuan Lin, Tingjun Li, Jonathan Tong, and Justin Yu** 
 
 # 1. License
-DRIFT is released under a [GPLv3 license](https://github.com/UMich-CURLY/drift/blob/main/LICENSE). 
+DRIFT is released under a [BSD 3-Clause License](https://github.com/UMich-CURLY/drift/blob/main/LICENSE). 
 
 
 # 2. Dependencies
