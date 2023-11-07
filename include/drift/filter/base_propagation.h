@@ -29,9 +29,8 @@
 
 
 enum class PropagationType {
-  BASE,   /**< Base propagation method. */
-  IMU,    /**< IMU propagation method. */
-  IMU_DOB /**< IMU propagation with DOB method. */
+  BASE, /**< Base propagation method. */
+  IMU,  /**< IMU propagation method. */
 };
 
 using namespace measurement;
@@ -126,7 +125,7 @@ class Propagation {
   const Eigen::Vector3d g_; /**< Gravity vector (m/s^2) in world frame (z-up).
                                Default is 9.80 m/s^2 */
   Eigen::Vector3d
-      magnetic_field_;      /**< Magnetic field vector in world frame (z-up). */
+      magnetic_field_; /**< Magnetic field vector in world frame (z-up). */
   PropagationType propagation_type_; /**< The type of the propagation method. */
   std::shared_ptr<std::mutex>
       sensor_data_buffer_mutex_ptr_; /**< The mutex of the sensor data buffer.

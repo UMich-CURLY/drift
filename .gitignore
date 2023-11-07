@@ -34,11 +34,9 @@ ROS/drift/fetch
 ROS/drift/husky
 ROS/drift/mini_cheetah
 ROS/drift/fetch_gyro_filter
-ROS/drift/husky_dob
 ROS/drift/deterministic_test
 ROS/drift/husky_gyro_filter
 ROS/drift/husky_odom
-ROS/drift/husky_odom_dob
 ROS/drift/girona500
 ROS/drift/husky_double_imu_filter
 ROS/drift/neya

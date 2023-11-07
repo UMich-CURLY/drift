@@ -193,14 +193,6 @@ void InekfEstimator::add_imu_propagation(
                                                   error_type_, yaml_filepath);
 }
 
-void InekfEstimator::add_imu_dob_propagation(
-    IMUQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const std::string& yaml_filepath) {
-  propagation_ = std::make_shared<ImuDOBPropagation>(
-      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
-  enabled_slip_estimator_ = true;
-}
-
 std::pair<IMUQueuePtr, std::shared_ptr<std::mutex>>
 InekfEstimator::add_imu_ang_vel_ekf(
     IMUQueuePtr imu_buffer_ptr,
@@ -235,16 +227,6 @@ void InekfEstimator::add_velocity_correction(
   corrections_.push_back(correction);
 }
 
-void InekfEstimator::add_velocity_dob_correction(
-    VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
-    const std::string& yaml_filepath) {
-  std::shared_ptr<Correction> correction
-      = std::make_shared<VelocityDOBCorrection>(buffer_ptr, buffer_mutex_ptr,
-                                                error_type_, yaml_filepath);
-  corrections_.push_back(correction);
-  enabled_slip_estimator_ = true;
-}
-
 const bool InekfEstimator::is_enabled() const { return enabled_; }
 
 void InekfEstimator::EnableFilter() { enabled_ = true; }
@@ -254,11 +236,6 @@ const bool InekfEstimator::BiasInitialized() const {
     std::shared_ptr<ImuPropagation> imu_propagation_ptr
         = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
     return imu_propagation_ptr.get()->get_bias_initialized();
-  } else if (propagation_.get()->get_propagation_type()
-             == PropagationType::IMU_DOB) {
-    std::shared_ptr<ImuDOBPropagation> imu_propagation_ptr
-        = std::dynamic_pointer_cast<ImuDOBPropagation>(propagation_);
-    return imu_propagation_ptr.get()->get_bias_initialized();
   }
   return false;
 }
@@ -267,11 +244,6 @@ void InekfEstimator::InitBias() {
   if (propagation_.get()->get_propagation_type() == PropagationType::IMU) {
     std::shared_ptr<ImuPropagation> imu_propagation_ptr
         = std::dynamic_pointer_cast<ImuPropagation>(propagation_);
-    imu_propagation_ptr.get()->InitImuBias();
-  } else if (propagation_.get()->get_propagation_type()
-             == PropagationType::IMU_DOB) {
-    std::shared_ptr<ImuDOBPropagation> imu_propagation_ptr
-        = std::dynamic_pointer_cast<ImuDOBPropagation>(propagation_);
     imu_propagation_ptr.get()->InitImuBias();
   }
 }
