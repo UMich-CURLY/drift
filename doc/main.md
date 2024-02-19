@@ -1,28 +1,36 @@
-# DRIFT
+# DRIFT: Dead Reckoning In Field Time
+<!-- ![all_robots](figures/drift_all_robots.gif?raw=true "Title") -->
 
-**Authors: Tzu-Yuan Lin, Tingjun Li, Jonathan Tong, and Justin Yu** 
+## Description
+DRIFT is a real-time symmetry-preserving propioceptive state estimation framework. The current implementation is based on the [Invariant Kalman Filtering (InEKF)](https://www.annualreviews.org/doi/10.1146/annurev-control-060117-105010). By default, DRIFT supports legged robots, differential-drive wheeled robots, full-size vehicles with shaft encoders and marine robots with Doppler Velocity Log (DVL). 
 
-## 1. License
-DRIFT is released under a [GPLv3 license](https://github.com/UMich-CURLY/drift/blob/main/LICENSE). 
+DRIFT is designed to be modular and easy to expand to different platforms. It can be used as a standalone C++ library. Alternatively, we provide a ROS1 wrapper for easy communication between sensors. 
 
+<!-- ## Framework
+![flow_chart](figures/flow_chart.jpg?raw=true "flow chart") -->
 
-## 2. Dependencies
+## Run Time Analysis
+We perform runtime evaluations using a personal laptop with an Intel i5-11400H CPU and an NVIDIA Jetson AGX Xavier (CPU). DRIFT can operate at an extremely high frequency using CPU-only computation, even on the resourced-constrained Jetson AGX Xavier. For the optional contact estimator, the inference speed on an NVIDIA RTX 3090 GPU is approximately 1100 Hz, and the inference speed on a Jetson AGX Xavier (GPU) is around 830 Hz after TensorRT optimization.
+
+<!-- ![run_time](figures/run_time.png?raw=true "run time") -->
+
+# Dependencies
 We have tested the library in **Ubuntu 20.04** and **22.04**, but it should be easy to compile in other platforms.
 
-### C++17 Compiler
+> ### C++17 Compiler
 We use the threading functionalities of C++17.
 
 
-### Eigen3
+> ### Eigen3
 Required by header files. Download and install instructions can be found at: http://eigen.tuxfamily.org. **Requires at least 3.1.0**.
 
-### Yaml-cpp
+> ### Yaml-cpp
 Required by header files. Download and install instructions can be found at: https://github.com/jbeder/yaml-cpp.
 
-### ROS1 or ROS2 (optional)
-Building with ROS1 or ROS2 is optional. Instructions are [found below](https://github.com/UMich-CURLY/drift/tree/main#4-ros).
+> ### ROS1 (Optional)
+Building with ROS1 is optional. Instructions are [found below](https://github.com/UMich-CURLY/drift/tree/main#4-ros).
 
-## 3. Building DRIFT library
+# Building DRIFT library
 
 Clone the repository:
 ```
@@ -37,8 +45,22 @@ cmake ..
 make -j4
 ```
 
-## 4. ROS
-### Building the ROS1 robot_state_est nodes
+## Install the library
+After building the library, you can install the library to the system. This will allow other projects to find the library without needing to specify the path to the library. 
+
+```
+sudo make install
+```
+Then, you can include the library in your project by adding the following line to your CMakeLists.txt file:
+```
+find_package(drift REQUIRED)
+```
+
+# ROS
+## Examples
+We provide several examples in the `ROS/examples` directory. 
+
+## Building the ROS1 node
 1. Add `/ROS/drift` to the `ROS_PACKAGE_PATH` environment variable. Open your ~/.bashrc file in a text editor and add the following line to the end. Replace PATH/TO with the directory path to where you cloned drift:
 
   ```
@@ -58,15 +80,20 @@ make -j4
   ./build_ros.sh
   ```
 
-### Run examples:
+## Run examples
 **Clearpath Husky robot:**
 ```
 rosrun drift husky
 ```
 
-**Fetch robot:**
+**Fetch robot with the gyro filter:**
 ```
 rosrun drift fetch
+```
+
+**Full-size vehicle:**
+```
+rosrun drift neya
 ```
 
 **MIT mini-cheetah robot:**
@@ -74,9 +101,40 @@ rosrun drift fetch
 rosrun drift mini_cheetah
 ```
 
-### Run the repo with your own settings:
-Users can add configs inside `config/filter/inekf/` directory. Configs in `propagation/` stores settings related to propagation methods, e.g., `mini_cheetah_imu_propagation.yaml` includes all the settings we need to perform imu propagation in the filter. Configs
-in `correction` stores settings related to correction methods. For example, velocity correction method settings can refer to `fetch_velocity_correction.yaml` or `velocity_correction.yaml`, while legged kinematics correction method settings can refer to 
-`mini_cheetah_legged_kinematics_correction.yaml`. 
+**Girona500 (Marine robot):**
+```
+rosrun drift girona500
+```
 
-After editting the config files, one can easily follow tutorial comments in examples in `ROS/examples` to create new cases!
+## Run the repo with your own robots:
+Please refer to the tutorial here: https://umich-curly.github.io/DRIFT_Website/tutorials/.
+
+# Contact Estimation
+The contact estimation and the contact data set can be found in https://github.com/UMich-CURLY/deep-contact-estimator.
+
+# Citations
+If you find this work useful, please kindly cite the following papers
+
+* Tzu-Yuan Lin, Tingjun Li, Wenzhe Tong, and Maani Ghaffari. "Proprioceptive Invariant Robot State Estimation." arXiv preprint arXiv:2311.04320 (2023). (Under review for Transaction on Robotics)
+```
+@article{lin2023proprioceptive,
+  title={Proprioceptive Invariant Robot State Estimation},
+  author={Lin, Tzu-Yuan and Li, Tingjun and Tong, Wenzhe and Ghaffari, Maani},
+  journal={arXiv preprint arXiv:2311.04320},
+  year={2023}
+}
+```
+* Tzu-Yuan Lin, Ray Zhang, Justin Yu, and Maani Ghaffari. "Legged Robot State Estimation using Invariant Kalman Filtering and Learned Contact Events." In Conference on robot learning. PMLR, 2021
+```
+@inproceedings{
+   lin2021legged,
+   title={Legged Robot State Estimation using Invariant Kalman Filtering and Learned Contact Events},
+   author={Tzu-Yuan Lin and Ray Zhang and Justin Yu and Maani Ghaffari},
+   booktitle={5th Annual Conference on Robot Learning },
+   year={2021},
+   url={https://openreview.net/forum?id=yt3tDB67lc5}
+}
+```
+
+# License
+DRIFT is released under a [BSD 3-Clause License](https://github.com/UMich-CURLY/drift/blob/main/LICENSE). 

@@ -2,9 +2,8 @@
 ![all_robots](figures/drift_all_robots.gif?raw=true "Title")
 
 ## Description
-DRIFT is a real-time symmetry-preserving propioceptive state estimation framework. The current implementation is based on the [Invariant Kalman Filtering (InEKF)](https://www.annualreviews.org/doi/10.1146/annurev-control-060117-105010). By default, DRIFT supports legged robots, differential-drive wheeled robots, full-size vehicles with shaft encoders and marine robots with Doppler Velocity Log (DVL). 
+Dead Reckoning In Field Time (DRIFT) is an open-source C++ software library designed to provide accurate and high-frequency proprioceptive state estimation for a variety of mobile robot architectures. By default, DRIFT supports legged robots, differential-drive wheeled robots, full-size vehicles with shaft encoders and marine robots with a Doppler Velocity Log (DVL). Leveraging symmetry-preserving filters such as [Invariant Kalman Filtering (InEKF)](https://www.annualreviews.org/doi/10.1146/annurev-control-060117-105010), this modular library empowers roboticists and engineers with a robust and adaptable tool to estimate instantaneous local pose and velocity in diverse environments. The software is structured in a modular fashion, allowing users to define their own sensor types, and propagation and correction methods, offering a high degree of customization.
 
-DRIFT is designed to be modular and easy to expand to different platforms. It can be used as a standalone C++ library. Alternatively, we provide a ROS1 wrapper for easy communication between sensors. 
 
 ## Framework
 ![flow_chart](figures/flow_chart.jpg?raw=true "flow chart")
