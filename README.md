@@ -7,7 +7,7 @@ DRIFT is a real-time symmetry-preserving propioceptive state estimation framewor
 DRIFT is designed to be modular and easy to expand to different platforms. It can be used as a standalone C++ library. Alternatively, we provide a ROS1 wrapper for easy communication between sensors. 
 
 ## Framework
-![flow_chart](figures/flow_chart.png?raw=true "flow chart")
+![flow_chart](figures/flow_chart.jpg?raw=true "flow chart")
 
 ## Run Time Analysis
 We perform runtime evaluations using a personal laptop with an Intel i5-11400H CPU and an NVIDIA Jetson AGX Xavier (CPU). DRIFT can operate at an extremely high frequency using CPU-only computation, even on the resourced-constrained Jetson AGX Xavier. For the optional contact estimator, the inference speed on an NVIDIA RTX 3090 GPU is approximately 1100 Hz, and the inference speed on a Jetson AGX Xavier (GPU) is around 830 Hz after TensorRT optimization.
