@@ -45,6 +45,17 @@ cmake ..
 make -j4
 ```
 
+## Install the library
+After building the library, you can install the library to the system. This will allow other projects to find the library without needing to specify the path to the library. 
+
+```
+sudo make install
+```
+Then, you can include the library in your project by adding the following line to your CMakeLists.txt file:
+```
+find_package(drift REQUIRED)
+```
+
 # ROS
 ## Examples
 We provide several examples in the `ROS/examples` directory. 
