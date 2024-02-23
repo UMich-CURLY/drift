@@ -41,6 +41,7 @@
 
 #include "drift/estimator/inekf_estimator.h"
 #include "drift/kinematics/mini_cheetah_kinematics.h"
+#include "drift/kinematics/three_bar_tensegrity_kinematics.h"
 #include "drift/utils/type_def.h"
 
 using namespace measurement;

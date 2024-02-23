@@ -54,7 +54,9 @@ add_library(${LIBRARY_TARGET_NAME}
   ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/measurement.cpp
   ${PROJECT_SOURCE_DIR}/src/measurement/legged_kinematics.cpp
+  ${PROJECT_SOURCE_DIR}/src/measurement/tensegrity_kinematics.cpp
   ${PROJECT_SOURCE_DIR}/src/kinematics/mini_cheetah_kinematics.cpp
+  ${PROJECT_SOURCE_DIR}/src/kinematics/three_bar_tensegrity_kinematics.cpp
   ${MINI_CHEETAH_KIN_SRC_FILES}
 )
 target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
