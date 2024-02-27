@@ -23,6 +23,11 @@ LeggedKinematicsMeasurement::LeggedKinematicsMeasurement(
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts)
     : encoders_(encoders), d_encoders_(d_encoders), contacts_(contacts) {}
 
+void LeggedKinematicsMeasurement::set_position(
+    const Eigen::Matrix<double, 3, Eigen::Dynamic>& positions) {
+  positions_ = positions;
+}
+
 void LeggedKinematicsMeasurement::set_contact(
     const Eigen::Matrix<bool, Eigen::Dynamic, 1>& contacts) {
   contacts_ = contacts;

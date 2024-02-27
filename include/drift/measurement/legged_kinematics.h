@@ -106,6 +106,9 @@ class LeggedKinematicsMeasurement : public Measurement {
 
   /// @name Setter
   /// @{
+
+  void set_position(const Eigen::Matrix<double, 3, Eigen::Dynamic>& positions);
+
   /**
    * @brief Set the ground contact state vector.
    *

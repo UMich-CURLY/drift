@@ -31,6 +31,7 @@
 #include "boost/bind.hpp"
 #include "custom_sensor_msgs/Contact.h"
 #include "custom_sensor_msgs/ContactArray.h"
+#include "custom_sensor_msgs/TensegrityKin.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "geometry_msgs/TwistWithCovarianceStamped.h"
 #include "geometry_msgs/Vector3Stamped.h"
@@ -247,6 +248,8 @@ class ROSSubscriber {
       const std::string encoder_topic_name);
 
 
+  LeggedKinQueuePair AddTensegrityKinematicsSubscriber(
+      const std::string kin_topic_name);
   /// @}
 
   /**
@@ -287,7 +290,8 @@ class ROSSubscriber {
    * @param[in] vel_queue: pointer to the buffer queue
    */
   void VelocityWithCovarianceCallback(
-      const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>& vel_msg,
+      const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>&
+          vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**
@@ -366,6 +370,11 @@ class ROSSubscriber {
       const boost::shared_ptr<const custom_sensor_msgs::ContactArray>&
           contact_msg,
       const boost::shared_ptr<const sensor_msgs::JointState>& encoder_msg,
+      const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue);
+
+
+  void TensegrityKinCallBack(
+      const boost::shared_ptr<const custom_sensor_msgs::TensegrityKin>& kin_msg,
       const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue);
 
   /**

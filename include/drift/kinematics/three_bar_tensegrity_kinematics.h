@@ -2,7 +2,7 @@
 #define KINEMATICS_THREE_BAR_KIN_H
 
 #include "drift/math/lie_group.h"
-#include "drift/measurement/tensegrity_kinematics.h"
+#include "drift/measurement/legged_kinematics.h"
 
 namespace three_bar_tensegrity_kinematics {
 enum Endcap { A, B, C, D, E, F };
@@ -15,12 +15,13 @@ using namespace math;
 namespace measurement::kinematics {
 /**
  * @class ThreeBarTensegrityKinematics
- * @brief Three Bar Tensegrity robot specific kinematics solver and measurement container
+ * @brief Three Bar Tensegrity robot specific kinematics solver and measurement
+ * container
  *
- * Derived measurement class containing Three Bar Tensegrity robot specific kinematics
- * information.
+ * Derived measurement class containing Three Bar Tensegrity robot specific
+ * kinematics information.
  */
-class ThreeBarTensegrityKinematics : public TensegrityKinematicsMeasurement {
+class ThreeBarTensegrityKinematics : public LeggedKinematicsMeasurement {
  public:
   /// @name Constructor
   /// @{

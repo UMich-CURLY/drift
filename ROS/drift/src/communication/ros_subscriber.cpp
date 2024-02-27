@@ -119,6 +119,28 @@ LeggedKinQueuePair ROSSubscriber::AddMiniCheetahKinematicsSubscriber(
   return {kin_queue_ptr, mutex_list_.back()};
 }
 
+LeggedKinQueuePair ROSSubscriber::AddTensegrityKinematicsSubscriber(
+    const std::string kin_topic_name) {
+  std::cout << "Subscribing to kinematic topic: " << kin_topic_name
+            << std::endl;
+
+  // Create a new queue for data buffers
+  LeggedKinQueuePtr kin_queue_ptr(new LeggedKinQueue);
+
+  // Initialize a new mutex for this subscriber
+  mutex_list_.emplace_back(new std::mutex);
+
+  subscriber_list_.push_back(nh_->subscribe<custom_sensor_msgs::TensegrityKin>(
+      kin_topic_name, 1000,
+      boost::bind(&ROSSubscriber::TensegrityKinCallBack, this, _1,
+                  mutex_list_.back(), kin_queue_ptr)));
+
+  // Keep the ownership of the data queue in this class
+  kin_queue_list_.push_back(kin_queue_ptr);
+
+  return {kin_queue_ptr, mutex_list_.back()};
+}
+
 VelocityQueuePair ROSSubscriber::AddVelocitySubscriber(
     const std::string topic_name) {
   // Create a new queue for data buffers
@@ -580,6 +602,40 @@ void ROSSubscriber::MiniCheetahKinCallBack(
       encoder_msg->velocity[8], encoder_msg->velocity[9],
       encoder_msg->velocity[10], encoder_msg->velocity[11];
   kin_measurement->set_joint_state_velocity(jsvel_msg);
+
+  mutex.get()->lock();
+  kin_queue->push(kin_measurement);
+  mutex.get()->unlock();
+}
+
+void ROSSubscriber::TensegrityKinCallBack(
+    const boost::shared_ptr<const custom_sensor_msgs::TensegrityKin>& kin_msg,
+    const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue) {
+  // Create a legged kinematics measurement object
+  std::shared_ptr<kinematics::ThreeBarTensegrityKinematics> kin_measurement(
+      new kinematics::ThreeBarTensegrityKinematics);
+
+  // Set headers and time stamps
+  kin_measurement->set_header(
+      kin_msg->header.seq,
+      kin_msg->header.stamp.sec + kin_msg->header.stamp.nsec / 1000000000.0,
+      kin_msg->header.frame_id);
+
+  Eigen::Matrix<bool, 6, 1> ct_msg;
+  ct_msg << kin_msg->contact[0], kin_msg->contact[1], kin_msg->contact[2],
+      kin_msg->contact[3], kin_msg->contact[4], kin_msg->contact[5];
+  kin_measurement->set_contact(ct_msg);
+
+  Eigen::Matrix<double, 3, 6> pos_msg;
+  pos_msg << kin_msg->kinematics[0], kin_msg->kinematics[1],
+      kin_msg->kinematics[2], kin_msg->kinematics[3], kin_msg->kinematics[4],
+      kin_msg->kinematics[5], kin_msg->kinematics[6], kin_msg->kinematics[7],
+      kin_msg->kinematics[8], kin_msg->kinematics[9], kin_msg->kinematics[10],
+      kin_msg->kinematics[11], kin_msg->kinematics[12], kin_msg->kinematics[13],
+      kin_msg->kinematics[14], kin_msg->kinematics[15], kin_msg->kinematics[16],
+      kin_msg->kinematics[17];
+  kin_measurement->set_position(pos_msg);
+
 
   mutex.get()->lock();
   kin_queue->push(kin_measurement);
