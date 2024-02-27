@@ -1,0 +1,42 @@
+# Settings for IMU propagation model
+settings:
+  ###################
+  # Filter Settings #
+  ###################
+  static_bias_initialization: false  # Enable this the filter will use the first N data points
+                                    # to initialize bias with the assumption of robot being static.
+                                    # If you set this to false, remember to also change the bias
+                                    # prior in config/prior.yaml.
+  init_bias_size: 250 # The number of data points used to initialize bias.
+  init_bias_using_orientation_est_from_imu: false # Enable this the filter will use the orientation
+                                                  # estimated from the imu to initialize bias. 
+                                                  # Setting this to false the filter will assume
+                                                  # the robot to be horizontally static (gravity pointing
+                                                  # downwards) to initialize the filter.   
+  enable_imu_bias_update: false # Enable imu bias update or not.
+  use_imu_ori_to_init: false # Use the orientation estimated from the imu to initialize robot state and bias.
+
+  ########################
+  # Orientation Settings #
+  ########################
+  # We assume the body frame to be at the imu position.
+  # X pointing forward, Y to the left, Z pointing up.
+  # rotation_imu2body: [0, 0.7071, -0.7071, 0] # Orientation from IMU to the body frame. [w, x, y, z]
+  rotation_imu2body: [1, 0, 0, 0] # Orientation from IMU to the body frame. [w, x, y, z]
+
+# IMU bias prior:
+priors:
+  gyroscope_bias: [0.00104398, 0.000137212, -0.000153058] 
+  accelerometer_bias: [0.00286941, -0.0323794, -0.00220881]
+
+  # gyroscope_bias: [-0.0153828, 0.000704485, 0.00442202] 
+  # accelerometer_bias: [0.0251645, -0.0808078, -0.272671]
+
+  # gyroscope_bias: [0,0,0] 
+  # accelerometer_bias: [0,0,0]
+# IMU noise parameters:
+noises:
+  gyroscope_std: 0.01  # 0.000061087, 0.1, 0.04
+  accelerometer_std: 0.1 # 0.0013734, 0.1, 0.65
+  gyroscope_bias_std: 0.1 # 0.1, 0.04
+  accelerometer_bias_std: 0.1 # 0.1, 0.65

@@ -1,0 +1,11 @@
+logger:
+  # This logger will output a txt file in tum style
+  enable_pose_logger: true
+  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/mini_cheetah/test.txt"
+  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/mini_cheetah/test.txt"
+  pose_log_rate: 1000 # Hz
+
+state:
+  rotation_std_value: 0.1
+  velocity_std_value: 0.1
+  position_std_value: 0.1
