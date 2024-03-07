@@ -198,6 +198,15 @@ target_link_libraries(neya_gyro_filter
   yaml-cpp
 )
 
+rosbuild_add_executable(three_bar_tensegrity
+  ${PROJECT_SOURCE_DIR}/examples/three_bar_tensegrity.cpp)
+
+  target_link_libraries(three_bar_tensegrity
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
 
 ### baselines ###
 rosbuild_add_executable(fetch_wheel_odom

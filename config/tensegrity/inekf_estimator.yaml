@@ -1,8 +1,8 @@
 logger:
   # This logger will output a txt file in tum style
   enable_pose_logger: true
-  pose_log_file: "/media/justin/DATA/result/DRIFT_TRO/mini_cheetah/test.txt"
-  vel_log_file: "/media/justin/DATA/result/DRIFT_TRO/mini_cheetah/test.txt"
+  pose_log_file: "./tensegrity_pose_test.txt"
+  vel_log_file: "./tensegrity_vel_test.txt"
   pose_log_rate: 1000 # Hz
 
 state:

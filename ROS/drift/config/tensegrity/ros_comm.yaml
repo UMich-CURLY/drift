@@ -1,0 +1,15 @@
+subscribers:
+  # Name all the topics to subscribe from in this section. You may also redefine the variable name
+  # as long as you can load the yaml variable in your main file
+  imu_topic: "/Imu"
+  joint_encoder_topic: "/JointState"
+  contact_topic: "/tensegrity_kin"
+
+publishers:
+  # Define publish rate and topics for publishers
+  pose_publish_rate: 1000 # Hz
+  pose_publish_topic: "/robot/inekf_estimation/pose"
+  pose_frame: "/odom"
+
+  path_publish_rate: 100 # Hz
+  path_publish_topic: "/robot/inekf_estimation/path"

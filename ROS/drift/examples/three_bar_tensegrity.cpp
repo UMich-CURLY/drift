@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
   YAML::Node config = YAML::LoadFile(config_file);
   std::string imu_topic = config["subscribers"]["imu_topic"].as<std::string>();
   std::string kin_topic
-      = config["subscribers"]["kinematics_topic"].as<std::string>();
+      = config["subscribers"]["contact_topic"].as<std::string>();
 
   /// TUTORIAL: Add a subscriber for IMU data and get its queue and mutex
   std::cout << "Subscribing to imu channel..." << std::endl;
@@ -61,6 +61,7 @@ int main(int argc, char** argv) {
   auto qkin_and_mutex = ros_sub.AddTensegrityKinematicsSubscriber(kin_topic);
   auto qkin = qkin_and_mutex.first;
   auto qkin_mutex = qkin_and_mutex.second;
+  // ROS_INFO("Kinematics data: %s", kin_topic.c_str());
 
   /// TUTORIAL: Start the subscriber thread
   ros_sub.StartSubscribingThread();
