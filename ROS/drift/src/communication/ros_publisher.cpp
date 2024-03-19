@@ -63,7 +63,11 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
             ? config["publishers"]["enable_slip_publisher"].as<bool>()
             : false;
 
-  first_pose_ = {0, 0, 0};
+  // TODO: Add first pose to the config file
+  // first_pose_ = {0, 0, 0};
+  first_pose_ = {config["publishers"]["first_pose"][0].as<double>(),
+                 config["publishers"]["first_pose"][1].as<double>(),
+                 config["publishers"]["first_pose"][2].as<double>()};
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
             << std::endl;

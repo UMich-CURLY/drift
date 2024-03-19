@@ -85,7 +85,7 @@ bool LeggedKinematicsCorrection::Correct(RobotState& state) {
   } else if (t_diff > t_diff_thres_) {
     std::cerr
         << std::setprecision(20)
-        << "Measurement received in the velocity correction is way faster than "
+        << "Measurement received in the contact correction is way faster than "
            "the last propagation time. Skipping this correction. Last "
            "propagation time: "
         << state.get_propagate_time()

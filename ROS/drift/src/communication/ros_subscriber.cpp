@@ -612,28 +612,47 @@ void ROSSubscriber::TensegrityKinCallBack(
     const boost::shared_ptr<const custom_sensor_msgs::TensegrityKin>& kin_msg,
     const std::shared_ptr<std::mutex>& mutex, LeggedKinQueuePtr& kin_queue) {
   // Create a legged kinematics measurement object
-  std::shared_ptr<kinematics::ThreeBarTensegrityKinematics> kin_measurement(
+    std::shared_ptr<kinematics::ThreeBarTensegrityKinematics> kin_measurement(
       new kinematics::ThreeBarTensegrityKinematics);
 
-  // Set headers and time stamps
-  kin_measurement->set_header(
+    // Set headers and time stamps
+    kin_measurement->set_header(
       kin_msg->header.seq,
       kin_msg->header.stamp.sec + kin_msg->header.stamp.nsec / 1000000000.0,
       kin_msg->header.frame_id);
 
-  Eigen::Matrix<bool, 6, 1> ct_msg;
-  ct_msg << kin_msg->contact[0], kin_msg->contact[1], kin_msg->contact[2],
+    Eigen::Matrix<bool, 6, 1> ct_msg;
+    ct_msg << kin_msg->contact[0], kin_msg->contact[1], kin_msg->contact[2],
       kin_msg->contact[3], kin_msg->contact[4], kin_msg->contact[5];
-  kin_measurement->set_contact(ct_msg);
+    kin_measurement->set_contact(ct_msg);
 
-  Eigen::Matrix<double, 3, 6> pos_msg;
-  pos_msg << kin_msg->kinematics[0], kin_msg->kinematics[1],
-      kin_msg->kinematics[2], kin_msg->kinematics[3], kin_msg->kinematics[4],
-      kin_msg->kinematics[5], kin_msg->kinematics[6], kin_msg->kinematics[7],
-      kin_msg->kinematics[8], kin_msg->kinematics[9], kin_msg->kinematics[10],
-      kin_msg->kinematics[11], kin_msg->kinematics[12], kin_msg->kinematics[13],
-      kin_msg->kinematics[14], kin_msg->kinematics[15], kin_msg->kinematics[16],
-      kin_msg->kinematics[17];
+    Eigen::Matrix<double, 3, 6> pos_msg;
+    pos_msg(0,0) = kin_msg->kinematics[0];
+    pos_msg(1,0) = kin_msg->kinematics[1];
+    pos_msg(2,0) = kin_msg->kinematics[2];
+    pos_msg(0,1) = kin_msg->kinematics[3];
+    pos_msg(1,1) = kin_msg->kinematics[4];
+    pos_msg(2,1) = kin_msg->kinematics[5];
+    pos_msg(0,2) = kin_msg->kinematics[6];
+    pos_msg(1,2) = kin_msg->kinematics[7];
+    pos_msg(2,2) = kin_msg->kinematics[8];
+    pos_msg(0,3) = kin_msg->kinematics[9];
+    pos_msg(1,3) = kin_msg->kinematics[10];
+    pos_msg(2,3) = kin_msg->kinematics[11];
+    pos_msg(0,4) = kin_msg->kinematics[12];
+    pos_msg(1,4) = kin_msg->kinematics[13];
+    pos_msg(2,4) = kin_msg->kinematics[14];
+    pos_msg(0,5) = kin_msg->kinematics[15];
+    pos_msg(1,5) = kin_msg->kinematics[16];
+    pos_msg(2,5) = kin_msg->kinematics[17];
+    // DEBUG: must check eigen matrix initialization!!!!!!!!
+//   pos_msg << kin_msg->kinematics[0], kin_msg->kinematics[1],
+//       kin_msg->kinematics[2], kin_msg->kinematics[3], kin_msg->kinematics[4],
+//       kin_msg->kinematics[5], kin_msg->kinematics[6], kin_msg->kinematics[7],
+//       kin_msg->kinematics[8], kin_msg->kinematics[9], kin_msg->kinematics[10],
+//       kin_msg->kinematics[11], kin_msg->kinematics[12], kin_msg->kinematics[13],
+//       kin_msg->kinematics[14], kin_msg->kinematics[15], kin_msg->kinematics[16],
+//       kin_msg->kinematics[17];
   kin_measurement->set_position(pos_msg);
 
 

@@ -8,8 +8,13 @@ subscribers:
 publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
-  pose_publish_topic: "/robot/inekf_estimation/pose"
+  pose_publish_topic: "/tensegrity/inekf_estimation/pose"
   pose_frame: "/odom"
 
   path_publish_rate: 100 # Hz
-  path_publish_topic: "/robot/inekf_estimation/path"
+  path_publish_topic: "/tensegrity/inekf_estimation/path"
+  # Large endcap
+  first_pose: [0.23460198, -0.27756149, -1.10450136]
+  # Small endcap
+  # first_pose: [0.23460198, -0.27756149, -0.96150136]
+

@@ -97,13 +97,13 @@ void InekfEstimator::RunOnce() {
   new_pose_ready_ = propagation_.get()->Propagate(state_);
 
   // Correct
-  // for (auto& correction : corrections_) {
-  //   if (correction.get()->Correct(state_)) {
-  //     new_pose_ready_ = true;
-  //   }
-  // }
+  for (auto& correction : corrections_) {
+    if (correction.get()->Correct(state_)) {
+      new_pose_ready_ = true;
+    }
+  }
 
-  new_pose_ready_ = true;
+  // new_pose_ready_ = true;
 
   // Publish when new information is added
   if (new_pose_ready_) {

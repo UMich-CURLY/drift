@@ -195,6 +195,10 @@ bool ImuPropagation::Propagate(RobotState& state) {
   if (state.get_state_type() == StateType::WorldCentric) {
     // Propagate world-centric state estimate
     X_pred.block<3, 3>(0, 0) = R * G0;
+    // std::cout << "============" << std::endl;
+    // // std::cout << a << std::endl;
+    // // std::cout<<R  * a<<std::endl;
+    // std::cout<<R * a + g_<<std::endl;
     X_pred.block<3, 1>(0, 3) = v + (R * G1 * a + g_) * dt;
     X_pred.block<3, 1>(0, 4) = p + v * dt + (R * G2 * a + 0.5 * g_) * dt * dt;
   } else {

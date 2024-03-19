@@ -14,7 +14,7 @@ settings:
                                                   # the robot to be horizontally static (gravity pointing
                                                   # downwards) to initialize the filter.   
   enable_imu_bias_update: false # Enable imu bias update or not.
-  use_imu_ori_to_init: false # Use the orientation estimated from the imu to initialize robot state and bias.
+  use_imu_ori_to_init: true # Use the orientation estimated from the imu to initialize robot state and bias.
 
   ########################
   # Orientation Settings #

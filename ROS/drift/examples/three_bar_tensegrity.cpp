@@ -56,6 +56,7 @@ int main(int argc, char** argv) {
   auto qimu_mutex = qimu_and_mutex.second;
 
   /// TUTORIAL: Add a subscriber for legged kinematics data and get its queue
+  // DEBUG: comment lines below for testing IMU propagation only
   std::cout << "Subscribing to joint_states and contact channel..."
             << std::endl;
   auto qkin_and_mutex = ros_sub.AddTensegrityKinematicsSubscriber(kin_topic);
@@ -77,6 +78,8 @@ int main(int argc, char** argv) {
   inekf_estimator.add_imu_propagation(
       qimu, qimu_mutex,
       project_dir + "/config/tensegrity/imu_propagation.yaml");
+  
+  // DEBUG: comment lines below for testing IMU propagation only
   inekf_estimator.add_legged_kinematics_correction(
       qkin, qkin_mutex,
       project_dir + "/config/tensegrity/legged_kinematics_correction.yaml");
@@ -89,7 +92,8 @@ int main(int argc, char** argv) {
 
   /// TUTORIAL: Create a ROS publisher and start the publishing thread
   ros_wrapper::ROSPublisher ros_pub(&nh, robot_state_queue_ptr,
-                                    robot_state_queue_mutex_ptr);
+                                    robot_state_queue_mutex_ptr, 
+                                    config_file);
   ros_pub.StartPublishingThread();
 
   /// TUTORIAL: Run the state estimator. Initialize the bias first, then
