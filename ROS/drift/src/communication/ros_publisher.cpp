@@ -64,10 +64,12 @@ ROSPublisher::ROSPublisher(ros::NodeHandle* nh,
             : false;
 
   // TODO: Add first pose to the config file
-  // first_pose_ = {0, 0, 0};
-  first_pose_ = {config["publishers"]["first_pose"][0].as<double>(),
-                 config["publishers"]["first_pose"][1].as<double>(),
-                 config["publishers"]["first_pose"][2].as<double>()};
+  first_pose_ = config["publishers"]["first_pose"]
+                ? std::array<float, 3>{config["publishers"]["first_pose"][0].as<float>(),
+                                        config["publishers"]["first_pose"][1].as<float>(),
+                                        config["publishers"]["first_pose"][2].as<float>()}
+                : std::array<float, 3>{0, 0, 0};
+
 
   std::cout << "pose_topic: " << pose_topic << ", path_topic: " << path_topic
             << std::endl;

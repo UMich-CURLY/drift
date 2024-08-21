@@ -223,10 +223,13 @@ class ImuPropagation : public Propagation {
                                         identity. i.e. assumes the robot is
                                         on a horizontal flat surface. */
 
+  bool imu_worldframe_NED_;  // Flag for imu frame orientation (NED or NWU).
   bool bias_initialized_ = false;      /**< Indicating whether IMU bias has been
                                        initialized using measurements. */
   int init_bias_size_; /**< Number of IMU measurements to use for bias
                         initialization. */
+  Eigen::Matrix3d R_NED2ENU_; /**< Rotation matrix that brings measurement
+                               from NED to ENU frame. */
   std::vector<Eigen::Matrix<double, 6, 1>,
               Eigen::aligned_allocator<Eigen::Matrix<double, 6, 1>>>
       bias_init_vec_; /**< The initialized IMU bias value in the order of

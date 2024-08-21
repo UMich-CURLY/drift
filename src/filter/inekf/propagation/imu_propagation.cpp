@@ -54,6 +54,17 @@ ImuPropagation::ImuPropagation(
             ? config_["settings"]["use_imu_ori_to_init"].as<bool>()
             : false;
 
+  imu_worldframe_NED_
+      = config_["settings"]["imu_worldframe_NED"]
+            ? config_["settings"]["imu_worldframe_NED"].as<bool>()
+            : false;
+
+  R_NED2ENU_ << Eigen::Matrix3d::Identity();
+  if (imu_worldframe_NED_) {
+    R_NED2ENU_(1,1) = -1;
+    R_NED2ENU_(2,2) = -1;
+  }
+
   // Set the imu to body rotation (bring imu measurements to body frame)
   const std::vector<double> quat_imu2body
       = config_["settings"]["rotation_imu2body"]
@@ -452,7 +463,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Matrix3d R;
     if (use_imu_ori_to_init_) {
       Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
-      R = R_imu2body_ * quat.toRotationMatrix();
+      R = R_NED2ENU_ * quat.toRotationMatrix() * R_imu2body_.transpose();
     } else {
       R = Eigen::Matrix3d::Identity();
     }
@@ -505,7 +516,7 @@ bool ImuPropagation::set_initial_state(RobotState& state) {
   Eigen::Matrix3d R0 = Eigen::Matrix3d::Identity();
   if (use_imu_ori_to_init_) {
     Eigen::Quaternion<double> quat = imu_measurement->get_quaternion();
-    R0 = quat.toRotationMatrix();    // Initialize based on VectorNav estimate
+    R0 = R_NED2ENU_ * quat.toRotationMatrix();    // Initialize based on VectorNav estimate
     std::cout << "R0: \n" << R0 << std::endl;
   }
   Eigen::Vector3d p0
