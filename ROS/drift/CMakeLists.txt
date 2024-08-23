@@ -208,6 +208,36 @@ rosbuild_add_executable(three_bar_tensegrity
   yaml-cpp
 )
 
+rosbuild_add_executable(three_bar_tensegrity_vel
+  ${PROJECT_SOURCE_DIR}/examples/three_bar_tensegrity_vel.cpp)
+
+  target_link_libraries(three_bar_tensegrity_vel
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+rosbuild_add_executable(three_bar_tensegrity_prop_only
+  ${PROJECT_SOURCE_DIR}/examples/three_bar_tensegrity_prop_only.cpp)
+
+  target_link_libraries(three_bar_tensegrity_prop_only
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+# rosbuild_add_executable(three_bar_tensegrity_vel_gps
+#   ${PROJECT_SOURCE_DIR}/examples/three_bar_tensegrity_vel_gps.cpp)
+
+#   target_link_libraries(three_bar_tensegrity_vel_gps
+#   ${LIBS}
+#   ros_communication_lib
+#   drift
+#   yaml-cpp
+# )
+
 ### baselines ###
 rosbuild_add_executable(fetch_wheel_odom
   ${PROJECT_SOURCE_DIR}/baselines/fetch_wheel_odom.cpp)

@@ -1,20 +1,32 @@
 subscribers:
   # Name all the topics to subscribe from in this section. You may also redefine the variable name
   # as long as you can load the yaml variable in your main file
-  imu_topic: "/Imu"
+  # imu_topic: "/Imu" # For simulation
+  imu_topic: "/vectornav/IMU" # For real robot
   joint_encoder_topic: "/JointState"
   contact_topic: "/tensegrity_kin"
+  
+  # DEBUG: real robot gt vel correction to debug
+  # velocity_topic: "gt_base_vel"
+  velocity_topic: "gt_base_vel_smooth"
 
 publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
   pose_publish_topic: "/tensegrity/inekf_estimation/pose"
-  pose_frame: "/odom"
+  # pose_frame: "/odom" # For simulation
+  pose_frame: "/map" # For real robot
 
   path_publish_rate: 100 # Hz
   path_publish_topic: "/tensegrity/inekf_estimation/path"
-  # Large endcap
-  first_pose: [0.23460198, -0.27756149, -1.10450136]
-  # Small endcap
+  # Kun - Large endcap
+  # first_pose: [0.23460198, -0.27756149, -1.10450136]
+  # Kun - Small endcap
   # first_pose: [0.23460198, -0.27756149, -0.96150136]
 
+  # TODO: should be negative of the first pose
+  # Jonathan Robot - Steady simulation
+  # first_pose: [-0.25551711, 0.00069342,  -0.22404039]
+
+  # jonathan robot - steady real robot exp2
+  first_pose: [-0.84340984, 0.61582628,  -0.20719155]
