@@ -298,6 +298,7 @@ class InekfEstimator {
   std::ofstream vel_outfile_;          // Output file stream for velocity logger
   std::ofstream vel_body_outfile_;     // Output file stream for velocity in the
                                        // body frame logger
+  std::ofstream imu_bias_outfile_;     // Output file stream for IMU bias
   double pose_log_rate_;               // Pose logger rate
   double last_pub_t_ = 0.0;            // Last published time for pose logger
   std::thread pose_logging_thread_;    // Pose logging thread

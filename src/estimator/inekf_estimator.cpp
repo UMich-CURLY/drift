@@ -71,6 +71,9 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
     vel_body_outfile_.open(vel_log_file_ + "_body_frame.txt");
     vel_body_outfile_.precision(dbl::max_digits10);
 
+    imu_bias_outfile_.open("bias.txt");
+    imu_bias_outfile_.precision(dbl::max_digits10);
+
     this->StartLoggingThread();
   }
 }
@@ -86,9 +89,11 @@ InekfEstimator::~InekfEstimator() {
               << ".txt" << std::endl;
     std::cout << "Logged velocity (body frame) is saved to " << vel_log_file_
               << "_body_frame.txt" << std::endl;
+    std::cout << "Logged IMU bias is saved to bias.txt" << std::endl;
     outfile_.close();
     vel_outfile_.close();
     vel_body_outfile_.close();
+    imu_bias_outfile_.close();
   }
 }
 
@@ -171,6 +176,16 @@ void InekfEstimator::PoseLoggingThread() {
                         << state_log_ptr->get_body_velocity()(2) << " "
                         << std::endl
                         << std::flush;
+
+      imu_bias_outfile_  << state_log_ptr->get_time() << " "
+                         << state_log_ptr->get_accelerometer_bias()(0) << " "
+                         << state_log_ptr->get_accelerometer_bias()(1) << " "
+                         << state_log_ptr->get_accelerometer_bias()(2) << " "
+                         << state_log_ptr->get_gyroscope_bias()(0) << " "
+                         << state_log_ptr->get_gyroscope_bias()(1) << " "
+                         << state_log_ptr->get_gyroscope_bias()(2) << " "
+                         << std::endl << std::flush;
+
       last_pub_t_ = state_log_ptr->get_time();
     }
   }
@@ -332,6 +347,8 @@ void InekfEstimator::clear() {
     vel_body_outfile_.open(vel_log_file_ + "_body_frame_"
                            + std::to_string(++init_count_) + ".txt");
     vel_body_outfile_.precision(dbl::max_digits10);
+    imu_bias_outfile_.open("bias.txt");
+    imu_bias_outfile_.precision(dbl::max_digits10);
   }
 }
 

@@ -64,6 +64,12 @@ ImuPropagation::ImuPropagation(
     R_NED2ENU_(1,1) = -1;
     R_NED2ENU_(2,2) = -1;
   }
+  // DEBUG: why cannot use constructor?
+  // Eigen::Matrix3d R_NED2ENU_ = imu_worldframe_NED_ 
+  //                                  ? (Eigen::Matrix3d() << 1.0,  0.0,  0.0,
+  //                                                          0.0, -1.0,  0.0,
+  //                                                          0.0,  0.0, -1.0).finished()
+  //                                  : Eigen::Matrix3d::Identity();
 
   // Set the imu to body rotation (bring imu measurements to body frame)
   const std::vector<double> quat_imu2body
