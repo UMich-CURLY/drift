@@ -8,13 +8,12 @@ settings:
                                     # If you set this to false, remember to also change the bias
                                     # prior in config/prior.yaml.
   init_bias_size: 0 # The number of data points used to initialize bias.
-  init_bias_using_orientation_est_from_imu: false # Enable this the filter will use the orientation
-                                                  # estimated from the imu to initialize bias. 
-                                                  # Setting this to false the filter will assume
-                                                  # the robot to be horizontally static (gravity pointing
-                                                  # downwards) to initialize the filter.   
+  use_imu_ori_to_init: false  # Enable this the filter will use the orientation
+                              # estimated from the imu to initialize bias. 
+                              # Setting this to false the filter will assume
+                              # the robot to be horizontally static (gravity pointing
+                              # downwards) to initialize the filter.  
   enable_imu_bias_update: true # Enable imu bias update or not.
-  use_imu_ori_to_init: false # Use the orientation estimated from the imu to initialize robot state and bias.
 
   ########################
   # Orientation Settings #
