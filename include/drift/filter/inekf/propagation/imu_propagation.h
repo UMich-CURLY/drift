@@ -224,8 +224,8 @@ class ImuPropagation : public Propagation {
                                         on a horizontal flat surface. */
 
   bool bias_initialized_ = false;      /**< Indicating whether IMU bias has been
-  bool imu_worldframe_NED_;  // Flag for imu frame orientation (NED or NWU).
                                        initialized using measurements. */
+  bool imu_worldframe_NED_;  // Flag for imu frame orientation (NED or NWU).
   int init_bias_size_; /**< Number of IMU measurements to use for bias
                         initialization. */
   Eigen::Matrix3d R_NED2ENU_; /**< Rotation matrix that brings measurement
