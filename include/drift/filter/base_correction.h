@@ -30,7 +30,7 @@
 #include "drift/state/robot_state.h"
 #include "drift/utils/type_def.h"
 
-enum class CorrectionType { BASE, LEGGED_KINEMATICS, VELOCITY };
+enum class CorrectionType { BASE, LEGGED_KINEMATICS, VELOCITY, POSITION };
 
 using namespace measurement;
 using namespace state;
@@ -132,7 +132,7 @@ class Correction {
                            when the class object is created*/
   std::shared_ptr<std::mutex>
       sensor_data_buffer_mutex_ptr_; /**< Mutex for the sensor data buffer. */
-};                                   // class Correction
+};    // class Correction
 
 }    // namespace filter
 

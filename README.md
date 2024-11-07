@@ -106,6 +106,12 @@ rosrun drift mini_cheetah
 rosrun drift girona500
 ```
 
+**WAMV (Surface vehicle):**
+* With GPS-based position correction:
+```
+rosrun drift wamv_gps
+```
+
 ## Run the repo with your own robots:
 Please refer to the tutorial here: https://umich-curly.github.io/DRIFT_Website/tutorials/.
 

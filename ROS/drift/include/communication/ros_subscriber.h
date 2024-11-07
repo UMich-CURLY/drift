@@ -27,6 +27,7 @@
 #include <message_filters/sync_policies/exact_time.h>
 #include <message_filters/synchronizer.h>
 
+#include <sensor_msgs/NavSatFix.h>
 #include <unsupported/Eigen/MatrixFunctions>
 #include "boost/bind.hpp"
 #include "custom_sensor_msgs/Contact.h"
@@ -50,6 +51,9 @@ Pair of IMUQueuePtr and IMUQueue mutex. */
 
 typedef std::pair<VelocityQueuePtr, std::shared_ptr<std::mutex>>
     VelocityQueuePair; /**< Pair of VelocityQueuePtr and VelocityQueue mutex. */
+
+typedef std::pair<OdomQueuePtr, std::shared_ptr<std::mutex>>
+    PositionQueuePair; /**< Pair of PositionQueuePtr and PositionQueue mutex. */
 
 typedef std::pair<AngularVelocityQueuePtr, std::shared_ptr<std::mutex>>
     AngularVelocityQueuePair; /**< Pair of AngularVelocityQueuePtr and
@@ -91,6 +95,12 @@ typedef message_filters::sync_policies::ApproximateTime<
     IMUSyncPolicy; /**< Sync policy for IMU. */
 typedef std::shared_ptr<message_filters::Synchronizer<IMUSyncPolicy>>
     IMUSyncPtr; /**< Pointer to the IMUSyncPolicy. */
+
+// GPS
+typedef std::queue<std::shared_ptr<NavSatMeasurement<double>>> GPSNavSatQueue;
+typedef std::shared_ptr<GPSNavSatQueue> GPSNavSatQueuePtr;
+typedef std::pair<GPSNavSatQueuePtr, std::shared_ptr<std::mutex>>
+    GPSNavSatQueuePair;
 
 namespace ros_wrapper {
 /**
@@ -202,6 +212,27 @@ class ROSSubscriber {
       const std::vector<double>& rotation_odomsrc2body);
 
   /**
+   * @brief Add GPS NavSat subscriber
+   *
+   * @param[in] topic_name GPS navsat topic name
+   * @return GPSNavSatQueuePair navsat queue pair
+   */
+  PositionQueuePair AddGPS2PositionSubscriber(
+      const std::string& topic_name,
+      const std::vector<double>& translation_gpssrc2body,
+      const std::vector<double>& rotation_gpssrc2body,
+      const Eigen::Vector3d& reference_position);
+
+  /**
+   * @brief
+   *
+   */
+  PositionQueuePair AddOdom2PositionSubscriber(
+      const std::string topic_name,
+      const std::vector<double>& translation_odomsrc2body,
+      const std::vector<double>& rotation_odomsrc2body);
+
+  /**
    * @brief Add differential drive linear velocity subscriber (2 driving wheels)
    * for Fetch to the given topic and return a queue pair. The queue pair
    * contains the queue and the mutex for the queue. The queue stores the
@@ -286,7 +317,8 @@ class ROSSubscriber {
    * @param[in] vel_queue: pointer to the buffer queue
    */
   void VelocityWithCovarianceCallback(
-      const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>& vel_msg,
+      const boost::shared_ptr<const geometry_msgs::TwistWithCovarianceStamped>&
+          vel_msg,
       const std::shared_ptr<std::mutex>& mutex, VelocityQueuePtr& vel_queue);
 
   /**
@@ -396,6 +428,24 @@ class ROSSubscriber {
       const std::shared_ptr<std::mutex>& vel_mutex, VelocityQueuePtr& vel_queue,
       int odom_src_id);
 
+  /**
+   * @brief odometry to pose callback function
+   *
+   * @param pose_msg: odometry message
+   * @param pose_mutex: mutex for the buffer queue
+   * @param pose_queue: pointer to the buffer queue
+   *
+   */
+  void Odom2PositionCallback(
+      const boost::shared_ptr<const nav_msgs::Odometry>& odom_msg,
+      const std::shared_ptr<std::mutex>& position_mutex,
+      OdomQueuePtr& position_queue);
+
+  void GPS2PositionCallback(
+      const boost::shared_ptr<const sensor_msgs::NavSatFix>& gps_msg,
+      const std::shared_ptr<std::mutex>& position_mutex,
+      OdomQueuePtr& position_queue, const Eigen::Vector3d& reference_position);
+
   void RosSpin();
 
   ros::NodeHandle* nh_;                             // The ROS handle
@@ -411,6 +461,8 @@ class ROSSubscriber {
   std::vector<IMUQueuePtr> imu_queue_list_;    // List of IMU queue pointers
   std::vector<VelocityQueuePtr>
       vel_queue_list_;    // List of velocity queue pointers
+  std::vector<OdomQueuePtr>
+      position_queue_list_;    // List of pose queue pointers
   std::vector<AngularVelocityQueuePtr>
       ang_vel_queue_list_;    // List of angular velocity queue pointers
   std::vector<LeggedKinQueuePtr>
@@ -421,7 +473,7 @@ class ROSSubscriber {
   std::unordered_map<int, OdomMeasurementPtr>
       prev_odom_map_;                   // odom_src_id -> prev_odom_measurement
   Eigen::Matrix4d odom_src_to_body_;    // Camera to body transformation matrix
-
+  Eigen::Matrix4d gps_src_to_body_;
 
   bool thread_started_;    // Flag of the thread started, true for started,
                            // false for not started

@@ -1,0 +1,7 @@
+<launch>
+    <!-- Play rosbag with clock option (using absolute path) -->
+    <node pkg="rosbag" type="play" name="rosbag_play" args="1_rectangle.bag --start 15.44854" output="screen" />
+
+    <!-- Run Python script (using relative path within a package) -->
+    <node pkg="/home/neofelis/VRX/drift/ROS/drift" type="odom_pub.py" name="odom_pub" output="screen" cwd="$(find your_package)/launch" />
+</launch>

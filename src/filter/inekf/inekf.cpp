@@ -58,7 +58,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   Eigen::MatrixXd PHT = P * H.transpose();
   Eigen::MatrixXd S = H * PHT + N;
   Eigen::MatrixXd K = PHT * S.inverse();
-
+  // std::cout << "Kalman gain: \n" << K;
   // Compute state correction vector
   Eigen::VectorXd delta = K * Z;
   Eigen::MatrixXd dX
@@ -95,6 +95,7 @@ void CorrectRightInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Set new covariance
   state.set_P(P_new);
+  // std::cout << "Covariance P: \n" << P_new;
 }
 
 
@@ -106,6 +107,8 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   Eigen::MatrixXd X = state.get_X();
   Eigen::VectorXd Theta = state.get_theta();
   Eigen::MatrixXd P = state.get_P();
+
+  // std::cout << "P: \n" << P << std::endl;
   int dimX = state.dimX();
   int dimTheta = state.dimTheta();
   int dimP = state.dimP();
@@ -122,17 +125,19 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
   }
 
   // Map from right invariant to left invariant error temporarily
-  if (error_type == ErrorType::LeftInvariant) {
+  if (error_type == ErrorType::RightInvariant) {
     Eigen::MatrixXd AdjInv = Eigen::MatrixXd::Identity(dimP, dimP);
     AdjInv.block(0, 0, dimP - dimTheta, dimP - dimTheta)
         = lie_group::Adjoint_SEK3(state.get_Xinv());
     P = (AdjInv * P * AdjInv.transpose()).eval();
   }
 
+  // std::cout << "mATRIX N: \n" << N;
   // Compute Kalman Gain
   Eigen::MatrixXd PHT = P * H.transpose();
   Eigen::MatrixXd S = H * PHT + N;
   Eigen::MatrixXd K = PHT * S.inverse();
+  // std::cout << "Kalman gain: \n" << K;
 
   // Compute state correction vector
   Eigen::VectorXd delta = K * Z;
@@ -163,6 +168,7 @@ void CorrectLeftInvariant(const Eigen::MatrixXd& Z, const Eigen::MatrixXd& H,
 
   // Set new covariance
   state.set_P(P_new);
+  // std::cout << "Covariance P: \n" << P_new;
 }
 
 }    // namespace filter::inekf

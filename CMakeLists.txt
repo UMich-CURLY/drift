@@ -49,6 +49,7 @@ add_library(${LIBRARY_TARGET_NAME}
   ${PROJECT_SOURCE_DIR}/src/filter/base_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/src/filter/inekf/correction/position_correction.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/src/filter/inekf/inekf.cpp
   ${PROJECT_SOURCE_DIR}/src/imu_filter/imu_ang_vel_ekf.cpp
@@ -66,8 +67,8 @@ target_include_directories(${LIBRARY_TARGET_NAME} PUBLIC
 # Build Examples                 #
 # #################################################
 # if(BUILD_EXAMPLES)
-#   message("Building examples...")
-#   add_subdirectory(examples)
+# message("Building examples...")
+# add_subdirectory(examples)
 # endif(BUILD_EXAMPLES)
 
 # #################################################

@@ -2,7 +2,9 @@ subscribers:
   # Name all the topics to subscribe from in this section. You may also redefine the variable name
   # as long as you can load the yaml variable in your main file
   imu_topic: "/gx5_1/imu/data"
-  odom_topic: "/qualisys_synced/husky_center_odom"
+  # odom_topic: "/gx5_0/nav/odom"
+  # odom_topic: "/qualisys_synced/husky_center_odom"
+  odom_topic: "/zed_node/odom"
   translation_odom_source_to_body: [0,0,0]
   rotation_odom_source_to_body: [1,0,0,0]
 

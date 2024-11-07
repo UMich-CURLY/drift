@@ -1,0 +1,10 @@
+# Settings for position correction model
+settings:
+  correction_time_threshold: 0.3    # Threshold for time difference between the received position message
+                                  # and current time. (sec) 
+  # X pointing forward, Y to the left, Z pointing up.
+  rotation_odom2body: [1, 0, 0, 0] # Orientation from odom to the body frame. [w, x, y, z]
+
+# Position noise parameters:
+noises:
+  position_std: 0.1

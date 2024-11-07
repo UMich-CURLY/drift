@@ -67,6 +67,7 @@ rosbuild_add_library(drift
   ${PROJECT_SOURCE_DIR}/../../src/filter/base_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/legged_kinematics_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/velocity_correction.cpp
+  ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/correction/position_correction.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/propagation/imu_propagation.cpp
   ${PROJECT_SOURCE_DIR}/../../src/filter/inekf/inekf.cpp
   ${PROJECT_SOURCE_DIR}/../../src/imu_filter/imu_ang_vel_ekf.cpp
@@ -83,12 +84,11 @@ rosbuild_add_library(ros_communication_lib
   ${ros_publisher}
 )
 
-## baselines
+# # baselines
 include_directories(
   ${PROJECT_SOURCE_DIR}/../../baselines/include)
 rosbuild_add_library(baselines
   ${PROJECT_SOURCE_DIR}/../../baselines/src/wheel_odometry/wheel_odometry.cpp)
-
 
 # example for legged robot kinemtaics correction:
 rosbuild_add_executable(mini_cheetah
@@ -134,7 +134,6 @@ target_link_libraries(fetch_gyro_filter
   yaml-cpp
 )
 
-
 rosbuild_add_executable(husky_gyro_filter
   ${PROJECT_SOURCE_DIR}/examples/husky_gyro_filter.cpp)
 
@@ -144,7 +143,6 @@ target_link_libraries(husky_gyro_filter
   drift
   yaml-cpp
 )
-
 
 rosbuild_add_executable(husky_odom
   ${PROJECT_SOURCE_DIR}/examples/husky_odom.cpp)
@@ -156,6 +154,35 @@ target_link_libraries(husky_odom
   yaml-cpp
 )
 
+rosbuild_add_executable(wamv_gtodom_vel
+  ${PROJECT_SOURCE_DIR}/examples/wamv_gtodom_vel.cpp)
+
+target_link_libraries(wamv_gtodom_vel
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+rosbuild_add_executable(wamv_gtodom
+  ${PROJECT_SOURCE_DIR}/examples/wamv_gtodom.cpp)
+
+target_link_libraries(wamv_gtodom
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
+
+rosbuild_add_executable(wamv_gps
+  ${PROJECT_SOURCE_DIR}/examples/wamv_gps.cpp)
+
+target_link_libraries(wamv_gps
+  ${LIBS}
+  ros_communication_lib
+  drift
+  yaml-cpp
+)
 
 rosbuild_add_executable(girona500
   ${PROJECT_SOURCE_DIR}/examples/girona500.cpp)
@@ -197,8 +224,7 @@ target_link_libraries(neya_gyro_filter
   yaml-cpp
 )
 
-
-### baselines ###
+# ## baselines ###
 rosbuild_add_executable(fetch_wheel_odom
   ${PROJECT_SOURCE_DIR}/baselines/fetch_wheel_odom.cpp)
 

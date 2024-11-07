@@ -29,15 +29,18 @@ InekfEstimator::InekfEstimator(ErrorType error_type, std::string config_file)
   YAML::Node config = YAML::LoadFile(config_file);
   enable_pose_logger_ = config["logger"]["enable_pose_logger"].as<bool>();
 
-  rotation_cov_val_ = config["state"]["rotation_std_value"] ? pow(
-                          config["state"]["rotation_std_value"].as<double>(), 2)
-                                                            : 0.03;
-  velocity_cov_val_ = config["state"]["velocity_std_value"] ? pow(
-                          config["state"]["velocity_std_value"].as<double>(), 2)
-                                                            : 0.01;
-  position_cov_val_ = config["state"]["position_std_value"] ? pow(
-                          config["state"]["position_std_value"].as<double>(), 2)
-                                                            : 0.00001;
+  rotation_cov_val_
+      = config["state"]["rotation_std_value"]
+            ? pow(config["state"]["rotation_std_value"].as<double>(), 2)
+            : 0.03;
+  velocity_cov_val_
+      = config["state"]["velocity_std_value"]
+            ? pow(config["state"]["velocity_std_value"].as<double>(), 2)
+            : 0.01;
+  position_cov_val_
+      = config["state"]["position_std_value"]
+            ? pow(config["state"]["position_std_value"].as<double>(), 2)
+            : 0.00001;
 
   if (enable_pose_logger_) {
     pose_log_file_ = config["logger"]["pose_log_file"]
@@ -223,6 +226,14 @@ void InekfEstimator::add_velocity_correction(
     VelocityQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
     const std::string& yaml_filepath) {
   std::shared_ptr<Correction> correction = std::make_shared<VelocityCorrection>(
+      buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
+  corrections_.push_back(correction);
+}
+
+void InekfEstimator::add_position_correction(
+    OdomQueuePtr buffer_ptr, std::shared_ptr<std::mutex> buffer_mutex_ptr,
+    const std::string& yaml_filepath) {
+  std::shared_ptr<Correction> correction = std::make_shared<PositionCorrection>(
       buffer_ptr, buffer_mutex_ptr, error_type_, yaml_filepath);
   corrections_.push_back(correction);
 }

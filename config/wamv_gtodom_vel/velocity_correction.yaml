@@ -1,0 +1,10 @@
+# Settings for velocity correction model
+settings:
+  correction_time_threshold: 0.3    # Threshold for time difference between the received velocity message
+                                  # and current time. (sec) 
+  # X pointing forward, Y to the left, Z pointing up.
+  rotation_vel2body: [1, 0, 0, 0] # Orientation from velocity to the body frame. [w, x, y, z]
+
+# Velocity noise parameters:
+noises:
+  velocity_std: 0.1

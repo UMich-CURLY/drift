@@ -1,0 +1,10 @@
+logger:
+  # This logger will output a txt file in tum style
+  enable_pose_logger: true
+  pose_log_file: "/home/neofelis/VRX/drift/log/wamv_gtodom.txt"
+  pose_log_rate: 10 # Hz
+
+state:
+  rotation_std_value: 0.1
+  velocity_std_value: 0.1
+  position_std_value: 0.1

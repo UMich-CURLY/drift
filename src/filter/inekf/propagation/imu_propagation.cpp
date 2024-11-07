@@ -18,7 +18,7 @@
  **/
 
 #include "drift/filter/inekf/propagation/imu_propagation.h"
-
+#include <fstream>
 
 using namespace std;
 using namespace math::lie_group;
@@ -147,7 +147,8 @@ bool ImuPropagation::Propagate(RobotState& state) {
   // Rotate imu frame to align it with the body frame and remove bias:
   Eigen::Vector3d w = R_imu2body_ * imu_measurement->get_angular_velocity()
                       - state.get_gyroscope_bias();    // Angular Velocity
-
+  // std::cout << "w: " << R_imu2body_ * imu_measurement->get_angular_velocity()
+  //           << std::endl;
   // If IMU is not installed in the center of the robot body, we need to make
   // a compensation. We used formula:
   // R_imu2body_ * a_meas = a + w x (w x t_imu2body) + bias + <ignored term>
@@ -155,6 +156,17 @@ bool ImuPropagation::Propagate(RobotState& state) {
   Eigen::Vector3d a = R_imu2body_ * imu_measurement->get_lin_acc()
                       - state.get_accelerometer_bias()
                       - a_compensate;    // Linear Acceleration
+  // std::cout << "a: " << R_imu2body_ * imu_measurement->get_lin_acc()
+  //           << std::endl;
+
+  // Open the file in append mode and write the data
+  // std::ofstream file("imu_data.txt", std::ios::app);
+  // if (file.is_open()) {
+  //   file << "w: " << w.transpose() << " a: " << a.transpose() << "\n";
+  //   file.close();
+  // } else {
+  //   std::cerr << "Unable to open file for writing imu data.\n";
+  // }
 
   // Get current state estimate and dimensions
   Eigen::MatrixXd X = state.get_X();
@@ -346,11 +358,11 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
     Eigen::Matrix3d RG0 = R * G0;
     Eigen::Matrix3d RG1dt = R * G1 * dt;
     Eigen::Matrix3d RG2dt2 = R * G2 * dt2;
-    Phi.block<3, 3>(3, 0) = gx * dt;                                  // Phi_21
-    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                           // Phi_31
-    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;         // Phi_32
+    Phi.block<3, 3>(3, 0) = gx * dt;                             // Phi_21
+    Phi.block<3, 3>(6, 0) = 0.5 * gx * dt2;                      // Phi_31
+    Phi.block<3, 3>(6, 3) = Eigen::Matrix3d::Identity() * dt;    // Phi_32
     if (enable_imu_bias_update_) {
-      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;                   // Phi_15
+      Phi.block<3, 3>(0, dimP - dimTheta) = -RG1dt;    // Phi_15
       Phi.block<3, 3>(3, dimP - dimTheta)
           = -skew(v + RG1dt * a + g_ * dt) * RG1dt + RG0 * Phi25L;    // Phi_25
       Phi.block<3, 3>(6, dimP - dimTheta)
@@ -358,7 +370,7 @@ Eigen::MatrixXd ImuPropagation::StateTransitionMatrix(const Eigen::Vector3d& w,
             + RG0 * Phi35L;    // Phi_35
       for (int i = 5; i < dimX; ++i) {
         Phi.block<3, 3>((i - 2) * 3, dimP - dimTheta)
-            = -skew(state.get_vector(i)) * RG1dt;           // Phi_(3+i)5
+            = -skew(state.get_vector(i)) * RG1dt;    // Phi_(3+i)5
       }
       Phi.block<3, 3>(3, dimP - dimTheta + 3) = -RG1dt;     // Phi_26
       Phi.block<3, 3>(6, dimP - dimTheta + 3) = -RG2dt2;    // Phi_36
@@ -435,7 +447,7 @@ void ImuPropagation::InitImuBias() {
     Eigen::Vector3d w
         = imu_measurement->get_angular_velocity();    // Angular Velocity
     Eigen::Vector3d a
-        = imu_measurement->get_lin_acc();             // Linear Acceleration
+        = imu_measurement->get_lin_acc();    // Linear Acceleration
 
     // TODO: We should model bias in the imu frame instead of the body frame
     // Rotate imu frame to align it with the body frame:

@@ -1,0 +1,22 @@
+subscribers:
+  # Name all the topics to subscribe from in this section. You may also redefine the variable name
+  # as long as you can load the yaml variable in your main file
+  imu_topic: "/gx5_1/imu/data"
+  odom_topic: "/gt_odom"
+  translation_odom_source_to_body: [0, 0, 0]
+  # rotation_odom_source_to_body: [1,0,0,0]
+  # translation_odom_source_to_body: [-532.64,161.91,-0.07]
+  # rotation_odom_source_to_body: [0.877,-0.002,0.004,0.479]
+  # translation_odom_source_to_body: [-532.64,161.91,-0.07]
+  # rotation_odom_source_to_body: [0.8776,-0.0040,0.0060,-0.4794]
+  rotation_odom_source_to_body: [1, 0, 0, 0]
+publishers:
+  # Define publish rate and topics for publishers
+  pose_publish_rate: 1000 # Hz
+  pose_publish_topic: "/wamv/inekf_odom_correction/pose"
+  pose_frame: "/map"
+
+  path_publish_rate: 100 # Hz
+  path_publish_topic: "/wamv/inekf_odom_correction/path"
+
+  enable_slip_publisher: true

@@ -27,7 +27,8 @@ enum MeasurementType {
   ANGULAR_VELOCITY,
   JOINT_STATE,
   CONTACT,
-  ODOM
+  ODOM,
+  NAVSAT
 };
 
 namespace measurement {
