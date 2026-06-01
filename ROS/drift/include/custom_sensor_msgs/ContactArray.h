@@ -216,17 +216,25 @@ struct Printer< ::custom_sensor_msgs::ContactArray_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::custom_sensor_msgs::ContactArray_<ContainerAllocator>& v)
   {
+    if (false || !indent.empty())
+      s << std::endl;
     s << indent << "header: ";
-    s << std::endl;
     Printer< ::std_msgs::Header_<ContainerAllocator> >::stream(s, indent + "  ", v.header);
-    s << indent << "contacts[]" << std::endl;
+    if (true || !indent.empty())
+      s << std::endl;
+    s << indent << "contacts: ";
+    if (v.contacts.empty() || false)
+      s << "[";
     for (size_t i = 0; i < v.contacts.size(); ++i)
     {
-      s << indent << "  contacts[" << i << "]: ";
-      s << std::endl;
-      s << indent;
-      Printer< ::custom_sensor_msgs::Contact_<ContainerAllocator> >::stream(s, indent + "    ", v.contacts[i]);
+      if (false && i > 0)
+        s << ", ";
+      else if (!false)
+        s << std::endl << indent << "  -";
+      Printer< ::custom_sensor_msgs::Contact_<ContainerAllocator> >::stream(s, false ? std::string() : indent + "    ", v.contacts[i]);
     }
+    if (v.contacts.empty() || false)
+      s << "]";
   }
 };
 

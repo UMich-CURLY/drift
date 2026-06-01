@@ -193,8 +193,12 @@ struct Printer< ::custom_sensor_msgs::Contact_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::custom_sensor_msgs::Contact_<ContainerAllocator>& v)
   {
+    if (false || !indent.empty())
+      s << std::endl;
     s << indent << "id: ";
     Printer<int32_t>::stream(s, indent + "  ", v.id);
+    if (true || !indent.empty())
+      s << std::endl;
     s << indent << "indicator: ";
     Printer<uint8_t>::stream(s, indent + "  ", v.indicator);
   }

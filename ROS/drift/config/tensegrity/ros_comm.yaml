@@ -5,6 +5,9 @@ subscribers:
   imu_topic: "/vectornav/IMU" # For real robot
   joint_encoder_topic: "/JointState"
   contact_topic: "/tensegrity_kin"
+
+  # use HGNN contact for test
+  # contact_topic: "/tensegrity_kin_gt_hgnn_contact"
   
   # DEBUG: real robot gt vel correction to debug
   # velocity_topic: "gt_base_vel"
@@ -14,8 +17,8 @@ publishers:
   # Define publish rate and topics for publishers
   pose_publish_rate: 1000 # Hz
   pose_publish_topic: "/tensegrity/inekf_estimation/pose"
-  # pose_frame: "/odom" # For simulation
-  pose_frame: "/map" # For real robot
+  pose_frame: "odom" # For simulation
+  # pose_frame: "map" # For real robot
 
   path_publish_rate: 100 # Hz
   path_publish_topic: "/tensegrity/inekf_estimation/path"
@@ -24,9 +27,12 @@ publishers:
   # Kun - Small endcap
   # first_pose: [0.23460198, -0.27756149, -0.96150136]
 
-  # TODO: should be negative of the first pose
-  # Jonathan Robot - Steady simulation
-  # first_pose: [-0.25551711, 0.00069342,  -0.22404039]
+  # Should be negative of the initial pose
+  # Jonathan Robot - Steady simulation, exp1, exp2
+  first_pose: [-0.25551711, 0.00069342,  -0.22404039]
 
-  # jonathan robot - steady real robot exp2
-  first_pose: [-0.84340984, 0.61582628,  -0.20719155]
+  # Jonathan Robot - new 3 imu experiment
+  # first_pose: [-0.08369179, 0.28792231, -0.24830847]
+
+  # Jonathan robot - Steady real robot exp2
+  # first_pose: [-0.84340984, 0.61582628,  -0.20719155]

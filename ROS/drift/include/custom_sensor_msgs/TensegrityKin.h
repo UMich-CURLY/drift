@@ -216,21 +216,40 @@ struct Printer< ::custom_sensor_msgs::TensegrityKin_<ContainerAllocator> >
 {
   template<typename Stream> static void stream(Stream& s, const std::string& indent, const ::custom_sensor_msgs::TensegrityKin_<ContainerAllocator>& v)
   {
+    if (false || !indent.empty())
+      s << std::endl;
     s << indent << "header: ";
-    s << std::endl;
     Printer< ::std_msgs::Header_<ContainerAllocator> >::stream(s, indent + "  ", v.header);
-    s << indent << "contact[]" << std::endl;
+    if (true || !indent.empty())
+      s << std::endl;
+    s << indent << "contact: ";
+    if (v.contact.empty() || true)
+      s << "[";
     for (size_t i = 0; i < v.contact.size(); ++i)
     {
-      s << indent << "  contact[" << i << "]: ";
-      Printer<uint8_t>::stream(s, indent + "  ", v.contact[i]);
+      if (true && i > 0)
+        s << ", ";
+      else if (!true)
+        s << std::endl << indent << "  -";
+      Printer<uint8_t>::stream(s, true ? std::string() : indent + "    ", v.contact[i]);
     }
-    s << indent << "kinematics[]" << std::endl;
+    if (v.contact.empty() || true)
+      s << "]";
+    if (true || !indent.empty())
+      s << std::endl;
+    s << indent << "kinematics: ";
+    if (v.kinematics.empty() || true)
+      s << "[";
     for (size_t i = 0; i < v.kinematics.size(); ++i)
     {
-      s << indent << "  kinematics[" << i << "]: ";
-      Printer<float>::stream(s, indent + "  ", v.kinematics[i]);
+      if (true && i > 0)
+        s << ", ";
+      else if (!true)
+        s << std::endl << indent << "  -";
+      Printer<float>::stream(s, true ? std::string() : indent + "    ", v.kinematics[i]);
     }
+    if (v.kinematics.empty() || true)
+      s << "]";
   }
 };
 

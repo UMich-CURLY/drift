@@ -14,7 +14,12 @@ settings:
                                     # the robot to be horizontally static (gravity pointing
                                     # downwards) to initialize the filter.   
   enable_imu_bias_update: false # Enable imu bias update or not.
-  imu_worldframe_NED: true # Enable this will set IMU coordinate system as "NED", default is "ENU".
+  
+  # For realworld VN100 IMU. Enable this will set IMU coordinate system as "NED", default is "ENU".
+  # imu_worldframe_NED: true
+  
+  # Simulation IMU
+  imu_worldframe_NED: false
 
   ########################
   # Orientation Settings #
